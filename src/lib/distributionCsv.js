@@ -35,15 +35,29 @@ export function parseChargerCsv(text) {
   if (matrix.length - 1 > 10000) {
     throw new Error('Maximum CSV size is 10,000 chargers per import. Split larger files into separate manufacturing batches.');
   }
-  const irregular = matrix.findIndex((row, index) => index > 0 && row.length !== headers.length);
-  if (irregular >= 0) throw new Error(`CSV row ${irregular + 1} has a different number of columns from its header. Fix the original file before importing.`);
+  // Excel often appends trailing empty columns on some rows only. Trim or pad
+  // those so a harmless trailing comma does not block an otherwise valid import.
+  const normalised = matrix.map((row, index) => {
+    if (index === 0) return row;
+    let next = [...row];
+    while (next.length > headers.length && !String(next[next.length - 1] || '').trim()) next.pop();
+    while (next.length < headers.length) next.push('');
+    return next;
+  });
+  const irregular = normalised.findIndex((row, index) => index > 0 && row.length !== headers.length);
+  if (irregular >= 0) {
+    throw new Error(
+      `CSV row ${irregular + 1} has ${normalised[irregular].length} columns but the header has ${headers.length}. `
+      + 'Every data row must match the header. Remove extra commas, line breaks inside cells, or save as a plain CSV (not Excel formatting).',
+    );
+  }
   if (!headers.includes('serial_number') && !headers.includes('serial') && !headers.includes('serial_no')) {
     throw new Error('CSV must include a serial_number column.');
   }
   if (!headers.includes('pin_code') && !headers.includes('pin') && !headers.includes('charger_pin')) {
     throw new Error('CSV must include a pin_code column.');
   }
-  return matrix.slice(1).map((values) =>
+  return normalised.slice(1).map((values) =>
     Object.fromEntries(headers.map((header, index) => [header, values[index] || ''])));
 }
 
