@@ -1,0 +1,249 @@
+{
+  "name": "InstallClaim",
+  "type": "object",
+  "properties": {
+    "consent_confirmed": {
+      "type": "boolean",
+      "default": false
+    },
+    "install_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "install_photo_url": {
+      "type": "string",
+      "description": "Photo showing the fitted charger on the wall"
+    },
+    "serial_photo_url": {
+      "type": "string",
+      "description": "Second required evidence photo: serial number visibly fixed to the physical charger"
+    },
+    "install_photo_latitude": {
+      "type": "number",
+      "description": "Latitude where the fitted-charger photo was taken, read from the photo's GPS data or the installer's device"
+    },
+    "install_photo_longitude": {
+      "type": "number",
+      "description": "Longitude where the fitted-charger photo was taken"
+    },
+    "install_photo_location_accuracy": {
+      "type": "number",
+      "description": "Accuracy in metres reported by the device when the location came from the device rather than the photo"
+    },
+    "install_photo_location_source": {
+      "type": "string",
+      "enum": [
+        "exif",
+        "device"
+      ],
+      "description": "Whether the photo location came from the photo's own metadata or the installer's device"
+    },
+    "install_photo_location_captured_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Time the fitted-charger photo location was recorded"
+    },
+    "serial_photo_latitude": {
+      "type": "number",
+      "description": "Latitude where the serial-number photo was taken"
+    },
+    "serial_photo_longitude": {
+      "type": "number",
+      "description": "Longitude where the serial-number photo was taken"
+    },
+    "serial_photo_location_accuracy": {
+      "type": "number",
+      "description": "Accuracy in metres reported by the device when the location came from the device rather than the photo"
+    },
+    "serial_photo_location_source": {
+      "type": "string",
+      "enum": [
+        "exif",
+        "device"
+      ],
+      "description": "Whether the photo location came from the photo's own metadata or the installer's device"
+    },
+    "serial_photo_location_captured_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Time the serial-number photo location was recorded"
+    },
+    "installer_email": {
+      "type": "string",
+      "description": "Installer account email"
+    },
+    "installer_mobile": {
+      "type": "string",
+      "description": "Installer mobile number"
+    },
+    "installer_name": {
+      "type": "string"
+    },
+    "pin_code": {
+      "type": "string",
+      "description": "Charger PIN or commissioning code"
+    },
+    "product_model": {
+      "type": "string",
+      "enum": [
+        "Alpha 7",
+        "Other FastAmps charger"
+      ],
+      "default": "Alpha 7"
+    },
+    "review_note": {
+      "type": "string"
+    },
+    "reward_review_reason": {
+      "type": "string",
+      "description": "Admin reason for holding or rejecting installation reward, independent of warranty"
+    },
+    "reward_review_by": {
+      "type": "string"
+    },
+    "reward_review_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "rejection_reason": {
+      "type": "string",
+      "enum": [
+        "serial_not_visible",
+        "serial_mismatch",
+        "photo_missing_or_unclear",
+        "duplicate_or_previously_claimed",
+        "insufficient_evidence",
+        "other"
+      ],
+      "description": "Structured admin rejection reason; review_note holds optional details"
+    },
+    "information_request_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of times FastAmps requested more information for this claim"
+    },
+    "reward_amount": {
+      "type": "number",
+      "default": 10
+    },
+    "reward_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "held",
+        "rejected",
+        "redemption_requested",
+        "issued"
+      ],
+      "default": "pending"
+    },
+    "serial_number": {
+      "type": "string",
+      "description": "Unique charger serial number"
+    },
+    "site_postcode": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "submitted",
+        "needs_information",
+        "approved",
+        "rejected"
+      ],
+      "default": "submitted"
+    },
+    "warranty_status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "registered",
+        "declined"
+      ],
+      "default": "queued"
+    },
+    "wholesaler": {
+      "type": "string"
+    },
+    "wholesaler_branch": {
+      "type": "string"
+    },
+    "charger_record_id": {
+      "type": "string",
+      "description": "Linked FastAmps charger record"
+    },
+    "claim_reference": {
+      "type": "string",
+      "description": "Unique QR claim reference"
+    },
+    "is_demo": {
+      "type": "boolean",
+      "default": false,
+      "description": "Clearly identifies controlled beta demonstration data"
+    },
+    "demo_label": {
+      "type": "string",
+      "description": "Visible label for demonstration records"
+    },
+    "excluded_from_reporting": {
+      "type": "boolean",
+      "default": false,
+      "description": "Retires invalid legacy test records without deleting linked data"
+    },
+    "exclusion_reason": {
+      "type": "string"
+    },
+    "reviewed_by_name": {
+      "type": "string"
+    },
+    "reviewed_by_email": {
+      "type": "string"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "installer_email",
+    "installer_mobile",
+    "product_model",
+    "serial_number",
+    "pin_code",
+    "install_photo_url",
+    "install_date",
+    "site_postcode",
+    "consent_confirmed"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.installer_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

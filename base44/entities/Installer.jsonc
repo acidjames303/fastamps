@@ -1,0 +1,651 @@
+{
+  "name": "Installer",
+  "type": "object",
+  "properties": {
+    "mobile": {
+      "type": "string",
+      "description": "Mobile number used for the installer account"
+    },
+    "full_name": {
+      "type": "string"
+    },
+    "business_name": {
+      "type": "string"
+    },
+    "region": {
+      "type": "string"
+    },
+    "nominated_wholesaler": {
+      "type": "string",
+      "description": "Installer's usual electrical wholesaler"
+    },
+    "nominated_branch": {
+      "type": "string",
+      "description": "Installer's usual wholesaler branch or town"
+    },
+    "tier": {
+      "type": "string",
+      "enum": [
+        "New",
+        "Verified",
+        "Trusted",
+        "FastAmps Elite"
+      ],
+      "default": "New",
+      "description": "Installer programme status; calculated from reviewed claims and training or explicitly overridden by an administrator",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "tier_override_reason": {
+      "type": "string",
+      "description": "Required audit reason for an administrator programme-status override",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "tier_overridden_by": {
+      "type": "string",
+      "description": "Administrator email that last overrode the programme status",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "tier_overridden_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Time of the last administrator programme-status override",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "installs": {
+      "type": "number",
+      "default": 0,
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referrals": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of installer registrations attributed to this installer",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "qualified_referrals": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of referred installers who reached five approved unique installations",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referral_discounts_available": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of unused \u00a320 referral voucher credits available in the installer's wallet",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referral_discounts_redeemed": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of \u00a320 referral voucher credits issued through the normal voucher process",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referral_discount_last_awarded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Time the most recent \u00a320 referral voucher credit was awarded",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referral_discount_last_redeemed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Time the most recent \u00a320 referral voucher credit was issued",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referral_discount_last_redeemed_by": {
+      "type": "string",
+      "description": "Administrator or voucher process that last issued referral credit",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referral_discount_last_note": {
+      "type": "string",
+      "description": "Legacy audit note retained for previous referral rewards",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referral_review_status": {
+      "type": "string",
+      "enum": [
+        "clear",
+        "held",
+        "rejected"
+      ],
+      "default": "clear",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referral_review_reason": {
+      "type": "string",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referral_review_by": {
+      "type": "string",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referral_review_at": {
+      "type": "string",
+      "format": "date-time",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "reward_account_status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "held",
+        "blocked"
+      ],
+      "default": "active",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "reward_account_reason": {
+      "type": "string",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "reward_account_review_by": {
+      "type": "string",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "reward_account_review_at": {
+      "type": "string",
+      "format": "date-time",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "programme_terms_version": {
+      "type": "string",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "programme_terms_accepted_at": {
+      "type": "string",
+      "format": "date-time",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referral_terms_version": {
+      "type": "string",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referral_terms_accepted_at": {
+      "type": "string",
+      "format": "date-time",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referral_qualified": {
+      "type": "boolean",
+      "default": false,
+      "description": "This referred installer has reached five approved unique installations",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referral_qualified_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Time this referred installer qualified the referrer's \u00a320 voucher credit",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referral_code": {
+      "type": "string",
+      "description": "Unique shareable installer referral code",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referred_by_installer_id": {
+      "type": "string",
+      "description": "Installer record that referred this installer",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referred_by_code": {
+      "type": "string",
+      "description": "Referral code accepted at registration",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referred_by_name": {
+      "type": "string",
+      "description": "Snapshot of the referring installer's name",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referred_by_email": {
+      "type": "string",
+      "description": "Snapshot of the referring installer's email for administration",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "referred_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Time the referral was attributed",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "distribution_wins": {
+      "type": "number",
+      "default": 0,
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "training_progress": {
+      "type": "number",
+      "default": 0,
+      "description": "Compatibility value for V1 scoring: 100 when either accepted training verification route is confirmed",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "hq_training_completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "FastAmps administrator has confirmed the installer completed full training at HQ",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "hq_training_completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Time HQ training completion was confirmed",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "certificates_received": {
+      "type": "boolean",
+      "default": false,
+      "description": "FastAmps administrator has confirmed the installer's certificates were received",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "certificates_received_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Time receipt of certificates was confirmed",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "approval_documents": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Private storage URIs of the documents the installer uploaded to prove they are an approved installer"
+    },
+    "approval_document_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Original file names of the uploads in approval_documents, aligned by index"
+    },
+    "approval_documents_submitted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Time the installer's proof-of-approval documents were submitted",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "training_verification_updated_by": {
+      "type": "string",
+      "description": "Administrator email that last changed V1 training verification",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "training_verification_updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Time V1 training verification was last changed",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "avg_response_minutes": {
+      "type": "number",
+      "default": 30,
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "avatar_url": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "welcome_reward_amount": {
+      "type": "number",
+      "default": 10,
+      "description": "One-time incentive awarded when the installer profile is created",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "welcome_reward_status": {
+      "type": "string",
+      "enum": [
+        "available",
+        "redemption_requested",
+        "issued"
+      ],
+      "default": "available",
+      "description": "Redemption state of the one-time \u00a310 installer welcome bonus",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "is_demo": {
+      "type": "boolean",
+      "default": false,
+      "description": "Clearly identifies controlled beta demonstration data",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "demo_label": {
+      "type": "string",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "excluded_from_reporting": {
+      "type": "boolean",
+      "default": false,
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "mobile",
+    "full_name",
+    "user_email"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
