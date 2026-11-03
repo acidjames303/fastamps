@@ -1,27 +1,43 @@
-// Charger labels identify a unit; legacy stand QRs identify the demo journey.
-// Never infer a real charger from a general website address.
-const EMPTY = { token: '', serial: '', pin: '' };
+// QR classifications:
+//   A. Static website QR — opens the public Connect site only
+//   B. Charger claim QR — /claim/{token}
+//   C. Legacy serial/PIN QR — validated serial (+ optional PIN) payload
+//   D. Invalid / unknown — clear error, no claim
+const EMPTY = { token: '', serial: '', pin: '', kind: 'invalid' };
 const REGISTRATION_HOSTS = new Set([
-  'connect.fastamps.com', 'fastamps-connect.base44.app',
+  'connect.fastamps.com',
+  'connect-test.fastamps.com',
+  'fastamps-connect.base44.app',
   'fastamps-connect-v1.base44.app', // Host encoded in previously downloaded QRs.
 ]);
+
+function hostAllowed(hostname) {
+  return REGISTRATION_HOSTS.has(hostname);
+}
 
 export function parseQrPayload(raw = '') {
   const text = String(raw || '').trim();
   if (!text) return { ...EMPTY };
 
   const claimMatch = text.match(/\/claim\/([^/?#]+)/);
-  if (claimMatch) return {
-    ...EMPTY, token: decodeURIComponent(claimMatch[1]),
-    demo: /[?&]demo=1(?:[&#]|$)/.test(text),
-  };
+  if (claimMatch) {
+    return {
+      ...EMPTY,
+      kind: 'claim',
+      token: decodeURIComponent(claimMatch[1]),
+    };
+  }
 
   const isUrl = /^https?:\/\//i.test(text);
   let params = null;
+  let url = null;
   try {
-    params = isUrl
-      ? new URL(text).searchParams
-      : new URLSearchParams(text.replace(/^[?&]/, ''));
+    if (isUrl) {
+      url = new URL(text);
+      params = url.searchParams;
+    } else {
+      params = new URLSearchParams(text.replace(/^[?&]/, ''));
+    }
   } catch {
     params = null;
   }
@@ -32,17 +48,26 @@ export function parseQrPayload(raw = '') {
   const serial = pick('serial_number', 'serial', 's').toUpperCase();
   const pin = pick('pin_code', 'pin', 'p');
 
-  if (token || serial) return { token, serial, pin, demo: params?.get('demo') === '1' };
-  if (isUrl) {
-    if (!params) return { ...EMPTY };
-    const url = new URL(text);
-    if (REGISTRATION_HOSTS.has(url.hostname) && url.pathname.replace(/\/$/, '') === '/register-install') {
-      // These were printed before stand QRs carried an individual claim token.
-      return { ...EMPTY, registration: true, tradeShow: params?.get('demo') === '1' };
+  if (token) return { ...EMPTY, kind: 'claim', token, serial, pin };
+  if (serial) return { ...EMPTY, kind: 'legacy', token: '', serial, pin };
+
+  if (isUrl && url && hostAllowed(url.hostname)) {
+    const path = url.pathname.replace(/\/$/, '') || '/';
+    // Class A: static website / marketing QR — site home only.
+    if (path === '/') {
+      return { ...EMPTY, kind: 'website', website: true };
     }
-    return { ...EMPTY };
+    // Manual registration entry (not a charger claim, not trade-show auto-assign).
+    if (path === '/register-install') {
+      return { ...EMPTY, kind: 'registration', registration: true };
+    }
+    return { ...EMPTY, kind: 'invalid' };
   }
-  return { ...EMPTY, token: text };
+
+  if (isUrl) return { ...EMPTY, kind: 'invalid' };
+
+  // Bare opaque token pasted without a full URL.
+  return { ...EMPTY, kind: 'claim', token: text };
 }
 
 export const parseClaimToken = (raw = '') => parseQrPayload(raw).token;

@@ -32,10 +32,17 @@ import ProgrammeTerms from '@/pages/ProgrammeTerms';
 import AdminFraudReview from '@/pages/AdminFraudReview';
 import AdminQaChecklist from '@/pages/AdminQaChecklist';
 import Coach from '@/pages/Coach';
+import { rememberPendingClaimPath } from '@/lib/authReturnTo';
 
 const LoginRedirect = () => {
   const location = useLocation();
-  const returnTo = `${location.pathname}${location.search}`;
+  const params = new URLSearchParams(location.search);
+  params.delete('demo');
+  const qs = params.toString();
+  const returnTo = `${location.pathname}${qs ? `?${qs}` : ''}`;
+  if (location.pathname.startsWith('/claim/')) {
+    rememberPendingClaimPath(returnTo);
+  }
   return <Navigate to={`/login?returnTo=${encodeURIComponent(returnTo)}`} replace />;
 };
 

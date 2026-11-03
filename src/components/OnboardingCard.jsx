@@ -138,7 +138,9 @@ export default function OnboardingCard({ user }) {
         nominated_wholesaler: validWholesalers.map((item) => item.wholesaler.trim()).join('; '),
         nominated_branch: validWholesalers.map((item) => `${item.wholesaler.trim()}: ${item.branch.trim() || 'Branch not specified'}`).join('; '),
         referral_code: form.referral_code.trim().toUpperCase(),
-        demo: new URLSearchParams(window.location.search).get('demo') === '1',
+        // Trade-show ?demo=1 auto-demo accounts are retired. Demo installers
+        // are marked only through deliberate admin/beta tooling.
+        demo: false,
         terms_accepted: form.terms_accepted === true,
         programme_terms_version: PROGRAMME_TERMS_VERSION,
         approval_documents: form.documents.map((doc) => doc.uri),

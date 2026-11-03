@@ -36,9 +36,19 @@ export default function QrScanner({ onDetected, onClose }) {
     const payload = parseQrPayload(data);
     stopCamera();
     setBusy(false);
-    if (!payload.token && !payload.serial && !payload.tradeShow) {
+    if (payload.kind === 'website' || payload.website) {
+      setWebsiteCode(true);
+      setError('That QR opens the FastAmps Connect website only. It does not identify a charger. Scan the QR printed on the charger label, or enter its serial number and PIN.');
+      setMode('idle');
+      return;
+    }
+    if (!payload.token && !payload.serial) {
       setWebsiteCode(Boolean(payload.registration) || /^https?:\/\//i.test(String(data)));
-      setError('This QR has no individual charger reference. For a stand test, use the tradeshow test charger below. For a real installation, scan its charger label or enter its serial number and PIN.');
+      setError(
+        payload.registration
+          ? 'That QR is a general registration link. Enter the charger serial number and PIN, or scan the individual label on the charger.'
+          : 'This QR has no individual charger reference. Scan the QR printed on the charger label, or enter its serial number and PIN.',
+      );
       setMode('idle');
       return;
     }
@@ -177,11 +187,8 @@ export default function QrScanner({ onDetected, onClose }) {
           <p>{error}</p>
           {websiteCode && (
             <div className="mt-3 space-y-2">
-              <Button type="button" className="w-full" onClick={() => onDetected?.({ tradeShow: true })}>
-                Use tradeshow test charger
-              </Button>
-              <Button type="button" variant="outline" className="w-full text-foreground" onClick={() => onDetected?.({ registration: true })}>
-                Enter real charger details
+              <Button type="button" variant="outline" className="w-full text-foreground" onClick={() => onDetected?.({ registration: true, kind: 'registration' })}>
+                Enter serial number and PIN manually
               </Button>
             </div>
           )}

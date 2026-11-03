@@ -20,6 +20,14 @@ export default async function(req) {
     if (claimToken.includes("://") || claimToken.includes(" ")) {
       return Response.json({ error: "That QR code is a website link, not a charger label. Scan the QR printed on the charger, or sign in and enter its serial number and PIN." }, { status: 400 });
     }
+    // Retired trade-show shortcut: never auto-resolve TRADE-SHOW-01 / demo stands.
+    // Accept boolean or stringy truthy values in case a client/wrapper coerces JSON.
+    const tradeShowRequested = body.trade_show === true || body.trade_show === "true" || body.trade_show === 1;
+    if (tradeShowRequested && !claimToken && !suppliedSerial) {
+      return Response.json({
+        error: "That code opens the FastAmps Connect website only. Scan a charger label QR, or enter the charger's serial number and PIN.",
+      }, { status: 400 });
+    }
     const signedIn = await base44.auth.isAuthenticated();
     const user = signedIn ? await base44.auth.me() : null;
 
@@ -34,19 +42,18 @@ export default async function(req) {
     if (!user?.email && !tokenIsQr && !pairSupplied) {
       return Response.json({ error: "Scan a current charger QR code, or sign in to enter its serial number and PIN." }, { status: 401 });
     }
-    const tradeShowLookup = Boolean(user?.email && body.trade_show === true && !claimToken);
 
-    if (!tokenIsQr && !tradeShowLookup && !serialRef) {
+    if (!tokenIsQr && !serialRef) {
       return Response.json({ error: "Enter both the charger serial number and six-digit PIN." }, { status: 400 });
     }
-    if (!tokenIsQr && !tradeShowLookup && !SIX_DIGIT_PIN.test(pinRef)) {
+    if (!tokenIsQr && !SIX_DIGIT_PIN.test(pinRef)) {
       return Response.json({ error: "Enter the six-digit charger PIN, including any leading zeros." }, { status: 400 });
     }
 
     // An opaque QR reference resolves to the charger it was printed for.
     // A serial reference is ALWAYS checked together with its PIN.
-    const lookup = tokenIsQr ? { claim_token: claimToken }
-      : tradeShowLookup ? { batch_reference: "TRADE-SHOW", is_demo: true }
+    const lookup = tokenIsQr
+      ? { claim_token: claimToken }
       : { serial_number: serialRef };
     const matches = await base44.asServiceRole.entities.Charger.filter(lookup, "-created_date", 2);
 
@@ -61,7 +68,7 @@ export default async function(req) {
     if (charger.qr_generated === false) {
       return Response.json({ error: "This charger has been saved in the FastAmps register but is not yet activated for installer claims." }, { status: 409 });
     }
-    if (!tokenIsQr && !tradeShowLookup && normalisePin(charger.pin_code) !== pinRef) {
+    if (!tokenIsQr && normalisePin(charger.pin_code) !== pinRef) {
       return Response.json({ error: "The serial number and PIN do not match. Please check the physical charger label." }, { status: 404 });
     }
 
@@ -70,26 +77,35 @@ export default async function(req) {
     if (sameSerial.length !== 1) {
       return Response.json({ error: "Duplicate serial numbers exist in the charger register. Contact FastAmps." }, { status: 409 });
     }
-    // A tradeshow stand charger is one demonstration unit that many visitors
-    // register at the stand, so the one-claim-per-charger rule cannot apply.
-    const isTradeShow = String(charger.batch_reference || "").toUpperCase().startsWith("TRADE-SHOW");
-    if (!isTradeShow) {
-      const previousClaims = await base44.asServiceRole.entities.InstallClaim.filter({ serial_number: charger.serial_number });
-      if (previousClaims.length || charger.claim_status !== "available" || charger.install_claim_id) {
-        return Response.json({ error: "A warranty and reward claim has already been submitted for this charger." }, { status: 409 });
-      }
+
+    // Ordinary duplicate-claim protection for every charger, including any
+    // historical TRADE-SHOW rows that remain in the register.
+    const previousClaims = await base44.asServiceRole.entities.InstallClaim.filter({ serial_number: charger.serial_number });
+    if (previousClaims.length || charger.claim_status !== "available" || charger.install_claim_id) {
+      return Response.json({ error: "A warranty and reward claim has already been submitted for this charger." }, { status: 409 });
+    }
+
+    const isDemo = charger.is_demo === true
+      || String(charger.batch_reference || "").toUpperCase().startsWith("TRADE-SHOW")
+      || String(charger.batch_reference || "").startsWith("HOME-BETA");
+
+    // Anonymous claim-gate callers only need enough to continue into auth.
+    // PIN stays off the unauthenticated response; signed-in resolve still
+    // returns it so the installer submission form can be pre-filled.
+    const publicCharger = {
+      claim_token: charger.claim_token,
+      serial_number: charger.serial_number,
+      product_model: charger.product_model || "Alpha 7",
+      claim_status: charger.claim_status,
+      is_demo: isDemo,
+    };
+    if (user?.email) {
+      publicCharger.pin_code = charger.pin_code;
     }
 
     return Response.json({
       success: true,
-      charger: {
-        claim_token: charger.claim_token,
-        serial_number: charger.serial_number,
-        pin_code: charger.pin_code,
-        product_model: charger.product_model || "Alpha 7",
-        claim_status: charger.claim_status,
-        is_trade_show: isTradeShow,
-      },
+      charger: publicCharger,
     });
   } catch (error) {
     console.error("resolve-charger-claim failed", error);

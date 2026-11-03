@@ -20,7 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/use-toast';
-import { createClaimUrl, createTradeShowUrl } from '@/lib/appUrl';
+import { createClaimUrl, STATIC_WEBSITE_URL } from '@/lib/appUrl';
 import { createBrandedQrLabel } from '@/lib/qrLabel';
 import { formatStatus } from '@/utils/formatStatus';
 
@@ -56,7 +56,7 @@ export default function AdminBetaTest() {
   const [pin, setPin] = useState(randomPin);
   const [selectedId, setSelectedId] = useState('');
   const [specificQr, setSpecificQr] = useState('');
-  const [genericQr, setGenericQr] = useState('');
+  const [websiteQr, setWebsiteQr] = useState('');
 
   const { data: chargers = [], isLoading: loadingChargers } = useQuery({
     queryKey: ['home-beta-chargers'],
@@ -64,13 +64,6 @@ export default function AdminBetaTest() {
     queryFn: () => base44.entities.Charger.list('-created_date', 100),
     refetchInterval: 4000,
   });
-
-  const { data: tradeShowChargers = [] } = useQuery({
-    queryKey: ['trade-show-charger'],
-    enabled: isAdmin,
-    queryFn: () => base44.entities.Charger.filter({ batch_reference: 'TRADE-SHOW' }, '-created_date', 5),
-  });
-  const tradeShowCharger = tradeShowChargers[0] || null;
 
   const betaChargers = useMemo(
     () => chargers.filter((charger) => String(charger.batch_reference || '').startsWith('HOME-BETA')),
@@ -105,6 +98,7 @@ export default function AdminBetaTest() {
         width: 720,
         margin: 2,
         color: { dark: '#071b31', light: '#ffffff' },
+        errorCorrectionLevel: 'M',
       });
       const specific = charger?.claim_token
         // The printed label always uses the approved artwork, exactly like production.
@@ -116,17 +110,15 @@ export default function AdminBetaTest() {
             templateUrl: template?.image_url || null,
           }).catch(() => plainQr(createClaimUrl(charger.claim_token)))
         : '';
-      const generic = tradeShowCharger?.claim_token
-        ? await plainQr(createTradeShowUrl(tradeShowCharger.claim_token))
-        : '';
+      const website = await plainQr(STATIC_WEBSITE_URL);
       setSpecificQr(specific);
-      setGenericQr(generic);
+      setWebsiteQr(website);
     };
     makeQrs().catch(() => {
       setSpecificQr('');
-      setGenericQr('');
+      setWebsiteQr('');
     });
-  }, [charger?.claim_token, charger?.serial_number, charger?.pin_code, template?.image_url, tradeShowCharger?.claim_token]);
+  }, [charger?.claim_token, charger?.serial_number, charger?.pin_code, template?.image_url]);
 
   const createTest = useMutation({
     mutationFn: async () => {
@@ -148,28 +140,7 @@ export default function AdminBetaTest() {
       setSelectedId(created.id);
       await queryClient.invalidateQueries({ queryKey: ['home-beta-chargers'] });
       await queryClient.invalidateQueries({ queryKey: ['admin-chargers'] });
-      toast({ title: 'Beta charger ready', description: 'Choose either QR route and complete the installer test on your phone or in a private browser.' });
-    },
-  });
-
-  const createTradeShow = useMutation({
-    mutationFn: async () => {
-      const response = await base44.functions.invoke('import-charger-batch', {
-        action: 'import', single: true, is_demo: true, demo_label: 'TRADE-SHOW',
-        batch_reference: 'TRADE-SHOW',
-        qr_generated: true,
-        rows: [{ serial_number: 'TRADE-SHOW-01', pin_code: randomPin(), product_model: 'Alpha 7' }],
-      }).catch((error) => {
-        throw new Error(creationErrorText(error));
-      });
-      const result = response?.data || response;
-      if (!result.success) throw new Error(result.error || 'The tradeshow charger could not be created.');
-      return result.chargers?.[0];
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['trade-show-charger'] });
-      await queryClient.invalidateQueries({ queryKey: ['admin-chargers'] });
-      toast({ title: 'Tradeshow charger ready', description: 'Its QR now opens with the serial number and PIN already filled in.', });
+      toast({ title: 'Beta charger ready', description: 'Scan the charger-specific QR with a separate installer session. The static website QR must only open the public Connect homepage.' });
     },
   });
 
@@ -194,7 +165,6 @@ export default function AdminBetaTest() {
   );
 
   const specificUrl = charger ? createClaimUrl(charger.claim_token) : '';
-  const tradeShowUrl = tradeShowCharger ? createTradeShowUrl(tradeShowCharger.claim_token) : '';
   const stages = stageState(charger, claim);
 
   return (
@@ -297,28 +267,26 @@ Test real installer registration and warranty evidence using a deliberately mark
           <section>
             <div className="mb-4">
               <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">2. Test the installer entry route</div>
-              <h2 className="mt-1 text-xl font-semibold">Choose either QR journey</h2>
-              {tradeShowCharger && (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Tradeshow charger {tradeShowCharger.serial_number} · PIN {tradeShowCharger.pin_code} — filled in automatically for every installer who scans.
-                </p>
-              )}
+              <h2 className="mt-1 text-xl font-semibold">Charger claim QR vs static website QR</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                The charger-specific QR must identify this unique unit. The trade-show / marketing QR is a static website link only and must never create a claim.
+              </p>
             </div>
             <div className="grid gap-5 md:grid-cols-2">
               {[
                 {
                   title: 'Charger-specific QR',
-                  description: 'The QR securely identifies the charger serial and PIN. Installer then uploads two evidence photos.',
+                  description: 'Resolves this unique claim token to the beta charger. Installer then uploads two evidence photos.',
                   qr: specificQr,
                   url: specificUrl,
                   filename: `FastAmps-beta-${charger.serial_number}-warranty-label.png`,
                 },
                 {
-                  title: 'Tradeshow QR',
-                  description: 'Opens the stand charger with its serial number and PIN already filled in and the account marked demo. Any number of visitors can register this charger, and every claim is marked TRADE-SHOW so nothing is ever paid.',
-                  qr: genericQr,
-                  url: tradeShowUrl,
-                  filename: 'FastAmps-tradeshow-QR.png',
+                  title: 'Static website QR',
+                  description: 'Trade-show / marketing QR. Opens https://connect.fastamps.com only — no charger claim, installation, warranty or reward.',
+                  qr: websiteQr,
+                  url: STATIC_WEBSITE_URL,
+                  filename: 'FastAmps-website-QR.png',
                 },
               ].map((route) => (
                 <article key={route.title} className="rounded-3xl border border-border bg-muted/60 p-6 text-center">
@@ -337,19 +305,6 @@ Test real installer registration and warranty evidence using a deliberately mark
                 </article>
               ))}
             </div>
-
-            {!tradeShowCharger && (
-              <div className="mt-5 rounded-3xl border border-dashed border-primary/35 bg-primary/5 p-6">
-                <h3 className="text-lg font-semibold">Set up the tradeshow charger</h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Creates one demonstration charger for your stand. Its QR fills in the serial number and PIN automatically, any number of visitors can register it, and every claim is marked TRADE-SHOW so nothing is ever paid.
-                </p>
-                <Button onClick={() => createTradeShow.mutate()} disabled={createTradeShow.isPending} className="mt-4 h-11 bg-primary text-white">
-                  {createTradeShow.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creating...</> : <><QrCode className="mr-2 h-4 w-4" />Create tradeshow charger</>}
-                </Button>
-                {createTradeShow.isError && <p className="mt-3 text-sm text-destructive">{createTradeShow.error?.message}</p>}
-              </div>
-            )}
           </section>
 
           <section className="rounded-3xl border border-border bg-muted/60 p-6 md:p-8">
@@ -360,7 +315,7 @@ Test real installer registration and warranty evidence using a deliberately mark
               <div className="mt-5 rounded-2xl border border-dashed border-primary/35 bg-primary/5 p-8 text-center">
                 <Smartphone className="mx-auto h-8 w-8 text-accent" />
                 <div className="mt-3 font-semibold">Waiting for the installer submission</div>
-                <p className="mt-1 text-sm text-muted-foreground">Scan either QR code with a separate installer account, submit both installation photos, then use normal admin review to check the claim.</p>
+                <p className="mt-1 text-sm text-muted-foreground">Scan the charger-specific QR with a separate installer account, submit both installation photos, then use normal admin review to check the claim.</p>
               </div>
             ) : (
               <div className="mt-5 grid gap-5 lg:grid-cols-[180px_1fr]">

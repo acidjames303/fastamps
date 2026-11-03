@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom';
 import { KeyRound, ScanLine, Sparkles, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-// Shown to a tradeshow demo installer straight after sign-up, so they are never
-// asked for a charger serial before they have scanned one on the stand.
+// Shown to a demo installer after sign-up so they continue into a real charger
+// scan / manual serial+PIN path rather than inventing a stand auto-claim.
 export default function DemoSignupComplete({ onScan, onManual }) {
   return (
     <div className="space-y-5">
@@ -17,9 +17,9 @@ export default function DemoSignupComplete({ onScan, onManual }) {
 
       <div className="rounded-3xl border border-accent/30 bg-accent/10 p-5 sm:p-6">
         <Sparkles className="h-6 w-6 text-accent" />
-        <div className="mt-3 font-semibold">Tradeshow demo account</div>
+        <div className="mt-3 font-semibold">Demo installer account</div>
         <p className="mt-2 text-sm leading-6 text-foreground/80">
-          An installation can only be submitted against a charger that is in the FastAmps register. Scan the charger QR code on our stand to try the full warranty journey. Anything submitted from a demo account is reviewed but never paid.
+          An installation can only be submitted against a charger that is in the FastAmps register. Scan a charger label QR, or enter its serial number and PIN. Anything submitted from a demo account is reviewed but never paid.
         </p>
       </div>
 

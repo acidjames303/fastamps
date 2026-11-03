@@ -81,21 +81,29 @@ export default async function (req) {
     const sameSerial = await base44.asServiceRole.entities.Charger.filter({ serial_number: serialNumber });
     if (sameSerial.length !== 1) return Response.json({ error: "Duplicate serial records require FastAmps review." }, { status: 409 });
 
-    // A tradeshow stand charger is registered by many visitors in turn, so it is
-    // never reserved for a single installation.
-    const isTradeShow = String(charger.batch_reference || "").toUpperCase().startsWith("TRADE-SHOW");
-    let reserve = null;
-    if (!isTradeShow) {
-      // Concurrency-safe gate: only one caller can move available -> submitted.
-      // Base44 documents this single-id updateMany pattern as atomic at write time.
-      reserve = await base44.asServiceRole.entities.Charger.updateMany(
-        { id: charger.id, claim_status: "available" },
-        { $set: { claim_status: "submitted" } },
-      );
-      if (Number(reserve?.updated) !== 1) {
-        console.error("reserve failed", reserve);
-        return Response.json({ error: "This charger has already been submitted for an installation reward.", security_stage: "1-atomic", reserve }, { status: 409 });
-      }
+    // Historical TRADE-SHOW / HOME-BETA rows stay non-payable, but every charger
+    // now uses the same one-claim atomic reserve (no multi-visitor stand bypass).
+    const batchRef = String(charger.batch_reference || "");
+    const isHistoricalTradeShow = batchRef.toUpperCase().startsWith("TRADE-SHOW");
+    const isHomeBeta = batchRef.startsWith("HOME-BETA");
+    const isDemoClaim = isHistoricalTradeShow || charger.is_demo === true || installer.is_demo === true || isHomeBeta;
+    const demoLabel = isHistoricalTradeShow
+      ? "TRADE-SHOW"
+      : installer.is_demo === true
+        ? (installer.demo_label || "BETA-DEMO")
+        : (charger.is_demo || isHomeBeta)
+          ? (charger.demo_label || (isHomeBeta ? "HOME-BETA" : "BETA-DEMO"))
+          : "";
+
+    // Concurrency-safe gate: only one caller can move available -> submitted.
+    // Base44 documents this single-id updateMany pattern as atomic at write time.
+    const reserve = await base44.asServiceRole.entities.Charger.updateMany(
+      { id: charger.id, claim_status: "available" },
+      { $set: { claim_status: "submitted" } },
+    );
+    if (Number(reserve?.updated) !== 1) {
+      console.error("reserve failed", reserve);
+      return Response.json({ error: "This charger has already been submitted for an installation reward.", security_stage: "1-atomic", reserve }, { status: 409 });
     }
 
     let claimCreated = false;
@@ -118,34 +126,28 @@ export default async function (req) {
         warranty_status: "queued",
         reward_amount: 10,
         reward_status: "pending",
-        is_demo: isTradeShow || charger.is_demo === true || installer.is_demo === true
-          || String(charger.batch_reference || "").startsWith("HOME-BETA"),
-        demo_label: isTradeShow ? "TRADE-SHOW"
-          : installer.is_demo === true ? installer.demo_label || "TRADE-SHOW"
-            : charger.is_demo || String(charger.batch_reference || "").startsWith("HOME-BETA")
-              ? charger.demo_label || "HOME-BETA" : "",
+        is_demo: isDemoClaim,
+        demo_label: demoLabel,
         charger_record_id: charger.id,
         claim_reference: claimToken,
         ...photoLocationFields(body, "serial_photo"),
         ...photoLocationFields(body, "install_photo"),
       });
       claimCreated = true;
-      if (!isTradeShow) {
-        try {
-          await base44.asServiceRole.entities.Charger.update(charger.id, {
-            claim_status: "submitted", install_claim_id: claim.id,
-          });
-        } catch (linkError) {
-          console.error("Submitted claim needs charger linkage repair", claim.id, linkError);
-        }
+      try {
+        await base44.asServiceRole.entities.Charger.update(charger.id, {
+          claim_status: "submitted", install_claim_id: claim.id,
+        });
+      } catch (linkError) {
+        console.error("Submitted claim needs charger linkage repair", claim.id, linkError);
       }
       return Response.json({
         success: true, claim,
-        security_stage: isTradeShow ? "trade-show" : "1-atomic",
+        security_stage: "1-atomic",
         reserve_updated: Number(reserve?.updated ?? 0),
       });
     } catch (error) {
-      if (!claimCreated && !isTradeShow) {
+      if (!claimCreated) {
         // Best-effort release only if no claim was created for this serial.
         const currentClaims = await base44.asServiceRole.entities.InstallClaim.filter({ serial_number: serialNumber });
         if (!currentClaims.length) {

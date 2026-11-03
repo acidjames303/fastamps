@@ -85,15 +85,14 @@ export default function SubmitInstall() {
   const navigate = useNavigate();
   // Mobile tab panes render beside the outlet, outside the child route context.
   const claimToken = useMatch('/claim/:claimToken')?.params.claimToken;
-  const demoMode = new URLSearchParams(window.location.search).get('demo') === '1';
   const queryClient = useQueryClient();
   const { data, isLoading } = useInstaller();
   const installer = data?.installer;
-  const isDemoAccount = demoMode || installer?.is_demo === true;
+  const isDemoAccount = installer?.is_demo === true;
   const [charger, setCharger] = useState(null);
   const [pin, setPin] = useState('');
   const [serialNumber, setSerialNumber] = useState('');
-  const [resolving, setResolving] = useState(Boolean(claimToken) || demoMode);
+  const [resolving, setResolving] = useState(Boolean(claimToken));
   const [resolveError, setResolveError] = useState('');
   const [form, setForm] = useState(initialForm);
   const [photo, setPhoto] = useState(null);
@@ -129,7 +128,7 @@ export default function SubmitInstall() {
   }, [preview, serialPreview]);
 
   useEffect(() => {
-    if (!installer || (!claimToken && !demoMode)) return;
+    if (!installer || !claimToken) return;
     let active = true;
     const resolveQr = async () => {
       setResolving(true);
@@ -137,7 +136,6 @@ export default function SubmitInstall() {
       try {
         const response = await base44.functions.invoke('resolve-charger-claim', {
           claim_token: claimToken,
-          trade_show: !claimToken && demoMode,
         });
         if (active) {
           setCharger(response.data.charger);
@@ -157,7 +155,7 @@ export default function SubmitInstall() {
     return () => {
       active = false;
     };
-  }, [claimToken, installer, demoMode]);
+  }, [claimToken, installer]);
 
   const resolvePin = async (event) => {
     event.preventDefault();
@@ -186,34 +184,21 @@ export default function SubmitInstall() {
     if (claimToken) navigate('/register-install', { replace: true });
   };
 
-  const handleQrDetected = async ({ token, serial, pin, tradeShow, registration, demo } = {}) => {
+  const handleQrDetected = async (payload = {}) => {
+    const { token, serial, pin, registration, website, kind } = payload;
     setShowScanner(false);
     setCharger(null);
     setResolveError('');
-    if (tradeShow) {
-      setResolving(true);
-      try {
-        // A legacy sign-up QR has no token. Resolve only the saved demo unit,
-        // never an arbitrary available production charger.
-        const response = await base44.functions.invoke('resolve-charger-claim', { trade_show: true });
-        const standCharger = response.data.charger;
-        setCharger(standCharger);
-        setSerialNumber(standCharger.serial_number);
-        setPin(standCharger.pin_code);
-        navigate(`/claim/${encodeURIComponent(standCharger.claim_token)}?demo=1`, { replace: true });
-      } catch (err) {
-        setManualEntry(true);
-        setResolveError(err.response?.data?.error || err.message || 'The tradeshow test charger could not be opened.');
-      } finally {
-        setResolving(false);
-      }
+    if (website || kind === 'website') {
+      setManualEntry(true);
+      setResolveError('That QR opens the FastAmps Connect website only. Scan a charger label QR, or enter its serial number and PIN.');
       return;
     }
     if (token) {
-      navigate(`/claim/${encodeURIComponent(token)}${demo ? '?demo=1' : ''}`, { replace: true });
+      navigate(`/claim/${encodeURIComponent(token)}`, { replace: true });
       return;
     }
-    if (registration) {
+    if (registration || kind === 'registration') {
       setManualEntry(true);
       setResolveError('This is a general registration QR. Enter the charger serial number and PIN, or scan its individual label.');
       return;
@@ -363,7 +348,7 @@ export default function SubmitInstall() {
 
         {isDemoAccount && (
           <div className="rounded-2xl border border-accent/30 bg-accent/10 p-5 text-sm text-foreground/80">
-            <span className="font-semibold">Tradeshow demo.</span> Your £10 welcome bonus is active. Installations submitted in demo mode are reviewed but never paid.
+            <span className="font-semibold">Demo installer account.</span> Installations submitted from this account are reviewed but never paid.
           </div>
         )}
 
@@ -449,8 +434,8 @@ export default function SubmitInstall() {
             <div className="text-xs uppercase tracking-[0.14em] text-emerald-700 dark:text-emerald-200/70">Verified charger</div>
             <div className="mt-1 font-semibold">{charger.product_model} · {charger.serial_number}</div>
             <div className="mt-2 text-sm text-foreground/75">PIN: <span className="font-semibold tracking-wider text-foreground">{charger.pin_code}</span></div>
-            {charger.is_trade_show && (
-              <div className="mt-2 text-xs text-accent">Tradeshow demonstration charger — this claim is marked TRADE-SHOW and is never paid.</div>
+            {charger.is_demo && (
+              <div className="mt-2 text-xs text-accent">Demo charger — this claim is reviewed but never paid.</div>
             )}
           </div>
           <Button type="button" variant="ghost" onClick={resetToPin} className="mt-2 px-0 text-xs text-muted-foreground sm:mt-0 sm:px-3">

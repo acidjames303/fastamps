@@ -99,7 +99,9 @@ Deno.serve(async (req) => {
       referral_review_status: "clear",
       welcome_reward_amount: 10,
       welcome_reward_status: "available",
-      ...(body.demo === true ? { is_demo: true, demo_label: "TRADE-SHOW" } : {}),
+      // ?demo=1 trade-show auto-demo accounts are retired. Explicit admin/beta
+      // tooling may still mark an installer demo via a non-URL path later.
+      ...(body.demo === true ? { is_demo: true, demo_label: "BETA-DEMO" } : {}),
       approval_documents: approvalDocuments,
       approval_document_names: approvalDocumentNames,
       ...(approvalDocuments.length ? { approval_documents_submitted_at: now } : {}),
