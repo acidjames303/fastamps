@@ -1,0 +1,52 @@
+{
+  "name": "ChargerCodeHistory",
+  "type": "object",
+  "properties": {
+    "serial_number": {
+      "type": "string"
+    },
+    "pin_code": {
+      "type": "string"
+    },
+    "batch_reference": {
+      "type": "string"
+    },
+    "source_import_id": {
+      "type": "string"
+    },
+    "retired_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "serial_number",
+    "pin_code"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

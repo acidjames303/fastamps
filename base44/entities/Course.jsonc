@@ -1,0 +1,63 @@
+{
+  "name": "Course",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "academy": {
+      "type": "string",
+      "enum": [
+        "Product",
+        "Sales",
+        "Distribution"
+      ],
+      "default": "Product"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "duration_minutes": {
+      "type": "number"
+    },
+    "reward": {
+      "type": "number",
+      "default": 0
+    },
+    "level": {
+      "type": "string",
+      "enum": [
+        "Bronze",
+        "Silver",
+        "Gold"
+      ],
+      "default": "Bronze"
+    },
+    "order": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "title",
+    "academy"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": true,
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

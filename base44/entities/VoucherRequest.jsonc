@@ -1,0 +1,162 @@
+{
+  "name": "VoucherRequest",
+  "type": "object",
+  "properties": {
+    "installer_email": {
+      "type": "string"
+    },
+    "installer_name": {
+      "type": "string"
+    },
+    "installer_mobile": {
+      "type": "string"
+    },
+    "claim_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "amount": {
+      "type": "number"
+    },
+    "fraud_review_status": {
+      "type": "string",
+      "enum": [
+        "clear",
+        "held"
+      ],
+      "default": "clear"
+    },
+    "fraud_review_reason": {
+      "type": "string"
+    },
+    "fraud_review_by": {
+      "type": "string"
+    },
+    "fraud_review_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "eligible_approved_install_count": {
+      "type": "number",
+      "description": "Total approved non-excluded installations when this reward was requested"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "requested",
+        "processing",
+        "sent",
+        "failed"
+      ],
+      "default": "requested"
+    },
+    "requested_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sent_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "fulfilment_provider": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "giftbit"
+      ],
+      "default": "manual",
+      "description": "Provider responsible for issuing the reward"
+    },
+    "provider_environment": {
+      "type": "string",
+      "enum": [
+        "testbed",
+        "live",
+        "manual"
+      ],
+      "description": "Giftbit environment used for this campaign"
+    },
+    "provider_order_id": {
+      "type": "string",
+      "description": "Idempotent order reference sent to the fulfilment provider"
+    },
+    "provider_status": {
+      "type": "string",
+      "description": "Latest provider response code or processing state"
+    },
+    "provider_error": {
+      "type": "string",
+      "description": "Safe operational error text; never contains credentials or voucher codes"
+    },
+    "includes_welcome_reward": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this voucher request includes the one-time installer sign-up incentive"
+    },
+    "is_demo": {
+      "type": "boolean",
+      "default": false,
+      "description": "Clearly identifies controlled beta demonstration data"
+    },
+    "demo_label": {
+      "type": "string"
+    },
+    "excluded_from_reporting": {
+      "type": "boolean",
+      "default": false
+    },
+    "last_checked_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time an administrator checked or actioned this request"
+    },
+    "actioned_by_email": {
+      "type": "string",
+      "description": "Named administrator who last actioned this request"
+    },
+    "actioned_by_name": {
+      "type": "string"
+    },
+    "actioned_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "installer_email",
+    "claim_ids",
+    "amount",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.installer_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

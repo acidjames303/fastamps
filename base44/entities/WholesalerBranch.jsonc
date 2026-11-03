@@ -1,0 +1,47 @@
+{
+  "name": "WholesalerBranch",
+  "type": "object",
+  "properties": {
+    "wholesaler_name": {
+      "type": "string",
+      "description": "Approved canonical wholesaler company name"
+    },
+    "branch_name": {
+      "type": "string",
+      "description": "Approved canonical branch identifier or location"
+    },
+    "approved_aliases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Explicitly approved alternate full wholesaler/branch spellings; no fuzzy matching"
+    }
+  },
+  "required": [
+    "wholesaler_name",
+    "branch_name"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "name": "RewardReviewAudit",
+  "type": "object",
+  "properties": {
+    "scope": {
+      "type": "string",
+      "enum": [
+        "installer",
+        "referral",
+        "installation",
+        "voucher"
+      ]
+    },
+    "target_id": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "hold",
+        "release",
+        "reject",
+        "block"
+      ]
+    },
+    "reason": {
+      "type": "string"
+    },
+    "reviewer_email": {
+      "type": "string"
+    },
+    "reviewer_name": {
+      "type": "string"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "scope",
+    "target_id",
+    "action",
+    "reason",
+    "reviewer_email",
+    "reviewed_at"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
