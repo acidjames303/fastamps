@@ -1,36 +1,88 @@
-# FASTAMPS — Organic Soft Glow
+# Base44 Project
 
-The wordmark is solid. The glow that looked stuck / childlike was a **tight, high-opacity rim** hugging the letter edges — that reads as a stamped outline, not light.
+Use this repository to run and edit the app locally, then publish changes back through Base44.
 
-This repo shows soft, organic alternatives using brand blue **`#0066FF`** and a flat logo (no baked-in glow).
+Any change pushed to the repo will also be reflected in the Base44 Builder.
 
-## Open the studio
+## Prerequisites
+
+1. Clone the repository using the project's Git URL.
+2. Navigate to the project directory.
+3. Install dependencies: `npm install`.
+4. Install the Base44 CLI: `npm install -g base44@latest`.
+
+See the [Base44 CLI docs](https://docs.base44.com/developers/references/cli/get-started/overview) if you want to run Base44 commands directly.
+
+## Run Locally
+
+Run the full local development environment from the project root:
 
 ```bash
-# from repo root
-python3 -m http.server 4173
-# then open http://localhost:4173/public/glow-studio.html
+base44 dev
 ```
 
-## Pick a glow
+`base44 dev` starts the local Base44 development backend and, when this app is configured for it, also starts the frontend dev server for you. Use the frontend URL printed by the command.
 
-| Method | When to use | Class |
-| --- | --- | --- |
-| **E · Two-pass neon** (recommended) | Header, login, hero | `.fa-glow-twopass` |
-| **B · Layered bloom** | Quick one-liner filter | `.fa-glow-layered` |
-| **C · Ambient haze** | Large hero / atmospheric | `.fa-glow-ambient` |
-| **D · SVG gaussian** | Softest edge scatter | `.fa-glow-svg` + SVG filter defs |
-| **F · Breathing** | Splash / login presence | `.fa-glow-breath` |
+For example, when the Base44 project config includes a `serveCommand`, `base44 dev` can launch the frontend too:
 
-Reusable CSS: [`public/fastamps-glow.css`](public/fastamps-glow.css)
+```json5
+{
+  "site": {
+    "serveCommand": "npm run dev"
+  }
+}
+```
 
-## Why the old glow felt wrong
+In a Base44 project this lives in `base44/config.jsonc`.
 
-1. Short blur radius (a few pixels)
-2. High opacity right at the glyph edge
-3. Contour-hugging halo that looks like a second stroke
-4. Often a bright cyan rim instead of soft brand-blue light
+## Run Only The Frontend
 
-## The fix in one sentence
+If you only want to work on the frontend against the hosted Base44 backend, run:
 
-Put **diffused light behind** a **sharp logo**: long falloff, low edge opacity, brand-blue haze that spills into the navy background.
+```bash
+npm run dev
+```
+
+Open the local URL printed by Vite.
+
+## Use The Hosted Backend
+
+For frontend-only development, create or update `.env.local` in the project root:
+
+```bash
+VITE_BASE44_APP_ID=your_app_id
+VITE_BASE44_APP_BASE_URL=https://your-app.base44.app
+```
+
+`VITE_BASE44_APP_ID` identifies the Base44 app.
+
+`VITE_BASE44_APP_BASE_URL` tells the Base44 Vite plugin where to send local `/api` requests. Point it at your deployed Base44 app URL when you want the local frontend to use the hosted backend.
+
+When you use `base44 dev`, the command injects the local Base44 values for you, so `.env.local` is mainly needed for frontend-only workflows.
+
+## Publish Your Changes
+
+After pushing your changes to git, open the Base44 dashboard and publish the app:
+
+```bash
+base44 dashboard open
+```
+
+## Docs & Support
+
+Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
+
+Base44 CLI command reference: [https://docs.base44.com/developers/references/cli/commands/introduction](https://docs.base44.com/developers/references/cli/commands/introduction)
+
+Support: [https://app.base44.com/support](https://app.base44.com/support)
+
+## Soft logo glow
+
+Auth / loading logos use a flat wordmark plus CSS two-pass bloom (see `src/components/SoftGlowLogo.jsx` and `src/styles/fastamps-glow.css`).
+
+Compare techniques in the studio:
+
+```bash
+python3 -m http.server 4173
+# open http://localhost:4173/public/glow-studio.html
+```

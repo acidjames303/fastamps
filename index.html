@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="https://media.base44.com/images/public/6ab11d37ba4cf09ddd77f163/da952676e_FAVICONFASTAMPS.png" />
+    <meta name="theme-color" content="#0878ff" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>FastAmps Connect</title>
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        try {
+          var t = localStorage.getItem('fastamps-theme');
+          var authRoute = /^\/(login|register|forgot-password|reset-password)(\/|$)/i.test(location.pathname);
+          if (t === 'light' && !authRoute) {
+            root.classList.remove('dark');
+            root.classList.add('light');
+          } else if (authRoute || t === 'dark') {
+            root.classList.remove('light');
+            root.classList.add('dark');
+          } else {
+            // No saved preference: follow the visitor's system setting.
+            root.classList.add(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          }
+        } catch (e) {
+          root.classList.add(prefersDark ? 'dark' : 'light');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

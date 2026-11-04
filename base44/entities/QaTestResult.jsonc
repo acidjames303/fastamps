@@ -1,0 +1,57 @@
+{
+  "name": "QaTestResult",
+  "type": "object",
+  "properties": {
+    "scenario_id": {
+      "type": "string",
+      "description": "Stable identifier of the FastAmps Connect QA scenario"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "not_tested",
+        "passed",
+        "failed",
+        "blocked"
+      ],
+      "default": "not_tested"
+    },
+    "tester_notes": {
+      "type": "string",
+      "description": "Testing evidence, observations, blockers or follow-up work"
+    },
+    "last_tested_by": {
+      "type": "string"
+    },
+    "last_tested_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "scenario_id",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "name": "QrLabelTemplate",
+  "type": "object",
+  "properties": {
+    "template_name": {
+      "type": "string",
+      "description": "Uploaded static warranty label artwork"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Base44 hosted exact fixed 1024x1536 image. Only QR, serial and PIN are overlaid."
+    },
+    "uploaded_by": {
+      "type": "string"
+    },
+    "uploaded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "version": {
+      "type": "string"
+    },
+    "a4_columns": {
+      "type": "number",
+      "default": 3
+    },
+    "a4_rows": {
+      "type": "number",
+      "default": 3
+    },
+    "a4_left_mm": {
+      "type": "number",
+      "default": 22.8
+    },
+    "a4_top_mm": {
+      "type": "number",
+      "default": 28.2
+    },
+    "a4_horizontal_gap_mm": {
+      "type": "number",
+      "default": 6
+    },
+    "a4_vertical_gap_mm": {
+      "type": "number",
+      "default": 6
+    },
+    "avery_product_code": {
+      "type": "string",
+      "description": "User-confirmed Avery part number; never infer from measurements"
+    }
+  },
+  "required": [
+    "template_name",
+    "image_url"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

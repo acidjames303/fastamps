@@ -1,0 +1,72 @@
+/**
+ * FASTAMPS organic soft glow — brand blue #0066FF
+ * Use a flat logo PNG (no baked rim). SoftGlowLogo applies two-pass bloom.
+ */
+
+.fa-glow-twopass {
+  --fa-bloom-far-blur: 28px;
+  --fa-bloom-far-opacity: 0.55;
+  --fa-bloom-far-scale: 1.04;
+  --fa-bloom-near-blur: 8px;
+  --fa-bloom-near-opacity: 0.4;
+  --fa-logo-tint: drop-shadow(0 0 1.5px rgba(0, 102, 255, 0.25));
+
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  isolation: isolate;
+  line-height: 0;
+}
+
+/* Compact header / nav — shorter falloff so it does not wash the chrome */
+.fa-glow-twopass--nav {
+  --fa-bloom-far-blur: 10px;
+  --fa-bloom-far-opacity: 0.42;
+  --fa-bloom-far-scale: 1.02;
+  --fa-bloom-near-blur: 3px;
+  --fa-bloom-near-opacity: 0.32;
+  --fa-logo-tint: drop-shadow(0 0 1px rgba(0, 102, 255, 0.2));
+}
+
+.fa-glow-twopass .fa-bloom-far,
+.fa-glow-twopass .fa-bloom-near {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.fa-glow-twopass .fa-bloom-far img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: var(--fa-bloom-far-opacity);
+  filter: blur(var(--fa-bloom-far-blur)) saturate(1.15);
+  transform: scale(var(--fa-bloom-far-scale));
+}
+
+.fa-glow-twopass .fa-bloom-near img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: var(--fa-bloom-near-opacity);
+  filter: blur(var(--fa-bloom-near-blur)) saturate(1.05);
+}
+
+.fa-glow-twopass .fa-logo-sharp {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  filter: var(--fa-logo-tint);
+}
+
+/* Prefer reduced motion: keep soft bloom, skip any future pulse */
+@media (prefers-reduced-motion: reduce) {
+  .fa-glow-twopass {
+    animation: none !important;
+  }
+}

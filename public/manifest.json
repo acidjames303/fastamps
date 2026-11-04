@@ -1,0 +1,17 @@
+{
+  "name": "FastAmps Connect",
+  "short_name": "Connect",
+  "description": "FastAmps installer warranty and rewards platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#071b31",
+  "theme_color": "#0878ff",
+  "icons": [
+    {
+      "src": "https://base44.com/logo_v2.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
