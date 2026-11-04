@@ -3,201 +3,143 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>B2B Sales Leads — Logo Concepts</title>
+  <title>B2B Sales Leads — Preferred Brand Marks</title>
   <link rel="stylesheet" href="colorways/palette.css" />
   <style>
     * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: "Segoe UI", Arial, Helvetica, sans-serif;
-      background: var(--bsl-off-white);
+      background: #e8ebf0;
       color: var(--bsl-navy);
       line-height: 1.45;
     }
     header {
-      padding: 2.5rem 1.5rem 1.5rem;
+      padding: 2.5rem 1.5rem 1.25rem;
       max-width: 1100px;
       margin: 0 auto;
     }
     header h1 {
       margin: 0 0 0.35rem;
-      font-size: 1.75rem;
-      letter-spacing: 0.04em;
+      font-size: 1.65rem;
+      letter-spacing: 0.03em;
     }
-    header p {
-      margin: 0;
-      color: var(--bsl-slate);
-      max-width: 42rem;
+    header p { margin: 0; color: var(--bsl-slate); max-width: 40rem; }
+    .tag {
+      display: inline-block;
+      margin-top: 0.75rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--bsl-steel-mid);
     }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.25rem;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 1.5rem 3rem;
-    }
-    figure {
-      margin: 0;
-      background: var(--bsl-white);
-      border: 1px solid #dde2ea;
-      overflow: hidden;
-    }
-    figure.dark { background: var(--bsl-navy-deep); border-color: #1a2a3d; }
-    figure img, figure object {
-      display: block;
-      width: 100%;
-      height: auto;
-      aspect-ratio: 1 / 1;
-      object-fit: contain;
-      background: transparent;
-    }
-    figcaption {
-      padding: 0.85rem 1rem 1rem;
-      border-top: 1px solid #dde2ea;
-    }
-    figure.dark figcaption {
-      border-top-color: #1a2a3d;
-      color: var(--bsl-ice);
-    }
-    figcaption strong {
-      display: block;
-      font-size: 0.95rem;
-      margin-bottom: 0.2rem;
-    }
-    figcaption span {
-      font-size: 0.82rem;
-      color: var(--bsl-slate);
-    }
-    figure.dark figcaption span { color: #8fa0b5; }
     section {
       max-width: 1100px;
       margin: 0 auto;
-      padding: 0 1.5rem 3rem;
+      padding: 0 1.5rem 2.5rem;
     }
     section h2 {
-      font-size: 1.15rem;
-      letter-spacing: 0.06em;
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       margin: 0 0 1rem;
+      color: var(--bsl-slate);
     }
-    .swatches {
+    .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 0.75rem;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.15rem;
     }
-    .swatch {
-      border: 1px solid #dde2ea;
-      background: var(--bsl-white);
+    figure {
+      margin: 0;
+      background: #fff;
+      border: 1px solid #cfd5df;
       overflow: hidden;
     }
-    .swatch .chip {
-      height: 64px;
-      display: flex;
-    }
-    .swatch .chip i {
-      flex: 1;
+    figure.dark { background: #0B0F14; border-color: #1a2230; }
+    figure img {
       display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      object-fit: contain;
     }
-    .swatch p {
-      margin: 0;
-      padding: 0.6rem 0.7rem;
-      font-size: 0.78rem;
+    figure.square img { aspect-ratio: 1 / 1; }
+    figcaption {
+      padding: 0.85rem 1rem 1rem;
+      border-top: 1px solid #cfd5df;
     }
+    figure.dark figcaption { border-top-color: #1a2230; color: #C9D9F2; }
+    figcaption strong { display: block; font-size: 0.95rem; margin-bottom: 0.2rem; }
+    figcaption span { font-size: 0.82rem; color: var(--bsl-slate); }
+    figure.dark figcaption span { color: #8fa0b5; }
   </style>
 </head>
 <body>
   <header>
-    <h1>B2B Sales Leads — Logo Concepts</h1>
-    <p>Seven professional directions plus colorways. Compare previews below, then open the matching SVG in <code>logos/svg/</code> for production use.</p>
+    <h1>B2B Sales Leads</h1>
+    <p>Preferred marks based on the site treatments you liked. Tagline locked to <strong>The Voice of Experience</strong>.</p>
+    <div class="tag">Primary brand direction</div>
   </header>
 
-  <div class="grid">
-    <figure>
-      <img src="logos/logo-01-refined-growth.jpg" alt="Concept 01 Refined Growth" />
-      <figcaption>
-        <strong>01 — Refined Growth</strong>
-        <span>Closest to current DNA; simplified single path</span>
-      </figcaption>
-    </figure>
-    <figure>
-      <img src="logos/logo-02-monogram-lockup.jpg" alt="Concept 02 Monogram Lockup" />
-      <figcaption>
-        <strong>02 — Monogram Lockup</strong>
-        <span>App-ready mark + horizontal wordmark</span>
-      </figcaption>
-    </figure>
-    <figure>
-      <img src="logos/logo-03-premium-wordmark.jpg" alt="Concept 03 Premium Wordmark" />
-      <figcaption>
-        <strong>03 — Premium Wordmark</strong>
-        <span>Typography-led consulting aesthetic</span>
-      </figcaption>
-    </figure>
-    <figure>
-      <img src="logos/logo-04-geometric-ascent.jpg" alt="Concept 04 Geometric Ascent" />
-      <figcaption>
-        <strong>04 — Geometric Ascent</strong>
-        <span>Data bars + chevron; Swiss clarity</span>
-      </figcaption>
-    </figure>
-    <figure>
-      <img src="logos/logo-05-seal-emblem.jpg" alt="Concept 05 Seal Emblem" />
-      <figcaption>
-        <strong>05 — Seal Emblem</strong>
-        <span>Trust / institutional circular mark</span>
-      </figcaption>
-    </figure>
-    <figure>
-      <img src="logos/logo-06-lettermark-b2b.jpg" alt="Concept 06 B2B Lettermark" />
-      <figcaption>
-        <strong>06 — B2B Lettermark</strong>
-        <span>Most distinctive custom letterform</span>
-      </figcaption>
-    </figure>
-    <figure class="dark">
-      <img src="logos/logo-07-dark-navy-lockup.jpg" alt="Concept 07 Dark Navy Lockup" />
-      <figcaption>
-        <strong>07 — Dark Navy Lockup</strong>
-        <span>High-contrast reverse for dark surfaces</span>
-      </figcaption>
-    </figure>
-    <figure>
-      <img src="colorways/logo-colorways-sheet.jpg" alt="Colorways sheet" />
-      <figcaption>
-        <strong>Colorways sheet</strong>
-        <span>Six approved palette applications</span>
-      </figcaption>
-    </figure>
-  </div>
+  <section>
+    <h2>From your site (reference)</h2>
+    <div class="grid">
+      <figure class="dark">
+        <img src="reference/site-horizontal-growth.png" alt="Site horizontal growth lockup" />
+        <figcaption>
+          <strong>Site — Horizontal growth</strong>
+          <span>Original lockup you liked</span>
+        </figcaption>
+      </figure>
+      <figure class="dark">
+        <img src="reference/site-outlined-b2b.png" alt="Site outlined B2B" />
+        <figcaption>
+          <strong>Site — Outlined B2B</strong>
+          <span>Original hero / section treatment you liked</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
 
   <section>
-    <h2>Color tokens</h2>
-    <div class="swatches">
-      <div class="swatch">
-        <div class="chip"><i style="background:#0A1628"></i><i style="background:#5B8DEF"></i></div>
-        <p>Navy &amp; Steel<br>#0A1628 · #5B8DEF</p>
-      </div>
-      <div class="swatch">
-        <div class="chip"><i style="background:#0D7377"></i><i style="background:#1C1C1C"></i></div>
-        <p>Teal &amp; Charcoal<br>#0D7377 · #1C1C1C</p>
-      </div>
-      <div class="swatch">
-        <div class="chip"><i style="background:#1C1C1C"></i><i style="background:#9A7B4F"></i></div>
-        <p>Charcoal &amp; Gold<br>#1C1C1C · #9A7B4F</p>
-      </div>
-      <div class="swatch">
-        <div class="chip"><i style="background:#0A1628"></i><i style="background:#C9D9F2"></i><i style="background:#FFFFFF"></i></div>
-        <p>On Navy<br>#FFFFFF · #C9D9F2</p>
-      </div>
-      <div class="swatch">
-        <div class="chip"><i style="background:#0A5558"></i><i style="background:#FFFFFF"></i></div>
-        <p>On Deep Teal<br>#FFFFFF on #0A5558</p>
-      </div>
-      <div class="swatch">
-        <div class="chip"><i style="background:#000000"></i><i style="background:#FFFFFF;border-left:1px solid #dde2ea"></i></div>
-        <p>Monochrome<br>#000000</p>
-      </div>
+    <h2>Refined preferred set</h2>
+    <div class="grid">
+      <figure class="dark">
+        <img src="logos/preferred/preferred-01-horizontal-growth.jpg" alt="Refined horizontal growth dark" />
+        <figcaption>
+          <strong>Primary lockup — Dark</strong>
+          <span>Nav / headers · THE VOICE OF EXPERIENCE</span>
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="logos/preferred/preferred-01-horizontal-growth-light.jpg" alt="Refined horizontal growth light" />
+        <figcaption>
+          <strong>Primary lockup — Light</strong>
+          <span>Light surfaces / print</span>
+        </figcaption>
+      </figure>
+      <figure class="dark">
+        <img src="logos/preferred/preferred-02-outlined-b2b.jpg" alt="Refined outlined B2B dark" />
+        <figcaption>
+          <strong>Hero mark — Outlined B2B (Dark)</strong>
+          <span>Large dark sections</span>
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="logos/preferred/preferred-02-outlined-b2b-light.jpg" alt="Refined outlined B2B light" />
+        <figcaption>
+          <strong>Hero mark — Outlined B2B (Light)</strong>
+          <span>Light reverse</span>
+        </figcaption>
+      </figure>
+      <figure class="dark square">
+        <img src="logos/preferred/preferred-03-combined-primary.jpg" alt="Combined primary exploration" />
+        <figcaption>
+          <strong>Combined exploration</strong>
+          <span>Outlined B2B + growth mark stacked</span>
+        </figcaption>
+      </figure>
     </div>
   </section>
 </body>

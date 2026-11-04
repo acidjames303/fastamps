@@ -1,40 +1,37 @@
-# B2B Sales Leads — Logo Concepts & Colorways
+# B2B Sales Leads — Branding
 
-Professional logo explorations to replace the original mark (busy intertwined chart-arrows with poor dark-on-dark contrast).
+**Tagline:** THE VOICE OF EXPERIENCE
 
-## Concepts
+## Preferred direction (from site)
 
-| # | Name | File (preview) | SVG | Direction |
-|---|------|----------------|-----|-----------|
-| 01 | Refined Growth | `logos/logo-01-refined-growth.jpg` | `logos/svg/01-refined-growth.svg` | Cleaner single growth path → arrow; keeps brand DNA |
-| 02 | Monogram Lockup | `logos/logo-02-monogram-lockup.jpg` | `logos/svg/02-monogram-lockup.svg` | App-icon style mark + horizontal wordmark |
-| 03 | Premium Wordmark | `logos/logo-03-premium-wordmark.jpg` | `logos/svg/03-premium-wordmark.svg` | Typography-led; consulting / firm feel |
-| 04 | Geometric Ascent | `logos/logo-04-geometric-ascent.jpg` | `logos/svg/04-geometric-ascent.svg` | Bar ascent + chevron; Swiss / data aesthetic |
-| 05 | Seal Emblem | `logos/logo-05-seal-emblem.jpg` | `logos/svg/05-seal-emblem.svg` | Circular trust seal with twin paths |
-| 06 | B2B Lettermark | `logos/logo-06-lettermark-b2b.jpg` | `logos/svg/06-lettermark-b2b.svg` | Custom B–chevron–B letterform; most distinctive |
-| 07 | Dark Navy Lockup | `logos/logo-07-dark-navy-lockup.jpg` | `logos/svg/07-dark-navy-lockup.svg` | High-contrast reverse for dark surfaces |
+You liked these two site treatments — they are now the primary brand direction:
 
-Open `preview.html` in a browser to compare all concepts and colorways side by side.
+| Use | Dark | Light | SVG |
+|-----|------|-------|-----|
+| **Primary lockup** — growth mark + wordmark | `logos/preferred/preferred-01-horizontal-growth.jpg` | `…-light.jpg` | `logos/svg/preferred-horizontal-growth-*.svg` |
+| **Hero / section mark** — outlined B2B | `logos/preferred/preferred-02-outlined-b2b.jpg` | `…-light.jpg` | `logos/svg/preferred-outlined-b2b-*.svg` |
+| Combined exploration | `logos/preferred/preferred-03-combined-primary.jpg` | — | — |
+
+Site originals (reference): `reference/site-horizontal-growth.png`, `reference/site-outlined-b2b.png`
+
+Open [`preview.html`](preview.html) to compare.
+
+### Roles
+- **Horizontal growth lockup** — nav, headers, email, docs, social avatar companion
+- **Outlined B2B** — homepage hero / large dark sections (atmosphere, not small favicon)
 
 ## Colorways
 
-Defined in `colorways/palette.css` and shown in `colorways/logo-colorways-sheet.jpg`.
-
 | Colorway | Primary | Secondary | Surface |
 |----------|---------|-----------|---------|
-| Navy & Steel | `#0A1628` | `#5B8DEF` | Light |
+| Navy & Steel (default) | `#0A1628` | `#5B8DEF` | Light |
+| Dark site | `#FFFFFF` / `#C9D9F2` | `#5B8DEF` → `#1E3A8A` | `#0B0F14` |
 | Teal & Charcoal | `#0D7377` | `#1C1C1C` | Light |
 | Charcoal & Gold | `#1C1C1C` | `#9A7B4F` | Light |
-| White & Ice on Navy | `#FFFFFF` | `#C9D9F2` | `#0A1628` |
-| White on Deep Teal | `#FFFFFF` | `#FFFFFF` | `#0A5558` |
-| Monochrome | `#000000` | `#000000` | Light |
+| Monochrome | `#000000` | — | Light |
 
-## Recommendation
+Tokens: [`colorways/palette.css`](colorways/palette.css)
 
-- **Most professional / distinctive:** Concept 06 (Lettermark) or 03 (Premium Wordmark)
-- **Closest to current brand:** Concept 01 (Refined Growth) + Colorway Navy & Steel
-- **Always ship a dark reverse:** Concept 07 — never place dark type on dark backgrounds
+## Earlier explorations
 
-## Next step
-
-Pick a preferred concept (or combine elements). We can then refine typography, export favicon/app icons, and lock final brand guidelines.
+Additional concept sketches (01–07) remain under `logos/` for reference if useful later. Preferred set above supersedes them for production.

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 220" role="img" aria-labelledby="title desc">
+  <title id="title">B2B Sales Leads  Horizontal Growth (Light)</title>
+  <desc id="desc">Light reverse of the preferred horizontal growth lockup.</desc>
+  <rect width="720" height="220" fill="#FFFFFF"/>
+  <defs>
+    <linearGradient id="gLight" x1="36" y1="160" x2="180" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#8EB6F5"/>
+      <stop offset="55%" stop-color="#3D6B9A"/>
+      <stop offset="100%" stop-color="#0A1628"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke="url(#gLight)" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke-width="5" d="M42 158 L72 128 L96 142 L128 98 L152 112 L178 62"/>
+    <path stroke-width="5" d="M42 170 L72 140 L96 154 L128 110 L152 124 L170 88"/>
+    <path stroke-width="5" d="M42 182 L72 152 L96 166 L128 122 L152 136 L162 112"/>
+  </g>
+  <path fill="#0A1628" d="M168 42 L206 52 L178 84 Z"/>
+  <text x="240" y="108" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700" letter-spacing="2.5" fill="#0A1628">B2B SALES LEADS</text>
+  <text x="240" y="138" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" letter-spacing="3.5" fill="#5A6570">THE VOICE OF EXPERIENCE</text>
+</svg>

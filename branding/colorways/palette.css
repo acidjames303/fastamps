@@ -28,11 +28,15 @@
 
   /* Semantic roles */
   --bsl-bg-light: var(--bsl-white);
-  --bsl-bg-dark: var(--bsl-navy-deep);
+  --bsl-bg-dark: #0b0f14;
   --bsl-text-primary: var(--bsl-navy);
   --bsl-text-on-dark: var(--bsl-white);
+  --bsl-text-tagline-on-dark: #a8b0bc;
   --bsl-accent: var(--bsl-steel);
   --bsl-tagline: var(--bsl-slate);
+
+  /* Tagline copy (locked) */
+  --bsl-tagline-copy: "THE VOICE OF EXPERIENCE";
 }
 
 /* Colorway A: Navy & Steel on light */

@@ -2,8 +2,10 @@
 
 ## Branding
 
-Logo concept explorations for **B2B Sales Leads** live in [`branding/`](branding/).
+**B2B Sales Leads** · tagline **The Voice of Experience**
 
-- Open [`branding/preview.html`](branding/preview.html) to compare designs and colorways
-- Production SVGs: [`branding/logos/svg/`](branding/logos/svg/)
+Preferred marks (from site direction): [`branding/`](branding/)
+
+- Preview: [`branding/preview.html`](branding/preview.html)
+- Primary lockup + outlined B2B SVGs: [`branding/logos/svg/`](branding/logos/svg/)
 - Color tokens: [`branding/colorways/palette.css`](branding/colorways/palette.css)
