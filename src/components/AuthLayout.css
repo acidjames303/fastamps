@@ -1,0 +1,216 @@
+/* FastAmps Connect sign-in and registration design.
+   Scoped to authentication only; the signed-in dashboard theme is unchanged. */
+.fa-auth-root {
+  --background: 210 74% 8%;
+  --foreground: 210 40% 98%;
+  --card: 210 59% 12%;
+  --card-foreground: 210 40% 98%;
+  --primary: 212 100% 52%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 45% 18%;
+  --secondary-foreground: 210 40% 98%;
+  --accent: 210 100% 54%;
+  --accent-foreground: 0 0% 100%;
+  --muted: 210 41% 17%;
+  --muted-foreground: 211 23% 73%;
+  --border: 210 33% 27%;
+  --input: 210 33% 27%;
+  --ring: 212 100% 54%;
+  color: #f7faff;
+  background: #061b2e;
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: none;
+  font-family: var(--font-body, ui-sans-serif, system-ui, sans-serif);
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.fa-auth-root::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 38%, rgba(5, 105, 252, .12), transparent 38%),
+    radial-gradient(circle at 100% 0%, rgba(9, 81, 181, .12), transparent 44%);
+}
+.fa-auth-shell {
+  width: min(1160px, 100%);
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, .98fr);
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  padding: 48px clamp(28px, 5vw, 64px);
+  gap: clamp(28px, 6vw, 96px);
+}
+.fa-auth-brand {
+  min-height: min(680px, 82vh);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  position: relative;
+}
+.fa-auth-brand-inner { max-width: 430px; }
+.fa-auth-logo {
+  display: inline-grid;
+  width: min(330px, 100%);
+  height: auto;
+  max-width: 100%;
+}
+.fa-auth-desktop-logo { margin-bottom: 38px; }
+.fa-auth-product-name {
+  color: #edf5ff;
+  letter-spacing: .26em;
+  font-size: 12px;
+  line-height: 1.6;
+  font-weight: 750;
+}
+.fa-auth-product-name span { color: #147aff; }
+.fa-auth-brand h2 {
+  font-size: clamp(42px, 4.45vw, 66px);
+  letter-spacing: -.038em;
+  font-weight: 790;
+  line-height: 1.1;
+  margin: 24px 0 26px;
+  color: white;
+}
+.fa-auth-tagline {
+  color: #d0ddeb;
+  font-size: 18px;
+  font-weight: 450;
+  white-space: normal;
+}
+.fa-auth-tagline span { color: #1680ff; padding: 0 6px; }
+.fa-auth-brand-rule {
+  height: 2px;
+  width: 48px;
+  background: #076df6;
+  border-radius: 10px;
+  margin: 42px 0 22px;
+}
+.fa-auth-brand-description {
+  max-width: 350px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #95aac3;
+}
+.fa-auth-brand-address {
+  position: absolute;
+  bottom: 0;
+  font-weight: 650;
+  font-size: 12px;
+  letter-spacing: .035em;
+  color: #9eafc5;
+}
+.fa-auth-main { display: flex; flex-direction: column; align-items: stretch; width: 100%; max-width: 455px; justify-self: end; }
+.fa-auth-card {
+  width: 100%;
+  border: 1px solid rgba(121, 163, 209, .23);
+  box-shadow: 0 24px 70px rgba(0, 7, 20, .2), 0 0 0 1px rgba(4, 107, 251, .035);
+  border-radius: 26px;
+  background: linear-gradient(155deg, #0c273f 0%, #091e33 70%, #081b2f 100%);
+  padding: clamp(25px, 3vw, 42px);
+}
+.fa-auth-card-kicker {
+  color: #1980ff;
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: .24em;
+  margin-bottom: 14px;
+}
+.fa-auth-card h1 {
+  color: #f7faff;
+  font-size: clamp(25px, 3vw, 30px);
+  font-weight: 750;
+  line-height: 1.2;
+  letter-spacing: -.025em;
+  margin: 0;
+}
+.fa-auth-subtitle { color: #a9bed5; font-size: 14px; margin-top: 9px; line-height: 1.6; }
+.fa-auth-form-content { margin-top: 30px; }
+.fa-auth-card label { color: #e3ebf8; font-weight: 550; font-size: 13px; }
+.fa-auth-card input:not([type="checkbox"]) {
+  background-color: #0a2037;
+  border-color: #2e4a66;
+  color: #f7faff;
+  border-radius: 11px;
+  min-height: 47px;
+  box-shadow: none;
+}
+.fa-auth-card input:not([type="checkbox"])::placeholder { color: #829bb6; }
+.fa-auth-card input:not([type="checkbox"]):focus-visible { border-color: #167aff; box-shadow: 0 0 0 2px rgba(8, 103, 255, .16); }
+.fa-auth-card button.bg-primary {
+  background: #086bff;
+  color: #fff;
+  border-radius: 11px;
+  box-shadow: 0 10px 28px rgba(0, 91, 225, .14);
+  transition: background 150ms ease, transform 150ms ease;
+}
+.fa-auth-card button.bg-primary:hover { background: #237dff; }
+.fa-auth-card button.border-input {
+  border-color: #39516e;
+  color: #f4f9ff;
+  background: rgba(3, 21, 38, .55);
+  border-radius: 11px;
+}
+.fa-auth-card button.border-input:hover { background: #10334f; }
+.fa-auth-card .bg-card { background-color: #0b2239; }
+.fa-auth-card .text-muted-foreground { color: #a6bad2; }
+.fa-auth-card a, .fa-auth-card button.text-primary { color: #4a9bff; }
+.fa-auth-card button.bg-primary { color: #fff; }
+.fa-auth-card .text-destructive { color: #ff9b9b; }
+.fa-auth-card-footer {
+  border-top: 1px solid rgba(121, 163, 209, .19);
+  padding-top: 22px;
+  margin-top: 27px;
+  text-align: center;
+  font-size: 13px;
+  color: #aec1d6;
+}
+.fa-auth-card-footer a { font-weight: 700; }
+.fa-auth-social { display: grid; gap: 10px; margin-bottom: 26px; }
+.fa-auth-social button { position: relative; justify-content: center; }
+.fa-auth-social button svg, .fa-auth-social button .fa-provider-icon, .fa-auth-social button .fa-microsoft-mark { position: absolute; left: 18px; }
+.fa-provider-icon { width: 19px; height: 19px; object-fit: contain; }
+.fa-microsoft-mark { width: 19px; height: 19px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; }
+.fa-microsoft-mark i { display: block; width: 100%; height: 100%; }
+.fa-microsoft-mark i:nth-child(1) { background: #f25022; }
+.fa-microsoft-mark i:nth-child(2) { background: #7fba00; }
+.fa-microsoft-mark i:nth-child(3) { background: #00a4ef; }
+.fa-microsoft-mark i:nth-child(4) { background: #ffb900; }
+.fa-auth-back-row { margin: -5px 0 23px; }
+.fa-auth-back-row a { display: inline-flex; align-items: center; gap: 8px; color: #a9bed5; font-size: 13px; font-weight: 600; }
+.fa-auth-back-row a:hover { color: #f6faff; }
+.fa-auth-card a:hover, .fa-auth-card-footer a:hover { text-decoration: underline; }
+.fa-auth-legal { text-align: center; margin-top: 19px; color: #7e95af; font-size: 11px; letter-spacing: .09em; }
+.fa-auth-mobile-heading { display: none; }
+@media (max-width: 780px) {
+  .fa-auth-shell {
+    display: block;
+    min-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    padding: 28px 20px calc(38px + env(safe-area-inset-bottom, 0px));
+  }
+  .fa-auth-brand { display: none; }
+  .fa-auth-main { max-width: 470px; margin: 0 auto; }
+  .fa-auth-mobile-heading { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; margin: 10px 0 30px; }
+  .fa-auth-mobile-heading .fa-auth-logo { width: min(240px, 70vw); }
+  .fa-auth-mobile-heading .fa-auth-product-name { font-size: 10px; }
+  .fa-auth-mobile-tagline { color: #eaf2ff; font-size: 13px; letter-spacing: .1em; font-weight: 750; }
+  .fa-auth-card { padding: clamp(22px, 6vw, 36px); border-radius: 21px; }
+}
+@media (max-width: 380px) {
+  .fa-auth-shell { padding: 18px 12px calc(26px + env(safe-area-inset-bottom, 0px)); }
+  .fa-auth-card { border-radius: 17px; padding: 22px 17px; }
+  .fa-auth-mobile-heading { margin-bottom: 23px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fa-auth-card button.bg-primary { transition: none; }
+}

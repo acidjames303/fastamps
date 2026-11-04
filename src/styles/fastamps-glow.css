@@ -1,0 +1,75 @@
+/**
+ * FASTAMPS organic soft glow — brand blue #0066FF
+ * Use a flat logo PNG (no baked rim). SoftGlowLogo applies two-pass bloom.
+ */
+
+.fa-glow-twopass {
+  /* Near edge softens the glyph; far haze is faint atmosphere — not a blue cloud */
+  --fa-bloom-far-blur: 22px;
+  --fa-bloom-far-opacity: 0.22;
+  --fa-bloom-far-scale: 1.02;
+  --fa-bloom-near-blur: 5px;
+  --fa-bloom-near-opacity: 0.34;
+  --fa-logo-tint: drop-shadow(0 0 2px rgba(0, 102, 255, 0.22))
+    drop-shadow(0 0 10px rgba(0, 102, 255, 0.16));
+
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  isolation: isolate;
+  line-height: 0;
+}
+
+/* Compact header / nav — shorter falloff so it does not wash the chrome */
+.fa-glow-twopass--nav {
+  --fa-bloom-far-blur: 8px;
+  --fa-bloom-far-opacity: 0.2;
+  --fa-bloom-far-scale: 1.015;
+  --fa-bloom-near-blur: 2.5px;
+  --fa-bloom-near-opacity: 0.28;
+  --fa-logo-tint: drop-shadow(0 0 1px rgba(0, 102, 255, 0.18))
+    drop-shadow(0 0 5px rgba(0, 102, 255, 0.12));
+}
+
+.fa-glow-twopass .fa-bloom-far,
+.fa-glow-twopass .fa-bloom-near {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.fa-glow-twopass .fa-bloom-far img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: var(--fa-bloom-far-opacity);
+  filter: blur(var(--fa-bloom-far-blur)) saturate(1.15);
+  transform: scale(var(--fa-bloom-far-scale));
+}
+
+.fa-glow-twopass .fa-bloom-near img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: var(--fa-bloom-near-opacity);
+  filter: blur(var(--fa-bloom-near-blur)) saturate(1.05);
+}
+
+.fa-glow-twopass .fa-logo-sharp {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  filter: var(--fa-logo-tint);
+}
+
+/* Prefer reduced motion: keep soft bloom, skip any future pulse */
+@media (prefers-reduced-motion: reduce) {
+  .fa-glow-twopass {
+    animation: none !important;
+  }
+}

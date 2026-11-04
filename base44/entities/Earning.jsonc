@@ -1,0 +1,79 @@
+{
+  "name": "Earning",
+  "type": "object",
+  "properties": {
+    "installer_mobile": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "installation",
+        "referral",
+        "developer",
+        "distribution",
+        "training",
+        "competition",
+        "warranty"
+      ],
+      "default": "installation"
+    },
+    "label": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number"
+    },
+    "month": {
+      "type": "string",
+      "description": "e.g. 2026-07"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "paid"
+      ],
+      "default": "pending"
+    },
+    "installer_email": {
+      "type": "string",
+      "description": "Installer account email; set by backend when creating ledger rows"
+    }
+  },
+  "required": [
+    "installer_mobile",
+    "source",
+    "amount"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.installer_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

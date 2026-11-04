@@ -1,0 +1,53 @@
+{
+  "name": "CourseProgress",
+  "type": "object",
+  "properties": {
+    "installer_mobile": {
+      "type": "string"
+    },
+    "course_id": {
+      "type": "string"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "installer_email": {
+      "type": "string",
+      "description": "Installer account email; required for own-row read RLS"
+    }
+  },
+  "required": [
+    "installer_mobile",
+    "course_id"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.installer_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "name": "register-installer",
+  "entry": "entry.ts"
+}

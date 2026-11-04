@@ -1,0 +1,157 @@
+{
+  "name": "Charger",
+  "type": "object",
+  "properties": {
+    "serial_number": {
+      "type": "string",
+      "description": "Unique FastAmps charger serial number"
+    },
+    "pin_code": {
+      "type": "string",
+      "description": "Charger PIN supplied in the engineering batch"
+    },
+    "product_model": {
+      "type": "string",
+      "default": "Alpha 7"
+    },
+    "claim_token": {
+      "type": "string",
+      "description": "Unique secure reference encoded in the charger QR code"
+    },
+    "claim_status": {
+      "type": "string",
+      "enum": [
+        "available",
+        "submitted",
+        "approved"
+      ],
+      "default": "available"
+    },
+    "install_claim_id": {
+      "type": "string"
+    },
+    "batch_reference": {
+      "type": "string"
+    },
+    "source_import_id": {
+      "type": "string",
+      "description": "Unique import identifier for safe batch rollback and audit"
+    },
+    "field_status": {
+      "type": "string",
+      "enum": [
+        "unconfirmed",
+        "dispatched",
+        "confirmed_on_site"
+      ],
+      "default": "unconfirmed"
+    },
+    "field_status_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "field_status_note": {
+      "type": "string",
+      "description": "Admin note on dispatch / confirmed location"
+    },
+    "source_batch_identifier": {
+      "type": "string",
+      "description": "Original row-level manufacturing batch identifier if supplied"
+    },
+    "supplied_to_type": {
+      "type": "string",
+      "enum": [
+        "not_provided",
+        "wholesaler",
+        "customer",
+        "unspecified"
+      ],
+      "default": "not_provided"
+    },
+    "supplied_to_name_raw": {
+      "type": "string",
+      "description": "Original supplied-to wholesaler or customer exactly as imported"
+    },
+    "supplied_to_branch_raw": {
+      "type": "string",
+      "description": "Original supplied-to branch exactly as imported"
+    },
+    "distribution_branch_id": {
+      "type": "string",
+      "description": "Optional reviewed match to WholesalerBranch directory"
+    },
+    "distribution_wholesaler_name": {
+      "type": "string",
+      "description": "Reviewed canonical wholesaler company name"
+    },
+    "distribution_branch_name": {
+      "type": "string",
+      "description": "Reviewed canonical wholesaler branch name"
+    },
+    "distribution_match_status": {
+      "type": "string",
+      "enum": [
+        "not_provided",
+        "customer",
+        "needs_review",
+        "matched",
+        "confirmed"
+      ],
+      "default": "not_provided"
+    },
+    "qr_generated": {
+      "type": "boolean",
+      "default": true
+    },
+    "qr_download_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of times this charger label has been downloaded individually or within a batch print file"
+    },
+    "qr_last_downloaded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Most recent QR label download time"
+    },
+    "is_demo": {
+      "type": "boolean",
+      "default": false,
+      "description": "Clearly identifies controlled beta demonstration data"
+    },
+    "demo_label": {
+      "type": "string"
+    },
+    "excluded_from_reporting": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "serial_number",
+    "pin_code",
+    "product_model",
+    "claim_token"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

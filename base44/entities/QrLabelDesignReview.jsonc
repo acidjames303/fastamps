@@ -1,0 +1,57 @@
+{
+  "name": "QrLabelDesignReview",
+  "type": "object",
+  "properties": {
+    "preferred_concept": {
+      "type": "string",
+      "enum": [
+        "refined",
+        "reward",
+        "minimal",
+        "technical",
+        "promotional"
+      ]
+    },
+    "review_note": {
+      "type": "string",
+      "description": "Comments from admin reviewing printable label concepts"
+    },
+    "preferred_by": {
+      "type": "string"
+    },
+    "preferred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "production_activated": {
+      "type": "boolean",
+      "default": false,
+      "description": "Unused design review flag. Review selection does not switch production."
+    }
+  },
+  "required": [
+    "preferred_concept"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
