@@ -4,12 +4,14 @@
  */
 
 .fa-glow-twopass {
-  --fa-bloom-far-blur: 26px;
-  --fa-bloom-far-opacity: 0.42;
-  --fa-bloom-far-scale: 1.03;
-  --fa-bloom-near-blur: 7px;
-  --fa-bloom-near-opacity: 0.28;
-  --fa-logo-tint: drop-shadow(0 0 1px rgba(0, 102, 255, 0.18));
+  /* Near edge softens the glyph; far haze is faint atmosphere — not a blue cloud */
+  --fa-bloom-far-blur: 22px;
+  --fa-bloom-far-opacity: 0.22;
+  --fa-bloom-far-scale: 1.02;
+  --fa-bloom-near-blur: 5px;
+  --fa-bloom-near-opacity: 0.34;
+  --fa-logo-tint: drop-shadow(0 0 2px rgba(0, 102, 255, 0.22))
+    drop-shadow(0 0 10px rgba(0, 102, 255, 0.16));
 
   position: relative;
   display: inline-grid;
@@ -20,12 +22,13 @@
 
 /* Compact header / nav — shorter falloff so it does not wash the chrome */
 .fa-glow-twopass--nav {
-  --fa-bloom-far-blur: 10px;
-  --fa-bloom-far-opacity: 0.42;
-  --fa-bloom-far-scale: 1.02;
-  --fa-bloom-near-blur: 3px;
-  --fa-bloom-near-opacity: 0.32;
-  --fa-logo-tint: drop-shadow(0 0 1px rgba(0, 102, 255, 0.2));
+  --fa-bloom-far-blur: 8px;
+  --fa-bloom-far-opacity: 0.2;
+  --fa-bloom-far-scale: 1.015;
+  --fa-bloom-near-blur: 2.5px;
+  --fa-bloom-near-opacity: 0.28;
+  --fa-logo-tint: drop-shadow(0 0 1px rgba(0, 102, 255, 0.18))
+    drop-shadow(0 0 5px rgba(0, 102, 255, 0.12));
 }
 
 .fa-glow-twopass .fa-bloom-far,
