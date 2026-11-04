@@ -1,0 +1,90 @@
+/**
+ * B2B Sales Leads — brand colorways
+ * Use these tokens across web, print, and presentation work.
+ */
+
+:root {
+  /* Primary — Navy & Steel (default) */
+  --bsl-navy: #0a1628;
+  --bsl-navy-deep: #071018;
+  --bsl-steel: #5b8def;
+  --bsl-steel-mid: #3d6b9a;
+  --bsl-ice: #c9d9f2;
+
+  /* Alternate — Teal & Charcoal */
+  --bsl-teal: #0d7377;
+  --bsl-teal-deep: #0a5558;
+  --bsl-charcoal: #1c1c1c;
+  --bsl-slate: #5a6570;
+
+  /* Alternate — Charcoal & Muted Gold (premium) */
+  --bsl-bronze: #9a7b4f;
+  --bsl-gold-muted: #b8975a;
+
+  /* Neutrals */
+  --bsl-white: #ffffff;
+  --bsl-off-white: #f2f4f7;
+  --bsl-black: #000000;
+
+  /* Semantic roles */
+  --bsl-bg-light: var(--bsl-white);
+  --bsl-bg-dark: var(--bsl-navy-deep);
+  --bsl-text-primary: var(--bsl-navy);
+  --bsl-text-on-dark: var(--bsl-white);
+  --bsl-accent: var(--bsl-steel);
+  --bsl-tagline: var(--bsl-slate);
+}
+
+/* Colorway A: Navy & Steel on light */
+.colorway-navy-steel {
+  --mark-primary: var(--bsl-navy);
+  --mark-secondary: var(--bsl-steel);
+  --type-primary: var(--bsl-navy);
+  --type-tagline: var(--bsl-slate);
+  --surface: var(--bsl-white);
+}
+
+/* Colorway B: Teal & Charcoal on light */
+.colorway-teal-charcoal {
+  --mark-primary: var(--bsl-teal);
+  --mark-secondary: var(--bsl-charcoal);
+  --type-primary: var(--bsl-charcoal);
+  --type-tagline: var(--bsl-slate);
+  --surface: var(--bsl-white);
+}
+
+/* Colorway C: Charcoal & Gold on light */
+.colorway-charcoal-gold {
+  --mark-primary: var(--bsl-charcoal);
+  --mark-secondary: var(--bsl-bronze);
+  --type-primary: var(--bsl-charcoal);
+  --type-tagline: var(--bsl-slate);
+  --surface: var(--bsl-white);
+}
+
+/* Colorway D: White & Ice on navy */
+.colorway-on-navy {
+  --mark-primary: var(--bsl-white);
+  --mark-secondary: var(--bsl-ice);
+  --type-primary: var(--bsl-white);
+  --type-tagline: var(--bsl-ice);
+  --surface: var(--bsl-navy);
+}
+
+/* Colorway E: White on deep teal */
+.colorway-on-teal {
+  --mark-primary: var(--bsl-white);
+  --mark-secondary: var(--bsl-white);
+  --type-primary: var(--bsl-white);
+  --type-tagline: var(--bsl-ice);
+  --surface: var(--bsl-teal-deep);
+}
+
+/* Colorway F: Monochrome */
+.colorway-mono {
+  --mark-primary: var(--bsl-black);
+  --mark-secondary: var(--bsl-black);
+  --type-primary: var(--bsl-black);
+  --type-tagline: var(--bsl-charcoal);
+  --surface: var(--bsl-white);
+}

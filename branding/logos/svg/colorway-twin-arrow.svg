@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 420" role="img" aria-labelledby="title desc">
+  <title id="title">B2B Sales Leads  Twin Arrow Mark</title>
+  <desc id="desc">Simplified twin upward arrows used across colorway variants. Swap fill colors via CSS classes.</desc>
+  <style>
+    .surface { fill: #ffffff; }
+    .mark-a { fill: #0A1628; }
+    .mark-b { fill: #5B8DEF; }
+    .type { fill: #0A1628; }
+    .tag { fill: #5A6570; }
+    .rule { stroke: #0A1628; }
+  </style>
+  <rect class="surface" width="480" height="420"/>
+  <!-- Twin ascending arrows -->
+  <path class="mark-a" d="M150 220 L210 120 L230 120 L180 220 Z"/>
+  <path class="mark-a" d="M186 95 L230 55 L274 95 L252 95 L230 72 L208 95 Z"/>
+  <path class="mark-b" d="M250 230 L300 150 L318 150 L278 230 Z"/>
+  <path class="mark-b" d="M278 125 L318 90 L358 125 L340 125 L318 105 L296 125 Z"/>
+  <text class="type" x="240" y="290" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" letter-spacing="3">B2B SALES LEADS</text>
+  <line class="rule" x1="140" y1="305" x2="340" y2="305" stroke-width="1.5"/>
+  <text class="tag" x="240" y="335" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="500" letter-spacing="4">THE POWER OF EXPERIENCE</text>
+</svg>

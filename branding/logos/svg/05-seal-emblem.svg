@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 420" role="img" aria-labelledby="title desc">
+  <title id="title">B2B Sales Leads  Seal Emblem</title>
+  <desc id="desc">Circular seal with twin upward paths, brand name and tagline.</desc>
+  <circle cx="240" cy="145" r="88" fill="none" stroke="#0A1628" stroke-width="4"/>
+  <path fill="none" stroke="#0D7377" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"
+        d="M188 185 L210 150 L232 168 L262 118"/>
+  <path fill="#0D7377" d="M250 104 L278 112 L262 136 Z"/>
+  <path fill="none" stroke="#0D7377" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"
+        d="M200 195 L222 168 L240 180 L255 150"/>
+  <path fill="#0D7377" d="M246 138 L268 144 L256 164 Z"/>
+  <text x="240" y="290" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" letter-spacing="3" fill="#0A1628">B2B SALES LEADS</text>
+  <text x="240" y="325" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="500" letter-spacing="4" fill="#5A6570">THE POWER OF EXPERIENCE</text>
+</svg>
