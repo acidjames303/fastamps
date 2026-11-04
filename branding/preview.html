@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>B2B Sales Leads — Preferred Brand Marks</title>
+  <link rel="stylesheet" href="colorways/palette.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+      background: #e8ebf0;
+      color: var(--bsl-navy);
+      line-height: 1.45;
+    }
+    header {
+      padding: 2.5rem 1.5rem 1.25rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    header h1 {
+      margin: 0 0 0.35rem;
+      font-size: 1.65rem;
+      letter-spacing: 0.03em;
+    }
+    header p { margin: 0; color: var(--bsl-slate); max-width: 40rem; }
+    .tag {
+      display: inline-block;
+      margin-top: 0.75rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--bsl-steel-mid);
+    }
+    section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.5rem 2.5rem;
+    }
+    section h2 {
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin: 0 0 1rem;
+      color: var(--bsl-slate);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.15rem;
+    }
+    figure {
+      margin: 0;
+      background: #fff;
+      border: 1px solid #cfd5df;
+      overflow: hidden;
+    }
+    figure.dark { background: #0B0F14; border-color: #1a2230; }
+    figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      object-fit: contain;
+    }
+    figure.square img { aspect-ratio: 1 / 1; }
+    figcaption {
+      padding: 0.85rem 1rem 1rem;
+      border-top: 1px solid #cfd5df;
+    }
+    figure.dark figcaption { border-top-color: #1a2230; color: #C9D9F2; }
+    figcaption strong { display: block; font-size: 0.95rem; margin-bottom: 0.2rem; }
+    figcaption span { font-size: 0.82rem; color: var(--bsl-slate); }
+    figure.dark figcaption span { color: #8fa0b5; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>B2B Sales Leads</h1>
+    <p>Preferred marks based on the site treatments you liked. Tagline locked to <strong>The Voice of Experience</strong>.</p>
+    <div class="tag">Primary brand direction</div>
+  </header>
+
+  <section>
+    <h2>From your site (reference)</h2>
+    <div class="grid">
+      <figure class="dark">
+        <img src="reference/site-horizontal-growth.png" alt="Site horizontal growth lockup" />
+        <figcaption>
+          <strong>Site — Horizontal growth</strong>
+          <span>Original lockup you liked</span>
+        </figcaption>
+      </figure>
+      <figure class="dark">
+        <img src="reference/site-outlined-b2b.png" alt="Site outlined B2B" />
+        <figcaption>
+          <strong>Site — Outlined B2B</strong>
+          <span>Original hero / section treatment you liked</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Refined preferred set</h2>
+    <div class="grid">
+      <figure class="dark">
+        <img src="logos/preferred/preferred-01-horizontal-growth.jpg" alt="Refined horizontal growth dark" />
+        <figcaption>
+          <strong>Primary lockup — Dark</strong>
+          <span>Nav / headers · THE VOICE OF EXPERIENCE</span>
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="logos/preferred/preferred-01-horizontal-growth-light.jpg" alt="Refined horizontal growth light" />
+        <figcaption>
+          <strong>Primary lockup — Light</strong>
+          <span>Light surfaces / print</span>
+        </figcaption>
+      </figure>
+      <figure class="dark">
+        <img src="logos/preferred/preferred-02-outlined-b2b.jpg" alt="Refined outlined B2B dark" />
+        <figcaption>
+          <strong>Hero mark — Outlined B2B (Dark)</strong>
+          <span>Large dark sections</span>
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="logos/preferred/preferred-02-outlined-b2b-light.jpg" alt="Refined outlined B2B light" />
+        <figcaption>
+          <strong>Hero mark — Outlined B2B (Light)</strong>
+          <span>Light reverse</span>
+        </figcaption>
+      </figure>
+      <figure class="dark square">
+        <img src="logos/preferred/preferred-03-combined-primary.jpg" alt="Combined primary exploration" />
+        <figcaption>
+          <strong>Combined exploration</strong>
+          <span>Outlined B2B + growth mark stacked</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+</body>
+</html>

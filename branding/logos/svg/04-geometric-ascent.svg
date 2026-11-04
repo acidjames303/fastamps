@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 420" role="img" aria-labelledby="title desc">
+  <title id="title">B2B Sales Leads  Geometric Ascent</title>
+  <desc id="desc">Three ascending bars with chevron tip above brand name and tagline.</desc>
+  <g fill="#0E2744">
+    <rect x="150" y="180" width="44" height="70" rx="2"/>
+    <rect x="210" y="140" width="44" height="110" rx="2"/>
+    <rect x="270" y="95" width="44" height="155" rx="2"/>
+    <path d="M214 42 L240 18 L266 42 L254 42 L240 30 L226 42 Z"/>
+  </g>
+  <text x="240" y="310" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" letter-spacing="3" fill="#1C1C1C">B2B SALES LEADS</text>
+  <text x="240" y="345" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="500" letter-spacing="4" fill="#5A6570">THE VOICE OF EXPERIENCE</text>
+</svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 420" role="img" aria-labelledby="title desc">
+  <title id="title">B2B Sales Leads  B2B Lettermark</title>
+  <desc id="desc">Architectural B letterforms bridged by a bronze chevron standing in for the 2.</desc>
+  <!-- Left B slab -->
+  <path fill="#0A1628" d="M110 70 H175 C210 70 232 92 232 120 C232 140 220 156 198 164 C224 172 240 190 240 218 C240 252 214 280 172 280 H110 V70 Z M148 108 V148 H172 C186 148 196 138 196 126 C196 114 186 108 172 108 H148 Z M148 186 V242 H174 C192 242 204 230 204 214 C204 198 192 186 174 186 H148 Z"/>
+  <!-- Chevron as 2 -->
+  <path fill="none" stroke="#9A7B4F" stroke-width="18" stroke-linecap="square" stroke-linejoin="miter"
+        d="M248 210 L290 140 L332 210"/>
+  <!-- Right B slab -->
+  <path fill="#0A1628" d="M340 70 H405 C440 70 462 92 462 120 C462 140 450 156 428 164 C454 172 470 190 470 218 C470 252 444 280 402 280 H340 V70 Z M378 108 V148 H402 C416 148 426 138 426 126 C426 114 416 108 402 108 H378 Z M378 186 V242 H404 C422 242 434 230 434 214 C434 198 422 186 404 186 H378 Z"/>
+  <text x="240" y="340" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700" letter-spacing="6" fill="#0A1628">SALES LEADS</text>
+  <text x="240" y="375" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="500" letter-spacing="4.5" fill="#5A6570">THE VOICE OF EXPERIENCE</text>
+</svg>

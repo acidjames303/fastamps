@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 200" role="img" aria-labelledby="title desc">
+  <title id="title">B2B Sales Leads  Monogram Lockup</title>
+  <desc id="desc">Navy rounded square with geometric BL monogram beside horizontal wordmark.</desc>
+  <!-- Icon -->
+  <rect x="24" y="36" width="128" height="128" rx="22" fill="#0A1628"/>
+  <!-- Abstract B/L upward monogram -->
+  <path fill="#FFFFFF" d="M52 148 V68 H86 C102 68 112 78 112 92 C112 102 106 110 96 114 C108 118 116 128 116 140 C116 154 104 148 86 148 H52 Z M72 84 V102 H84 C90 102 94 98 94 93 C94 88 90 84 84 84 H72 Z M72 116 V132 H86 C93 132 98 128 98 123 C98 118 93 116 86 116 H72 Z"/>
+  <path fill="#FFFFFF" d="M118 148 L140 92 H124 L110 128 H98 L118 148 Z"/>
+  <!-- Type -->
+  <text x="180" y="95" font-family="Arial Narrow, Arial, Helvetica, sans-serif" font-size="36" font-weight="700" letter-spacing="1.5" fill="#0A1628">B2B SALES LEADS</text>
+  <line x1="180" y1="112" x2="560" y2="112" stroke="#0D7377" stroke-width="2.5"/>
+  <text x="180" y="140" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" letter-spacing="4.5" fill="#5A6570">THE VOICE OF EXPERIENCE</text>
+</svg>
