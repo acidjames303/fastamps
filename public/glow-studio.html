@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FASTAMPS — Organic Soft Glow Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #070d18;
+      --bg-panel: #0c1524;
+      --bg-stage: #050a12;
+      --ink: #e8eef8;
+      --muted: #8b9bb4;
+      --faint: #5a6b84;
+      --line: rgba(255, 255, 255, 0.08);
+      --brand: #0066ff;
+      --brand-soft: rgba(0, 102, 255, 0.45);
+      --good: #5eead4;
+      --bad: #fb7185;
+      --pick: #93c5fd;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 15% -10%, rgba(0, 102, 255, 0.16), transparent 55%),
+        radial-gradient(900px 500px at 90% 10%, rgba(14, 70, 160, 0.12), transparent 50%),
+        var(--bg);
+      line-height: 1.5;
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    header.hero {
+      display: grid;
+      gap: 18px;
+      margin-bottom: 40px;
+      max-width: 720px;
+    }
+
+    .eyebrow {
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--pick);
+      font-weight: 600;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 42px);
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      font-weight: 700;
+    }
+
+    .lede {
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+      max-width: 58ch;
+    }
+
+    .diagnosis {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 20px;
+      margin: 36px 0 48px;
+    }
+
+    @media (max-width: 840px) {
+      .diagnosis { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: color-mix(in srgb, var(--bg-panel) 92%, white 0%);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .panel h2 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .panel p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .stage {
+      background: var(--bg-stage);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      min-height: 160px;
+      display: grid;
+      place-items: center;
+      padding: 28px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stage img.raw {
+      max-width: min(420px, 100%);
+      height: auto;
+      display: block;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 9px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+    .badge.bad { color: var(--bad); background: rgba(251, 113, 133, 0.12); }
+    .badge.good { color: var(--good); background: rgba(94, 234, 212, 0.12); }
+
+    .why {
+      list-style: none;
+      margin: 16px 0 0;
+      padding: 0;
+      display: grid;
+      gap: 8px;
+    }
+    .why li {
+      font-size: 13px;
+      color: var(--muted);
+      padding-left: 18px;
+      position: relative;
+    }
+    .why li::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      position: absolute;
+      left: 0;
+      top: 7px;
+      background: var(--bad);
+    }
+    .why.good li::before { background: var(--good); }
+
+    .section-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 8px 0 18px;
+      flex-wrap: wrap;
+    }
+    .section-title h2 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -0.02em;
+    }
+    .section-title p {
+      margin: 0;
+      color: var(--faint);
+      font-size: 13px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--bg-panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .card.recommended {
+      border-color: rgba(94, 234, 212, 0.35);
+      box-shadow: 0 0 0 1px rgba(94, 234, 212, 0.12);
+    }
+    .card-head {
+      padding: 16px 18px 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+    }
+    .card-head h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .card-head .tag {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--good);
+      background: rgba(94, 234, 212, 0.1);
+      padding: 4px 8px;
+      border-radius: 999px;
+    }
+    .card-head .tag.neutral {
+      color: var(--pick);
+      background: rgba(147, 197, 253, 0.1);
+    }
+    .card .desc {
+      padding: 6px 18px 14px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .card .stage {
+      border: 0;
+      border-radius: 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      min-height: 190px;
+    }
+    .card .code {
+      margin: 0;
+      padding: 14px 18px 18px;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 11.5px;
+      line-height: 1.55;
+      color: #b7c6dc;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      background: #08101c;
+    }
+
+    /* ========== GLOW TECHNIQUES ========== */
+
+    .logo {
+      width: min(360px, 86%);
+      height: auto;
+      display: block;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* A — Current: tight hard outline feel (what looks stuck) */
+    .glow-current {
+      filter:
+        drop-shadow(0 0 1px rgba(80, 180, 255, 0.95))
+        drop-shadow(0 0 2px rgba(0, 140, 255, 0.9))
+        drop-shadow(0 0 4px rgba(0, 102, 255, 0.85));
+    }
+
+    /* B — Soft layered bloom: increasing blur, falling opacity */
+    .glow-layered {
+      filter:
+        drop-shadow(0 0 2px rgba(0, 102, 255, 0.35))
+        drop-shadow(0 0 8px rgba(0, 102, 255, 0.28))
+        drop-shadow(0 0 22px rgba(0, 102, 255, 0.22))
+        drop-shadow(0 0 48px rgba(0, 80, 220, 0.16));
+    }
+
+    /* C — Ambient haze: soft radial light behind, not letter-hugging */
+    .glow-ambient-wrap {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 100%;
+    }
+    .glow-ambient-wrap::before {
+      content: "";
+      position: absolute;
+      width: 78%;
+      height: 58%;
+      border-radius: 50%;
+      background: radial-gradient(
+        ellipse at center,
+        rgba(0, 102, 255, 0.34) 0%,
+        rgba(0, 80, 210, 0.16) 35%,
+        rgba(0, 60, 160, 0.05) 62%,
+        transparent 78%
+      );
+      filter: blur(18px);
+      transform: translateY(-4%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .glow-ambient {
+      filter: drop-shadow(0 0 10px rgba(0, 102, 255, 0.18));
+      position: relative;
+      z-index: 1;
+    }
+
+    /* D — SVG gaussian bloom (true light scatter) */
+    .glow-svg {
+      filter: url(#svg-bloom);
+    }
+
+    /* E — Two-pass neon: near core + far atmosphere (recommended) */
+    .glow-twopass-wrap {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 100%;
+    }
+    .glow-twopass-wrap .bloom-far,
+    .glow-twopass-wrap .bloom-near {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+    }
+    .glow-twopass-wrap .bloom-far img {
+      width: min(360px, 86%);
+      opacity: 0.55;
+      filter: blur(28px) saturate(1.15);
+      transform: scale(1.04);
+    }
+    .glow-twopass-wrap .bloom-near img {
+      width: min(360px, 86%);
+      opacity: 0.4;
+      filter: blur(8px) saturate(1.05);
+    }
+    .glow-twopass-wrap .logo-sharp {
+      position: relative;
+      z-index: 2;
+      width: min(360px, 86%);
+      filter: drop-shadow(0 0 1.5px rgba(0, 102, 255, 0.25));
+    }
+
+    /* F — Breath / living glow (subtle pulse) */
+    .glow-breath {
+      filter:
+        drop-shadow(0 0 3px rgba(0, 102, 255, 0.28))
+        drop-shadow(0 0 14px rgba(0, 102, 255, 0.22))
+        drop-shadow(0 0 36px rgba(0, 90, 230, 0.18))
+        drop-shadow(0 0 64px rgba(0, 70, 200, 0.1));
+      animation: breath 4.5s ease-in-out infinite;
+    }
+    @keyframes breath {
+      0%, 100% {
+        filter:
+          drop-shadow(0 0 3px rgba(0, 102, 255, 0.28))
+          drop-shadow(0 0 14px rgba(0, 102, 255, 0.22))
+          drop-shadow(0 0 36px rgba(0, 90, 230, 0.18))
+          drop-shadow(0 0 64px rgba(0, 70, 200, 0.1));
+      }
+      50% {
+        filter:
+          drop-shadow(0 0 4px rgba(0, 102, 255, 0.34))
+          drop-shadow(0 0 18px rgba(0, 102, 255, 0.28))
+          drop-shadow(0 0 44px rgba(0, 90, 230, 0.24))
+          drop-shadow(0 0 80px rgba(0, 70, 200, 0.14));
+      }
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 28px 0 10px;
+    }
+    .controls button {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #0e1728;
+      color: var(--ink);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 9px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .controls button:hover { border-color: rgba(255,255,255,0.2); }
+    .controls button.active {
+      background: rgba(0, 102, 255, 0.18);
+      border-color: rgba(0, 102, 255, 0.55);
+      color: #cfe0ff;
+    }
+
+    .preview-large {
+      margin-top: 12px;
+      background: var(--bg-panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .preview-large .stage {
+      min-height: 280px;
+      border: 0;
+      border-radius: 0;
+    }
+    .preview-large .meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 16px 20px;
+      border-top: 1px solid var(--line);
+      background: #08101c;
+    }
+    .preview-large .meta strong {
+      font-size: 14px;
+    }
+    .preview-large .meta span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .rules {
+      margin-top: 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    @media (max-width: 700px) {
+      .rules { grid-template-columns: 1fr; }
+    }
+    .rules .panel h2 { font-size: 16px; }
+    .rules ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+    .rules li {
+      font-size: 14px;
+      color: var(--muted);
+      padding-left: 14px;
+      border-left: 2px solid var(--line);
+    }
+    .rules .do li { border-left-color: rgba(94, 234, 212, 0.5); }
+    .rules .dont li { border-left-color: rgba(251, 113, 133, 0.5); }
+
+    footer.note {
+      margin-top: 40px;
+      color: var(--faint);
+      font-size: 13px;
+    }
+    footer.note code {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 12px;
+      color: var(--pick);
+    }
+  </style>
+</head>
+<body>
+  <!-- Hidden SVG filter used by option D -->
+  <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+    <defs>
+      <filter id="svg-bloom" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
+        <!-- Soft far scatter -->
+        <feGaussianBlur in="SourceAlpha" stdDeviation="18" result="far" />
+        <feColorMatrix in="far" type="matrix" values="
+          0 0 0 0 0
+          0 0 0 0 0.4
+          0 0 0 0 1
+          0 0 0 0.35 0" result="farTint" />
+        <!-- Near soft edge -->
+        <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="near" />
+        <feColorMatrix in="near" type="matrix" values="
+          0 0 0 0 0
+          0 0 0 0 0.45
+          0 0 0 0 1
+          0 0 0 0.45 0" result="nearTint" />
+        <feMerge>
+          <feMergeNode in="farTint" />
+          <feMergeNode in="nearTint" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+    </defs>
+  </svg>
+
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow">FASTAMPS logo · glow studio</div>
+      <h1>Make the glow feel like light, not a sticker</h1>
+      <p class="lede">
+        The wordmark is strong. The current glow hugs the letter edges too tightly
+        with high opacity — so it reads as a hard outline stamped on the page.
+        Soft, organic glow needs long falloff, low edge opacity, and light that
+        bleeds into the background.
+      </p>
+    </header>
+
+    <section class="diagnosis">
+      <div class="panel">
+        <span class="badge bad">Current feel</span>
+        <h2>Tight / superimposed</h2>
+        <p>Short radius + bright edge = outline, not light.</p>
+        <div class="stage">
+          <img class="logo glow-current" src="../assets/fastamps-logo-clean.png" alt="FASTAMPS logo with tight glow" />
+        </div>
+        <ul class="why">
+          <li>Glow follows letter contours exactly</li>
+          <li>High opacity right at the edge</li>
+          <li>Falloff dies in a few pixels</li>
+          <li>Reads as a second stroke / sticker</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <span class="badge good">Target feel</span>
+        <h2>Organic soft bloom</h2>
+        <p>Near core + far atmosphere — light radiates into the navy field.</p>
+        <div class="stage">
+          <div class="glow-twopass-wrap">
+            <div class="bloom-far" aria-hidden="true"><img src="../assets/fastamps-logo-clean.png" alt="" /></div>
+            <div class="bloom-near" aria-hidden="true"><img src="../assets/fastamps-logo-clean.png" alt="" /></div>
+            <img class="logo-sharp" src="../assets/fastamps-logo-clean.png" alt="FASTAMPS logo with soft two-pass bloom" />
+          </div>
+        </div>
+        <ul class="why good">
+          <li>Soft haze larger than the letters</li>
+          <li>Low opacity near the edge</li>
+          <li>Long, gentle falloff into the background</li>
+          <li>Sharp logo sits on top of diffused light</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="section-title">
+      <h2>Live preview</h2>
+      <p>Click a method · brand blue <code style="color:var(--pick)">#0066FF</code></p>
+    </div>
+
+    <div class="controls" id="controls" role="tablist" aria-label="Glow methods">
+      <button type="button" data-method="current">A · Current (stuck)</button>
+      <button type="button" data-method="layered">B · Layered bloom</button>
+      <button type="button" data-method="ambient">C · Ambient haze</button>
+      <button type="button" data-method="svg">D · SVG gaussian</button>
+      <button type="button" class="active" data-method="twopass">E · Two-pass neon</button>
+      <button type="button" data-method="breath">F · Breathing glow</button>
+    </div>
+
+    <div class="preview-large">
+      <div class="stage" id="live-stage">
+        <!-- filled by JS -->
+      </div>
+      <div class="meta">
+        <strong id="live-title">E · Two-pass neon</strong>
+        <span id="live-note">Best default for the Connect header and login mark</span>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:48px">
+      <h2>All methods</h2>
+      <p>Copy the CSS that fits your stack</p>
+    </div>
+
+    <div class="grid">
+      <article class="card">
+        <div class="card-head">
+          <h3>A · Current tight glow</h3>
+          <span class="tag" style="color:var(--bad);background:rgba(251,113,133,.12)">Avoid</span>
+        </div>
+        <p class="desc">Single short, bright shadows. Looks stuck / childlike.</p>
+        <div class="stage">
+          <img class="logo glow-current" src="../assets/fastamps-logo-clean.png" alt="" />
+        </div>
+        <pre class="code">filter:
+  drop-shadow(0 0 1px rgba(80,180,255,.95))
+  drop-shadow(0 0 2px rgba(0,140,255,.9))
+  drop-shadow(0 0 4px rgba(0,102,255,.85));</pre>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h3>B · Layered soft bloom</h3>
+          <span class="tag neutral">Simple CSS</span>
+        </div>
+        <p class="desc">Stack 3–4 shadows: blur grows, opacity falls. Instant upgrade.</p>
+        <div class="stage">
+          <img class="logo glow-layered" src="../assets/fastamps-logo-clean.png" alt="" />
+        </div>
+        <pre class="code">filter:
+  drop-shadow(0 0 2px rgba(0,102,255,.35))
+  drop-shadow(0 0 8px rgba(0,102,255,.28))
+  drop-shadow(0 0 22px rgba(0,102,255,.22))
+  drop-shadow(0 0 48px rgba(0,80,220,.16));</pre>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h3>C · Ambient haze</h3>
+          <span class="tag neutral">Atmospheric</span>
+        </div>
+        <p class="desc">A blurred radial ellipse behind the mark — light in the room, not on the glyphs.</p>
+        <div class="stage">
+          <div class="glow-ambient-wrap">
+            <img class="logo glow-ambient" src="../assets/fastamps-logo-clean.png" alt="" />
+          </div>
+        </div>
+        <pre class="code">/* wrapper::before */
+background: radial-gradient(ellipse,
+  rgba(0,102,255,.34),
+  transparent 78%);
+filter: blur(18px);
+
+/* logo */
+filter: drop-shadow(0 0 10px rgba(0,102,255,.18));</pre>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h3>D · SVG gaussian bloom</h3>
+          <span class="tag neutral">Most natural</span>
+        </div>
+        <p class="desc">True Gaussian scatter via <code>feGaussianBlur</code> — softest letter-edge bleed.</p>
+        <div class="stage">
+          <img class="logo glow-svg" src="../assets/fastamps-logo-clean.png" alt="" />
+        </div>
+        <pre class="code">&lt;filter id="svg-bloom"&gt;
+  &lt;feGaussianBlur stdDeviation="18" /&gt;
+  &lt;feGaussianBlur stdDeviation="6" /&gt;
+  &lt;!-- tint + merge under SourceGraphic --&gt;
+&lt;/filter&gt;
+filter: url(#svg-bloom);</pre>
+      </article>
+
+      <article class="card recommended">
+        <div class="card-head">
+          <h3>E · Two-pass neon</h3>
+          <span class="tag">Recommended</span>
+        </div>
+        <p class="desc">Blurred duplicates behind a sharp logo: near glow + far atmosphere. Pro backlit look.</p>
+        <div class="stage">
+          <div class="glow-twopass-wrap">
+            <div class="bloom-far" aria-hidden="true"><img src="../assets/fastamps-logo-clean.png" alt="" /></div>
+            <div class="bloom-near" aria-hidden="true"><img src="../assets/fastamps-logo-clean.png" alt="" /></div>
+            <img class="logo-sharp" src="../assets/fastamps-logo-clean.png" alt="" />
+          </div>
+        </div>
+        <pre class="code">/* far:  blur(28px) opacity .55  scale 1.04 */
+/* near: blur(8px)  opacity .40 */
+/* sharp logo on top, tiny 1.5px brand tint */</pre>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h3>F · Breathing glow</h3>
+          <span class="tag neutral">Motion</span>
+        </div>
+        <p class="desc">Same soft bloom with a slow 4.5s pulse — presence without neon-club energy.</p>
+        <div class="stage">
+          <img class="logo glow-breath" src="../assets/fastamps-logo-clean.png" alt="" />
+        </div>
+        <pre class="code">animation: breath 4.5s ease-in-out infinite;
+/* animate blur radii + opacities gently */</pre>
+      </article>
+    </div>
+
+    <section class="rules">
+      <div class="panel do">
+        <h2>Do</h2>
+        <ul>
+          <li>Keep the logo file itself flat (no baked-in glow) and add glow in CSS/SVG</li>
+          <li>Use multiple soft layers: small + medium + large blur</li>
+          <li>Stay near brand blue <code>#0066FF</code> — avoid bright cyan outlines</li>
+          <li>Let glow spill past the letters into the navy background</li>
+          <li>Keep the wordmark sharp on top of diffused light</li>
+        </ul>
+      </div>
+      <div class="panel dont">
+        <h2>Don’t</h2>
+        <ul>
+          <li>Don’t use a thin hard stroke or 1–4px high-opacity halo</li>
+          <li>Don’t match letter contours with a bright, uniform rim</li>
+          <li>Don’t bake the glow into the PNG unless you export several sizes</li>
+          <li>Don’t oversaturate — soft light is mostly low-alpha brand blue</li>
+          <li>Don’t put glow on “SIMPLY RELIABLE” — keep the tagline quiet</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="note">
+      Open this file locally: <code>public/glow-studio.html</code>.
+      Reusable CSS lives in <code>public/fastamps-glow.css</code>.
+      Recommended default for the site: <strong style="color:var(--good);font-weight:600">E · Two-pass neon</strong>,
+      or <strong style="color:var(--pick);font-weight:600">B · Layered bloom</strong> if you need a one-liner filter.
+    </footer>
+  </div>
+
+  <script>
+    const methods = {
+      current: {
+        title: "A · Current (stuck)",
+        note: "Tight bright rim — the superimposed look to replace",
+        html: `<img class="logo glow-current" src="../assets/fastamps-logo-clean.png" alt="FASTAMPS" />`
+      },
+      layered: {
+        title: "B · Layered soft bloom",
+        note: "One filter, four shadows — quick win for img or SVG logos",
+        html: `<img class="logo glow-layered" src="../assets/fastamps-logo-clean.png" alt="FASTAMPS" />`
+      },
+      ambient: {
+        title: "C · Ambient haze",
+        note: "Room light behind the mark — especially good in large heroes",
+        html: `<div class="glow-ambient-wrap"><img class="logo glow-ambient" src="../assets/fastamps-logo-clean.png" alt="FASTAMPS" /></div>`
+      },
+      svg: {
+        title: "D · SVG gaussian bloom",
+        note: "True Gaussian scatter — softest edge bleed",
+        html: `<img class="logo glow-svg" src="../assets/fastamps-logo-clean.png" alt="FASTAMPS" />`
+      },
+      twopass: {
+        title: "E · Two-pass neon",
+        note: "Best default for the Connect header and login mark",
+        html: `<div class="glow-twopass-wrap">
+          <div class="bloom-far" aria-hidden="true"><img src="../assets/fastamps-logo-clean.png" alt="" /></div>
+          <div class="bloom-near" aria-hidden="true"><img src="../assets/fastamps-logo-clean.png" alt="" /></div>
+          <img class="logo-sharp" src="../assets/fastamps-logo-clean.png" alt="FASTAMPS" />
+        </div>`
+      },
+      breath: {
+        title: "F · Breathing glow",
+        note: "Soft bloom with a slow pulse — optional for splash/login only",
+        html: `<img class="logo glow-breath" src="../assets/fastamps-logo-clean.png" alt="FASTAMPS" />`
+      }
+    };
+
+    const stage = document.getElementById("live-stage");
+    const title = document.getElementById("live-title");
+    const note = document.getElementById("live-note");
+    const buttons = [...document.querySelectorAll("#controls button")];
+
+    function setMethod(key) {
+      const m = methods[key];
+      stage.innerHTML = m.html;
+      title.textContent = m.title;
+      note.textContent = m.note;
+      buttons.forEach((b) => b.classList.toggle("active", b.dataset.method === key));
+    }
+
+    buttons.forEach((b) => b.addEventListener("click", () => setMethod(b.dataset.method)));
+    setMethod("twopass");
+  </script>
+</body>
+</html>

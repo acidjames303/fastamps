@@ -1,0 +1,172 @@
+/**
+ * FASTAMPS organic soft glow
+ * Brand blue: #0066FF
+ *
+ * Prefer a flat logo PNG/SVG (no baked glow), then pick one of these.
+ * Recommended for header / login: .fa-glow-twopass
+ * One-liner fallback:          .fa-glow-layered
+ */
+
+:root {
+  --fa-blue: #0066ff;
+}
+
+/* ---------- B · Layered soft bloom (one filter) ---------- */
+.fa-glow-layered {
+  filter:
+    drop-shadow(0 0 2px rgba(0, 102, 255, 0.35))
+    drop-shadow(0 0 8px rgba(0, 102, 255, 0.28))
+    drop-shadow(0 0 22px rgba(0, 102, 255, 0.22))
+    drop-shadow(0 0 48px rgba(0, 80, 220, 0.16));
+}
+
+/* ---------- C · Ambient haze ---------- */
+.fa-glow-ambient {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  isolation: isolate;
+}
+
+.fa-glow-ambient::before {
+  content: "";
+  position: absolute;
+  width: 78%;
+  height: 58%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 102, 255, 0.34) 0%,
+    rgba(0, 80, 210, 0.16) 35%,
+    rgba(0, 60, 160, 0.05) 62%,
+    transparent 78%
+  );
+  filter: blur(18px);
+  transform: translateY(-4%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.fa-glow-ambient > img,
+.fa-glow-ambient > svg {
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0 10px rgba(0, 102, 255, 0.18));
+}
+
+/* ---------- D · SVG filter (include the <svg> defs once in the page) ---------- */
+.fa-glow-svg {
+  filter: url(#fa-svg-bloom);
+}
+
+/*
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+  <defs>
+    <filter id="fa-svg-bloom" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="18" result="far" />
+      <feColorMatrix in="far" type="matrix" values="
+        0 0 0 0 0
+        0 0 0 0 0.4
+        0 0 0 0 1
+        0 0 0 0.35 0" result="farTint" />
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="near" />
+      <feColorMatrix in="near" type="matrix" values="
+        0 0 0 0 0
+        0 0 0 0 0.45
+        0 0 0 0 1
+        0 0 0 0.45 0" result="nearTint" />
+      <feMerge>
+        <feMergeNode in="farTint" />
+        <feMergeNode in="nearTint" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+</svg>
+*/
+
+/* ---------- E · Two-pass neon (recommended) ---------- */
+.fa-glow-twopass {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+}
+
+.fa-glow-twopass .fa-bloom-far,
+.fa-glow-twopass .fa-bloom-near {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.fa-glow-twopass .fa-bloom-far img,
+.fa-glow-twopass .fa-bloom-far svg {
+  width: 100%;
+  height: auto;
+  opacity: 0.55;
+  filter: blur(28px) saturate(1.15);
+  transform: scale(1.04);
+}
+
+.fa-glow-twopass .fa-bloom-near img,
+.fa-glow-twopass .fa-bloom-near svg {
+  width: 100%;
+  height: auto;
+  opacity: 0.4;
+  filter: blur(8px) saturate(1.05);
+}
+
+.fa-glow-twopass .fa-logo-sharp {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0 1.5px rgba(0, 102, 255, 0.25));
+}
+
+/* ---------- F · Breathing soft bloom ---------- */
+.fa-glow-breath {
+  filter:
+    drop-shadow(0 0 3px rgba(0, 102, 255, 0.28))
+    drop-shadow(0 0 14px rgba(0, 102, 255, 0.22))
+    drop-shadow(0 0 36px rgba(0, 90, 230, 0.18))
+    drop-shadow(0 0 64px rgba(0, 70, 200, 0.1));
+  animation: fa-glow-breath 4.5s ease-in-out infinite;
+}
+
+@keyframes fa-glow-breath {
+  0%,
+  100% {
+    filter:
+      drop-shadow(0 0 3px rgba(0, 102, 255, 0.28))
+      drop-shadow(0 0 14px rgba(0, 102, 255, 0.22))
+      drop-shadow(0 0 36px rgba(0, 90, 230, 0.18))
+      drop-shadow(0 0 64px rgba(0, 70, 200, 0.1));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 4px rgba(0, 102, 255, 0.34))
+      drop-shadow(0 0 18px rgba(0, 102, 255, 0.28))
+      drop-shadow(0 0 44px rgba(0, 90, 230, 0.24))
+      drop-shadow(0 0 80px rgba(0, 70, 200, 0.14));
+  }
+}
+
+/* ---------- Markup examples ----------
+Layered:
+  <img class="fa-glow-layered" src="/logo.svg" alt="FASTAMPS" />
+
+Ambient:
+  <span class="fa-glow-ambient">
+    <img src="/logo.svg" alt="FASTAMPS" />
+  </span>
+
+Two-pass (recommended):
+  <span class="fa-glow-twopass" style="width: 220px">
+    <span class="fa-bloom-far" aria-hidden="true"><img src="/logo.svg" alt="" /></span>
+    <span class="fa-bloom-near" aria-hidden="true"><img src="/logo.svg" alt="" /></span>
+    <img class="fa-logo-sharp" src="/logo.svg" alt="FASTAMPS" />
+  </span>
+*/
