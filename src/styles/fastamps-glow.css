@@ -4,12 +4,12 @@
  */
 
 .fa-glow-twopass {
-  --fa-bloom-far-blur: 28px;
-  --fa-bloom-far-opacity: 0.55;
-  --fa-bloom-far-scale: 1.04;
-  --fa-bloom-near-blur: 8px;
-  --fa-bloom-near-opacity: 0.4;
-  --fa-logo-tint: drop-shadow(0 0 1.5px rgba(0, 102, 255, 0.25));
+  --fa-bloom-far-blur: 26px;
+  --fa-bloom-far-opacity: 0.42;
+  --fa-bloom-far-scale: 1.03;
+  --fa-bloom-near-blur: 7px;
+  --fa-bloom-near-opacity: 0.28;
+  --fa-logo-tint: drop-shadow(0 0 1px rgba(0, 102, 255, 0.18));
 
   position: relative;
   display: inline-grid;
