@@ -117,14 +117,16 @@ Login shows “Need an account? Sign up” and “Forgot password?”. Public br
 | Hardcoded secrets in app bundle | None found |
 | Screenshots | `/opt/cursor/artifacts/cadence-audit/*.webp` (agent run artifacts) |
 
-## Recommended next moves
+## Follow-up implemented in-repo
 
-1. Confirm Base44 **CommunicationDecision** permissions (owner-only list/update).
-2. Finish **Cadence** rename (footer, icons, any CommDecide strings).
-3. Choose **invite-only vs open signup**; fix or remove broken auth links.
-4. Hide **Edit with Base44** for the published audience.
-5. Optional: thin public landing that reuses Home hero copy, then auth for the wizard.
-6. Eject or sync source into git if you want PR-based review (this repo’s `main` is still README-only; Connect lives on other branches).
+Backend hardening (workflow unchanged) now lives under `cadence/` — see [cadence-backend-hardening.md](./cadence-backend-hardening.md). Owner-scoped functions replace client entity/LLM calls. Deploy to the live Base44 app still needs API credentials.
+
+## Remaining next moves
+
+1. Deploy `cadence/` to Base44 app `6a7338…` and lock direct entity writes.
+2. Choose **invite-only vs open signup**; fix or remove broken auth links on the platform login shell.
+3. Hide **Edit with Base44** for the published audience.
+4. Optional: thin public landing that reuses Home hero copy, then auth for the wizard.
 
 ## Method & limits
 
