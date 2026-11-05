@@ -1,0 +1,68 @@
+{
+  "name": "CommunicationDecision",
+  "type": "object",
+  "description": "A Cadence recommendation and generated draft owned by one user",
+  "properties": {
+    "owner_email": {
+      "type": "string",
+      "description": "Authenticated user email that owns this decision (set only by backend functions)"
+    },
+    "title": { "type": "string" },
+    "purpose": { "type": "string" },
+    "urgency": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low", "none"]
+    },
+    "complexity": {
+      "type": "string",
+      "enum": ["highly_complex", "complex", "moderate", "simple"]
+    },
+    "decision_type": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["decide", "escalate", "unblock", "align", "brainstorm", "inform", "update"]
+      }
+    },
+    "stakeholder_count": {
+      "type": "string",
+      "enum": ["1-2", "3-5", "6-10", "10+"]
+    },
+    "stakeholder_groups": { "type": "string" },
+    "emotional_risk": {
+      "type": "string",
+      "enum": ["high", "medium", "low"]
+    },
+    "change_impact": {
+      "type": "string",
+      "enum": ["high", "medium", "low"]
+    },
+    "cross_team_dependencies": { "type": "boolean", "default": false },
+    "time_sensitivity": { "type": "string" },
+    "communication_style": { "type": "string" },
+    "additional_context": { "type": "string" },
+    "is_recurring": { "type": "boolean", "default": false },
+    "recurring_type": { "type": "string" },
+    "project_length": { "type": "string" },
+    "recommendation": {
+      "type": "string",
+      "enum": ["meeting", "email", "async_message"]
+    },
+    "confidence_score": { "type": "number" },
+    "rationale": { "type": "string" },
+    "meeting_length": { "type": "string" },
+    "meeting_cadence": { "type": "string" },
+    "participants": { "type": "string" },
+    "best_practices": { "type": "string" },
+    "time_saved_minutes": { "type": "number" },
+    "generated_agenda": { "type": "string" },
+    "generated_email": { "type": "string" },
+    "generated_message": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "archived"],
+      "default": "draft"
+    }
+  },
+  "required": ["owner_email", "title", "purpose", "recommendation", "status"]
+}

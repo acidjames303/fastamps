@@ -1,0 +1,4 @@
+{
+  "name": "generate-recommendation",
+  "entry": "entry.ts"
+}
