@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <link href="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/691dd05eafa0754fb1590632/505672df3_logo.png" rel="icon" type="image/svg+xml"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <link href="/manifest.json" rel="manifest"/>
+  <title>
+   Cadence
+  </title>
+  <script crossorigin="" src="/assets/index-BQoHtkdm.js" type="module">
+  </script>
+  <link crossorigin="" href="/assets/index-CnLU3NpY.css" rel="stylesheet"/>
+  <meta content="on" name="base44-analytics"/>
+  <script id="b44-consent-listener">
+   (function () {
+  if (window.__b44Consent) return;
+  var state = {};
+  var listeners = [];
+  function notify(listener) {
+    try {
+      (state[listener.category] === "granted" ? listener.grant : listener.revoke)();
+    } catch (e) {}
+  }
+  function read(entry) {
+    if (!entry || entry[0] !== "consent" || entry[1] !== "update" || !entry[2]) return;
+    for (var category in entry[2]) {
+      state[category] = entry[2][category];
+      for (var i = 0; i < listeners.length; i++) {
+        if (listeners[i].category === category) notify(listeners[i]);
+      }
+    }
+  }
+  var dataLayer = (window.dataLayer = window.dataLayer || []);
+  // The banner may have restored the visitor's saved choice before this script ran.
+  for (var i = 0; i < dataLayer.length; i++) read(dataLayer[i]);
+  var push = dataLayer.push;
+  dataLayer.push = function () {
+    var result = push.apply(dataLayer, arguments);
+    for (var j = 0; j < arguments.length; j++) read(arguments[j]);
+    return result;
+  };
+  window.__b44Consent = {
+    on: function (category, grant, revoke) {
+      var listener = { category: category, grant: grant, revoke: revoke };
+      listeners.push(listener);
+      if (category in state) notify(listener);
+    },
+  };
+})();
+  </script>
+  <meta content="on" data-source="default" name="base44-visitor-tracking"/>
+  <script id="b44-visitor-tracking">
+   (function () {
+  try {
+    if (window.top !== window) return;
+    var CONSENT_CATEGORY = "analytics_storage";
+    var attributes = "; Path=/; Secure; SameSite=Lax";
+    var keep = "; Max-Age=2592000" + attributes;
+    // Read now: the app's router may drop ?ref= before the visitor consents.
+    var referrerId = new URLSearchParams(window.location.search).get("ref");
+    var referrerOrigin = document.referrer && new URL(document.referrer).origin;
+    function write() {
+      if (referrerId && /^[0-9a-f]{24}$/i.test(referrerId)) {
+        document.cookie = "base44_referrer_id=" + referrerId + keep;
+      }
+      // First touch: a return from a sign-in or checkout page must not replace who sent the visitor.
+      var hasOrigin = /(?:^|;\s*)base44_referrer_origin=/.test(document.cookie);
+      if (!hasOrigin && /^https?:\/\//.test(referrerOrigin) && referrerOrigin !== window.location.origin) {
+        document.cookie = "base44_referrer_origin=" + referrerOrigin + keep;
+      }
+    }
+    function clear() {
+      document.cookie = "base44_referrer_id=; Max-Age=0" + attributes;
+      document.cookie = "base44_referrer_origin=; Max-Age=0" + attributes;
+    }
+    var meta = document.querySelector('meta[name="base44-visitor-tracking"]');
+    // Global Privacy Control opts the visitor out of tracking Base44 turned on by default.
+    if (meta && meta.getAttribute("data-source") === "default" && navigator.globalPrivacyControl) {
+      clear();
+    } else if (meta && meta.content === "consent") {
+      window.__b44Consent.on(CONSENT_CATEGORY, write, clear);
+    } else {
+      write();
+    }
+  } catch (e) {}
+})();
+  </script>
+  <meta content="An intelligent decision-support tool for leaders that recommends the best communication method (meeting, email, or async message) and generates tailored content." name="description"/>
+  <meta content="Cadence" property="og:title"/>
+  <meta content="An intelligent decision-support tool for leaders that recommends the best communication method (meeting, email, or async message) and generates tailored content." property="og:description"/>
+  <meta content="https://cadence.base44.app" property="og:url"/>
+  <meta content="website" property="og:type"/>
+  <meta content="Cadence" property="og:site_name"/>
+  <meta content="Cadence" name="twitter:title"/>
+  <meta content="An intelligent decision-support tool for leaders that recommends the best communication method (meeting, email, or async message) and generates tailored content." name="twitter:description"/>
+  <meta content="summary_large_image" name="twitter:card"/>
+  <meta content="https://cadence.base44.app" name="twitter:url"/>
+  <meta content="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/render/image/public/base44-prod/public/691dd05eafa0754fb1590632/505672df3_logo.png?width=1200&amp;height=630&amp;resize=contain" property="og:image"/>
+  <meta content="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/render/image/public/base44-prod/public/691dd05eafa0754fb1590632/505672df3_logo.png?width=1200&amp;height=630&amp;resize=contain" name="twitter:image"/>
+  <script>
+   (function () {
+  var titles = {"/home": "Cadence"};
+  // PascalCase boundaries -> "-", mirroring _PASCAL_BOUNDARY_RE without lookbehind
+  // (old Safari fails to PARSE a lookbehind, taking the whole script down).
+  var dashed = function (s) {
+    return s.replace(/([a-z0-9])([A-Z])/g, "$1-$2").replace(/([A-Z])([A-Z][a-z])/g, "$1-$2");
+  };
+  var decode = function (s) {
+    // A %2F inside ONE segment must not become a structural separator: /blog/foo%2Fbar is a
+    // dynamic slug, and letting it split would match a static /blog/foo/bar and write ITS title.
+    try { var d = decodeURIComponent(s); return d.indexOf("/") < 0 ? d : s; } catch (e) { return s; }
+  };
+  var segments = function (path) { return path.split("/").filter(Boolean).map(decode); };
+  var norm = function (path) {
+    var parts = segments(path).map(function (s) { return dashed(s).toLowerCase(); });
+    return parts.length ? "/" + parts.join("/") : "/";
+  };
+  var lastPath = location.pathname, written = document.title, on = true;
+  var sync = function () {
+    // Path only: a hash/query change is the same page, and the SDK strips its own auth
+    // params with replaceState -- neither must clobber a server-rendered title in place.
+    if (!on || location.pathname === lastPath) return;
+    lastPath = location.pathname;
+    if (document.title !== written) { on = false; return; }
+    // Write ONLY a title the map proves. An unmapped path is a dynamic route (/blog/:slug) the
+    // map cannot carry, and writing a placeholder there is destructive, not merely vague: the
+    // prerender worker runs no setUserAgent, so its capture browser reads as human and executes
+    // this script, and coordinator.js's settle wait explicitly tolerates a full navigation --
+    // a redirect landing on an unmapped path would bake the placeholder into the stored
+    // snapshot. Leaving the title alone degrades to today's behavior instead.
+    // Exact lookup only. A dash-stripped retry here would let a genuinely different /set-up
+    // claim /setup: the map carries a dash-free key only where a PascalCase boundary put the
+    // dashes there, and the client cannot tell the two apart. The map emits every reachable
+    // shape per segment instead (_client_url_variants).
+    var title = titles[norm(location.pathname)];
+    if (title === undefined) return;
+    document.title = title;
+    // Re-read: the setter stores verbatim but the getter strips and collapses whitespace, so
+    // keeping the assigned string would make the next sync() read our own write as the app's.
+    written = document.title;
+  };
+  var wrap = function (fn) {
+    // The history entry is already pushed by the time sync() runs, so a throw here would
+    // surface inside the host app's router and break navigation. This is injected into apps
+    // we cannot test, so it swallows rather than trusting the trace.
+    return function () {
+      var r = fn.apply(this, arguments);
+      try { sync(); } catch (e) {}
+      return r;
+    };
+  };
+  history.pushState = wrap(history.pushState);
+  history.replaceState = wrap(history.replaceState);
+  window.addEventListener("popstate", sync);
+})();
+  </script>
+  <meta content="yes" name="mobile-web-app-capable"/>
+  <meta content="black" name="apple-mobile-web-app-status-bar-style"/>
+  <meta content="Cadence" name="apple-mobile-web-app-title"/>
+  <link href="https://cadence.base44.app" rel="canonical"/>
+  <script async="true" data-app-id="691dd05eafa0754fb1590632" data-platform-url="https://app.base44.com" src="/static/js/badge.js">
+  </script>
+ </head>
