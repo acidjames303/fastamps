@@ -18,10 +18,14 @@ import {
 // A gentle, weighted pursuit of scroll progress. He takes time to catch up,
 // rather than racing instantly down the entire page when the visitor scrolls.
 const HALF_LIFE = 175;
+const WORK_HALF_LIFE = 118;
+const WORK_CATCHUP_PX = 80;
 const MAX_SPEED = 1350;
 // Gravity: he drops into a surface quickly and climbs out of one with effort.
 const FALL_HALF_LIFE = 112;
 const CLIMB_HALF_LIFE = 212;
+const WORK_FALL_HALF_LIFE = 90;
+const WORK_CLIMB_HALF_LIFE = 150;
 
 const ANTICIPATE_MS = 90;
 const PRESS_MS = 260;
@@ -570,10 +574,16 @@ export default function useStickmanJourney({ page = "" } = {}) {
       }
       const fromX = motion.x;
       const fromY = motion.y;
-      motion.x = capStep(fromX, damp(fromX, targetX, HALF_LIFE, dt), MAX_SPEED, dt);
+      // Work cards are spaced farther apart: chase a touch faster there so
+      // mid-page samples still read as travel, not gait-idle catch-up.
+      const onWork = pageRef.current === "/work";
+      const chaseHalf = onWork ? WORK_HALF_LIFE : HALF_LIFE;
+      motion.x = capStep(fromX, damp(fromX, targetX, chaseHalf, dt), MAX_SPEED, dt);
       // Gravity: he falls into a surface faster than he climbs away from one,
       // so every arc reads as weight rather than a slide along a curve.
-      const yHalfLife = targetY > fromY + 0.5 ? FALL_HALF_LIFE : CLIMB_HALF_LIFE;
+      const yHalfLife = targetY > fromY + 0.5
+        ? (onWork ? WORK_FALL_HALF_LIFE : FALL_HALF_LIFE)
+        : (onWork ? WORK_CLIMB_HALF_LIFE : CLIMB_HALF_LIFE);
       motion.y = capStep(fromY, damp(fromY, targetY, yHalfLife, dt), MAX_SPEED, dt);
       motion.vx = ((motion.x - fromX) * 1000) / dt;
       motion.vy = ((motion.y - fromY) * 1000) / dt;
@@ -585,8 +595,19 @@ export default function useStickmanJourney({ page = "" } = {}) {
       let immediate = false;
 
       // On the ground, the gait comes from how fast he is actually moving.
+      // Work authored `run` hops must not collapse to idle while standing on a card.
       if (nextPose === "walk" || nextPose === "run") {
-        nextPose = gaitFor(speed, poseRef.current);
+        if (onWork && sample.pose === "run") nextPose = "run";
+        else nextPose = gaitFor(speed, poseRef.current);
+      }
+      // Work: prefer the journey sample pose over gait-idle for travel beats.
+      if (onWork && !playRef.current.active) {
+        const travel = new Set(["run", "walk", "jump", "style-jump", "land", "slide", "hang", "swing", "climb"]);
+        const catchUp = Math.hypot(targetX - fromX, targetY - fromY);
+        if (travel.has(sample.pose) && (catchUp > WORK_CATCHUP_PX || sample.pose !== "walk")) {
+          nextPose = sample.pose === "hang" ? "swing" : sample.pose;
+          immediate = true;
+        }
       }
 
       // Walking to a hovered stage: stride while travelling, press on arrival.

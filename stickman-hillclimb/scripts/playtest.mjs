@@ -157,9 +157,13 @@ async function exercisePlay(page, tag) {
 async function scrollTour(page, tag) {
   const stops = [];
   const heights = await page.evaluate(() => document.documentElement.scrollHeight);
-  for (const y of [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9].map((f) => Math.round(heights * f))) {
+  // Denser fractions so Work card hops (run / style-jump / hang) are not skipped.
+  const fractions = tag === 'work'
+    ? [0, 0.08, 0.16, 0.24, 0.32, 0.4, 0.48, 0.56, 0.64, 0.72, 0.8, 0.9]
+    : [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9];
+  for (const y of fractions.map((f) => Math.round(heights * f))) {
     await page.evaluate((yy) => window.scrollTo(0, yy), y);
-    await sleep(900);
+    await sleep(tag === 'work' ? 1100 : 900);
     const s = await stickState(page);
     stops.push({ scrollY: y, pose: s.pose, y: s.rect?.y, playing: s.playing });
     await shot(page, `${tag}-scroll-${y}`);
@@ -197,6 +201,10 @@ try {
   const homePlay = report.pages['/']?.play || [];
   const dpadLate = homePlay.find((e) => e.msg?.includes('dpad-after-8s'));
   const idle = homePlay.find((e) => e.msg?.includes('idle-probe'));
+  const workTourPoses = (report.pages['/work']?.tour || []).map((t) => t.pose).filter(Boolean);
+  const workTravel = workTourPoses.filter((p) =>
+    /pose-(run|walk|slide|hang|swing|jump|style-jump|land|climb)/.test(p),
+  );
   report.flags = {
     mountedHome: !!report.pages['/']?.mount?.found,
     mountedWork: !!report.pages['/work']?.mount?.found,
@@ -207,6 +215,8 @@ try {
     idleStillPlayingAt3_5s: idle?.playingAt3_5s === true,
     idleStillPlayingAt9s: idle?.playingAt9s === true,
     flyObserved: homePlay.some((e) => e.pose === 'pose-fly' || e.pose === 'pose-style-jump'),
+    workTravelPoses: workTravel.length,
+    workTravelVariety: [...new Set(workTravel)].length,
   };
 
   const json = JSON.stringify(report, null, 2);
