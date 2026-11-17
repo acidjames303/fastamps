@@ -1,7 +1,7 @@
-# Stickman — scope lock
+# Stickman — Home + Work only
 
-He mounts **only** on Home `/` and Work `/work` (`STICKMAN_PAGES` in `_site.jsx`).
+Mount: `/` and `/work` only.
 
-Do not re-add Services / Approach / About / Playground until Home + Work feel finished.
+Work journey (017): preview-frame landings, headline-aside (not mid-copy), no card-edge slides, CTA clearance `-100`.
 
-Next Work polish (if requested): reduce horizontal teleports between card stops; less repetitive right-edge slides.
+Next only if needed: further reduce mid-hop paragraph overlap while chasing between cards.

@@ -179,10 +179,18 @@ export function buildJourney({ vw, vh, size, page }) {
       );
     });
   } else if (document.querySelector("[data-sm-work-page]")) {
+    // Work choreography stays on preview frames and headline margins — never
+    // mid-paragraph, never climbing the card's right border, clear of the CTA.
+    const hero = anchor("page-hero");
     const intro = anchor("work-intro");
     const cards = Array.from(document.querySelectorAll('[data-sm-anchor="work-card"]'));
+    // Prefer the intro band so the opening wave is not clipped above the fold.
     if (intro) {
-      push("work-hello", intro.right - W * 0.8, intro.top - feet - 5, "wave", { move: "walk" });
+      push("work-hello", clampX(intro.left + 18), intro.top - feet - 5, "wave", { move: "walk" });
+    } else if (hero) {
+      push("work-hero", clampX(hero.left + hero.width * 0.55), hero.bottom - feet - 10, "wave", {
+        move: "walk",
+      });
     }
     cards.forEach((cardEl, i) => {
       const card = readRect(cardEl);
@@ -190,24 +198,39 @@ export function buildJourney({ vw, vh, size, page }) {
       const heading = readRect(cardEl.querySelector('[data-sm-anchor="work-heading"]'));
       if (!card) return;
       if (image) {
-        push(`work-${i}-land`, image.left + Math.min(image.width * 0.25, 150), image.top - feet - 5, "land", {
-          move: "jump", pulse: true, pulseRect: image,
-        });
-        push(`work-${i}-walk`, image.right - W * 1.15, image.top - feet - 5, "run", { move: "run", compact: false });
+        push(
+          `work-${i}-land`,
+          clampX(image.left + Math.min(image.width * 0.22, 120)),
+          image.top - feet - 5,
+          "land",
+          { move: i === 0 ? "jump" : "run", pulse: true, pulseRect: image },
+        );
+        push(
+          `work-${i}-walk`,
+          clampX(image.right - W * 1.2),
+          image.top - feet - 5,
+          "walk",
+          { move: "run", compact: false },
+        );
       }
       if (heading && vw >= 640) {
-        // Swing off the side of the headline, not across its readable letters.
-        const sideX = heading.right + W + 10 < vw ? heading.right + 8 : heading.left - W - 8;
-        push(`work-${i}-text`, sideX,
-          heading.top + Math.min(heading.height * 0.48, 34) - H * 0.28,
-          "hang", { move: "swing" });
+        // Beside the headline top — above body copy, not hanging through it.
+        const sideX = heading.right + W + 12 < vw ? heading.right + 10 : heading.left - W - 10;
+        push(`work-${i}-aside`, clampX(sideX), heading.top - feet - 4, "idle", {
+          move: "walk",
+        });
       }
-      push(`work-${i}-slide`, card.right - W * 0.9, card.bottom - H * 0.5,
-        "slide", { move: "slide", compact: false });
     });
     const endCta = anchor("cta-action");
-    if (endCta) push("work-cta", endCta.left - W - 56, endCta.top - feet - 3, "hold",
-      { move: "walk", pulse: true, pulseRect: endCta });
+    if (endCta) {
+      push(
+        "work-cta",
+        clampX(endCta.left - W - 100),
+        endCta.top - feet - 12,
+        "hold",
+        { move: "walk", pulse: true, pulseRect: endCta },
+      );
+    }
   } else {
   const hero = anchor("hero-map");
   const copyHeading = anchor("home-copy-heading");
