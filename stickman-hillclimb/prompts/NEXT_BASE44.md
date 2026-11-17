@@ -1,7 +1,7 @@
-# Stickman — Home + Work only
+# Stickman — Home + Work
 
-Mount: `/` and `/work` only.
+Mount: `/` + `/work` only.
 
-Work journey (017): preview-frame landings, headline-aside (not mid-copy), no card-edge slides, CTA clearance `-100`.
+Work (018): stays on illustrative preview frames only (no text-column stops, no card-edge slides). CTA hold remains clear.
 
-Next only if needed: further reduce mid-hop paragraph overlap while chasing between cards.
+Optional next: when preview alternates left/right per card, ease the cross-gutter hop so mid-chase never clips copy.

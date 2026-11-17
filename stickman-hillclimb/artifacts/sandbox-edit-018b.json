@@ -1,0 +1,8 @@
+Editing file
+Editing file
+Edited file
+{
+  "path": "src/lib/stickman-journey.js",
+  "diff": "--- a/src/lib/stickman-journey.js\n+++ b/src/lib/stickman-journey.js\n@@ -195,26 +195,27 @@\n     cards.forEach((cardEl, i) => {\n       const card = readRect(cardEl);\n       const image = readRect(cardEl.querySelector('[data-sm-anchor=\"work-image\"]'));\n-      const heading = readRect(cardEl.querySelector('[data-sm-anchor=\"work-heading\"]'));\n       if (!card) return;\n       if (image) {\n+        // Keep both feet on the left preview frame so the chase never crosses\n+        // the copy column between cards.\n+        const leftPad = Math.min(image.width * 0.18, 90);\n+        const rightPad = Math.min(image.width * 0.62, image.width - W - 8);\n         push(\n           `work-${i}-land`,\n-          clampX(image.left + Math.min(image.width * 0.22, 120)),\n+          clampX(image.left + leftPad),\n           image.top - feet - 5,\n           \"land\",\n           { move: i === 0 ? \"jump\" : \"run\", pulse: true, pulseRect: image },\n         );\n         push(\n           `work-${i}-walk`,\n-          clampX(image.right - W * 1.2),\n+          clampX(image.left + Math.max(leftPad + W, rightPad)),\n           image.top - feet - 5,\n           \"walk\",\n           { move: \"run\", compact: false },\n         );\n       }\n-      // No text-column stops: he stays on the illustrative preview frame only,\n-      // so body copy and capability tags stay readable.\n     });\n     const endCta = anchor(\"cta-action\");\n     if (endCta) {\n",
+  "applied": true
+}

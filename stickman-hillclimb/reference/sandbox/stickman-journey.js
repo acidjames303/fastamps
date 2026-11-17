@@ -195,30 +195,26 @@ export function buildJourney({ vw, vh, size, page }) {
     cards.forEach((cardEl, i) => {
       const card = readRect(cardEl);
       const image = readRect(cardEl.querySelector('[data-sm-anchor="work-image"]'));
-      const heading = readRect(cardEl.querySelector('[data-sm-anchor="work-heading"]'));
       if (!card) return;
       if (image) {
+        // Keep both feet on the left preview frame so the chase never crosses
+        // the copy column between cards.
+        const leftPad = Math.min(image.width * 0.18, 90);
+        const rightPad = Math.min(image.width * 0.62, image.width - W - 8);
         push(
           `work-${i}-land`,
-          clampX(image.left + Math.min(image.width * 0.22, 120)),
+          clampX(image.left + leftPad),
           image.top - feet - 5,
           "land",
           { move: i === 0 ? "jump" : "run", pulse: true, pulseRect: image },
         );
         push(
           `work-${i}-walk`,
-          clampX(image.right - W * 1.2),
+          clampX(image.left + Math.max(leftPad + W, rightPad)),
           image.top - feet - 5,
           "walk",
           { move: "run", compact: false },
         );
-      }
-      if (heading && vw >= 640) {
-        // Beside the headline top — above body copy, not hanging through it.
-        const sideX = heading.right + W + 12 < vw ? heading.right + 10 : heading.left - W - 10;
-        push(`work-${i}-aside`, clampX(sideX), heading.top - feet - 4, "idle", {
-          move: "walk",
-        });
       }
     });
     const endCta = anchor("cta-action");
