@@ -11,9 +11,15 @@ Source of truth for shipping changes: **Base44** (paste the latest prompt from `
 2. **Score** against `RUBRIC.md` (1–5 per criterion). Record in `iterations/NNN.md`.
 3. **Pick one lever** — the lowest-scoring criterion, or the biggest “gimmick vs craft” gap. Change only that lever.
 4. **Write** a tight Base44 prompt into `prompts/NEXT_BASE44.md` (preserve what works; no site redesign).
-5. **Hand off** — James pastes into Base44 (or a follow-up agent applies it).
+5. **Apply** (preferred order):
+   1. If `BASE44_API_KEY` + `BASE44_APP_ID` are available: `npm run apply:manners` (sandbox edit + checkpoint). Dry-run first with `npm run apply:manners:dry`.
+   2. Else: James pastes `prompts/NEXT_BASE44.md` into the Base44 builder and publishes.
 6. **Re-test** live after deploy. If score improves, lock the win in the iteration log. If not, revert the lever and try another.
 7. **Repeat** until average rubric ≥ 4.5 and no Must-fix items remain.
+
+## App identity
+- Live app id (from site media paths): `6afb374c91d1c9194f9d6554`
+- See `.env.example` for CLI env vars (`BASE44_API_KEY` starts with `b44k_`).
 
 ## Scope lock
 - **In:** Home + Work stickman motion, discovery, physics feel, scroll choreography, panel landings, play-mode UX, brand-fit microcopy.

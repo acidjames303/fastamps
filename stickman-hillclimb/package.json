@@ -4,9 +4,15 @@
   "type": "module",
   "scripts": {
     "playtest": "node scripts/playtest.mjs --out artifacts/latest",
-    "playtest:json": "node scripts/playtest.mjs"
+    "playtest:json": "node scripts/playtest.mjs",
+    "apply:manners": "node scripts/apply-manners-via-sandbox.mjs",
+    "apply:manners:dry": "node scripts/apply-manners-via-sandbox.mjs --dry-run"
   },
   "devDependencies": {
+    "base44": "^0.3.6",
     "playwright-core": "^1.49.0"
+  },
+  "dependencies": {
+    "base44": "^0.3.6"
   }
 }
