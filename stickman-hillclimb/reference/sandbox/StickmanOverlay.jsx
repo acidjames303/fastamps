@@ -3,8 +3,8 @@ import StickmanFigure from "@/components/stickman/StickmanFigure";
 import PlayControls from "@/components/stickman/PlayControls";
 import useStickmanJourney from "@/hooks/useStickmanJourney";
 
-// The invitation appears early enough to be noticed, then steps aside.
-const HINT_AT_MS = 3600;
+// Invitation waits for the first real scroll, then steps aside.
+const HINT_SCROLL_PX = 40;
 const HINT_LIFE_MS = 7000;
 
 /**
@@ -19,17 +19,29 @@ export default function StickmanOverlay({ page = "" }) {
 
   const [tryHint, setTryHint] = useState(false);
 
-  // One quiet invitation on arrival, never repeated while he is being played.
+  // One quiet invitation after the first scroll stop — not on first paint.
   useEffect(() => {
     if (!ready) return undefined;
-    const show = window.setTimeout(() => setTryHint(true), HINT_AT_MS);
-    const hide = window.setTimeout(() => setTryHint(false), HINT_AT_MS + HINT_LIFE_MS);
-    const dismiss = () => setTryHint(false);
+    let hide = 0;
+    let shown = false;
+    const dismiss = () => {
+      shown = true;
+      setTryHint(false);
+      window.clearTimeout(hide);
+    };
+    const onScroll = () => {
+      if (shown || window.scrollY < HINT_SCROLL_PX) return;
+      shown = true;
+      setTryHint(true);
+      hide = window.setTimeout(() => setTryHint(false), HINT_LIFE_MS);
+      window.removeEventListener("scroll", onScroll);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("pointerdown", dismiss);
     window.addEventListener("keydown", dismiss);
     return () => {
-      window.clearTimeout(show);
       window.clearTimeout(hide);
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("pointerdown", dismiss);
       window.removeEventListener("keydown", dismiss);
     };

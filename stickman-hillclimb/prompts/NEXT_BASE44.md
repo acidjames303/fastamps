@@ -1,16 +1,11 @@
-# Paste into Base44 — Iteration 007 (confirm Work + quiet discovery)
+# Stickman hillclimb — maintenance (post 4.5×2)
 
-Preserve 004–006: manners timings, CTA `-56` clearance, Work `run` hops, Work chase / travel-pose hold.
+Goal met for Home + Work manners / discovery / Work travel (iters 007–008).
 
-## This round (pick ONE)
-**Preferred:** Confirm-only — no code change. Re-run playtest; if `workTravelPoses ≥ 5` and manners flags still green, lock Work polish at 4.2+ for consecutive-average tracking.
+If regressing later, re-run:
+```bash
+cd stickman-hillclimb && npm run playtest
+```
+Expect manners flags true, `workTravelPoses ≥ 5`, CTA overlap 0.
 
-**If discovery still feels gamey:** In `StickmanOverlay.jsx`, show `Try me` only after the first scroll movement (`scrollY > 40`) rather than a fixed 3.6s timer; keep copy and fade life the same. Do not change play HUD.
-
-## Do not
-New features, arcade chrome, Home chase speed changes, manners constant changes.
-
-## Acceptance
-- `dpadPersists8s`, `idleStillPlayingAt3_5s`, `flyObserved` true
-- `workTravelPoses` ≥ 5 / `workTravelVariety` ≥ 3
-- CTA overlap remains 0
+Prefer subtle physics/affordance only; do not add game features.
