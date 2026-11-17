@@ -1,15 +1,7 @@
-# Stickman — optional polish (post 4.5×2 lock)
+# Stickman — maintenance (post 011)
 
-Live Home/Work already meet the hillclimb done criteria. Only apply if a real regression appears or James wants easier play entry.
+Done criteria locked (007–008 at 4.56×2). Iter 011 enlarged play hit targets.
 
-## Optional single lever
-In `PlayControls.jsx`, enlarge the gamepad (+ pause) hit targets from `h-7 w-7` to **`h-9 w-9`**, and the in-play D-pad buttons from `h-7 w-7` to **`h-8 w-8`**. Keep electric border when playing. No new chrome, scores, or pages.
+Only reopen a lever if `npm run playtest` flags regress or a real user reports play-entry failure.
 
-## Do not change
-Manners timings, CTA clearance, Work chase/pose hold, scroll-gated Try-me.
-
-## Verify
-```bash
-cd stickman-hillclimb && npm run playtest
-```
-Expect manners flags true, `workTravelPoses ≥ 5`.
+Prefer subtle physics/affordance; no new game features or pages.

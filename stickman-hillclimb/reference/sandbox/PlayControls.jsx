@@ -38,9 +38,9 @@ export default function PlayControls({
           onClick={togglePaused}
           aria-label={paused ? "Resume the diagram character" : "Pause the diagram character"}
           title={paused ? "Resume the character" : "Pause the character"}
-          className="flex h-7 w-7 items-center justify-center rounded-[4px] border border-border bg-background/70 text-muted-foreground/70 backdrop-blur transition-colors hover:text-foreground"
+          className="flex h-9 w-9 items-center justify-center rounded-[4px] border border-border bg-background/70 text-muted-foreground/70 backdrop-blur transition-colors hover:text-foreground"
         >
-          {paused ? <Play className="h-3 w-3" strokeWidth={1.8} /> : <Pause className="h-3 w-3" strokeWidth={1.8} />}
+          {paused ? <Play className="h-4 w-4" strokeWidth={1.8} /> : <Pause className="h-4 w-4" strokeWidth={1.8} />}
         </button>
 
         <button
@@ -49,13 +49,13 @@ export default function PlayControls({
           aria-pressed={playing}
           aria-label={playing ? "Let the character follow the page again" : "Play with the diagram character"}
           title="Arrow keys to move, jump twice in quick succession to fly"
-          className={`flex h-7 w-7 items-center justify-center rounded-[4px] border bg-background/70 backdrop-blur transition-colors ${
+          className={`flex h-9 w-9 items-center justify-center rounded-[4px] border bg-background/70 backdrop-blur transition-colors ${
             playing
               ? "border-electric bg-electric text-white"
               : "border-border text-muted-foreground/70 hover:text-foreground hover:border-electric/50"
           }`}
         >
-          <Gamepad2 className="h-3 w-3" strokeWidth={1.8} />
+          <Gamepad2 className="h-4 w-4" strokeWidth={1.8} />
         </button>
 
         {playing && (
@@ -73,9 +73,9 @@ export default function PlayControls({
                 onPointerUp={() => press(action, false)}
                 onPointerCancel={() => press(action, false)}
                 onPointerLeave={() => press(action, false)}
-                className="flex h-7 w-7 items-center justify-center rounded-[3px] text-electric transition-colors hover:bg-electric/10 active:bg-electric/20"
+                className="flex h-8 w-8 items-center justify-center rounded-[3px] text-electric transition-colors hover:bg-electric/10 active:bg-electric/20"
               >
-                <Icon className="h-3.5 w-3.5" strokeWidth={2} />
+                <Icon className="h-4 w-4" strokeWidth={2} />
               </button>
             ))}
           </div>
