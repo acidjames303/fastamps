@@ -1,0 +1,8 @@
+Editing file
+Editing file
+Edited file
+{
+  "path": "src/lib/stickman-journey.js",
+  "diff": "--- a/src/lib/stickman-journey.js\n+++ b/src/lib/stickman-journey.js\n@@ -193,7 +193,7 @@\n         push(`work-${i}-land`, image.left + Math.min(image.width * 0.25, 150), image.top - feet - 5, \"land\", {\n           move: \"jump\", pulse: true, pulseRect: image,\n         });\n-        push(`work-${i}-walk`, image.right - W * 1.15, image.top - feet - 5, \"walk\", { move: \"walk\", compact: false });\n+        push(`work-${i}-walk`, image.right - W * 1.15, image.top - feet - 5, \"run\", { move: \"run\", compact: false });\n       }\n       if (heading && vw >= 640) {\n         // Swing off the side of the headline, not across its readable letters.\n@@ -206,7 +206,7 @@\n         \"slide\", { move: \"slide\", compact: false });\n     });\n     const endCta = anchor(\"cta-action\");\n-    if (endCta) push(\"work-cta\", endCta.left - W - 10, endCta.top - feet - 3, \"hold\",\n+    if (endCta) push(\"work-cta\", endCta.left - W - 56, endCta.top - feet - 3, \"hold\",\n       { move: \"walk\", pulse: true, pulseRect: endCta });\n   } else {\n   const hero = anchor(\"hero-map\");\n@@ -383,7 +383,7 @@\n \n   if (cta) {\n     push(\"cta-approach\", cta.left - W - 46, cta.top - feet - 4, \"walk\", { move: \"run\", compact: false });\n-    push(\"cta-hold\", cta.left - W - 10, cta.top + cta.height * 0.12, \"hold\", {\n+    push(\"cta-hold\", cta.left - W - 56, cta.top + cta.height * 0.12, \"hold\", {\n       move: \"walk\",\n       pulse: true,\n       pulseRect: cta,\n",
+  "applied": true
+}
