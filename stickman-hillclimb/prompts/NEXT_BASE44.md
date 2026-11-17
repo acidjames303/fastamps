@@ -1,11 +1,15 @@
-# Stickman hillclimb — maintenance (post 4.5×2)
+# Stickman — optional polish (post 4.5×2 lock)
 
-Goal met for Home + Work manners / discovery / Work travel (iters 007–008).
+Live Home/Work already meet the hillclimb done criteria. Only apply if a real regression appears or James wants easier play entry.
 
-If regressing later, re-run:
+## Optional single lever
+In `PlayControls.jsx`, enlarge the gamepad (+ pause) hit targets from `h-7 w-7` to **`h-9 w-9`**, and the in-play D-pad buttons from `h-7 w-7` to **`h-8 w-8`**. Keep electric border when playing. No new chrome, scores, or pages.
+
+## Do not change
+Manners timings, CTA clearance, Work chase/pose hold, scroll-gated Try-me.
+
+## Verify
 ```bash
 cd stickman-hillclimb && npm run playtest
 ```
-Expect manners flags true, `workTravelPoses ≥ 5`, CTA overlap 0.
-
-Prefer subtle physics/affordance only; do not add game features.
+Expect manners flags true, `workTravelPoses ≥ 5`.
