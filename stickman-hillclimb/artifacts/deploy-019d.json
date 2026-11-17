@@ -1,0 +1,3 @@
+Calling POST /api/apps/6afb374c91d1c9194f9d6554/deploy
+Called POST /api/apps/6afb374c91d1c9194f9d6554/deploy
+{"app_id":"6afb374c91d1c9194f9d6554","checkpoint_id":"6afce0a6f0b766d32177f042","git_commit_hash":"fd75de950d1bc5c58384346cf6fbfd073bb66d36","deployed_at":"2026-11-17T23:18:28.300710","app_url":"https://smart-function-flow.base44.app"}

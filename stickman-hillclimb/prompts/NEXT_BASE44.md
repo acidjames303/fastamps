@@ -2,6 +2,6 @@
 
 Mount: `/` + `/work` only.
 
-Work (018): stays on illustrative preview frames only (no text-column stops, no card-edge slides). CTA hold remains clear.
+Work (019): left page rail between stops; step onto left-column preview frames only; skip right-column previews; CTA approached from the rail and held clear.
 
-Optional next: when preview alternates left/right per card, ease the cross-gutter hop so mid-chase never clips copy.
+Optional next: small land inset so feet never graze disclaimers under a frame.
