@@ -1,0 +1,8 @@
+Editing file
+Editing file
+Edited file
+{
+  "path": "src/routes/_site.jsx",
+  "diff": "--- a/src/routes/_site.jsx\n+++ b/src/routes/_site.jsx\n@@ -5,7 +5,7 @@\n import { listServices } from \"@/lib/server-fns\";\n \n // The character only appears on the pages he has a route through.\n-const STICKMAN_PAGES = new Set([\"/\", \"/work\", \"/services\", \"/approach\", \"/about\", \"/playground\"]);\n+const STICKMAN_PAGES = new Set([\"/\", \"/work\"]);\n \n export const Route = createFileRoute(\"/_site\")({\n   loader: () => listServices(),\n",
+  "applied": true
+}

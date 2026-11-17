@@ -1,7 +1,7 @@
-# Stickman — maintenance (post 011)
+# Stickman — scope lock
 
-Done criteria locked (007–008 at 4.56×2). Iter 011 enlarged play hit targets.
+He mounts **only** on Home `/` and Work `/work` (`STICKMAN_PAGES` in `_site.jsx`).
 
-Only reopen a lever if `npm run playtest` flags regress or a real user reports play-entry failure.
+Do not re-add Services / Approach / About / Playground until Home + Work feel finished.
 
-Prefer subtle physics/affordance; no new game features or pages.
+Next Work polish (if requested): reduce horizontal teleports between card stops; less repetitive right-edge slides.
