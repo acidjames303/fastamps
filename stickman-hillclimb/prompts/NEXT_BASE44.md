@@ -1,15 +1,16 @@
-# Paste into Base44 — Iteration 006 (Work pursuit / pose hold)
+# Paste into Base44 — Iteration 007 (confirm Work + quiet discovery)
 
-Preserve all 004 manners + 005 CTA clearance / Work `run` hops. Home choreography unchanged.
+Preserve 004–006: manners timings, CTA `-56` clearance, Work `run` hops, Work chase / travel-pose hold.
 
-## Exact patch
-In `useStickmanJourney` scroll chase **only when** `document.querySelector('[data-sm-work-page]')` is present:
-1. Use a slightly snappier horizontal/vertical half-life while chasing the sample (e.g. HALF_LIFE 175 → ~120 on Work), **or**
-2. When distance from motion to sample target exceeds ~80px, force `nextPose` to the sample travel pose (`run`/`jump`/`slide`/`swing`) instead of gait-idle.
+## This round (pick ONE)
+**Preferred:** Confirm-only — no code change. Re-run playtest; if `workTravelPoses ≥ 5` and manners flags still green, lock Work polish at 4.2+ for consecutive-average tracking.
 
-Do not change PLAY_IDLE_MS / FLY_IDLE_MS / DOUBLE_TAP_MS / D-pad persistence.
+**If discovery still feels gamey:** In `StickmanOverlay.jsx`, show `Try me` only after the first scroll movement (`scrollY > 40`) rather than a fixed 3.6s timer; keep copy and fade life the same. Do not change play HUD.
+
+## Do not
+New features, arcade chrome, Home chase speed changes, manners constant changes.
 
 ## Acceptance
-- Manners flags still pass
-- `/work` scroll samples show fewer consecutive `pose-idle` mid-page
+- `dpadPersists8s`, `idleStillPlayingAt3_5s`, `flyObserved` true
+- `workTravelPoses` ≥ 5 / `workTravelVariety` ≥ 3
 - CTA overlap remains 0
