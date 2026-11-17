@@ -1,0 +1,12 @@
+{
+  "name": "stickman-hillclimb",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "playtest": "node scripts/playtest.mjs --out artifacts/latest",
+    "playtest:json": "node scripts/playtest.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.49.0"
+  }
+}
