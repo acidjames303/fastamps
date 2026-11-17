@@ -1,44 +1,41 @@
-# Paste into Base44 — Iteration 001 (Home + Work polish)
+# Paste into Base44 — Iteration 001 (surgical Home + Work polish)
 
-Improve the SmartFunction stickman on **Home (`/`) and Work (`/work`) only**. Do not redesign the site. Do not expand him to other pages yet. He is already strong — make him feel smoother, more intentional, and less like a hidden mini-game.
+You are editing the SmartFunction stickman overlay (StickmanOverlay / `sm-figure`) on **Home `/` and Work `/work` only**. Do not redesign the marketing site. Do not add him to other pages this round.
 
-Keep brand: Space Grotesk + IBM Plex Mono, electric blue, stone `#F7F7F5`, founder-led UK B2B tone. Keep `prefers-reduced-motion` disabling him.
+Brand stays: Space Grotesk, IBM Plex Mono, electric blue, `#F7F7F5`, quiet B2B tone. Keep `prefers-reduced-motion` disabling the character.
 
-## Preserve (do not break)
-- Scroll choreography via `data-sm-anchor` on Home and Work (wave, walk, run, slide, swing, hang, parachute, land, press, hold, read, tap).
-- Play mode: gamepad button OR double-click stickman.
-- Keys: ←→ / A D move; Space / ↑ / W jump; double-tap jump → fly; hold ↑ thrust; Esc exit.
-- Mouse: pick me up, grab, toss, tickle; panel landings; wall-slide; soft return to scroll tour.
+## Exact behaviour patches (do these)
+In the stickman play controller constants / logic:
 
-## This round — one theme: manners + discovery
-1. **First-visit hint (Home + Work):** After he reaches the first scroll stop, show a quiet mono label near him for ~4s: `Try me` — then fade. No badges, no emoji, no arcade frame.
-2. **Keep D-pad while playing:** Left / Jump / Right stay visible for the entire play session (especially touch). Do not auto-hide after 7s.
-3. **Patient idle:** Raise ground idle auto-exit from ~3s to **9s**. 2s before exit, show tiny `returning…` then soft handoff back to scroll tour.
-4. **Play legend while active:** Compact line while playing: `← → move · ↑ jump · ↑↑ fly · Esc exit`. Keep it until Esc/idle exit.
-5. **PLAYING state:** When play mode is on, gamepad control uses electric border/fill and a mono `PLAYING` chip so pause vs play is obvious.
-6. **Fly readability:** Slightly larger scale in play/fly; keep ground shadow; subtle motion trails in `pose-fly` only. Widen double-tap jump window a little; first fly attempt shows one tip: `Tap jump again to fly`.
-7. **Home interaction polish:** Tighten scroll stops so he clearly uses hero-map → human-flow → services-preview → builder-flow → work-visual → process-track → founder parachute → cta-action. Landings should pulse the panel he touches (existing pulse OK). Never cover the primary CTA hit target.
-8. **Work interaction polish:** On `/work`, keep card landings / image walks / heading hangs / CTA hold. Smoother transitions between work-card stops; no teleport pops.
-9. **Scroll lock in play:** While playing, prevent Space/arrows from scrolling the page; ignore scroll-driven reposition until exit.
-10. **Toss:** After a toss settles, stay in play mode if he was playing (don’t dump to tour immediately).
+1. **D-pad persistence:** Today the play D-pad + hint hide after ~`7000ms` (`Ot`). Remove that auto-hide while `playing` is true. D-pad (Step left / Jump / Step right) must remain for the whole play session. Keep the first hint text, but also keep a compact legend visible while playing: `← → move · ↑ jump · ↑↑ fly · Esc exit`.
 
-## Preserve these authored moments (do not blunt them)
-- Hero stance on the SYSTEM_MAP.DIAGRAM frame
-- Standing on “THE WORK THAT MATTERS” / human-flow landings
-- Jump arc between approach stage nodes (the money shot)
-- Standing on the word “friction” in the founder section
-- Using divider lines and text glyphs as perches
-- Non-blocking size; never cover primary CTAs
+2. **Patient idle exit:** Ground idle timeout is ~`3000ms` (`mt`) and fly idle ~`2600ms` (`ht`). Change both to **`9000`**. Two seconds before auto-exit, show a tiny mono `returning…` near the character, then hand back to scroll tour.
 
-## Do not add this round
-- New pages, collectible scores, sound-on, neon glow, speech balloons, leaderboards, extra characters
-- Don’t over-animate idle into a distraction — subtle only
+3. **Reliable fly latch:** Double-tap jump window is ~`270ms` (`xt`) — too tight. Raise to **`420ms`**. Keep the existing model: double-tap sets bigJump; landing enters `fly`; hold ↑/Space for thrust. First successful double-tap in a session may flash once: `Tap jump again to fly`.
 
-## Acceptance
-- Discover play mode on Home within 5 seconds.
-- Walk, jump, fly, steer, land on a card, toss, Esc — all smooth.
-- D-pad still there after 20+ seconds of play.
-- Idle exit feels patient (~9s) with a soft returning cue.
-- Home and Work choreography feels authored; CTAs remain clickable.
-- Feels like craft, not a gimmick.
-- Re-run `stickman-hillclimb` playtest: flags `dpadPersists8s=true`, `idleStillPlayingAt3_5s=true`, `flyObserved=true`.
+4. **Discoverability (quiet):** After the first scroll stop on Home and Work, show a mono `Try me` near him for ~4s, then fade. Enlarge the bottom-left gamepad hit target slightly; when playing, electric border + mono `PLAYING` chip.
+
+5. **Play scroll lock:** While playing, `preventDefault` on Space/arrows/WASD and do not let scroll-driven tour reposition him until exit.
+
+6. **Toss keeps play:** If he was in play mode, after a toss settles remain in play (don’t immediately dump to tour).
+
+7. **Fly readability:** In play/fly, slight scale-up + keep ground shadow + short motion trails only in `pose-fly`.
+
+## Preserve (do not blunt)
+- Hero stance on SYSTEM_MAP.DIAGRAM frame
+- Human-flow / services / builder / work-visual / process-track stops
+- Jump arc between approach stage nodes
+- Founder parachute + standing on “friction”
+- Divider/text perches; non-blocking size; CTAs always clickable
+- Pause control + Escape exit + double-click to enter play
+
+## Do not add
+New pages, scores, coins, sound-on-by-default, neon glow, emoji, second character, leaderboards.
+
+## Acceptance (agents will re-test)
+After publish, `stickman-hillclimb` playtest on `/` + `/work` must report:
+- `dpadPersists8s: true`
+- `idleStillPlayingAt3_5s: true`
+- `idleStillPlayingAt9s: false` (exits by ~9–11s is OK)
+- `flyObserved: true`
+- Still mounted on Home and Work only for this round

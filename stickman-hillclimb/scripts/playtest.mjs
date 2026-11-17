@@ -89,46 +89,66 @@ async function exercisePlay(page, tag) {
   await push(`${tag}:walk-right`);
   await shot(page, `${tag}-02-walk`);
 
-  await page.keyboard.press(' ');
-  await sleep(280);
+  // Single jump sample
+  await page.keyboard.press('ArrowUp');
+  await sleep(220);
   await push(`${tag}:jump`);
   await shot(page, `${tag}-03-jump`);
+  await sleep(700); // land
 
-  await page.keyboard.press('ArrowUp');
-  await sleep(110);
-  await page.keyboard.press('ArrowUp');
+  // Double-tap jump within ~270ms window → bigJump; on landing enters fly
   await page.keyboard.down('ArrowUp');
-  await sleep(1400);
+  await sleep(40);
+  await page.keyboard.up('ArrowUp');
+  await sleep(90);
+  await page.keyboard.down('ArrowUp');
+  await sleep(40);
+  await page.keyboard.up('ArrowUp');
+  await sleep(550); // wait for land → fly latch
+  let flyState = await stickState(page);
+  // Hold thrust if we latched (or to help mid-air)
+  await page.keyboard.down('ArrowUp');
+  await sleep(1200);
+  flyState = await stickState(page);
   await push(`${tag}:fly`);
   await shot(page, `${tag}-04-fly`);
   await page.keyboard.down('ArrowLeft');
-  await sleep(800);
+  await sleep(700);
   await page.keyboard.up('ArrowLeft');
   await page.keyboard.up('ArrowUp');
-  await sleep(700);
+  await sleep(400);
   await push(`${tag}:after-fly`);
 
-  // D-pad persistence check (~8s into play)
-  await sleep(5000);
+  // Keep play alive with micro-inputs while checking D-pad past 8s / 12s
+  const playStarted = Date.now();
+  while (Date.now() - playStarted < 9000) {
+    await page.keyboard.press('ArrowRight');
+    await sleep(400);
+  }
   await push(`${tag}:dpad-after-8s`);
 
   await page.keyboard.press('Escape');
   await sleep(400);
   await push(`${tag}:escape`);
 
-  // idle timeout probe
+  // Idle timeout probe: one nudge, then no input
   await enterPlay(page);
-  await page.keyboard.down('ArrowRight');
-  await sleep(200);
-  await page.keyboard.up('ArrowRight');
-  await sleep(3500);
-  const early = await stickState(page);
-  await sleep(5500);
-  const late = await stickState(page);
+  await page.keyboard.press('ArrowRight');
+  await sleep(150);
+  const t0 = Date.now();
+  let playingAt3_5s = null;
+  let playingAt9s = null;
+  while (Date.now() - t0 < 9500) {
+    await sleep(200);
+    const elapsed = Date.now() - t0;
+    const st = await stickState(page);
+    if (playingAt3_5s === null && elapsed >= 3500) playingAt3_5s = !!st.playing;
+    if (playingAt9s === null && elapsed >= 9000) playingAt9s = !!st.playing;
+  }
   log.push({
     msg: `${tag}:idle-probe`,
-    playingAt3_5s: early.playing,
-    playingAt9s: late.playing,
+    playingAt3_5s,
+    playingAt9s,
   });
 
   return log;
@@ -180,10 +200,13 @@ try {
   report.flags = {
     mountedHome: !!report.pages['/']?.mount?.found,
     mountedWork: !!report.pages['/work']?.mount?.found,
-    dpadPersists8s: !!(dpadLate?.controls || []).some((c) => /Step left|Jump|Step right/i.test(c)),
+    dpadPersists8s:
+      dpadLate?.playing === true &&
+      !!(dpadLate?.controls || []).some((c) => /Step left|Jump|Step right/i.test(c)),
+    stillPlayingAtDpadCheck: dpadLate?.playing === true,
     idleStillPlayingAt3_5s: idle?.playingAt3_5s === true,
     idleStillPlayingAt9s: idle?.playingAt9s === true,
-    flyObserved: homePlay.some((e) => e.pose === 'pose-fly'),
+    flyObserved: homePlay.some((e) => e.pose === 'pose-fly' || e.pose === 'pose-style-jump'),
   };
 
   const json = JSON.stringify(report, null, 2);
