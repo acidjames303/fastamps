@@ -199,24 +199,27 @@ export function buildJourney({ vw, vh, size, page }) {
       // Skip right-column previews — their copy sits in the left lane.
       if (image.left > vw * 0.42) return;
       const leftPad = Math.min(image.width * 0.16, 80);
-      const rightPad = Math.min(image.width * 0.48, image.width - W - 8);
-      const footY = image.top - feet - 5;
-      push(`work-${i}-rail`, railX, footY, "run", { move: "run" });
+      const rightPad = Math.min(image.width * 0.42, image.width - W - 8);
+      // Stand inside the preview chrome so the figure is not sitting in the
+      // disclaimer / eyebrow band above the frame.
+      const inset = Math.min(34, Math.max(18, image.height * 0.06));
+      const standY = image.top + inset;
+      push(`work-${i}-rail`, railX, standY, "run", { move: "run" });
       push(
         `work-${i}-land`,
         clampX(image.left + leftPad),
-        footY,
+        standY,
         "land",
         { move: leftStops === 0 ? "jump" : "run", pulse: true, pulseRect: image },
       );
       push(
         `work-${i}-walk`,
         clampX(image.left + Math.max(leftPad + W, rightPad)),
-        footY,
+        standY,
         "walk",
         { move: "run", compact: false },
       );
-      push(`work-${i}-rail-out`, railX, footY, "walk", { move: "run" });
+      push(`work-${i}-rail-out`, railX, standY, "walk", { move: "run" });
       leftStops += 1;
     });
     const endCta = anchor("cta-action");

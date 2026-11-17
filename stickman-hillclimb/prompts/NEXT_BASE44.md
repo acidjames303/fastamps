@@ -2,6 +2,6 @@
 
 Mount: `/` + `/work` only.
 
-Work (019): left page rail between stops; step onto left-column preview frames only; skip right-column previews; CTA approached from the rail and held clear.
+Work (020): left page rail; left-column previews only; figure stands *inside* preview chrome (inset) so disclaimers stay clear; CTA from rail.
 
-Optional next: small land inset so feet never graze disclaimers under a frame.
+Optional next: quick mobile (`vw < 640`) feel check on `/work`; otherwise maintenance.
