@@ -2,6 +2,7 @@
 
 Mount: `/` + `/work` only.
 
-Work (020): left page rail; left-column previews only; figure stands *inside* preview chrome (inset) so disclaimers stay clear; CTA from rail.
+Work desktop (020–021): left rail, left-column previews inset into chrome, CTA clear.
+Work mobile (021): single under-nav wave only (no card chase).
 
-Optional next: quick mobile (`vw < 640`) feel check on `/work`; otherwise maintenance.
+Optional next: maintenance / Home feel; avoid new gimmicks.

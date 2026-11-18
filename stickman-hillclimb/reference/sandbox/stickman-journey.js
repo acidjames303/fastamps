@@ -186,52 +186,62 @@ export function buildJourney({ vw, vh, size, page }) {
     const cards = Array.from(document.querySelectorAll('[data-sm-anchor="work-card"]'));
     const contentLeft = intro?.left ?? hero?.left ?? 48;
     const railX = clampX(Math.max(16, contentLeft - W - 14));
-    if (intro) {
-      push("work-hello", railX, intro.top - feet - 8, "wave", { move: "walk" });
-    } else if (hero) {
-      push("work-hero", railX, hero.bottom - feet - 10, "wave", { move: "walk" });
-    }
-    let leftStops = 0;
-    cards.forEach((cardEl, i) => {
-      const card = readRect(cardEl);
-      const image = readRect(cardEl.querySelector('[data-sm-anchor="work-image"]'));
-      if (!card || !image) return;
-      // Skip right-column previews — their copy sits in the left lane.
-      if (image.left > vw * 0.42) return;
-      const leftPad = Math.min(image.width * 0.16, 80);
-      const rightPad = Math.min(image.width * 0.42, image.width - W - 8);
-      // Stand inside the preview chrome so the figure is not sitting in the
-      // disclaimer / eyebrow band above the frame.
-      const inset = Math.min(34, Math.max(18, image.height * 0.06));
-      const standY = image.top + inset;
-      push(`work-${i}-rail`, railX, standY, "run", { move: "run" });
-      push(
-        `work-${i}-land`,
-        clampX(image.left + leftPad),
-        standY,
-        "land",
-        { move: leftStops === 0 ? "jump" : "run", pulse: true, pulseRect: image },
-      );
-      push(
-        `work-${i}-walk`,
-        clampX(image.left + Math.max(leftPad + W, rightPad)),
-        standY,
-        "walk",
-        { move: "run", compact: false },
-      );
-      push(`work-${i}-rail-out`, railX, standY, "walk", { move: "run" });
-      leftStops += 1;
-    });
-    const endCta = anchor("cta-action");
-    if (endCta) {
-      push("work-cta-rail", railX, endCta.top - feet - 12, "walk", { move: "walk" });
-      push(
-        "work-cta",
-        clampX(endCta.left - W - 100),
-        endCta.top - feet - 12,
-        "hold",
-        { move: "walk", pulse: true, pulseRect: endCta },
-      );
+    // Narrow Work is full-bleed copy — one tucked wave at the top (scrolls
+    // away). No multi-stop chase, or he would lerp through paragraphs.
+    if (compact) {
+      // Sit in the band under the sticky header — intro copy on mobile is
+      // full-bleed and starts lower; a single stop here scrolls cleanly away.
+      const nav = readRect(document.querySelector("header") || document.querySelector("nav"));
+      const parkY = Math.round((nav?.bottom ?? 56) + 8);
+      push("work-hello", clampX(8), parkY, "wave", { move: "walk" });
+    } else {
+      if (intro) {
+        push("work-hello", railX, intro.top - feet - 8, "wave", { move: "walk" });
+      } else if (hero) {
+        push("work-hero", railX, hero.bottom - feet - 10, "wave", { move: "walk" });
+      }
+      let leftStops = 0;
+      cards.forEach((cardEl, i) => {
+        const card = readRect(cardEl);
+        const image = readRect(cardEl.querySelector('[data-sm-anchor="work-image"]'));
+        if (!card || !image) return;
+        // Skip right-column previews — their copy sits in the left lane.
+        if (image.left > vw * 0.42) return;
+        const leftPad = Math.min(image.width * 0.16, 80);
+        const rightPad = Math.min(image.width * 0.42, image.width - W - 8);
+        // Stand inside the preview chrome so the figure is not sitting in the
+        // disclaimer / eyebrow band above the frame.
+        const inset = Math.min(34, Math.max(18, image.height * 0.06));
+        const standY = image.top + inset;
+        push(`work-${i}-rail`, railX, standY, "run", { move: "run" });
+        push(
+          `work-${i}-land`,
+          clampX(image.left + leftPad),
+          standY,
+          "land",
+          { move: leftStops === 0 ? "jump" : "run", pulse: true, pulseRect: image },
+        );
+        push(
+          `work-${i}-walk`,
+          clampX(image.left + Math.max(leftPad + W, rightPad)),
+          standY,
+          "walk",
+          { move: "run", compact: false },
+        );
+        push(`work-${i}-rail-out`, railX, standY, "walk", { move: "run" });
+        leftStops += 1;
+      });
+      const endCta = anchor("cta-action");
+      if (endCta) {
+        push("work-cta-rail", railX, endCta.top - feet - 12, "walk", { move: "walk" });
+        push(
+          "work-cta",
+          clampX(endCta.left - W - 100),
+          endCta.top - feet - 12,
+          "hold",
+          { move: "walk", pulse: true, pulseRect: endCta },
+        );
+      }
     }
   } else {
   const hero = anchor("hero-map");
