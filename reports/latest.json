@@ -1,0 +1,449 @@
+{
+  "generated_at": "2026-11-19T22:08:44.864591+00:00",
+  "base_url": "https://smartfunction.io",
+  "scores": {
+    "technical": 100,
+    "index_hygiene": 25,
+    "onpage": 50,
+    "schema": 100,
+    "content_geo": 55,
+    "overall": 66
+  },
+  "sitemap_url_count": 21,
+  "sitemap_private_urls": [
+    "https://smartfunction.io/admin",
+    "https://smartfunction.io/admin/insights",
+    "https://smartfunction.io/admin/invite",
+    "https://smartfunction.io/admin/playground",
+    "https://smartfunction.io/admin/services",
+    "https://smartfunction.io/admin/work",
+    "https://smartfunction.io/forgot-password",
+    "https://smartfunction.io/login",
+    "https://smartfunction.io/mfa",
+    "https://smartfunction.io/register",
+    "https://smartfunction.io/reset-password"
+  ],
+  "findings": [
+    {
+      "severity": "critical",
+      "code": "private_in_sitemap",
+      "message": "Private/auth URL listed in sitemap.xml",
+      "url": "https://smartfunction.io/admin"
+    },
+    {
+      "severity": "critical",
+      "code": "private_in_sitemap",
+      "message": "Private/auth URL listed in sitemap.xml",
+      "url": "https://smartfunction.io/admin/insights"
+    },
+    {
+      "severity": "critical",
+      "code": "private_in_sitemap",
+      "message": "Private/auth URL listed in sitemap.xml",
+      "url": "https://smartfunction.io/admin/invite"
+    },
+    {
+      "severity": "critical",
+      "code": "private_in_sitemap",
+      "message": "Private/auth URL listed in sitemap.xml",
+      "url": "https://smartfunction.io/admin/playground"
+    },
+    {
+      "severity": "critical",
+      "code": "private_in_sitemap",
+      "message": "Private/auth URL listed in sitemap.xml",
+      "url": "https://smartfunction.io/admin/services"
+    },
+    {
+      "severity": "critical",
+      "code": "private_in_sitemap",
+      "message": "Private/auth URL listed in sitemap.xml",
+      "url": "https://smartfunction.io/admin/work"
+    },
+    {
+      "severity": "critical",
+      "code": "private_in_sitemap",
+      "message": "Private/auth URL listed in sitemap.xml",
+      "url": "https://smartfunction.io/forgot-password"
+    },
+    {
+      "severity": "critical",
+      "code": "private_in_sitemap",
+      "message": "Private/auth URL listed in sitemap.xml",
+      "url": "https://smartfunction.io/login"
+    },
+    {
+      "severity": "critical",
+      "code": "private_in_sitemap",
+      "message": "Private/auth URL listed in sitemap.xml",
+      "url": "https://smartfunction.io/mfa"
+    },
+    {
+      "severity": "critical",
+      "code": "private_in_sitemap",
+      "message": "Private/auth URL listed in sitemap.xml",
+      "url": "https://smartfunction.io/register"
+    },
+    {
+      "severity": "critical",
+      "code": "private_in_sitemap",
+      "message": "Private/auth URL listed in sitemap.xml",
+      "url": "https://smartfunction.io/reset-password"
+    },
+    {
+      "severity": "critical",
+      "code": "llms_lists_private",
+      "message": "llms.txt lists private/admin/auth pages",
+      "url": "https://smartfunction.io/llms.txt"
+    },
+    {
+      "severity": "critical",
+      "code": "boilerplate_description",
+      "message": "Template Base44 meta description still in use",
+      "url": "https://smartfunction.io/about"
+    },
+    {
+      "severity": "critical",
+      "code": "boilerplate_description",
+      "message": "Template Base44 meta description still in use",
+      "url": "https://smartfunction.io/approach"
+    },
+    {
+      "severity": "critical",
+      "code": "boilerplate_description",
+      "message": "Template Base44 meta description still in use",
+      "url": "https://smartfunction.io/contact"
+    },
+    {
+      "severity": "critical",
+      "code": "boilerplate_description",
+      "message": "Template Base44 meta description still in use",
+      "url": "https://smartfunction.io/services"
+    },
+    {
+      "severity": "critical",
+      "code": "boilerplate_description",
+      "message": "Template Base44 meta description still in use",
+      "url": "https://smartfunction.io/work"
+    },
+    {
+      "severity": "critical",
+      "code": "boilerplate_description",
+      "message": "Template Base44 meta description still in use",
+      "url": "https://smartfunction.io/insights"
+    },
+    {
+      "severity": "critical",
+      "code": "boilerplate_description",
+      "message": "Template Base44 meta description still in use",
+      "url": "https://smartfunction.io/playground"
+    },
+    {
+      "severity": "critical",
+      "code": "boilerplate_description",
+      "message": "Template Base44 meta description still in use",
+      "url": "https://smartfunction.io/privacy"
+    },
+    {
+      "severity": "critical",
+      "code": "boilerplate_description",
+      "message": "Template Base44 meta description still in use",
+      "url": "https://smartfunction.io/cookies"
+    },
+    {
+      "severity": "critical",
+      "code": "boilerplate_description",
+      "message": "Template Base44 meta description still in use",
+      "url": "https://smartfunction.io/login"
+    },
+    {
+      "severity": "critical",
+      "code": "private_page_indexable",
+      "message": "Private page is missing noindex",
+      "url": "https://smartfunction.io/login"
+    },
+    {
+      "severity": "critical",
+      "code": "boilerplate_description",
+      "message": "Template Base44 meta description still in use",
+      "url": "https://smartfunction.io/admin"
+    },
+    {
+      "severity": "critical",
+      "code": "private_page_indexable",
+      "message": "Private page is missing noindex",
+      "url": "https://smartfunction.io/admin"
+    },
+    {
+      "severity": "critical",
+      "code": "boilerplate_description",
+      "message": "Template Base44 meta description still in use",
+      "url": "https://smartfunction.io/register"
+    },
+    {
+      "severity": "critical",
+      "code": "private_page_indexable",
+      "message": "Private page is missing noindex",
+      "url": "https://smartfunction.io/register"
+    }
+  ],
+  "pages": [
+    {
+      "path": "/",
+      "status": 200,
+      "title": "SmartFunction \u2014 Make your business work smarter",
+      "description": "SmartFunction designs and builds bespoke business apps, AI and workflow automation, sales systems and connected operations for UK businesses. Less admin. More progress.",
+      "robots": null,
+      "canonical": "https://smartfunction.io",
+      "h1": [
+        "Make your business work smarter."
+      ],
+      "json_ld_types": [
+        "WebSite",
+        "Organization"
+      ],
+      "word_count": 1007,
+      "issues": []
+    },
+    {
+      "path": "/about",
+      "status": 200,
+      "title": "About | SMARTFUNCTION",
+      "description": "About on SMARTFUNCTION. A premium digital agency platform delivering bespoke business applications.",
+      "robots": null,
+      "canonical": "https://smartfunction.io/about",
+      "h1": [
+        "Built with business understanding. Powered by smarter technology."
+      ],
+      "json_ld_types": [
+        "WebSite",
+        "Organization",
+        "BreadcrumbList"
+      ],
+      "word_count": 443,
+      "issues": [
+        "boilerplate_description"
+      ]
+    },
+    {
+      "path": "/approach",
+      "status": 200,
+      "title": "Approach | SMARTFUNCTION",
+      "description": "Approach on SMARTFUNCTION. A premium digital agency platform delivering bespoke business applications.",
+      "robots": null,
+      "canonical": "https://smartfunction.io/approach",
+      "h1": [
+        "From business bottlenecks to better systems."
+      ],
+      "json_ld_types": [
+        "WebSite",
+        "Organization",
+        "BreadcrumbList"
+      ],
+      "word_count": 791,
+      "issues": [
+        "boilerplate_description"
+      ]
+    },
+    {
+      "path": "/contact",
+      "status": 200,
+      "title": "Contact | SMARTFUNCTION",
+      "description": "Contact on SMARTFUNCTION. A premium digital agency platform delivering bespoke business applications.",
+      "robots": null,
+      "canonical": "https://smartfunction.io/contact",
+      "h1": [
+        "Tell us what you want to work smarter."
+      ],
+      "json_ld_types": [
+        "WebSite",
+        "Organization",
+        "BreadcrumbList"
+      ],
+      "word_count": 301,
+      "issues": [
+        "boilerplate_description"
+      ]
+    },
+    {
+      "path": "/services",
+      "status": 200,
+      "title": "Services | SMARTFUNCTION",
+      "description": "Services on SMARTFUNCTION. A premium digital agency platform delivering bespoke business applications.",
+      "robots": null,
+      "canonical": "https://smartfunction.io/services",
+      "h1": [
+        "Ways we make business function smarter."
+      ],
+      "json_ld_types": [
+        "WebSite",
+        "Organization",
+        "BreadcrumbList"
+      ],
+      "word_count": 572,
+      "issues": [
+        "boilerplate_description"
+      ]
+    },
+    {
+      "path": "/work",
+      "status": 200,
+      "title": "Work | SMARTFUNCTION",
+      "description": "Work on SMARTFUNCTION. A premium digital agency platform delivering bespoke business applications.",
+      "robots": null,
+      "canonical": "https://smartfunction.io/work",
+      "h1": [
+        "Selected work and experience behind SmartFunction."
+      ],
+      "json_ld_types": [
+        "WebSite",
+        "Organization",
+        "BreadcrumbList"
+      ],
+      "word_count": 794,
+      "issues": [
+        "boilerplate_description"
+      ]
+    },
+    {
+      "path": "/insights",
+      "status": 200,
+      "title": "Insights | SMARTFUNCTION",
+      "description": "Insights on SMARTFUNCTION. A premium digital agency platform delivering bespoke business applications.",
+      "robots": null,
+      "canonical": "https://smartfunction.io/insights",
+      "h1": [
+        "Notes on making business function smarter."
+      ],
+      "json_ld_types": [
+        "WebSite",
+        "Organization",
+        "BreadcrumbList"
+      ],
+      "word_count": 181,
+      "issues": [
+        "boilerplate_description"
+      ]
+    },
+    {
+      "path": "/playground",
+      "status": 200,
+      "title": "Playground | SMARTFUNCTION",
+      "description": "Playground on SMARTFUNCTION. A premium digital agency platform delivering bespoke business applications.",
+      "robots": null,
+      "canonical": "https://smartfunction.io/playground",
+      "h1": [
+        "Draw how your business works. Then make it smarter."
+      ],
+      "json_ld_types": [
+        "WebSite",
+        "Organization",
+        "BreadcrumbList"
+      ],
+      "word_count": 322,
+      "issues": [
+        "boilerplate_description"
+      ]
+    },
+    {
+      "path": "/privacy",
+      "status": 200,
+      "title": "Privacy | SMARTFUNCTION",
+      "description": "Privacy on SMARTFUNCTION. A premium digital agency platform delivering bespoke business applications.",
+      "robots": "noindex",
+      "canonical": "https://smartfunction.io/privacy",
+      "h1": [
+        "Privacy policy"
+      ],
+      "json_ld_types": [
+        "WebSite",
+        "Organization",
+        "BreadcrumbList"
+      ],
+      "word_count": 502,
+      "issues": [
+        "boilerplate_description"
+      ]
+    },
+    {
+      "path": "/cookies",
+      "status": 200,
+      "title": "Cookies | SMARTFUNCTION",
+      "description": "Cookies on SMARTFUNCTION. A premium digital agency platform delivering bespoke business applications.",
+      "robots": "noindex",
+      "canonical": "https://smartfunction.io/cookies",
+      "h1": [
+        "Cookie policy"
+      ],
+      "json_ld_types": [
+        "WebSite",
+        "Organization",
+        "BreadcrumbList"
+      ],
+      "word_count": 292,
+      "issues": [
+        "boilerplate_description"
+      ]
+    },
+    {
+      "path": "/login",
+      "status": 200,
+      "title": "Login | SMARTFUNCTION",
+      "description": "Login on SMARTFUNCTION. A premium digital agency platform delivering bespoke business applications.",
+      "robots": null,
+      "canonical": "https://smartfunction.io/login",
+      "h1": [],
+      "json_ld_types": [
+        "WebSite",
+        "Organization",
+        "BreadcrumbList"
+      ],
+      "word_count": 3,
+      "issues": [
+        "boilerplate_description",
+        "missing_h1",
+        "private_page_indexable"
+      ]
+    },
+    {
+      "path": "/admin",
+      "status": 200,
+      "title": "Admin | SMARTFUNCTION",
+      "description": "Admin on SMARTFUNCTION. A premium digital agency platform delivering bespoke business applications.",
+      "robots": null,
+      "canonical": "https://smartfunction.io/admin",
+      "h1": [],
+      "json_ld_types": [
+        "WebSite",
+        "Organization",
+        "BreadcrumbList"
+      ],
+      "word_count": 3,
+      "issues": [
+        "boilerplate_description",
+        "missing_h1",
+        "private_page_indexable"
+      ]
+    },
+    {
+      "path": "/register",
+      "status": 200,
+      "title": "Register | SMARTFUNCTION",
+      "description": "Register on SMARTFUNCTION. A premium digital agency platform delivering bespoke business applications.",
+      "robots": null,
+      "canonical": "https://smartfunction.io/register",
+      "h1": [],
+      "json_ld_types": [
+        "WebSite",
+        "Organization",
+        "BreadcrumbList"
+      ],
+      "word_count": 3,
+      "issues": [
+        "boilerplate_description",
+        "missing_h1",
+        "private_page_indexable"
+      ]
+    }
+  ]
+}
