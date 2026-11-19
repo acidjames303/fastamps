@@ -1,0 +1,58 @@
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "SmartFunction",
+  "url": "https://smartfunction.io/",
+  "image": "https://media.base44.com/images/public/6afb374c91d1c9194f9d6554/bfe686f8c_generated_image.png",
+  "logo": "https://media.base44.com/images/public/6afb374c91d1c9194f9d6554/105f1038e_logo.png",
+  "description": "Founder-led UK studio building bespoke business applications, AI and workflow automation, sales systems and connected operations.",
+  "email": "jp@smartfunction.io",
+  "priceRange": "££",
+  "areaServed": {
+    "@type": "Country",
+    "name": "United Kingdom"
+  },
+  "serviceType": [
+    "Bespoke business applications",
+    "AI and workflow automation",
+    "Sales systems",
+    "Operations integrations",
+    "Websites and SEO"
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "SmartFunction services",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Bespoke business apps",
+          "url": "https://smartfunction.io/services",
+          "description": "Practical web applications and internal tools that replace spreadsheets, paperwork and workarounds."
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "AI and workflow automation",
+          "url": "https://smartfunction.io/services",
+          "description": "Automations and AI-assisted workflows that remove repetitive admin where ROI is clear."
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Sales systems",
+          "url": "https://smartfunction.io/services",
+          "description": "Prospecting, calling and follow-up systems built around how sales teams actually work."
+        }
+      }
+    ]
+  },
+  "sameAs": [
+    "https://www.linkedin.com/company/smartfunction"
+  ]
+}

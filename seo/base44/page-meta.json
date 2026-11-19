@@ -1,0 +1,66 @@
+{
+  "_comment": "Paste into Base44 → SEO & GEO → Meta tags, or apply via scripts/apply_base44_seo.py. Keys are expected Base44 page component names — adjust if dashboard labels differ.",
+  "pages": {
+    "Home": {
+      "title": "SmartFunction — Bespoke apps, AI automation & smarter systems for UK businesses",
+      "description": "SmartFunction designs and builds bespoke business apps, AI and workflow automation, sales systems and connected operations for UK companies. Less admin. More progress.",
+      "noindex": false
+    },
+    "Services": {
+      "title": "Services — Bespoke apps, AI automation, sales & operations | SmartFunction",
+      "description": "From bespoke web apps to AI automation, sales systems, operations integrations and websites. SmartFunction starts with the business problem, then builds the smallest useful fix.",
+      "noindex": false
+    },
+    "Work": {
+      "title": "Selected work — Sales systems, customer journeys & decision tools | SmartFunction",
+      "description": "Real systems designed and built by SmartFunction: prospecting and call workflows, connected installation journeys, harder-working websites, and commercial decision tools.",
+      "noindex": false
+    },
+    "Approach": {
+      "title": "How we work — Understand, design, build, improve | SmartFunction",
+      "description": "SmartFunction’s four-stage approach: understand the real bottleneck, design the smallest useful change, build with your team, then keep improving. UK founder-led studio.",
+      "noindex": false
+    },
+    "About": {
+      "title": "About SmartFunction — Founder-led studio for smarter business systems",
+      "description": "SmartFunction is a UK founder-led studio building bespoke apps and automation so professionals spend less time on admin and more on decisions, relationships and progress.",
+      "noindex": false
+    },
+    "Contact": {
+      "title": "Contact SmartFunction — Tell us what you want to work smarter",
+      "description": "Email jp@smartfunction.io or send a short enquiry. Founder-led replies within two working days. No sales sequence — just an honest look at what to automate or build.",
+      "noindex": false
+    },
+    "Insights": {
+      "title": "Insights — Practical notes on apps, automation and process design | SmartFunction",
+      "description": "Practical writing on bespoke apps, AI automation and process design for UK businesses — published when there is something useful to say.",
+      "noindex": false
+    },
+    "Playground": {
+      "title": "SmartFunction Playground — Map your process, then make it smarter",
+      "description": "Draw how your business works as steps and connections. Get one free Smart Builder analysis — no account required — then turn it into a scoped SmartFunction project.",
+      "noindex": false
+    },
+    "Privacy": {
+      "title": "Privacy policy | SmartFunction",
+      "description": "How SmartFunction handles enquiry data and site information.",
+      "noindex": true
+    },
+    "Cookies": {
+      "title": "Cookie policy | SmartFunction",
+      "description": "Cookie use on smartfunction.io.",
+      "noindex": true
+    },
+    "Login": { "title": "Login | SmartFunction", "noindex": true },
+    "Register": { "title": "Register | SmartFunction", "noindex": true },
+    "Mfa": { "title": "MFA | SmartFunction", "noindex": true },
+    "ForgotPassword": { "title": "Forgot password | SmartFunction", "noindex": true },
+    "ResetPassword": { "title": "Reset password | SmartFunction", "noindex": true },
+    "Admin": { "title": "Admin | SmartFunction", "noindex": true },
+    "AdminInsights": { "title": "Admin Insights | SmartFunction", "noindex": true },
+    "AdminInvite": { "title": "Admin Invite | SmartFunction", "noindex": true },
+    "AdminPlayground": { "title": "Admin Playground | SmartFunction", "noindex": true },
+    "AdminServices": { "title": "Admin Services | SmartFunction", "noindex": true },
+    "AdminWork": { "title": "Admin Work | SmartFunction", "noindex": true }
+  }
+}

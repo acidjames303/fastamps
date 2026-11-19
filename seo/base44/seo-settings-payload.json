@@ -1,0 +1,83 @@
+{
+  "settings": {
+    "website_schema": {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "SmartFunction",
+      "url": "https://smartfunction.io/",
+      "description": "Bespoke business apps, AI automation and connected systems for UK organisations.",
+      "inLanguage": "en-GB",
+      "publisher": {
+        "@type": "Organization",
+        "name": "SmartFunction",
+        "url": "https://smartfunction.io/"
+      }
+    },
+    "organization_schema": {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "SmartFunction",
+      "legalName": "SmartFunction",
+      "url": "https://smartfunction.io/",
+      "logo": "https://media.base44.com/images/public/6afb374c91d1c9194f9d6554/105f1038e_logo.png",
+      "image": "https://media.base44.com/images/public/6afb374c91d1c9194f9d6554/bfe686f8c_generated_image.png",
+      "description": "UK founder-led studio that designs and builds bespoke business apps, AI and workflow automation, sales systems and connected operations.",
+      "email": "jp@smartfunction.io",
+      "foundingDate": "2025",
+      "areaServed": {
+        "@type": "Country",
+        "name": "United Kingdom"
+      },
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "contactType": "sales",
+          "email": "jp@smartfunction.io",
+          "availableLanguage": ["English"],
+          "areaServed": "GB"
+        }
+      ],
+      "sameAs": [
+        "https://www.linkedin.com/company/smartfunction"
+      ]
+    },
+    "faq_schema": {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What kind of businesses do you work with?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "SmartFunction works with UK organisations that have real operational friction — sales teams, service businesses and commercial operators who need bespoke apps, automation or connected systems rather than another generic SaaS licence."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do you only build AI projects?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. AI is used where it removes repetitive work with clear ROI. Many projects are bespoke apps, sales systems, integrations or websites. The problem comes first; the technology follows."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How long does a project take?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Timelines depend on scope. SmartFunction aims for the smallest useful version first so you see working software early, then improves it with your team rather than waiting for a large big-bang delivery."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What does it cost?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Pricing is scoped to the problem. Smaller projects are welcome. Budgets discussed on the contact form are optional; SmartFunction replies with honest questions before proposing work."
+          }
+        }
+      ]
+    }
+  }
+}

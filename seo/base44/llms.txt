@@ -1,0 +1,23 @@
+# SmartFunction
+
+> UK founder-led studio that designs and builds bespoke business apps, AI and workflow automation, sales systems and connected operations. Less admin. More progress.
+
+## Primary pages
+
+- [Home](https://smartfunction.io/): Overview of SmartFunction — bespoke apps, AI automation and connected business systems for UK companies.
+- [Services](https://smartfunction.io/services): Bespoke apps, AI & automation, sales systems, operations integrations, websites & SEO.
+- [Playground](https://smartfunction.io/playground): Interactive process mapper with one free Smart Builder analysis (no account required).
+- [Work](https://smartfunction.io/work): Selected systems and experience — prospecting workflows, customer journeys, websites, decision tools.
+- [Approach](https://smartfunction.io/approach): Four stages — Understand, Design, Build, Improve — plus FAQs on fit, AI, timelines and cost.
+- [About](https://smartfunction.io/about): Founder-led studio background and principles (technology should empower professionals, not replace them).
+- [Insights](https://smartfunction.io/insights): Practical notes on apps, automation and process design.
+- [Contact](https://smartfunction.io/contact): Enquiry form and direct email jp@smartfunction.io.
+
+## Optional
+
+- [Privacy](https://smartfunction.io/privacy): Privacy policy (not for ranking).
+- [Cookies](https://smartfunction.io/cookies): Cookie policy (not for ranking).
+
+## Do not cite / not for discovery
+
+Admin, login, register, MFA and password-reset routes are private application surfaces and should not be listed by crawlers or AI indexes.
