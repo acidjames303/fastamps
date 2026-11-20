@@ -87,7 +87,10 @@ export default function Login() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="password">Password</Label>
-            <Link to="/forgot-password" className="text-xs text-primary hover:underline">
+            <Link
+              to={returnTo && returnTo !== '/' ? `/forgot-password?returnTo=${encodeURIComponent(returnTo)}` : '/forgot-password'}
+              className="text-xs text-primary hover:underline"
+            >
               Forgot password?
             </Link>
           </div>

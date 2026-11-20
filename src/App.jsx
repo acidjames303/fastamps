@@ -8,6 +8,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import { Navigate, useLocation } from 'react-router-dom';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import AdminRoute from '@/components/AdminRoute';
 import Layout from '@/components/Layout';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
@@ -91,21 +92,24 @@ const AuthenticatedApp = () => {
           <Route path="/" element={<Dashboard />} />
           <Route path="/register-install" element={<SubmitInstall />} />
           <Route path="/installs" element={<Installs />} />
-          <Route path="/admin/installs" element={<AdminInstalls />} />
-          <Route path="/admin/installers" element={<AdminInstallers />} />
-          <Route path="/admin/chargers" element={<AdminChargers />} />
-          <Route path="/admin/reports" element={<AdminReports />} />
-          <Route path="/admin/vouchers" element={<AdminVouchers />} />
-          <Route path="/admin/fraud-review" element={<AdminFraudReview />} />
-          <Route path="/admin/beta-test" element={<AdminBetaTest />} />
-          <Route path="/admin/qa" element={<AdminQaChecklist />} />
-          <Route path="/opportunities" element={<Opportunities />} />
           <Route path="/earnings" element={<Earnings />} />
-          <Route path="/academy" element={<Academy />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/programme-terms" element={<ProgrammeTerms />} />
+          {/* Kept for deep links; omitted from installer More menu for pilot. */}
+          <Route path="/opportunities" element={<Opportunities />} />
+          <Route path="/academy" element={<Academy />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/coach" element={<Coach />} />
+          <Route element={<AdminRoute />}>
+            <Route path="/admin/installs" element={<AdminInstalls />} />
+            <Route path="/admin/installers" element={<AdminInstallers />} />
+            <Route path="/admin/chargers" element={<AdminChargers />} />
+            <Route path="/admin/reports" element={<AdminReports />} />
+            <Route path="/admin/vouchers" element={<AdminVouchers />} />
+            <Route path="/admin/fraud-review" element={<AdminFraudReview />} />
+            <Route path="/admin/beta-test" element={<AdminBetaTest />} />
+            <Route path="/admin/qa" element={<AdminQaChecklist />} />
+          </Route>
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />

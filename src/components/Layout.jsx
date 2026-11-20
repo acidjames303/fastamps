@@ -3,7 +3,7 @@ import { Link, Outlet, NavLink, useLocation, useNavigate } from 'react-router-do
 import {
   LayoutDashboard, Camera, ListChecks, Wallet, User, Users, ShieldCheck, QrCode, BarChart3,
   FlaskConical, ChevronDown, LogOut, ShieldHalf, ShieldAlert, ClipboardCheck, Menu,
-  GraduationCap, Trophy, Briefcase, MessageCircle, FileText, MoreHorizontal,
+  FileText, MoreHorizontal,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useInstaller } from '@/hooks/useInstaller';
@@ -40,12 +40,10 @@ const installerDesktopNav = [
   { to: '/profile', label: 'Profile', icon: User },
 ];
 
+// Pilot launch: keep More limited to working installer journeys.
+// Academy / Opportunities / Leaderboard / Coach stay routed but unlinked until ready.
 const installerMoreItems = [
   { to: '/profile', label: 'Profile', icon: User },
-  { to: '/academy', label: 'Academy', icon: GraduationCap },
-  { to: '/opportunities', label: 'Opportunities', icon: Briefcase },
-  { to: '/leaderboard', label: 'Leaderboard', icon: Trophy },
-  { to: '/coach', label: 'Coach', icon: MessageCircle },
   { to: '/programme-terms', label: 'Programme terms', icon: FileText },
 ];
 
