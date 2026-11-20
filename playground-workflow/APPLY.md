@@ -12,6 +12,7 @@ Auth: `npx base44 login` (device) or `BASE44_API_KEY`
 - **005 live** (20 Nov 2026) — see `iterations/005-live.md` (post-analysis what-happens-next)
 - **006 live** (20 Nov 2026) — see `iterations/006-live.md` (email-gate step/connection counts)
 - **007 live** (20 Nov 2026) — see `iterations/007-live.md` (dismissible connect coachmark)
+- **008 live** (20 Nov 2026) — see `iterations/008-live.md` (mobile sticky list-order cue)
 
 ## Apply via sandbox (preferred when authenticated)
 ```bash

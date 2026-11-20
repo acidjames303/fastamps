@@ -1,10 +1,10 @@
-# Base44 prompt — Playground iteration 008 (hold)
+# Base44 prompt — Playground iteration 009 (hold)
 
-Iterations **001–007 are live**.
+Iterations **001–008 are live**. Prefer holding unless a playtest gate fails.
 
 ## If continuing, pick one
-1. After analysis: ensure “Your smarter process” tab is the default focus (already is) and add a one-line cue when switching to “current”.
-2. Mobile list: short “connections stay in order” reminder near sticky CTA when scrolling.
-3. Hold — rubric likely ≥4.5; watch real visits.
+1. ComparisonView: one-line cue when viewing “Your current process” that smarter is one tap away.
+2. Validation empathy pass on empty/orphan edge messages (copy only).
+3. Hold.
 
 Out of scope: stickman, model/quota, new templates, non-Playground pages.
