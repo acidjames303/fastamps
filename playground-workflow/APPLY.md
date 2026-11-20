@@ -18,6 +18,7 @@ Auth: `npx base44 login` (device) or `BASE44_API_KEY`
 - **011 live** (20 Nov 2026) — see `iterations/011-live.md` (surface orphan validation notes)
 - **012 hold** (20 Nov 2026) — see `iterations/012-remeasure-hold.md` (gates green; no ship)
 - **013 hold** (20 Nov 2026) — see `iterations/013-remeasure-hold.md` (gates green; no ship)
+- **014 hold** (20 Nov 2026) — see `iterations/014-remeasure-hold.md` (gates green; no ship)
 
 ## Apply via sandbox (preferred when authenticated)
 ```bash
