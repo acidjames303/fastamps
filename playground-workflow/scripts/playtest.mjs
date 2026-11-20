@@ -83,6 +83,7 @@ async function pageSignals(page) {
         ? ctaRect.top < window.innerHeight && ctaRect.bottom > 0
         : false,
       stickyCta: !!document.querySelector("[data-playground-sticky-cta], .playground-sticky-cta"),
+      connectTip: !!document.querySelector("[data-playground-connect-tip]"),
       canvasY: canvasRect ? Math.round(canvasRect.top) : null,
       canvasInFirstViewport: canvasRect
         ? canvasRect.top < window.innerHeight - 40 && canvasRect.bottom > 80
@@ -172,6 +173,7 @@ async function main() {
       mobileCtaInFirstViewport: !!mLand?.ctaInFirstViewport,
       mobileCtaY: mLand?.ctaY ?? null,
       mobileStickyCta: !!mLand?.stickyCta,
+      desktopConnectTip: !!desktop.find((e) => e.msg.endsWith(":landed"))?.connectTip,
       canvasNodesWhenTemplated: desktop.find((e) => e.msg.endsWith(":template-sales"))?.stepNodeCount ?? null,
       desktopCanvasInFirstViewport: !!desktop.find((e) => e.msg.endsWith(":template-sales"))?.canvasInFirstViewport,
       desktopCanvasY: desktop.find((e) => e.msg.endsWith(":template-sales"))?.canvasY ?? null,

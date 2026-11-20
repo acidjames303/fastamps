@@ -1,10 +1,10 @@
-# Base44 prompt — Playground iteration 007 (hold)
+# Base44 prompt — Playground iteration 008 (hold)
 
-Iterations **001–006 are live**.
+Iterations **001–007 are live**.
 
 ## If continuing, pick one
-1. Dismissible first-visit connect coachmark under the canvas (text only — no stickman).
-2. After analysis: scroll/focus cue to the smarter-process tab if visitors land on “current”.
-3. Hold — watch sticky CTA + email-gate completion.
+1. After analysis: ensure “Your smarter process” tab is the default focus (already is) and add a one-line cue when switching to “current”.
+2. Mobile list: short “connections stay in order” reminder near sticky CTA when scrolling.
+3. Hold — rubric likely ≥4.5; watch real visits.
 
 Out of scope: stickman, model/quota, new templates, non-Playground pages.
