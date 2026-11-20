@@ -1,9 +1,10 @@
-# Base44 prompt — Playground iteration 003 (hold until chosen)
+# Base44 prompt — Playground iteration 004 (hold)
 
-**Do not apply yet.** Iteration 002 is live. See `prompts/003-NEXT-AFTER-002.md` for candidate levers.
+**Do not apply yet** unless continuing the hillclimb. Iterations 001–003 are live.
 
-Current live goals already met:
-- 001 copy / connect / sticky mobile / SEO
-- 002 compact templates + default fit (~77%) + nodes in first viewport
+## Suggested next lever (pick one)
+1. Conversion honesty: after analysis, clarify human review + reply window on call vs project paths (no new form fields).
+2. Empty-inspector teaching: when no step selected, show a slim inline tip under the canvas instead of a side panel (already full-width; tip could mention connect circle).
+3. Stop and hold — average rubric ~4.4–4.5; remasure after traffic before more chrome changes.
 
-When starting 003, replace this file with the chosen single lever from `003-NEXT-AFTER-002.md`.
+Out of scope: stickman, model/quota, new templates.
