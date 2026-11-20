@@ -1,4 +1,4 @@
-# Iteration 000 — baseline (code + live playtest)
+# Iteration 000 — Playground workflow baseline (code + live playtest)
 
 **Date:** 20 Nov 2026 (Europe/London)  
 **URL:** https://smartfunction.io/playground  
@@ -38,6 +38,8 @@ Playground already aims at workflow capture → free analysis → project/call. 
 7. After/before comparison microcopy once analysis path is re-tested live.
 
 Prior Nov 17 must-fixes (broken step selection, `retupe` typo, missing Analyze CTA) are **already fixed** live — see `reference/PRIOR_ART.md`.
+
+This agent improves the **workflow mapper only** — not stickman / character work.
 
 ## Decision
 Ship lever **1** via `prompts/NEXT_BASE44.md`. Do not change Smart Builder model behaviour, templates list, or conversion form fields in this round.

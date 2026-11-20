@@ -4,7 +4,7 @@ Paste into the SmartFunction Base44 builder chat. Publish after preview.
 
 ---
 
-Improve **only** the public Playground page (`/playground`). Do not redesign the site, stickman, Home, Work, Services, or Smart Builder model logic. Keep templates, canvas behaviour, validation rules, free-analysis rules, and call/project forms as they are unless a copy string below must move.
+Improve **only** the public Playground workflow mapper (`/playground`). Do not redesign the rest of the site, Home, Work, Services, or Smart Builder model logic. Do **not** add or change any stickman/character overlay on this page. Keep templates, canvas behaviour, validation rules, free-analysis rules, and call/project forms as they are unless a copy string below must move.
 
 ## Goal of this change
 Make a first-time visitor understand, within a few seconds:
@@ -60,7 +60,8 @@ Do not change canvas hit targets or connection behaviour — copy only.
 - New templates, new form fields, budget/phone earlier in the flow
 - Smart Builder prompt/model changes
 - Admin Playground
-- Stickman / other pages
+- Stickman / character overlay (do not add to Playground)
+- Other site pages
 - Visual redesign (colours, fonts, layout grid)
 
 ## Acceptance

@@ -1,4 +1,4 @@
-# Playground quality rubric
+# Playground workflow mapper — quality rubric
 
 Score each criterion **1–5**. Target: average ≥ **4.5** on two consecutive iterations.
 

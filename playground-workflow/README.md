@@ -1,24 +1,18 @@
-# Playground hillclimb
+# Playground workflow agent
 
-Iterative UX / copy agent for [SmartFunction Playground](https://smartfunction.io/playground).
+Iterative UX / copy work for the SmartFunction **Playground** app:  
+[https://smartfunction.io/playground](https://smartfunction.io/playground)
 
-Same operating pattern as `stickman-hillclimb`, scoped to workflow discovery:
+Focus: help clients map their workflows, explain the free Smart Builder analysis, and collect useful process data so SmartFunction can improve those workflows with apps, automation, and services.
 
-> Collect useful maps of how customers work today, run one honest free analysis, then convert into a call or project so SmartFunction can improve that workflow with real solutions and services.
+**Not in scope:** stickman character, Home/Work motion, or other site chrome.
 
 ## Quick start
 
 ```bash
-cd playground-hillclimb
+cd playground-workflow
 npm install
 npm run playtest -- --out artifacts/latest
-```
-
-Requires Chrome/Chromium. Optional Base44 apply:
-
-```bash
-# set BASE44_API_KEY + BASE44_APP_ID (see .env.example)
-npm run sandbox:grep
 ```
 
 ## Files
@@ -41,5 +35,5 @@ npm run sandbox:grep
 2. Playtest live; score with `RUBRIC.md`.
 3. Choose **one** lever.
 4. Rewrite `prompts/NEXT_BASE44.md`.
-5. Apply via Base44 (API or paste).
+5. Apply via Base44 (paste or API).
 6. Re-test; log the result.

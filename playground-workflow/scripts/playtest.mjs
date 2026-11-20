@@ -1,5 +1,5 @@
 /**
- * Playground hillclimb playtest — public /playground flow.
+ * Playground workflow playtest — public /playground flow.
  * Requires: playwright-core + Chrome. Outputs JSON to stdout and optional --out dir.
  *
  *   node scripts/playtest.mjs [--out artifacts/run-001]
