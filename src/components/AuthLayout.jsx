@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "./AuthLayout.css";
 
 const FASTAMPS_LOGO = "https://media.base44.com/images/public/6adf6de7ebdb4cb382e8779f/a739e9792_DARK_MODE_FASTAMPS_LOGO.png";
@@ -43,6 +44,13 @@ export default function AuthLayout({ title, subtitle, footer, children }) {
             {footer && <div className="fa-auth-card-footer">{footer}</div>}
           </section>
           <p className="fa-auth-legal">Install · Register · Get rewarded</p>
+          <nav className="fa-auth-legal-links" aria-label="Legal">
+            <Link to="/privacy">Privacy</Link>
+            <span aria-hidden="true">·</span>
+            <Link to="/terms">Terms</Link>
+            <span aria-hidden="true">·</span>
+            <Link to="/programme-terms">Programme terms</Link>
+          </nav>
         </main>
       </div>
     </div>

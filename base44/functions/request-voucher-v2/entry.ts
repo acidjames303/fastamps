@@ -48,6 +48,15 @@ export default async function (req) {
     if (installer.programme_terms_version !== "2026-10-v1" || !installer.programme_terms_accepted_at) {
       return Response.json({ error: "Please accept the updated FastAmps programme terms in My Profile before redeeming rewards." }, { status: 409 });
     }
+    // Programme terms require FastAmps-approved proof. For V1, admin training
+    // verification (HQ training or certificates received) is that approval gate.
+    const proofApproved = installer.hq_training_completed === true
+      || installer.certificates_received === true;
+    if (!proofApproved) {
+      return Response.json({
+        error: "Upload your proof-of-approval documents in My Profile and wait for FastAmps to approve them before redeeming rewards.",
+      }, { status: 409 });
+    }
 
     const previous = await db.asServiceRole.entities.VoucherRequest.filter({ installer_email: user.email });
     // Include failed: those claims may still be locked or need admin release before a new request.

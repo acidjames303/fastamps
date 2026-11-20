@@ -31,12 +31,38 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Please sign in before creating your installer profile." }, { status: 401 });
     }
 
+    const body = await req.json().catch(() => ({}));
+    const action = String(body.action || "register");
+
+    // Used by onboarding and Profile so a mobile number cannot be claimed twice.
+    if (action === "check_mobile") {
+      const mobile = normalizeUkMobile(body.mobile);
+      if (!/^07\d{9}$/.test(mobile)) {
+        return Response.json({ error: "Enter a valid UK mobile number beginning with 07 or +44 7." }, { status: 400 });
+      }
+      const matches = await base44.asServiceRole.entities.Installer.filter({ mobile });
+      const conflict = matches.find((candidate) =>
+        !candidate.excluded_from_reporting
+        && String(candidate.user_email || "").toLowerCase() !== String(user.email).toLowerCase()
+      );
+      if (conflict) {
+        return Response.json({
+          available: false,
+          error: "This mobile number is already associated with an installer account. Contact FastAmps if you need to recover access.",
+        }, { status: 409 });
+      }
+      return Response.json({ available: true, mobile });
+    }
+
+    if (action !== "register") {
+      return Response.json({ error: "Unsupported installer action." }, { status: 400 });
+    }
+
     const existingProfiles = await base44.asServiceRole.entities.Installer.filter({ user_email: user.email });
     if (existingProfiles.length) {
       return Response.json({ error: "An installer profile already exists for this account." }, { status: 409 });
     }
 
-    const body = await req.json();
     const fullName = String(body.full_name || "").trim();
     const mobile = normalizeUkMobile(body.mobile);
     const region = String(body.region || "").trim();

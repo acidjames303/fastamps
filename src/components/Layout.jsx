@@ -3,7 +3,7 @@ import { Link, Outlet, NavLink, useLocation, useNavigate } from 'react-router-do
 import {
   LayoutDashboard, Camera, ListChecks, Wallet, User, Users, ShieldCheck, QrCode, BarChart3,
   FlaskConical, ChevronDown, LogOut, ShieldHalf, ShieldAlert, ClipboardCheck, Menu,
-  GraduationCap, Trophy, Briefcase, MessageCircle, FileText, MoreHorizontal,
+  FileText, MoreHorizontal,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useInstaller } from '@/hooks/useInstaller';
@@ -40,12 +40,10 @@ const installerDesktopNav = [
   { to: '/profile', label: 'Profile', icon: User },
 ];
 
+// Pilot launch: keep More limited to working installer journeys.
+// Academy / Opportunities / Leaderboard / Coach stay routed but unlinked until ready.
 const installerMoreItems = [
   { to: '/profile', label: 'Profile', icon: User },
-  { to: '/academy', label: 'Academy', icon: GraduationCap },
-  { to: '/opportunities', label: 'Opportunities', icon: Briefcase },
-  { to: '/leaderboard', label: 'Leaderboard', icon: Trophy },
-  { to: '/coach', label: 'Coach', icon: MessageCircle },
   { to: '/programme-terms', label: 'Programme terms', icon: FileText },
 ];
 
@@ -254,6 +252,11 @@ export default function Layout() {
       />
 
       <footer className="hidden md:block max-w-6xl mx-auto px-5 py-4 text-center text-[11px] text-muted-foreground/60">
+        <nav className="mb-2 flex flex-wrap items-center justify-center gap-3" aria-label="Legal">
+          <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
+          <Link to="/terms" className="hover:text-foreground">Terms</Link>
+          <Link to="/programme-terms" className="hover:text-foreground">Programme terms</Link>
+        </nav>
         Designed by ©jpriches 2026
       </footer>
     </div>

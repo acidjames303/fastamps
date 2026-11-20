@@ -456,7 +456,7 @@ export default function SubmitInstall() {
                 <div className="mt-1 text-xs text-muted-foreground">Take photo or choose from gallery</div>
               </div>
             )}
-            <input id="serial-photo" type="file" accept="image/*" required aria-label="Photo showing the serial number on the charger" className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0" onChange={(event) => choosePhoto(event.target.files?.[0] || null, 'serial')} />
+            <input id="serial-photo" type="file" accept="image/*" capture="environment" required aria-label="Photo showing the serial number on the charger" className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0" onChange={(event) => choosePhoto(event.target.files?.[0] || null, 'serial')} />
           </label>
           {serialPhoto && (
             <div className="mt-2 space-y-1 text-xs">
@@ -482,6 +482,7 @@ export default function SubmitInstall() {
               id="photo"
               type="file"
               accept="image/*"
+              capture="environment"
               required
               aria-label="Take or choose an installed charger photo"
               className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"

@@ -8,6 +8,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import { Navigate, useLocation } from 'react-router-dom';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import AdminRoute from '@/components/AdminRoute';
 import Layout from '@/components/Layout';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
@@ -29,6 +30,8 @@ import Academy from '@/pages/Academy';
 import Leaderboard from '@/pages/Leaderboard';
 import Profile from '@/pages/Profile';
 import ProgrammeTerms from '@/pages/ProgrammeTerms';
+import Privacy from '@/pages/Privacy';
+import Terms from '@/pages/Terms';
 import AdminFraudReview from '@/pages/AdminFraudReview';
 import AdminQaChecklist from '@/pages/AdminQaChecklist';
 import Coach from '@/pages/Coach';
@@ -79,6 +82,9 @@ const AuthenticatedApp = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/programme-terms" element={<ProgrammeTerms />} />
       <Route path="/claim/:claimToken" element={<ChargerClaimEntry />}>
         <Route element={<ProtectedRoute unauthenticatedElement={<LoginRedirect />} />}>
           <Route element={<Layout />}>
@@ -91,21 +97,23 @@ const AuthenticatedApp = () => {
           <Route path="/" element={<Dashboard />} />
           <Route path="/register-install" element={<SubmitInstall />} />
           <Route path="/installs" element={<Installs />} />
-          <Route path="/admin/installs" element={<AdminInstalls />} />
-          <Route path="/admin/installers" element={<AdminInstallers />} />
-          <Route path="/admin/chargers" element={<AdminChargers />} />
-          <Route path="/admin/reports" element={<AdminReports />} />
-          <Route path="/admin/vouchers" element={<AdminVouchers />} />
-          <Route path="/admin/fraud-review" element={<AdminFraudReview />} />
-          <Route path="/admin/beta-test" element={<AdminBetaTest />} />
-          <Route path="/admin/qa" element={<AdminQaChecklist />} />
-          <Route path="/opportunities" element={<Opportunities />} />
           <Route path="/earnings" element={<Earnings />} />
+          <Route path="/profile" element={<Profile />} />
+          {/* Kept for deep links; omitted from installer More menu for pilot. */}
+          <Route path="/opportunities" element={<Opportunities />} />
           <Route path="/academy" element={<Academy />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/programme-terms" element={<ProgrammeTerms />} />
           <Route path="/coach" element={<Coach />} />
+          <Route element={<AdminRoute />}>
+            <Route path="/admin/installs" element={<AdminInstalls />} />
+            <Route path="/admin/installers" element={<AdminInstallers />} />
+            <Route path="/admin/chargers" element={<AdminChargers />} />
+            <Route path="/admin/reports" element={<AdminReports />} />
+            <Route path="/admin/vouchers" element={<AdminVouchers />} />
+            <Route path="/admin/fraud-review" element={<AdminFraudReview />} />
+            <Route path="/admin/beta-test" element={<AdminBetaTest />} />
+            <Route path="/admin/qa" element={<AdminQaChecklist />} />
+          </Route>
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />

@@ -2,28 +2,46 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { BarChart3, ChevronRight, QrCode, ShieldCheck, Users, Wallet } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { useInstaller } from '@/hooks/useInstaller';
 import { Button } from '@/components/ui/button';
 
 export default function AdminOverview() {
+  const { data: identity, isLoading: loadingIdentity } = useInstaller();
+  const isAdmin = identity?.user?.role === 'admin';
+
   const { data: installers = [], isLoading: loadingInstallers } = useQuery({
     queryKey: ['admin-installers-overview'],
+    enabled: isAdmin,
     queryFn: () => base44.entities.Installer.list('-created_date', 250),
   });
 
   const { data: claims = [], isLoading: loadingClaims } = useQuery({
     queryKey: ['admin-claims-overview'],
+    enabled: isAdmin,
     queryFn: () => base44.entities.InstallClaim.list('-created_date', 250),
   });
 
   const { data: chargers = [], isLoading: loadingChargers } = useQuery({
     queryKey: ['admin-chargers-overview'],
+    enabled: isAdmin,
     queryFn: () => base44.entities.Charger.list('-created_date', 500),
   });
 
   const { data: vouchers = [], isLoading: loadingVouchers } = useQuery({
     queryKey: ['admin-vouchers-overview'],
+    enabled: isAdmin,
     queryFn: () => base44.entities.VoucherRequest.list('-created_date', 250),
   });
+
+  if (loadingIdentity) return <div className="text-sm text-muted-foreground">Loading…</div>;
+  if (!isAdmin) {
+    return (
+      <div className="rounded-2xl border border-border bg-muted/60 p-8">
+        <h1 className="text-xl font-semibold">FastAmps team access only</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Your account does not have permission to open the admin overview.</p>
+      </div>
+    );
+  }
 
   const activeInstallers = installers.filter((installer) => !installer.excluded_from_reporting);
   const activeClaims = claims.filter((claim) => !claim.excluded_from_reporting);

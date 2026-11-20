@@ -8,10 +8,22 @@
   "theme_color": "#0878ff",
   "icons": [
     {
-      "src": "https://base44.com/logo_v2.svg",
+      "src": "/fastamps-connect-icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
+    },
+    {
+      "src": "https://media.base44.com/images/public/6ab11d37ba4cf09ddd77f163/da952676e_FAVICONFASTAMPS.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://media.base44.com/images/public/6ab11d37ba4cf09ddd77f163/da952676e_FAVICONFASTAMPS.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

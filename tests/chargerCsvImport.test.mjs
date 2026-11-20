@@ -97,7 +97,29 @@ const single=await run({action:'import',single:true,rows:[{serial_number:'104000
   batch_reference:'Single charger test'});
 assert.equal(single.status,200);
 assert.equal(single.data.created_count,1);
+
+// Pilot launch: 500 unique serial/PIN pairs must import cleanly and remain unique.
+const pilot500=Array.from({length:500},(_,i)=>({
+  serial_number:String(105000000+i),
+  pin_code:String(500000+i).padStart(6,'0'),
+  product_model:'Alpha 7',
+}));
+const beforePilot=state.chargers.length;
+const pilotImport=await run({action:'import',rows:pilot500,batch_reference:'PILOT-500-SYNTH'});
+assert.equal(pilotImport.status,200,JSON.stringify(pilotImport.data).slice(0,240));
+assert.equal(pilotImport.data.created_count,500);
+assert.equal(state.chargers.length,beforePilot+500);
+assert.equal(new Set(pilot500.map((row)=>row.serial_number)).size,500);
+assert.equal(new Set(pilot500.map((row)=>row.pin_code)).size,500);
+assert.equal(new Set(state.chargers.slice(beforePilot).map((row)=>row.serial_number)).size,500);
+assert.equal(new Set(state.chargers.slice(beforePilot).map((row)=>row.pin_code)).size,500);
+const pilotReplay=await run({action:'import',rows:pilot500,batch_reference:'PILOT-500-SYNTH-RETRY'});
+assert.equal(pilotReplay.status,409);
+assert.equal(state.chargers.length,beforePilot+500);
+
 console.log(JSON.stringify({
-  passed:true,existing_register:1550,large_csv:1200,conflict_codes:[...new Set(conflict.data.issues.map(x=>x.code))],
+  passed:true,existing_register:1550,large_csv:1200,pilot_csv:500,
+  conflict_codes:[...new Set(conflict.data.issues.map(x=>x.code))],
   duplicate_retry_rejected:true,partial_failure_rolled_back:true,leading_zero_pin_saved:true,
+  pilot_500_unique:true,
 }));
