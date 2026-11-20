@@ -1,10 +1,10 @@
-# Base44 prompt — Playground iteration 006 (hold)
+# Base44 prompt — Playground iteration 007 (hold)
 
-Iterations **001–005 are live**. Prefer light remasure over more chrome unless a clear fail appears.
+Iterations **001–006 are live**.
 
 ## If continuing, pick one
-1. Dismissible first-visit connect coachmark (text only — no stickman).
-2. Email-gate: keep step/connection counts echoed next to the form when free analysis is used.
-3. Hold and watch completion rates.
+1. Dismissible first-visit connect coachmark under the canvas (text only — no stickman).
+2. After analysis: scroll/focus cue to the smarter-process tab if visitors land on “current”.
+3. Hold — watch sticky CTA + email-gate completion.
 
 Out of scope: stickman, model/quota, new templates, non-Playground pages.

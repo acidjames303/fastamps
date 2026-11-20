@@ -10,6 +10,7 @@ Auth: `npx base44 login` (device) or `BASE44_API_KEY`
 - **003 live** (20 Nov 2026) — see `iterations/003-live.md` (denser toolbar + tighter hero; canvasY 665→584)
 - **004 live** (20 Nov 2026) — see `iterations/004-live.md` (conversion honesty copy)
 - **005 live** (20 Nov 2026) — see `iterations/005-live.md` (post-analysis what-happens-next)
+- **006 live** (20 Nov 2026) — see `iterations/006-live.md` (email-gate step/connection counts)
 
 ## Apply via sandbox (preferred when authenticated)
 ```bash
