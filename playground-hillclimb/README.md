@@ -31,6 +31,7 @@ npm run sandbox:grep
 | `CONSTANTS.md` | Live flow facts / validation strings |
 | `iterations/` | One markdown log per cycle |
 | `prompts/NEXT_BASE44.md` | Paste into Base44 chat this round |
+| `reference/PRIOR_ART.md` | Earlier Smart Builder audit + what is already fixed |
 | `scripts/playtest.mjs` | Desktop + mobile smoke of the public flow |
 | `scripts/sandbox-grep.mjs` | Locate Playground files in Base44 sandbox |
 
