@@ -1,10 +1,10 @@
-# Base44 prompt — Playground iteration 005 (hold)
+# Base44 prompt — Playground iteration 006 (hold)
 
-Iterations **001–004 are live**. Prefer remasure with real traffic before more chrome.
+Iterations **001–005 are live**. Prefer light remasure over more chrome unless a clear fail appears.
 
-## If continuing, pick one lever
-1. After free analysis lands: stronger “what happens next” microcopy on the before/after band (still no model changes).
-2. Connect teaching: one-time coachmark on first canvas visit (dismissible; not a stickman).
-3. Hold — rubric ~4.5; watch mobile sticky + email-gate completion.
+## If continuing, pick one
+1. Dismissible first-visit connect coachmark (text only — no stickman).
+2. Email-gate: keep step/connection counts echoed next to the form when free analysis is used.
+3. Hold and watch completion rates.
 
-Out of scope: stickman, quota/model, new templates, non-Playground pages.
+Out of scope: stickman, model/quota, new templates, non-Playground pages.
