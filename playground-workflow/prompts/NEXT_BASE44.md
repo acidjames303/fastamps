@@ -1,10 +1,10 @@
-# Base44 prompt — Playground iteration 004 (hold)
+# Base44 prompt — Playground iteration 005 (hold)
 
-**Do not apply yet** unless continuing the hillclimb. Iterations 001–003 are live.
+Iterations **001–004 are live**. Prefer remasure with real traffic before more chrome.
 
-## Suggested next lever (pick one)
-1. Conversion honesty: after analysis, clarify human review + reply window on call vs project paths (no new form fields).
-2. Empty-inspector teaching: when no step selected, show a slim inline tip under the canvas instead of a side panel (already full-width; tip could mention connect circle).
-3. Stop and hold — average rubric ~4.4–4.5; remasure after traffic before more chrome changes.
+## If continuing, pick one lever
+1. After free analysis lands: stronger “what happens next” microcopy on the before/after band (still no model changes).
+2. Connect teaching: one-time coachmark on first canvas visit (dismissible; not a stickman).
+3. Hold — rubric ~4.5; watch mobile sticky + email-gate completion.
 
-Out of scope: stickman, model/quota, new templates.
+Out of scope: stickman, quota/model, new templates, non-Playground pages.
