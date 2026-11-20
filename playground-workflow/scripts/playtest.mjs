@@ -85,6 +85,7 @@ async function pageSignals(page) {
       stickyCta: !!document.querySelector("[data-playground-sticky-cta], .playground-sticky-cta"),
       stickyListCue: /list order is your connections/i.test(document.body?.innerText || ""),
       connectTip: !!document.querySelector("[data-playground-connect-tip]"),
+      compareCue: !!document.querySelector("[data-playground-compare-cue]"),
       canvasY: canvasRect ? Math.round(canvasRect.top) : null,
       canvasInFirstViewport: canvasRect
         ? canvasRect.top < window.innerHeight - 40 && canvasRect.bottom > 80
@@ -132,6 +133,16 @@ async function runViewport(browser, tag, viewport) {
       }
       if (i === 11) await push(`${tag}:after-cta-timeout`);
     }
+    // If analysis rendered, peek at current-process tab for compare cue
+    const currentTab = page.getByRole("tab", { name: /Your current process/i });
+    if (await currentTab.count()) {
+      await currentTab.first().click();
+      await sleep(400);
+      await push(`${tag}:compare-current`);
+      const smarterTab = page.getByRole("tab", { name: /Your smarter process/i });
+      if (await smarterTab.count()) await smarterTab.first().click();
+    }
+
     await shot(page, `${tag}-03-cta`);
   }
 

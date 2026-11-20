@@ -1,10 +1,10 @@
-# Base44 prompt — Playground iteration 009 (hold)
+# Base44 prompt — Playground iteration 010 (hold)
 
-Iterations **001–008 are live**. Prefer holding unless a playtest gate fails.
+Iterations **001–009 are live**. Strongly consider holding for traffic signal.
 
 ## If continuing, pick one
-1. ComparisonView: one-line cue when viewing “Your current process” that smarter is one tap away.
-2. Validation empathy pass on empty/orphan edge messages (copy only).
+1. Validation empathy: soften orphan/empty-step error copy (name the fix).
+2. Fresh-session playtest path that clears analysis quota (if possible) to exercise before/after.
 3. Hold.
 
 Out of scope: stickman, model/quota, new templates, non-Playground pages.
