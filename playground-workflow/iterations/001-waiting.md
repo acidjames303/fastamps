@@ -1,7 +1,8 @@
 # Iteration 001 — waiting on Base44 publish
 
-**Checked:** 20 Nov 2026, 12:58 Europe/London  
-**Live:** https://smartfunction.io/playground
+**Checked:** 20 Nov 2026, 13:15 Europe/London (second remasure)  
+**Live:** https://smartfunction.io/playground  
+**Bundle:** `playground-CtM9Wm3V.js` (unchanged)
 
 ## Landed? No
 
@@ -13,8 +14,10 @@
 | Step tips | Plain English | Still `// drag…` |
 | Sticky mobile CTA | Present / CTA in reach | CTA ~2129px down; no sticky |
 | Connect circles always visible | Yes | Not detected in bundle |
+| Document title | Playground-specific | `Playground \| SMARTFUNCTION` |
 
-Playtest summary: analysis/gate still works; 5 template nodes render; mapping product is healthy — orientation/mobile/connect teaching not yet shipped.
+Playtest: analysis/gate still works; 5 template nodes render. Blocked only on Base44 publish.
 
 ## Action
-Prompt tightened for Base44 chat in `prompts/NEXT_BASE44.md`. Human apply steps in `APPLY.md`.
+- Full paste: `prompts/NEXT_BASE44.md`  
+- Or chunked: `prompts/001-chunks/A|B|C` via `APPLY.md`

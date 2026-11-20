@@ -1,16 +1,26 @@
 # Apply Playground iteration 001
 
-1. Open the SmartFunction app in **Base44** → AI chat  
-2. Copy everything under the horizontal rule in `prompts/NEXT_BASE44.md` (or the whole file)  
-3. Paste → let Base44 apply → **Preview** on `/playground`  
-4. Check quickly:
-   - Meta description no longer says “premium digital agency platform”
-   - Hero intro mentions apps / automation / services
-   - No `//` tips in step settings
-   - On phone width: sticky `Make it smarter` at bottom
-   - After using free analysis: map still visible under the email gate
-5. **Publish**
-6. Reply here with “published” — the agent will re-score and continue
+Live still shows the old Playground (remeasured). Nothing ships until Base44 publish.
+
+## Option 1 — one paste (preferred)
+1. Open SmartFunction in **Base44** → AI chat  
+2. Paste all of `prompts/NEXT_BASE44.md`  
+3. Preview `/playground` → **Publish**  
+4. Reply **published** in this Cursor chat  
+
+## Option 2 — three smaller pastes (if Base44 struggles)
+Paste in order, preview after each, publish at the end (or after each if you prefer):
+
+1. `prompts/001-chunks/A-meta-and-hero.md` — meta + hero + analysis copy  
+2. `prompts/001-chunks/B-connect-teaching.md` — connect circles + plain tips  
+3. `prompts/001-chunks/C-mobile-and-gate.md` — sticky mobile CTA + email-gate map visibility  
+
+## Quick check after publish
+- Meta description is not “premium digital agency platform”  
+- Hero intro mentions apps / automation / services  
+- No `//` tips  
+- Phone width: sticky `Make it smarter`  
+- After free analysis used: map still visible with email fields  
 
 App: https://smartfunction.io/playground  
 App id: `6afb374c91d1c9194f9d6554`
