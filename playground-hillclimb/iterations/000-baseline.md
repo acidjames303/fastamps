@@ -29,12 +29,15 @@ Playground already aims at workflow capture → free analysis → project/call. 
 - Boilerplate meta undersells a unique interactive asset.
 
 ## Ranked levers (do in order)
-1. **Orientation + value-exchange copy** (hero, step strip, analysis band) — this iteration’s pick.
-2. Connection teaching / affordance on first map.
-3. Replace developer `//` tips with visitor language; empty-state coaching.
-4. Ship Playground-specific meta (SEO pack already drafted).
-5. Mobile list-mode polish after desktop orientation lands.
-6. After/before comparison microcopy once analysis path is re-tested live.
+1. **Orientation + value-exchange copy** (hero, step strip, analysis band) — this iteration’s pick. Includes visitor-language tips + meta description (see `prompts/NEXT_BASE44.md`).
+2. Connection teaching / affordance on first map (prior “CIRCLE TO CONNECT” finding — still open).
+3. Canvas default zoom / fit so the full template chain is readable without zooming (still ~75% live).
+4. Reduce first-viewport competition (hero + five template cards push canvas below fold).
+5. Clarify dual CTAs: nav `Let's make it smarter` vs in-page analysis button.
+6. Mobile list-mode polish after desktop orientation lands.
+7. After/before comparison microcopy once analysis path is re-tested live.
+
+Prior Nov 17 must-fixes (broken step selection, `retupe` typo, missing Analyze CTA) are **already fixed** live — see `reference/PRIOR_ART.md`.
 
 ## Decision
 Ship lever **1** via `prompts/NEXT_BASE44.md`. Do not change Smart Builder model behaviour, templates list, or conversion form fields in this round.
