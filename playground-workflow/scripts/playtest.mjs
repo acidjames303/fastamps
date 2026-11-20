@@ -33,7 +33,7 @@ async function pageSignals(page) {
     const text = (el) => (el?.textContent || "").replace(/\s+/g, " ").trim();
     const h1 = document.querySelector("h1");
     const makeSmarter = [...document.querySelectorAll("button")].find((b) =>
-      /make it smarter|analysing/i.test(b.textContent || ""),
+      /make it smarter|analysing|run another analysis/i.test(b.textContent || ""),
     );
     const templates = [...document.querySelectorAll("button, a, [role='button']")]
       .map((el) => text(el))
@@ -41,29 +41,47 @@ async function pageSignals(page) {
         /sales follow-up|enquiry handling|onboarding|internal approvals|blank canvas/i.test(t),
       );
     const canvas = document.querySelector('[aria-label*="Workflow canvas"], [role="application"]');
-    const stepHints = [...document.querySelectorAll("span, p, li")]
+    const stepNodes = canvas
+      ? [...canvas.querySelectorAll('[aria-label*="step"]')].map((n) => n.getAttribute("aria-label"))
+      : [];
+    const slashTips = [...document.querySelectorAll("li, p, span")]
       .map((el) => text(el))
-      .filter((t) => /^[1-4] · /.test(t) || /drag to arrange|circle to connect/i.test(t));
+      .filter((t) => t.startsWith("//"));
+    const body = document.body?.innerText || "";
     const metaDesc =
       document.querySelector('meta[name="description"]')?.getAttribute("content") || "";
-    const title = document.title || "";
+    const cta = [...document.querySelectorAll("button")].find((b) =>
+      /^Make it smarter$/i.test(text(b)),
+    );
+    const ctaRect = cta?.getBoundingClientRect();
     return {
-      title,
+      title: document.title || "",
       metaDesc,
       h1: text(h1),
       templates: [...new Set(templates)].slice(0, 8),
       hasCanvas: !!canvas,
-      canvasLabel: canvas?.getAttribute("aria-label") || null,
+      stepNodeCount: stepNodes.length,
+      stepNodes: stepNodes.slice(0, 8),
+      slashTips: slashTips.slice(0, 5),
       makeSmarter: makeSmarter ? text(makeSmarter) : null,
       makeSmarterDisabled: makeSmarter ? makeSmarter.disabled : null,
-      stepHints: [...new Set(stepHints)].slice(0, 12),
       boilerplateMeta: /premium digital agency platform/i.test(metaDesc),
+      freeUsedGate: /Your free analysis has been used/i.test(body),
+      emailGate: /Business email|Add your name and email/i.test(body),
+      beforeAfter: /Before and after/i.test(body),
+      turnIntoProject: /Turn this into a project/i.test(body),
+      ctaY: ctaRect ? Math.round(ctaRect.top) : null,
+      ctaInFirstViewport: ctaRect
+        ? ctaRect.top < window.innerHeight && ctaRect.bottom > 0
+        : false,
+      stickyCta: !!document.querySelector("[data-playground-sticky-cta], .playground-sticky-cta"),
     };
   });
 }
 
 async function runViewport(browser, tag, viewport) {
-  const page = await browser.newPage({ viewport });
+  const context = await browser.newContext({ viewport });
+  const page = await context.newPage();
   const log = [];
   const push = async (msg, extra = {}) => {
     const signals = await pageSignals(page);
@@ -75,7 +93,6 @@ async function runViewport(browser, tag, viewport) {
   await push(`${tag}:landed`);
   await shot(page, `${tag}-01-hero`);
 
-  // Prefer Sales follow-up template if present
   const sales = page.getByRole("button", { name: /Sales follow-up/i });
   if (await sales.count()) {
     await sales.first().click();
@@ -86,33 +103,24 @@ async function runViewport(browser, tag, viewport) {
     await push(`${tag}:template-missing`);
   }
 
-  // Click Make it smarter to surface validation or gate (do not fill spam forms)
-  const cta = page.getByRole("button", { name: /Make it smarter/i });
+  const cta = page.getByRole("button", { name: /^Make it smarter$/i });
   if (await cta.count()) {
+    await cta.first().scrollIntoViewIfNeeded();
     await cta.first().click();
-    await sleep(900);
-    await push(`${tag}:after-cta`);
+    // Analysis may complete, or free-quota gate may appear
+    for (let i = 0; i < 12; i++) {
+      await sleep(1500);
+      const s = await pageSignals(page);
+      if (s.beforeAfter || s.turnIntoProject || s.freeUsedGate || s.emailGate) {
+        await push(`${tag}:after-cta`, { poll: i + 1 });
+        break;
+      }
+      if (i === 11) await push(`${tag}:after-cta-timeout`);
+    }
     await shot(page, `${tag}-03-cta`);
   }
 
-  // Capture any validation / gate copy
-  const gateText = await page.evaluate(() => {
-    const body = document.body?.innerText || "";
-    const lines = body
-      .split("\n")
-      .map((l) => l.trim())
-      .filter(Boolean);
-    return lines
-      .filter((l) =>
-        /before we can analyse|add your first|connect your steps|free analysis|privacy|business email|make it smarter|one click/i.test(
-          l,
-        ),
-      )
-      .slice(0, 30);
-  });
-  await push(`${tag}:gate-copy`, { gateText });
-
-  await page.close();
+  await context.close();
   return log;
 }
 
@@ -131,17 +139,26 @@ async function main() {
   const mobile = await runViewport(browser, "mobile", { width: 390, height: 844 });
   await browser.close();
 
+  const dLand = desktop.find((e) => e.msg.endsWith(":landed"));
+  const mLand = mobile.find((e) => e.msg.endsWith(":landed"));
+  const dAfter = desktop.find((e) => e.msg.includes("after-cta"));
+  const mAfter = mobile.find((e) => e.msg.includes("after-cta"));
+
   const report = {
     url: URL,
     at: new Date().toISOString(),
     desktop,
     mobile,
     summary: {
-      desktopH1: desktop.find((e) => e.msg.endsWith(":landed"))?.h1 || null,
-      mobileH1: mobile.find((e) => e.msg.endsWith(":landed"))?.h1 || null,
-      boilerplateMeta:
-        desktop.some((e) => e.boilerplateMeta) || mobile.some((e) => e.boilerplateMeta),
-      hasMakeSmarter: desktop.some((e) => e.makeSmarter),
+      desktopH1: dLand?.h1 || null,
+      mobileH1: mLand?.h1 || null,
+      boilerplateMeta: !!(dLand?.boilerplateMeta || mLand?.boilerplateMeta),
+      slashTipsPresent: !!(dLand?.slashTips?.length || mLand?.slashTips?.length),
+      desktopAnalysisOrGate: !!(dAfter?.beforeAfter || dAfter?.freeUsedGate || dAfter?.emailGate),
+      mobileAnalysisOrGate: !!(mAfter?.beforeAfter || mAfter?.freeUsedGate || mAfter?.emailGate),
+      mobileCtaInFirstViewport: !!mLand?.ctaInFirstViewport,
+      mobileCtaY: mLand?.ctaY ?? null,
+      canvasNodesWhenTemplated: desktop.find((e) => e.msg.endsWith(":template-sales"))?.stepNodeCount ?? null,
     },
   };
 

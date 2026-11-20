@@ -22,7 +22,14 @@ Playground **is** Smart Builder at `https://smartfunction.io/playground` (app id
 3. `CIRCLE TO CONNECT` discoverability — weakest mapping teach.
 4. Template strip tall → canvas below fold on laptop viewports.
 5. Meta description still Base44 boilerplate (title already improved). Paste-ready copy in SEO PR #8 `seo/base44/page-meta.json`.
-6. Mobile list-mode orientation (hero context + sticky analysis CTA).
+6. Mobile list-mode: sticky analysis CTA (CTA ~2000px down); keep short hero.
+7. When free-analysis email gate shows, canvas can look empty — keep the mapped steps visible.
+8. After James pastes iteration 001, re-score and open zoom / template-height next.
+
+## Confirmed working (20 Nov re-test)
+- In-page `Make it smarter` runs Smart Builder (~2–4s) and shows before/after when quota remains.
+- Step settings populate on step click.
+- Free-quota gate asks for name + email and can unlock another run.
 
 ## Explicit non-goals
 Do **not** add or tune the stickman character on Playground. That work lives elsewhere and is stopped for Home/Work. This agent only improves the workflow-mapping application.

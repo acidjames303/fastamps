@@ -1,71 +1,84 @@
-# Base44 prompt — Playground iteration 001 (orientation + value exchange)
+# Base44 prompt — Playground iteration 001 (first-run success)
 
-Paste into the SmartFunction Base44 builder chat. Publish after preview.
+Paste into the SmartFunction Base44 builder chat. Preview, then publish.
 
 ---
 
-Improve **only** the public Playground workflow mapper (`/playground`). Do not redesign the rest of the site, Home, Work, Services, or Smart Builder model logic. Do **not** add or change any stickman/character overlay on this page. Keep templates, canvas behaviour, validation rules, free-analysis rules, and call/project forms as they are unless a copy string below must move.
+Improve **only** the public Playground workflow mapper (`/playground`).  
+Do **not** add or change any stickman/character overlay. Do not redesign Home, Work, Services, or Smart Builder model logic. Keep templates, validation rules, free-analysis limits, and call/project form fields unless a copy/UI change below requires a small layout tweak.
 
-## Goal of this change
-Make a first-time visitor understand, within a few seconds:
-1. They are mapping how their business works today.
-2. SmartFunction uses that map to propose a smarter process.
-3. That feeds a real conversation about solutions/services — not a toy diagram.
+## Goal
+A first-time visitor should understand why they are mapping their process, be able to connect steps without hunting, reach analysis on mobile without scrolling forever, and never lose sight of the map they drew when the free-analysis email gate appears.
 
-Preserve: one free analysis, no account, no invented savings or guarantees, honest founder-led tone.
+---
 
-## 1) Meta (Playground page SEO)
-Live title is already close (`Smart Builder — map your process…`). Keep a clear Playground title and **replace the meta description** (still the Base44 boilerplate “premium digital agency platform…”):
+### A) Meta description (Playground page only)
+Keep a clear title. Replace the boilerplate meta description (“premium digital agency platform…”):
+
 - **Title:** `SmartFunction Playground — Map your process, then make it smarter`
 - **Description:** `Draw how your business works as steps and connections. Get one free Smart Builder analysis — no account required — then turn it into a scoped SmartFunction project.`
 
-Remove the boilerplate description from `/playground` only.
+### B) Hero — say why the map matters
+Keep eyebrow `SmartFunction Playground`.  
+Keep title: `Draw how your business works. Then make it smarter.`
 
-## 2) Hero copy
-Keep the eyebrow `SmartFunction Playground`.
-
-**Title (keep or very close):**  
-`Draw how your business works. Then make it smarter.`
-
-**Replace the intro with:**  
+**Replace intro with:**  
 `Map the steps you actually use today — email, spreadsheets, calls, approvals. Smart Builder gives you one free plain-English proposal for a tighter process. If it looks useful, send it to SmartFunction and we’ll show how our apps, automation and services could run it.`
 
-**Replace the four mono step labels with:**  
+**Replace the four step labels with:**  
 1. `1 · pick a familiar process`  
 2. `2 · map the real steps`  
 3. `3 · get one free analysis`  
 4. `4 · talk solutions with us`
 
-## 3) Analysis band (“Make it smarter” card) copy
-Keep the button label `Make it smarter`.
+### C) Analysis band copy
+Keep button label `Make it smarter`.
 
-**Replace the eyebrow** `One click, plain English` **with:**  
-`Free Smart Builder analysis`
+Replace eyebrow `One click, plain English` with: `Free Smart Builder analysis`
 
-**Replace the supporting paragraph with:**  
-`We’ll read your steps and connections, flag manual work and duplicated data, and propose a clearer process — including where a person should still approve. That map is what we use to advise on the right SmartFunction build or automation, not a generic sales pitch.`
+Replace supporting paragraph with:  
+`We’ll read your steps and connections, flag manual work and duplicated data, and propose a clearer process — including where a person should still approve. That map is what we use to advise on the right SmartFunction build or automation.`
 
-**Keep** the fine print:  
+Keep fine print:  
 `first analysis free · no account needed · no invented savings or guarantees`
 
-## 4) Empty step-settings tips (visitor language)
-Where the empty Step settings panel shows developer-style tips starting with `//`, replace with plain lines:
-- `Drag a step to move it`
-- `Drag the small circle from one step onto another to connect them`
-- `Click a connection line to remove it`
+### D) Teach connecting (copy + affordance)
+1. Replace empty Step settings `//` tips with plain lines:
+   - `Drag a step to move it`
+   - `Drag the small circle from one step onto another to connect them`
+   - `Click a connection line to remove it`
+2. Make the connect circle on each step **visible by default** (or on first paint for a few seconds) so “circle to connect” is not a secret. Soft, on-brand — not arcade chrome.
+3. Canvas hint can read: `Drag to arrange · drag the circle to connect · drag canvas to pan`
 
-Do not change canvas hit targets or connection behaviour — copy only.
+### E) Mobile — don’t bury analysis
+On small screens (list mode):
+1. Keep a short hero (title + one sentence) above the list — do not drop orientation entirely.
+2. Replace clipped note with: `On phones you edit steps as a list. Connections stay in order; the visual map appears with your Smart Builder result.`
+3. Add a **sticky bottom bar** with `Make it smarter` so the analysis CTA stays reachable while scrolling the list. Do not cover primary step fields; give safe-area padding.
 
-## Out of scope this round
-- New templates, new form fields, budget/phone earlier in the flow
-- Smart Builder prompt/model changes
+### F) Email gate — keep the user’s map visible
+When showing `Your free analysis has been used` / name+email to run another:
+- Do **not** blank the canvas or hide the steps they mapped.
+- Keep the step/connection counts visible.
+- Gate copy can stay honest; optional tighten to:  
+  `Your free analysis for this visit is used. Add your name and business email to run another — no account, and we’ll only contact you about this process.`
+
+### G) Dual CTA clarity (light touch)
+Nav button `Let's make it smarter` should scroll to the Playground analysis band (or the template picker if above the fold), not feel like a second broken analyze action. In-page button remains the one that runs Smart Builder.
+
+---
+
+## Out of scope
+- New templates, new form fields earlier in the flow
+- Stickman / character on this page
+- Invented savings, ROI, urgency/scarcity gimmicks
 - Admin Playground
-- Stickman / character overlay (do not add to Playground)
-- Other site pages
-- Visual redesign (colours, fonts, layout grid)
+- Changing Smart Builder model prompts beyond UI/copy above
 
 ## Acceptance
-- `/playground` meta is no longer the Base44 agency boilerplate.
-- Hero + analysis band state the workflow → analysis → SmartFunction solutions path.
-- Empty step settings tips are readable by a non-developer.
-- Free analysis still runs without an account; validation and conversion forms unchanged in behaviour.
+- Meta description is no longer agency boilerplate.
+- Hero + analysis band state workflow → analysis → SmartFunction solutions.
+- Connect circle is discoverable without reading `//` tips.
+- Mobile: hero context + sticky `Make it smarter`.
+- Email gate does not erase the mapped process from view.
+- Free first analysis still works without an account when quota remains.
