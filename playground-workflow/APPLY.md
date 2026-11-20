@@ -1,26 +1,35 @@
-# Apply Playground iteration 001
-
-Live still shows the old Playground (remeasured). Nothing ships until Base44 publish.
-
-## Option 1 — one paste (preferred)
-1. Open SmartFunction in **Base44** → AI chat  
-2. Paste all of `prompts/NEXT_BASE44.md`  
-3. Preview `/playground` → **Publish**  
-4. Reply **published** in this Cursor chat  
-
-## Option 2 — three smaller pastes (if Base44 struggles)
-Paste in order, preview after each, publish at the end (or after each if you prefer):
-
-1. `prompts/001-chunks/A-meta-and-hero.md` — meta + hero + analysis copy  
-2. `prompts/001-chunks/B-connect-teaching.md` — connect circles + plain tips  
-3. `prompts/001-chunks/C-mobile-and-gate.md` — sticky mobile CTA + email-gate map visibility  
-
-## Quick check after publish
-- Meta description is not “premium digital agency platform”  
-- Hero intro mentions apps / automation / services  
-- No `//` tips  
-- Phone width: sticky `Make it smarter`  
-- After free analysis used: map still visible with email fields  
+# Apply Playground iterations (Base44)
 
 App: https://smartfunction.io/playground  
-App id: `6afb374c91d1c9194f9d6554`
+App id: `6afb374c91d1c9194f9d6554`  
+Auth: `npx base44 login` (device) or `BASE44_API_KEY`
+
+## Status
+- **001 live** (20 Nov 2026) — see `iterations/001-live.md`
+- **002 live** (20 Nov 2026) — see `iterations/002-live.md` (compact templates, fit, full-width canvas)
+- **003 draft** — `prompts/003-NEXT-AFTER-002.md` (not active yet)
+
+## Apply via sandbox (preferred when authenticated)
+```bash
+# edit files under src/routes/_site/playground.jsx and src/components/playground/*
+npx base44 --app-id 6afb374c91d1c9194f9d6554 sandbox edit <path> --edits-json '...'
+npx base44 --app-id 6afb374c91d1c9194f9d6554 sandbox checkpoint --name "…"
+npx base44 --app-id 6afb374c91d1c9194f9d6554 api fetch POST /api/apps/6afb374c91d1c9194f9d6554/deploy --body '{}'
+```
+
+Key paths:
+- `src/routes/_site/playground.jsx`
+- `src/components/playground/*`
+- `src/components/SiteHeader.jsx`
+- SEO page meta: `PUT /api/apps/{id}/seo/settings` → `pages.Playground`
+
+## Apply via Base44 chat
+1. Paste `prompts/NEXT_BASE44.md`
+2. Preview `/playground` → Publish
+3. Reply **published** here
+
+## Quick check after publish
+- Meta not agency boilerplate  
+- Hero mentions apps / automation / services  
+- No `//` tips; sticky mobile CTA  
+- After 002: canvas visible earlier; default fit shows 5-step chain

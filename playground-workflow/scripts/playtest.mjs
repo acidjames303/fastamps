@@ -54,6 +54,13 @@ async function pageSignals(page) {
       /^Make it smarter$/i.test(text(b)),
     );
     const ctaRect = cta?.getBoundingClientRect();
+    const canvasEl =
+      document.querySelector('[data-sm-anchor="playground-canvas"]') ||
+      document.querySelector('[aria-label*="Workflow canvas"]');
+    const canvasRect = canvasEl?.getBoundingClientRect();
+    const zoomLabel = [...document.querySelectorAll("span")].find((el) =>
+      /^\d+%$/.test(text(el)),
+    );
     return {
       title: document.title || "",
       metaDesc,
@@ -75,6 +82,11 @@ async function pageSignals(page) {
         ? ctaRect.top < window.innerHeight && ctaRect.bottom > 0
         : false,
       stickyCta: !!document.querySelector("[data-playground-sticky-cta], .playground-sticky-cta"),
+      canvasY: canvasRect ? Math.round(canvasRect.top) : null,
+      canvasInFirstViewport: canvasRect
+        ? canvasRect.top < window.innerHeight - 40 && canvasRect.bottom > 80
+        : false,
+      zoomLabel: zoomLabel ? text(zoomLabel) : null,
     };
   });
 }
@@ -158,7 +170,11 @@ async function main() {
       mobileAnalysisOrGate: !!(mAfter?.beforeAfter || mAfter?.freeUsedGate || mAfter?.emailGate),
       mobileCtaInFirstViewport: !!mLand?.ctaInFirstViewport,
       mobileCtaY: mLand?.ctaY ?? null,
+      mobileStickyCta: !!mLand?.stickyCta,
       canvasNodesWhenTemplated: desktop.find((e) => e.msg.endsWith(":template-sales"))?.stepNodeCount ?? null,
+      desktopCanvasInFirstViewport: !!desktop.find((e) => e.msg.endsWith(":template-sales"))?.canvasInFirstViewport,
+      desktopCanvasY: desktop.find((e) => e.msg.endsWith(":template-sales"))?.canvasY ?? null,
+      desktopZoom: desktop.find((e) => e.msg.endsWith(":template-sales"))?.zoomLabel ?? null,
     },
   };
 
