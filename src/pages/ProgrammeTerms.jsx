@@ -5,7 +5,17 @@ export const PROGRAMME_TERMS_VERSION = '2026-10-v1';
 export default function ProgrammeTerms({ embedded = false }) {
   return (
     <div className={embedded ? 'space-y-4 text-sm leading-6 text-foreground/80' : 'mx-auto max-w-3xl space-y-5 rounded-3xl border border-border bg-muted/40 p-6 sm:p-8 text-sm leading-7 text-foreground/80'}>
-      {!embedded && <><Link to="/profile" className="text-accent underline">Back to profile</Link><h1 className="text-2xl font-semibold text-foreground">FastAmps Connect installer and referral programme terms</h1></>}
+      {!embedded && (
+        <>
+          <div className="flex flex-wrap gap-3 text-sm">
+            <Link to="/login" className="text-accent underline">Sign in</Link>
+            <Link to="/privacy" className="text-accent underline">Privacy</Link>
+            <Link to="/terms" className="text-accent underline">Terms</Link>
+            <Link to="/profile" className="text-accent underline">Profile</Link>
+          </div>
+          <h1 className="text-2xl font-semibold text-foreground">FastAmps Connect installer and referral programme terms</h1>
+        </>
+      )}
       <p className="text-xs text-muted-foreground">Version {PROGRAMME_TERMS_VERSION}. The rewards programme is subject to FastAmps eligibility and verification checks. Review the official published terms for any additional conditions.</p>
       <section><h2 className="font-semibold text-foreground">1. Genuine installations only</h2><p>Rewards are available only for qualifying FastAmps chargers genuinely installed by the claiming installer. Each charger requires its original serial number and PIN, a readable photo of the serial-number label attached to the charger and a photograph of the completed wall installation. Scanning an uninstalled charger or a charger in stock or transit does not earn a reward. Only one installation reward can be paid per physical charger serial number.</p></section>
       <section><h2 className="font-semibold text-foreground">2. Review and eligibility</h2><p>Submissions are pending until FastAmps approves the evidence. FastAmps may request additional proof, investigate duplicates or conflicts and hold or reject an incentive that is inaccurate, fraudulent or ineligible. A reward hold or refusal is a separate decision from any applicable product warranty rights. You can contact FastAmps to ask for a review of a decision.</p></section>

@@ -252,6 +252,11 @@ export default function Layout() {
       />
 
       <footer className="hidden md:block max-w-6xl mx-auto px-5 py-4 text-center text-[11px] text-muted-foreground/60">
+        <nav className="mb-2 flex flex-wrap items-center justify-center gap-3" aria-label="Legal">
+          <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
+          <Link to="/terms" className="hover:text-foreground">Terms</Link>
+          <Link to="/programme-terms" className="hover:text-foreground">Programme terms</Link>
+        </nav>
         Designed by ©jpriches 2026
       </footer>
     </div>

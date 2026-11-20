@@ -30,6 +30,8 @@ import Academy from '@/pages/Academy';
 import Leaderboard from '@/pages/Leaderboard';
 import Profile from '@/pages/Profile';
 import ProgrammeTerms from '@/pages/ProgrammeTerms';
+import Privacy from '@/pages/Privacy';
+import Terms from '@/pages/Terms';
 import AdminFraudReview from '@/pages/AdminFraudReview';
 import AdminQaChecklist from '@/pages/AdminQaChecklist';
 import Coach from '@/pages/Coach';
@@ -80,6 +82,9 @@ const AuthenticatedApp = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/programme-terms" element={<ProgrammeTerms />} />
       <Route path="/claim/:claimToken" element={<ChargerClaimEntry />}>
         <Route element={<ProtectedRoute unauthenticatedElement={<LoginRedirect />} />}>
           <Route element={<Layout />}>
@@ -94,7 +99,6 @@ const AuthenticatedApp = () => {
           <Route path="/installs" element={<Installs />} />
           <Route path="/earnings" element={<Earnings />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/programme-terms" element={<ProgrammeTerms />} />
           {/* Kept for deep links; omitted from installer More menu for pilot. */}
           <Route path="/opportunities" element={<Opportunities />} />
           <Route path="/academy" element={<Academy />} />

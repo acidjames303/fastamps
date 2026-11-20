@@ -65,6 +65,7 @@ Follow-up from the static codepath audit closed the Critical proof-docs / wallet
 | BOOTSTRAP-001 | Medium | fixed | security | No | Query `app_id` / `app_base_url` / `functions_version` / token could persist into localStorage | Ephemeral bootstrap params no longer persisted from arbitrary query strings | Source updated | Base44 publish |
 | PHOTO-CAPTURE-001 | Medium | fixed | photo uploads | No | Install photo inputs lacked `capture="environment"` | Added on serial + install file inputs | Source updated | Base44 publish; retest on iOS/Android |
 | AUTH-POLISH-001 | Medium | fixed | login / password reset | No | Forgot-password email not lowercased; reset lacked 8-char minimum; claim returnTo dropped on forgot-password | Normalise email, minLength 8, preserve returnTo | Source updated | Base44 publish |
+| LEGAL-404-001 | Critical | fixed | privacy / terms | Yes until publish | Live `/privacy` and `/terms` rendered app 404; no auth-page legal links ([Browser audit live Connect site](bc-643b42dc-4d5e-5cb2-a213-5c1d8178ec2b)) | Added public Privacy + Terms pages linking official Magento privacy-policy / terms-conditions; embed Connect programme terms; auth footer links; public `/programme-terms` | Source routes added; live still 404 until Base44 publish | Publish frontend; confirm `/privacy` and `/terms` no longer show Page Not Found |
 
 \*Does not block registering installs and holding rewards; **does** block automatic Giftbit payouts.
 
@@ -106,8 +107,9 @@ chargerCsvImport: large_csv 1200 + pilot_csv 500 unique + duplicate retry reject
 8. Profile mobile duplicate check via `register-installer` `check_mobile`
 9. Bootstrap query hardening in `app-params.js`
 10. Camera `capture="environment"` on install photos; password-reset polish
+11. Public `/privacy` and `/terms` pages (link official FastAmps Magento policies; no invented legal text) + auth footer legal links
 
-Codepath audit credit: [Audit Connect critical codepaths](bc-4747c9c1-0434-52e5-874d-8fd1d513891d). Prior transcript mining ([Summarize playground workflow transcript](bc-ff0479fb-e7f6-54ab-ae6b-e2d69430d432), [Summarize Base44 login transcript](bc-458d646d-81f1-539b-9994-27843e437a82)) confirmed Base44 device-login dependency and that Playground work is unrelated to Connect.
+Codepath audit credit: [Audit Connect critical codepaths](bc-4747c9c1-0434-52e5-874d-8fd1d513891d). Browser audit: [Browser audit live Connect site](bc-643b42dc-4d5e-5cb2-a213-5c1d8178ec2b). Prior transcript mining ([Summarize playground workflow transcript](bc-ff0479fb-e7f6-54ab-ae6b-e2d69430d432), [Summarize Base44 login transcript](bc-458d646d-81f1-539b-9994-27843e437a82)) confirmed Base44 device-login dependency and that Playground work is unrelated to Connect.
 
 ### Not performed (by design / access)
 
