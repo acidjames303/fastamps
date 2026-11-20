@@ -29,11 +29,15 @@ npm run playtest -- --out artifacts/latest
 | `scripts/playtest.mjs` | Desktop + mobile smoke of the public flow |
 | `scripts/sandbox-grep.mjs` | Locate Playground files in Base44 sandbox |
 
+## Ship the current round
+
+See **`APPLY.md`** — paste `prompts/NEXT_BASE44.md` into Base44, publish, then tell the agent.
+
 ## How to run a cycle
 
 1. Read `BRIEF.md` + latest `iterations/*.md`.
 2. Playtest live; score with `RUBRIC.md`.
 3. Choose **one** lever.
 4. Rewrite `prompts/NEXT_BASE44.md`.
-5. Apply via Base44 (paste or API).
+5. Apply via Base44 (paste or API) — checklist in `APPLY.md`.
 6. Re-test; log the result.
