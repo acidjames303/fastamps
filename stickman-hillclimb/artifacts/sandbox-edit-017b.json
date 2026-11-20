@@ -1,0 +1,8 @@
+Editing file
+Editing file
+Edited file
+{
+  "path": "src/lib/stickman-journey.js",
+  "diff": "--- a/src/lib/stickman-journey.js\n+++ b/src/lib/stickman-journey.js\n@@ -184,10 +184,13 @@\n     const hero = anchor(\"page-hero\");\n     const intro = anchor(\"work-intro\");\n     const cards = Array.from(document.querySelectorAll('[data-sm-anchor=\"work-card\"]'));\n-    if (hero) {\n-      push(\"work-hero\", clampX(hero.right - W * 1.1), hero.top - feet - 6, \"wave\", { move: \"walk\" });\n-    } else if (intro) {\n+    // Prefer the intro band so the opening wave is not clipped above the fold.\n+    if (intro) {\n       push(\"work-hello\", clampX(intro.left + 18), intro.top - feet - 5, \"wave\", { move: \"walk\" });\n+    } else if (hero) {\n+      push(\"work-hero\", clampX(hero.left + hero.width * 0.55), hero.bottom - feet - 10, \"wave\", {\n+        move: \"walk\",\n+      });\n     }\n     cards.forEach((cardEl, i) => {\n       const card = readRect(cardEl);\n@@ -200,7 +203,7 @@\n           clampX(image.left + Math.min(image.width * 0.22, 120)),\n           image.top - feet - 5,\n           \"land\",\n-          { move: \"jump\", pulse: true, pulseRect: image },\n+          { move: i === 0 ? \"jump\" : \"run\", pulse: true, pulseRect: image },\n         );\n         push(\n           `work-${i}-walk`,\n",
+  "applied": true
+}

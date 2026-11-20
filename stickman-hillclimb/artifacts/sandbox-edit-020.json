@@ -1,0 +1,8 @@
+Editing file
+Editing file
+Edited file
+{
+  "path": "src/lib/stickman-journey.js",
+  "diff": "--- a/src/lib/stickman-journey.js\n+++ b/src/lib/stickman-journey.js\n@@ -199,24 +199,27 @@\n       // Skip right-column previews — their copy sits in the left lane.\n       if (image.left > vw * 0.42) return;\n       const leftPad = Math.min(image.width * 0.16, 80);\n-      const rightPad = Math.min(image.width * 0.48, image.width - W - 8);\n-      const footY = image.top - feet - 5;\n-      push(`work-${i}-rail`, railX, footY, \"run\", { move: \"run\" });\n+      const rightPad = Math.min(image.width * 0.42, image.width - W - 8);\n+      // Stand inside the preview chrome so the figure is not sitting in the\n+      // disclaimer / eyebrow band above the frame.\n+      const inset = Math.min(34, Math.max(18, image.height * 0.06));\n+      const standY = image.top + inset;\n+      push(`work-${i}-rail`, railX, standY, \"run\", { move: \"run\" });\n       push(\n         `work-${i}-land`,\n         clampX(image.left + leftPad),\n-        footY,\n+        standY,\n         \"land\",\n         { move: leftStops === 0 ? \"jump\" : \"run\", pulse: true, pulseRect: image },\n       );\n       push(\n         `work-${i}-walk`,\n         clampX(image.left + Math.max(leftPad + W, rightPad)),\n-        footY,\n+        standY,\n         \"walk\",\n         { move: \"run\", compact: false },\n       );\n-      push(`work-${i}-rail-out`, railX, footY, \"walk\", { move: \"run\" });\n+      push(`work-${i}-rail-out`, railX, standY, \"walk\", { move: \"run\" });\n       leftStops += 1;\n     });\n     const endCta = anchor(\"cta-action\");\n",
+  "applied": true
+}

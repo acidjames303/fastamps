@@ -1,0 +1,758 @@
+{
+  "startedAt": "2026-11-17T18:43:30.314Z",
+  "pages": {
+    "/": {
+      "mount": {
+        "found": true,
+        "pose": "pose-wave",
+        "playing": false,
+        "paused": false,
+        "hint": null,
+        "grab": "pick me up",
+        "rect": {
+          "x": 1092,
+          "y": 183,
+          "w": 48.7,
+          "h": 56
+        },
+        "controls": [
+          "Pause the diagram character",
+          "Play with the diagram character"
+        ],
+        "anchors": [
+          "hero-map",
+          "home-copy-heading",
+          "human-flow",
+          "services-preview",
+          "builder-flow",
+          "home-work-heading",
+          "work-visual",
+          "process-track",
+          "founder",
+          "cta-action"
+        ]
+      },
+      "tour": [
+        {
+          "scrollY": 0,
+          "pose": "pose-wave",
+          "y": 183,
+          "playing": false
+        },
+        {
+          "scrollY": 857,
+          "pose": "pose-idle",
+          "y": 456.7,
+          "playing": false
+        },
+        {
+          "scrollY": 1714,
+          "pose": "pose-swing",
+          "y": 501.8,
+          "playing": false
+        },
+        {
+          "scrollY": 2571,
+          "pose": "pose-idle",
+          "y": 425.3,
+          "playing": false
+        },
+        {
+          "scrollY": 3428,
+          "pose": "pose-idle",
+          "y": 494.8,
+          "playing": false
+        },
+        {
+          "scrollY": 4286,
+          "pose": "pose-walk",
+          "y": 342,
+          "playing": false
+        },
+        {
+          "scrollY": 5143,
+          "pose": "pose-tap",
+          "y": 233.4,
+          "playing": false
+        }
+      ],
+      "play": [
+        {
+          "msg": "home:before-play",
+          "found": true,
+          "pose": "pose-hold",
+          "playing": false,
+          "paused": false,
+          "hint": null,
+          "grab": "pick me up",
+          "rect": {
+            "x": 980.6,
+            "y": 232.6,
+            "w": 48.7,
+            "h": 56
+          },
+          "controls": [
+            "Pause the diagram character",
+            "Play with the diagram character"
+          ],
+          "anchors": [
+            "hero-map",
+            "home-copy-heading",
+            "human-flow",
+            "services-preview",
+            "builder-flow",
+            "home-work-heading",
+            "work-visual",
+            "process-track",
+            "founder",
+            "cta-action"
+          ]
+        },
+        {
+          "msg": "home:entered:gamepad",
+          "found": true,
+          "pose": "pose-idle",
+          "playing": true,
+          "paused": false,
+          "hint": null,
+          "grab": "pick me up",
+          "rect": {
+            "x": 977.3,
+            "y": 224,
+            "w": 55.6,
+            "h": 63.9
+          },
+          "controls": [
+            "Pause the diagram character",
+            "Let the character follow the page again",
+            "Step left",
+            "Jump, press twice to fly",
+            "Step right"
+          ],
+          "anchors": [
+            "hero-map",
+            "home-copy-heading",
+            "human-flow",
+            "services-preview",
+            "builder-flow",
+            "home-work-heading",
+            "work-visual",
+            "process-track",
+            "founder",
+            "cta-action"
+          ]
+        },
+        {
+          "msg": "home:walk-right",
+          "found": true,
+          "pose": "pose-walk",
+          "playing": true,
+          "paused": false,
+          "hint": null,
+          "grab": "pick me up",
+          "rect": {
+            "x": 1214.8,
+            "y": 221.4,
+            "w": 60,
+            "h": 68
+          },
+          "controls": [
+            "Pause the diagram character",
+            "Let the character follow the page again",
+            "Step left",
+            "Jump, press twice to fly",
+            "Step right"
+          ],
+          "anchors": [
+            "hero-map",
+            "home-copy-heading",
+            "human-flow",
+            "services-preview",
+            "builder-flow",
+            "home-work-heading",
+            "work-visual",
+            "process-track",
+            "founder",
+            "cta-action"
+          ]
+        },
+        {
+          "msg": "home:jump",
+          "found": true,
+          "pose": "pose-jump",
+          "playing": true,
+          "paused": false,
+          "hint": null,
+          "grab": "pick me up",
+          "rect": {
+            "x": 1243.6,
+            "y": 155.2,
+            "w": 57.9,
+            "h": 66.1
+          },
+          "controls": [
+            "Pause the diagram character",
+            "Let the character follow the page again",
+            "Step left",
+            "Jump, press twice to fly",
+            "Step right"
+          ],
+          "anchors": [
+            "hero-map",
+            "home-copy-heading",
+            "human-flow",
+            "services-preview",
+            "builder-flow",
+            "home-work-heading",
+            "work-visual",
+            "process-track",
+            "founder",
+            "cta-action"
+          ]
+        },
+        {
+          "msg": "home:fly",
+          "found": true,
+          "pose": "pose-fly",
+          "playing": true,
+          "paused": false,
+          "hint": null,
+          "grab": "pick me up",
+          "rect": {
+            "x": 1243.5,
+            "y": -7.6,
+            "w": 61.6,
+            "h": 70.7
+          },
+          "controls": [
+            "Pause the diagram character",
+            "Let the character follow the page again",
+            "Step left",
+            "Jump, press twice to fly",
+            "Step right"
+          ],
+          "anchors": [
+            "hero-map",
+            "home-copy-heading",
+            "human-flow",
+            "services-preview",
+            "builder-flow",
+            "home-work-heading",
+            "work-visual",
+            "process-track",
+            "founder",
+            "cta-action"
+          ]
+        },
+        {
+          "msg": "home:after-fly",
+          "found": true,
+          "pose": "pose-fly",
+          "playing": true,
+          "paused": false,
+          "hint": null,
+          "grab": "pick me up",
+          "rect": {
+            "x": 938.1,
+            "y": 62.3,
+            "w": 70.4,
+            "h": 78.2
+          },
+          "controls": [
+            "Pause the diagram character",
+            "Let the character follow the page again",
+            "Step left",
+            "Jump, press twice to fly",
+            "Step right"
+          ],
+          "anchors": [
+            "hero-map",
+            "home-copy-heading",
+            "human-flow",
+            "services-preview",
+            "builder-flow",
+            "home-work-heading",
+            "work-visual",
+            "process-track",
+            "founder",
+            "cta-action"
+          ]
+        },
+        {
+          "msg": "home:dpad-after-8s",
+          "found": true,
+          "pose": "pose-idle",
+          "playing": true,
+          "paused": false,
+          "hint": null,
+          "grab": "pick me up",
+          "rect": {
+            "x": 945.8,
+            "y": 829,
+            "w": 56.5,
+            "h": 65
+          },
+          "controls": [
+            "Pause the diagram character",
+            "Let the character follow the page again",
+            "Step left",
+            "Jump, press twice to fly",
+            "Step right"
+          ],
+          "anchors": [
+            "hero-map",
+            "home-copy-heading",
+            "human-flow",
+            "services-preview",
+            "builder-flow",
+            "home-work-heading",
+            "work-visual",
+            "process-track",
+            "founder",
+            "cta-action"
+          ]
+        },
+        {
+          "msg": "home:escape",
+          "found": true,
+          "pose": "pose-hold",
+          "playing": false,
+          "paused": false,
+          "hint": null,
+          "grab": "pick me up",
+          "rect": {
+            "x": 974.1,
+            "y": 396.9,
+            "w": 50.7,
+            "h": 58.2
+          },
+          "controls": [
+            "Pause the diagram character",
+            "Play with the diagram character"
+          ],
+          "anchors": [
+            "hero-map",
+            "home-copy-heading",
+            "human-flow",
+            "services-preview",
+            "builder-flow",
+            "home-work-heading",
+            "work-visual",
+            "process-track",
+            "founder",
+            "cta-action"
+          ]
+        },
+        {
+          "msg": "home:idle-probe",
+          "playingAt3_5s": true,
+          "playingAt9s": false
+        }
+      ]
+    },
+    "/work": {
+      "mount": {
+        "found": true,
+        "pose": "pose-wave",
+        "playing": false,
+        "paused": false,
+        "hint": null,
+        "grab": "pick me up",
+        "rect": {
+          "x": 1253,
+          "y": 380,
+          "w": 48.7,
+          "h": 56
+        },
+        "controls": [
+          "Pause the diagram character",
+          "Play with the diagram character"
+        ],
+        "anchors": [
+          "page-hero",
+          "work-intro",
+          "work-card",
+          "work-image",
+          "work-heading",
+          "work-card",
+          "work-image",
+          "work-heading",
+          "work-card",
+          "work-image",
+          "work-heading",
+          "work-card",
+          "work-image",
+          "work-heading",
+          "cta-action"
+        ]
+      },
+      "tour": [
+        {
+          "scrollY": 0,
+          "pose": "pose-wave",
+          "y": 380,
+          "playing": false
+        },
+        {
+          "scrollY": 706,
+          "pose": "pose-slide",
+          "y": 490.5,
+          "playing": false
+        },
+        {
+          "scrollY": 1412,
+          "pose": "pose-idle",
+          "y": 401.8,
+          "playing": false
+        },
+        {
+          "scrollY": 2118,
+          "pose": "pose-idle",
+          "y": 385.4,
+          "playing": false
+        },
+        {
+          "scrollY": 2824,
+          "pose": "pose-idle",
+          "y": 385.1,
+          "playing": false
+        },
+        {
+          "scrollY": 3530,
+          "pose": "pose-hold",
+          "y": 444.9,
+          "playing": false
+        },
+        {
+          "scrollY": 4236,
+          "pose": "pose-hold",
+          "y": 174.2,
+          "playing": false
+        }
+      ],
+      "play": [
+        {
+          "msg": "work:before-play",
+          "found": true,
+          "pose": "pose-hold",
+          "playing": false,
+          "paused": false,
+          "hint": null,
+          "grab": "pick me up",
+          "rect": {
+            "x": 981,
+            "y": 172.5,
+            "w": 48.7,
+            "h": 56
+          },
+          "controls": [
+            "Pause the diagram character",
+            "Play with the diagram character"
+          ],
+          "anchors": [
+            "page-hero",
+            "work-intro",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "cta-action"
+          ]
+        },
+        {
+          "msg": "work:entered:gamepad",
+          "found": true,
+          "pose": "pose-idle",
+          "playing": true,
+          "paused": false,
+          "hint": null,
+          "grab": "pick me up",
+          "rect": {
+            "x": 977.6,
+            "y": 163.5,
+            "w": 55.6,
+            "h": 63.9
+          },
+          "controls": [
+            "Pause the diagram character",
+            "Let the character follow the page again",
+            "Step left",
+            "Jump, press twice to fly",
+            "Step right"
+          ],
+          "anchors": [
+            "page-hero",
+            "work-intro",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "cta-action"
+          ]
+        },
+        {
+          "msg": "work:walk-right",
+          "found": true,
+          "pose": "pose-walk",
+          "playing": true,
+          "paused": false,
+          "hint": null,
+          "grab": "pick me up",
+          "rect": {
+            "x": 1210.7,
+            "y": 161,
+            "w": 60.1,
+            "h": 68
+          },
+          "controls": [
+            "Pause the diagram character",
+            "Let the character follow the page again",
+            "Step left",
+            "Jump, press twice to fly",
+            "Step right"
+          ],
+          "anchors": [
+            "page-hero",
+            "work-intro",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "cta-action"
+          ]
+        },
+        {
+          "msg": "work:jump",
+          "found": true,
+          "pose": "pose-jump",
+          "playing": true,
+          "paused": false,
+          "hint": null,
+          "grab": "pick me up",
+          "rect": {
+            "x": 1243.9,
+            "y": 96.5,
+            "w": 57.9,
+            "h": 66.1
+          },
+          "controls": [
+            "Pause the diagram character",
+            "Let the character follow the page again",
+            "Step left",
+            "Jump, press twice to fly",
+            "Step right"
+          ],
+          "anchors": [
+            "page-hero",
+            "work-intro",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "cta-action"
+          ]
+        },
+        {
+          "msg": "work:fly",
+          "found": true,
+          "pose": "pose-fly",
+          "playing": true,
+          "paused": false,
+          "hint": null,
+          "grab": "pick me up",
+          "rect": {
+            "x": 1243.8,
+            "y": -7.7,
+            "w": 62,
+            "h": 71
+          },
+          "controls": [
+            "Pause the diagram character",
+            "Let the character follow the page again",
+            "Step left",
+            "Jump, press twice to fly",
+            "Step right"
+          ],
+          "anchors": [
+            "page-hero",
+            "work-intro",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "cta-action"
+          ]
+        },
+        {
+          "msg": "work:after-fly",
+          "found": true,
+          "pose": "pose-fly",
+          "playing": true,
+          "paused": false,
+          "hint": null,
+          "grab": "pick me up",
+          "rect": {
+            "x": 938.4,
+            "y": 67.5,
+            "w": 70.7,
+            "h": 78.5
+          },
+          "controls": [
+            "Pause the diagram character",
+            "Let the character follow the page again",
+            "Step left",
+            "Jump, press twice to fly",
+            "Step right"
+          ],
+          "anchors": [
+            "page-hero",
+            "work-intro",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "cta-action"
+          ]
+        },
+        {
+          "msg": "work:dpad-after-8s",
+          "found": true,
+          "pose": "pose-idle",
+          "playing": true,
+          "paused": false,
+          "hint": null,
+          "grab": "pick me up",
+          "rect": {
+            "x": 942.4,
+            "y": 829,
+            "w": 56.5,
+            "h": 65
+          },
+          "controls": [
+            "Pause the diagram character",
+            "Let the character follow the page again",
+            "Step left",
+            "Jump, press twice to fly",
+            "Step right"
+          ],
+          "anchors": [
+            "page-hero",
+            "work-intro",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "cta-action"
+          ]
+        },
+        {
+          "msg": "work:escape",
+          "found": true,
+          "pose": "pose-hold",
+          "playing": false,
+          "paused": false,
+          "hint": null,
+          "grab": "pick me up",
+          "rect": {
+            "x": 973,
+            "y": 373.2,
+            "w": 50.9,
+            "h": 58.4
+          },
+          "controls": [
+            "Pause the diagram character",
+            "Play with the diagram character"
+          ],
+          "anchors": [
+            "page-hero",
+            "work-intro",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "work-card",
+            "work-image",
+            "work-heading",
+            "cta-action"
+          ]
+        },
+        {
+          "msg": "work:idle-probe",
+          "playingAt3_5s": true,
+          "playingAt9s": false
+        }
+      ]
+    }
+  },
+  "notes": [],
+  "flags": {
+    "mountedHome": true,
+    "mountedWork": true,
+    "dpadPersists8s": true,
+    "stillPlayingAtDpadCheck": true,
+    "idleStillPlayingAt3_5s": true,
+    "idleStillPlayingAt9s": false,
+    "flyObserved": true
+  }
+}

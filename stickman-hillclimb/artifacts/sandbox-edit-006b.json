@@ -1,0 +1,8 @@
+Editing file
+Editing file
+Edited file
+{
+  "path": "src/hooks/useStickmanJourney.js",
+  "diff": "--- a/src/hooks/useStickmanJourney.js\n+++ b/src/hooks/useStickmanJourney.js\n@@ -595,14 +595,17 @@\n       let immediate = false;\n \n       // On the ground, the gait comes from how fast he is actually moving.\n+      // Work authored `run` hops must not collapse to idle while standing on a card.\n       if (nextPose === \"walk\" || nextPose === \"run\") {\n-        nextPose = gaitFor(speed, poseRef.current);\n-      }\n-      // Work: while still catching a distant stop, keep the authored travel pose.\n+        if (onWork && sample.pose === \"run\") nextPose = \"run\";\n+        else nextPose = gaitFor(speed, poseRef.current);\n+      }\n+      // Work: prefer the journey sample pose over gait-idle for travel beats.\n       if (onWork && !playRef.current.active) {\n+        const travel = new Set([\"run\", \"walk\", \"jump\", \"style-jump\", \"land\", \"slide\", \"hang\", \"swing\", \"climb\"]);\n         const catchUp = Math.hypot(targetX - fromX, targetY - fromY);\n-        if (catchUp > WORK_CATCHUP_PX && sample.pose && sample.pose !== \"idle\" && sample.pose !== \"hold\" && sample.pose !== \"wave\") {\n-          nextPose = sample.pose;\n+        if (travel.has(sample.pose) && (catchUp > WORK_CATCHUP_PX || sample.pose !== \"walk\")) {\n+          nextPose = sample.pose === \"hang\" ? \"swing\" : sample.pose;\n           immediate = true;\n         }\n       }\n",
+  "applied": true
+}

@@ -1,0 +1,8 @@
+Editing file
+Editing file
+Edited file
+{
+  "path": "src/lib/stickman-journey.js",
+  "diff": "--- a/src/lib/stickman-journey.js\n+++ b/src/lib/stickman-journey.js\n@@ -212,9 +212,12 @@\n           prevImageLeft != null &&\n           Math.abs(prevImageLeft - image.left) > 180\n         ) {\n-          const bridgeY = Math.min(card.top, image.top) - feet - 36;\n+          // Climb, then cross above the card band, then land — avoids clipping\n+          // the opposite-column copy during left/right preview flips.\n+          const highY = Math.min(card.top, image.top) - feet - 88;\n           const midX = clampX((prevWalkX + landX) / 2);\n-          push(`work-${i}-bridge`, midX, bridgeY, \"jump\", { move: \"jump\" });\n+          push(`work-${i}-up`, clampX(prevWalkX), highY, \"jump\", { move: \"jump\" });\n+          push(`work-${i}-bridge`, midX, highY, \"jump\", { move: \"run\" });\n         }\n         push(\n           `work-${i}-land`,\n",
+  "applied": true
+}

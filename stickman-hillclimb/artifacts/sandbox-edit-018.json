@@ -1,0 +1,8 @@
+Editing file
+Editing file
+Edited file
+{
+  "path": "src/lib/stickman-journey.js",
+  "diff": "--- a/src/lib/stickman-journey.js\n+++ b/src/lib/stickman-journey.js\n@@ -213,13 +213,8 @@\n           { move: \"run\", compact: false },\n         );\n       }\n-      if (heading && vw >= 640) {\n-        // Beside the headline top — above body copy, not hanging through it.\n-        const sideX = heading.right + W + 12 < vw ? heading.right + 10 : heading.left - W - 10;\n-        push(`work-${i}-aside`, clampX(sideX), heading.top - feet - 4, \"idle\", {\n-          move: \"walk\",\n-        });\n-      }\n+      // No text-column stops: he stays on the illustrative preview frame only,\n+      // so body copy and capability tags stay readable.\n     });\n     const endCta = anchor(\"cta-action\");\n     if (endCta) {\n",
+  "applied": true
+}
