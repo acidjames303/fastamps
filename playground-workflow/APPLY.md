@@ -15,6 +15,7 @@ Auth: `npx base44 login` (device) or `BASE44_API_KEY`
 - **008 live** (20 Nov 2026) — see `iterations/008-live.md` (mobile sticky list-order cue)
 - **009 live** (20 Nov 2026) — see `iterations/009-live.md` (compare-tab current cue)
 - **010 live** (20 Nov 2026) — see `iterations/010-live.md` (validation empathy copy)
+- **011 live** (20 Nov 2026) — see `iterations/011-live.md` (surface orphan validation notes)
 
 ## Apply via sandbox (preferred when authenticated)
 ```bash
