@@ -1,0 +1,16 @@
+{
+  "name": "playground-workflow",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "playtest": "node scripts/playtest.mjs --out artifacts/latest",
+    "playtest:json": "node scripts/playtest.mjs",
+    "sandbox:grep": "node scripts/sandbox-grep.mjs",
+    "apply:001": "node scripts/apply-iter001.mjs",
+    "apply:001:dry": "node scripts/apply-iter001.mjs --dry-run"
+  },
+  "devDependencies": {
+    "base44": "^0.3.6",
+    "playwright-core": "^1.49.0"
+  }
+}

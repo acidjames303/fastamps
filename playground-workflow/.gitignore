@@ -1,0 +1,6 @@
+node_modules/
+.env
+.env.local
+artifacts/latest/
+artifacts/**/*.png
+artifacts/sandbox-grep-playground.json
