@@ -28,6 +28,7 @@ Auth: `npx base44 login` (device) or `BASE44_API_KEY`
 - **021 hold** (21 Nov 2026) — see `iterations/021-remeasure-hold.md` (gates green; no ship)
 - **022 hold** (21 Nov 2026) — see `iterations/022-remeasure-hold.md` (gates green; no ship)
 - **023 hold** (21 Nov 2026) — see `iterations/023-remeasure-hold.md` (gates green; no ship)
+- **024 hold** (21 Nov 2026) — see `iterations/024-remeasure-hold.md` (gates green; no ship)
 
 ## Apply via sandbox (preferred when authenticated)
 ```bash
