@@ -22,15 +22,27 @@
 - Mission requires **explicit authorisation** before production load tests.
 - Giftbit must not receive chargeable QA orders.
 
+## Target app (mandatory)
+
+All testing must hit Base44 app **`6adf6de7ebdb4cb382e8779f`** (FastAmps Connect) at `https://connect.fastamps.com` unless an isolated clone of **that same app id** is provided.
+
+```bash
+export CONNECT_APP_ID=6adf6de7ebdb4cb382e8779f
+export CONNECT_BASE_URL=https://connect.fastamps.com
+npm run assert-app   # from launch-readiness/simulation
+```
+
 ## How to authorise the full 20×20 cycle
 
 ```bash
-# Preferred: isolated Connect app
+# Preferred: isolated Connect deployment of the SAME app id
+export CONNECT_APP_ID=6adf6de7ebdb4cb382e8779f
 export CONNECT_BASE_URL="https://<isolated-connect-host>"
 export CONNECT_QA_MODE=isolated
 # plus admin/installer credentials via secrets — never paste into chat
 
 # Or production after written approval:
+export CONNECT_APP_ID=6adf6de7ebdb4cb382e8779f
 export CONNECT_BASE_URL="https://connect.fastamps.com"
 export CONNECT_QA_MODE=production-authorised
 export CONNECT_QA_CONFIRM=QA-LAUNCH-2026

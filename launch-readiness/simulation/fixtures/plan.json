@@ -1,5 +1,8 @@
 {
   "prefix": "QA-LAUNCH-2026",
+  "base44AppId": "6adf6de7ebdb4cb382e8779f",
+  "base44AppName": "FastAmps Connect",
+  "baseUrl": "https://connect.fastamps.com",
   "installers": 20,
   "installsPerInstaller": 20,
   "minimumTotalInstalls": 400,

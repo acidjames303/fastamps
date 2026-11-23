@@ -65,6 +65,9 @@ await writeFile(
   JSON.stringify(
     {
       prefix: PREFIX,
+      base44AppId: '6adf6de7ebdb4cb382e8779f',
+      base44AppName: 'FastAmps Connect',
+      baseUrl: 'https://connect.fastamps.com',
       installers: INSTALLERS,
       installsPerInstaller: 20,
       minimumTotalInstalls: 400,

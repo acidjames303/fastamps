@@ -2,7 +2,7 @@
 
 **Generated:** Friday 20 November 2026, afternoon (Europe/London)  
 **Updated:** Monday 23 November 2026 (Europe/London) — continuous stress-test agent + harness  
-**Application:** https://connect.fastamps.com  
+**Application:** https://connect.fastamps.com (Base44 app `6adf6de7ebdb4cb382e8779f`)  
 **Pilot window:** Monday 23 – Tuesday 24 November 2026  
 **Initial rollout:** One electrical wholesaler + real installers  
 **Agent:** `launch-readiness/` (continuous QA orchestrator + `simulation/` harness)

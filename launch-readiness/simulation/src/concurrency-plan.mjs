@@ -35,6 +35,8 @@ console.log(
       mode: getMode(),
       featureFreeze: plan.featureFreeze === true,
       prefix: plan.prefix,
+      base44AppId: plan.base44AppId || '6adf6de7ebdb4cb382e8779f',
+      baseUrl: plan.baseUrl || 'https://connect.fastamps.com',
       installerPool: installers.length,
       chargerPool: chargers.length,
       minimumTotalInstalls: plan.minimumTotalInstalls,

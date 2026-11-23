@@ -2,6 +2,16 @@
 
 External QA tooling only. **Does not add product features.**
 
+## Target app (mandatory)
+
+| Field | Value |
+| --- | --- |
+| Base44 app id | `6adf6de7ebdb4cb382e8779f` |
+| Name | FastAmps Connect |
+| Default URL | https://connect.fastamps.com |
+
+Override only with `CONNECT_APP_ID` / `CONNECT_BASE_URL` when pointing at an isolated deployment of **this same app**. `npm run assert-app` must pass before authenticated stress.
+
 ## Goal
 
 Support the autonomous launch agent’s 20-installer / ≥400-installation stress plan against Connect, with a hard feature freeze.
@@ -22,9 +32,10 @@ All synthetic emails/companies/batches must include `QA-LAUNCH-2026`.
 
 ```bash
 # From launch-readiness/simulation
+npm run assert-app          # Fail if host is not app 6adf6de7ebdb4cb382e8779f
 npm run generate:fixtures   # 20 installers + 420 serial/PIN CSV
 npm run dry-run             # Validate fixtures only
-npm run smoke               # Public probes + live JS publish detection
+npm run smoke               # App-id pin + public probes + publish detection
 npm run concurrency-plan    # Stages 1 → 5 → 10 → 20 (no API writes)
 # Playwright/API E2E requires CONNECT_BASE_URL + credentials + authorised mode
 ```
