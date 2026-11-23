@@ -54,11 +54,14 @@ async function completeInstallerProfile(accessToken, n, email) {
       action: 'register',
       full_name: `QA-LAUNCH-2026 Installer ${n}`,
       business_name: `QA-LAUNCH-2026 Electrical Ltd ${n}`,
-      mobile: `07${String(700000000 + n).slice(0, 9)}`,
+      mobile: `0789${String(n).padStart(7, '0')}`,
       email,
       nominated_wholesaler: 'QA-LAUNCH-2026 Northbridge Electrical Supplies',
       nominated_branch: 'Pilot Branch',
       region: n % 2 === 0 ? 'North West' : 'South East',
+      terms_accepted: true,
+      programme_terms_version: '2026-10-v1',
+      demo: true,
     }),
   });
   const data = await res.json().catch(() => ({}));

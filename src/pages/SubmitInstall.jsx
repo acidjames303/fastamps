@@ -383,11 +383,13 @@ export default function SubmitInstall() {
               inputMode="numeric"
               maxLength={6}
               pattern="[0-9]{6}"
-              placeholder="6 digits, including leading zeros"
+              placeholder="e.g. 012345"
               value={pin}
               onChange={(event) => setPin(event.target.value)}
               className="mt-2 h-14 bg-background border-border text-lg tracking-wider"
+              aria-describedby="charger-pin-hint"
             />
+            <p id="charger-pin-hint" className="mt-1.5 text-xs text-muted-foreground">Include leading zeros if shown on the charger label.</p>
             {!claimToken && resolveError && (
               <div className="mt-3 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                 {resolveError}

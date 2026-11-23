@@ -52,6 +52,7 @@ export default function AdminOverview() {
   const approved = activeClaims.filter((claim) => claim.status === 'approved');
   const rewardsAwaitingAction = activeClaims.filter((claim) => ['approved', 'redemption_requested'].includes(claim.reward_status));
   const voucherRequests = activeVouchers.filter((request) => request.status === 'requested');
+  const outstandingVouchers = activeVouchers.filter((request) => request.status !== 'sent');
   const availableChargers = activeChargers.filter((charger) => charger.claim_status === 'available');
   const loading = loadingInstallers || loadingClaims || loadingChargers || loadingVouchers;
 
@@ -77,7 +78,7 @@ export default function AdminOverview() {
     {
       to: '/admin/vouchers',
       title: 'Voucher requests',
-      description: `${voucherRequests.length} request${voucherRequests.length === 1 ? '' : 's'} ready to process`,
+      description: `${outstandingVouchers.length} request${outstandingVouchers.length === 1 ? '' : 's'} needing attention`,
       icon: Wallet,
     },
   ];
@@ -104,7 +105,7 @@ export default function AdminOverview() {
           ['Needs information', needsInformation.length, ShieldCheck, '/admin/installs?status=pending'],
           ['Approved installs', approved.length, BarChart3, '/admin/installs?status=approved'],
           ['Rewards to action', rewardsAwaitingAction.length, Wallet, '/admin/vouchers'],
-          ['Voucher requests', voucherRequests.length, Wallet, '/admin/vouchers'],
+          ['Voucher requests', outstandingVouchers.length, Wallet, '/admin/vouchers'],
           ['Available chargers', availableChargers.length, QrCode, '/admin/chargers'],
         ].map(([label, value, Icon, to]) => (
           <Link key={label} to={to} className="group rounded-2xl border border-border bg-muted/60 p-4 transition-colors hover:border-accent/40 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">

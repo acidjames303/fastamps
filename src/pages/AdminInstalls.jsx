@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, Clock3, ExternalLink, Gift, Loader2, MapPin, RotateCcw, ShieldCheck, TriangleAlert, XCircle } from 'lucide-react';
+import { CheckCircle2, Clock3, ExternalLink, Gift, Loader2, MapPin, RotateCcw, Search, ShieldCheck, TriangleAlert, XCircle } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useInstaller } from '@/hooks/useInstaller';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import SheetSelect from '@/components/ui/sheet-select';
 import { formatStatus } from '@/utils/formatStatus';
 import { assessSupplyAgainstClaim } from '@/lib/distributionCsv';
 import { listAllChargers } from '@/lib/listAllChargers';
+import { listAllInstallClaims } from '@/lib/listAllInstallClaims';
 import { toast } from 'sonner';
 
 const REJECTION_REASONS = [
@@ -44,10 +45,12 @@ export default function AdminInstalls() {
   const [notes, setNotes] = useState({});
   const [reasons, setReasons] = useState({});
   const [pendingAction, setPendingAction] = useState(null);
+  const [search, setSearch] = useState('');
+  const [includeExcluded, setIncludeExcluded] = useState(false);
   const { data: claims = [], isLoading } = useQuery({
     queryKey: ['admin-install-claims'],
     enabled: identity?.user?.role === 'admin',
-    queryFn: () => base44.entities.InstallClaim.list('-created_date', 250),
+    queryFn: listAllInstallClaims,
   });
   const { data: suppliedChargers = [] } = useQuery({
     queryKey: ['admin-chargers'],
@@ -122,17 +125,42 @@ export default function AdminInstalls() {
   const selectedClaimId = searchParams.get('claim');
   const selectedStatus = searchParams.get('status') || 'all';
   const selectedRange = searchParams.get('range') || 'all';
-  const allActiveClaims = claims.filter((claim) => !claim.excluded_from_reporting);
+  const scopedClaims = useMemo(
+    () => (includeExcluded ? claims : claims.filter((claim) => !claim.excluded_from_reporting)),
+    [claims, includeExcluded],
+  );
+  const allActiveClaims = scopedClaims;
   const activeClaims = allActiveClaims.filter((claim) => isInReportingRange(claim.created_date, selectedRange));
   const pending = activeClaims.filter((claim) => ['submitted', 'needs_information'].includes(claim.status));
-  const selectedClaim = selectedClaimId ? allActiveClaims.find((claim) => claim.id === selectedClaimId) : null;
-  const visibleClaims = selectedClaimId
+  const selectedClaim = selectedClaimId
+    ? claims.find((claim) => claim.id === selectedClaimId) || allActiveClaims.find((claim) => claim.id === selectedClaimId)
+    : null;
+  const searchNeedle = search.trim().toLowerCase();
+  const matchesSearch = (claim) => {
+    if (!searchNeedle) return true;
+    const haystack = [
+      claim.serial_number,
+      claim.pin_code,
+      claim.installer_name,
+      claim.installer_email,
+      claim.installer_mobile,
+      claim.site_postcode,
+      claim.wholesaler,
+      claim.wholesaler_branch,
+      claim.demo_label,
+      claim.status,
+      claim.reward_status,
+    ].filter(Boolean).join(' ').toLowerCase();
+    return haystack.includes(searchNeedle);
+  };
+  const statusFiltered = selectedClaimId
     ? (selectedClaim ? [selectedClaim] : [])
     : selectedStatus === 'pending'
       ? pending
       : selectedStatus === 'approved'
         ? activeClaims.filter((claim) => claim.status === 'approved')
         : activeClaims;
+  const visibleClaims = selectedClaimId ? statusFiltered : statusFiltered.filter(matchesSearch);
   const pageTitle = selectedClaim
     ? `Review install ${selectedClaim.serial_number}`
     : selectedStatus === 'pending'
@@ -153,6 +181,28 @@ export default function AdminInstalls() {
             <Button type="button" size="sm" variant="outline" onClick={() => setSearchParams(selectedStatus === 'all' ? {} : { status: selectedStatus })}>
               Show all time
             </Button>
+          </div>
+        )}
+        {!selectedClaim && (
+          <div className="mt-5 grid gap-3 md:grid-cols-[1fr_auto]">
+            <label className="relative block">
+              <Search className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search serial, PIN, installer, postcode or wholesaler"
+                className="h-11 bg-background pl-10"
+              />
+            </label>
+            <label className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 text-sm text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={includeExcluded}
+                onChange={(event) => setIncludeExcluded(event.target.checked)}
+                className="h-4 w-4 accent-blue-500"
+              />
+              Include demo / excluded QA
+            </label>
           </div>
         )}
         <div className="mt-5 flex flex-wrap gap-2">
@@ -212,6 +262,7 @@ export default function AdminInstalls() {
                       <div className="flex flex-wrap items-center gap-2">
                         <h2 className="text-lg font-semibold">{claim.product_model} · {claim.serial_number}</h2>
                         {claim.is_demo && <span className="rounded-full bg-sky-500/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-700 dark:text-sky-200">{claim.demo_label || 'BETA-DEMO'}</span>}
+                        {claim.excluded_from_reporting && !claim.is_demo && <span className="rounded-full bg-amber-500/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-800 dark:text-amber-200">Excluded</span>}
                       </div>
                       <p className="mt-1 text-sm text-muted-foreground">{claim.installer_name} · {claim.installer_mobile} · {claim.installer_email}</p>
                     </div>
@@ -335,7 +386,7 @@ export default function AdminInstalls() {
               </div>
             </article>
           ))}
-          {visibleClaims.length === 0 && <div className="rounded-2xl border border-border bg-muted/60 p-8 text-center text-sm text-muted-foreground">{selectedClaimId ? 'This installation claim could not be found or is no longer active.' : 'No installation claims match this view.'}</div>}
+          {visibleClaims.length === 0 && <div className="rounded-2xl border border-border bg-muted/60 p-8 text-center text-sm text-muted-foreground">{selectedClaimId ? 'This installation claim could not be found or is no longer active.' : searchNeedle ? 'No installation claims match this search.' : includeExcluded ? 'No installation claims match this view.' : 'No live installation claims match this view. Turn on “Include demo / excluded QA” to review synthetic records.'}</div>}
         </div>
       )}
     </div>

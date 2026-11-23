@@ -33,7 +33,8 @@ All synthetic emails/companies/batches must include `QA-LAUNCH-2026`.
 ```bash
 # From launch-readiness/simulation
 npm run assert-app          # Fail if host is not app 6adf6de7ebdb4cb382e8779f
-npm run generate:fixtures   # 20 installers + 420 serial/PIN CSV
+npm run generate:fixtures   # Default 20 installers + buffer serial/PIN CSV
+QA_INSTALLER_COUNT=50 QA_INSTALLS_PER=20 npm run generate:fixtures  # Phase 11 50×20 plan
 npm run dry-run             # Validate fixtures only
 npm run smoke               # App-id pin + public probes + publish detection
 npm run concurrency-plan    # Stages 1 → 5 → 10 → 20 (no API writes)

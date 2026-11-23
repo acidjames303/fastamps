@@ -74,6 +74,7 @@ export default function Login() {
             <Input
               id="email"
               type="email"
+              inputMode="email"
               autoComplete="email"
               autoFocus
               placeholder="you@example.com"
