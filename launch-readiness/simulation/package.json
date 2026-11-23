@@ -12,6 +12,8 @@
     "authorised-cycle": "node src/authorised-cycle.mjs",
     "otp-imap": "node src/otp-imap.mjs",
     "otp-mailosaur": "node src/otp-mailosaur.mjs",
+    "register-qa-installers": "node src/register-qa-installers.mjs",
+    "claim-wave": "node src/claim-wave.mjs",
     "guard": "node src/env-guard.mjs"
   }
 }

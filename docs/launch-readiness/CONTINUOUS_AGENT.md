@@ -15,12 +15,16 @@
 
 3. **This Cloud Agent / PR #10** applies freeze-compliant product **fixes** only, then the orchestrator retests.
 
-## Why not “just hit production with 400 installs” today
+## Authorised Cycle 2 load (completed 2026-11-23)
 
-- Production still needs **Base44 publish** of pending fixes.
-- Creating 20 accounts × 400 claims on live without an isolated DB risks polluting real programme data.
-- Mission requires **explicit authorisation** before production load tests.
-- Giftbit must not receive chargeable QA orders.
+With `CONNECT_QA_MODE=production-authorised` + `CONNECT_QA_CONFIRM=QA-LAUNCH-2026` and Mailosaur secrets:
+
+- 20 Mailosaur installers onboarded (genuine OTP).
+- 420 QA chargers imported; **400** cohort claims + **5** earlier pilot = **405** QA claims.
+- Concurrency ramp 1→20; **0** submit failures on the 399-claim wave.
+- Every QA claim/installer marked demo / excluded / reward **held** — Giftbit-safe (`payable_qa_claims=0`).
+
+Still required for GO: two more consecutive clean cycles, admin UI reconcile under load, store readiness, and Giftbit auto-fulfililment remaining NO-GO until separately verified. No further production deploys without approval.
 
 ## Target app (mandatory)
 

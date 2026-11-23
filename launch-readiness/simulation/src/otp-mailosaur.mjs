@@ -11,20 +11,16 @@ const apiKey =
   process.env.CONNECT_QA_MAILOSAUR_API_KEY ||
   process.env.MAILOSAUR_SMTP_PASSWORD ||
   '';
-const serverId =
+const configuredServerId =
   process.env.MAILOSAUR_SERVER_ID || process.env.CONNECT_QA_MAILOSAUR_SERVER_ID || '';
 const smtpHost = process.env.MAILOSAUR_SMTP_HOST || '';
 const smtpUser = process.env.MAILOSAUR_SMTP_USER || '';
 const apiBase = (process.env.MAILOSAUR_API_BASE || 'https://mailosaur.com/api').replace(/\/$/, '');
 
-export function mailosaurConfigured() {
-  // Server id + API credential (explicit key or SMTP password used as API key)
-  return Boolean(apiKey && serverId);
-}
+let resolvedServerId = '';
 
-export function installerEmail(n) {
-  const tag = `qa-launch-2026-installer${String(n).padStart(2, '0')}`;
-  return `${tag}@${serverId}.mailosaur.net`;
+function looksLikeServerId(value) {
+  return /^[a-z0-9]{6,12}$/i.test(String(value || '').trim());
 }
 
 function authHeader() {
@@ -33,10 +29,46 @@ function authHeader() {
   return { Authorization: `Basic ${token}`, Accept: 'application/json' };
 }
 
+/** Resolve server id from env, SMTP username local-part, or Mailosaur /servers list. */
+export async function resolveServerId() {
+  if (resolvedServerId) return resolvedServerId;
+  if (looksLikeServerId(configuredServerId)) {
+    resolvedServerId = configuredServerId.trim();
+    return resolvedServerId;
+  }
+  // SMTP username is often {serverId}@{serverId}.mailosaur.net
+  if (smtpUser.includes('@')) {
+    const local = smtpUser.split('@')[0];
+    if (looksLikeServerId(local)) {
+      resolvedServerId = local;
+      return resolvedServerId;
+    }
+  }
+  if (!apiKey) throw new Error('Mailosaur API key missing');
+  const res = await fetch(`${apiBase}/servers`, { headers: authHeader() });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`Mailosaur /servers HTTP ${res.status}`);
+  const items = data.items || [];
+  if (!items.length) throw new Error('Mailosaur account has no servers');
+  resolvedServerId = items[0].id;
+  return resolvedServerId;
+}
+
+export function mailosaurConfigured() {
+  return Boolean(apiKey);
+}
+
+export function installerEmail(n, serverId = resolvedServerId) {
+  if (!serverId) throw new Error('resolveServerId() first');
+  const tag = `qa-launch-2026-installer${String(n).padStart(2, '0')}`;
+  return `${tag}@${serverId}.mailosaur.net`;
+}
+
 export async function waitForOtp({ email, timeoutMs = 120_000, pollMs = 3000 } = {}) {
   if (!mailosaurConfigured()) {
     return { ok: false, error: 'Mailosaur secrets not configured' };
   }
+  const serverId = await resolveServerId();
   const started = Date.now();
   let lastError = null;
   while (Date.now() - started < timeoutMs) {
@@ -60,15 +92,16 @@ export async function waitForOtp({ email, timeoutMs = 120_000, pollMs = 3000 } =
           const msgRes = await fetch(`${apiBase}/messages/${id}`, { headers: authHeader() });
           const msg = await msgRes.json().catch(() => ({}));
           const text = `${msg.subject || ''}\n${msg.text?.body || ''}\n${msg.html?.body || ''}`;
-          const match = text.match(/\b(\d{4,8})\b/);
-          if (match) {
+          // Prefer 6-digit Base44 verification codes; avoid short numbers (years, CSS, etc.).
+          const six = [...text.matchAll(/\b(\d{6})\b/g)].map((m) => m[1]);
+          const otp = six.find((c) => !['000000', '123456'].includes(c)) || null;
+          if (otp) {
             return {
               ok: true,
               email,
-              otpLength: match[1].length,
+              otpLength: otp.length,
               messageId: id,
-              // Do not return OTP to stdout callers unless explicitly requested by register script
-              otp: match[1],
+              otp,
             };
           }
         }
@@ -82,26 +115,36 @@ export async function waitForOtp({ email, timeoutMs = 120_000, pollMs = 3000 } =
   return { ok: false, error: lastError || 'timeout', email };
 }
 
-export function describeMailosaurPlan() {
+export async function describeMailosaurPlan() {
+  let serverId = null;
+  let resolveError = null;
+  try {
+    serverId = mailosaurConfigured() ? await resolveServerId() : null;
+  } catch (error) {
+    resolveError = error.message;
+  }
   return {
-    ok: mailosaurConfigured(),
-    serverIdSet: Boolean(serverId),
+    ok: Boolean(mailosaurConfigured() && serverId),
+    configuredServerIdLooksValid: looksLikeServerId(configuredServerId),
+    resolvedServerIdSet: Boolean(serverId),
     apiKeySet: Boolean(apiKey),
     smtpHostSet: Boolean(smtpHost),
+    smtpHostLooksLikePort: /^\d+$/.test(smtpHost),
     smtpUserSet: Boolean(smtpUser),
     apiBase,
-    aliasExamples: mailosaurConfigured()
-      ? [installerEmail(1), installerEmail(2), installerEmail(20)]
+    aliasExamples: serverId
+      ? [installerEmail(1, serverId), installerEmail(2, serverId), installerEmail(20, serverId)]
       : ['qa-launch-2026-installer01@{SERVER_ID}.mailosaur.net'],
     accessModel:
       'Mailosaur Messages API (read-only search/get); SMTP secrets identify account; genuine Base44 OTP verify',
-    reason: mailosaurConfigured()
+    reason: mailosaurConfigured() && serverId
       ? 'Ready to register installers and fetch OTPs'
-      : 'Missing MAILOSAUR_SERVER_ID and API credential (MAILOSAUR_API_KEY or MAILOSAUR_SMTP_PASSWORD)',
+      : resolveError || 'Missing Mailosaur API key / resolvable server id',
   };
 }
 
 if (process.argv[1]?.endsWith('otp-mailosaur.mjs')) {
-  console.log(JSON.stringify(describeMailosaurPlan(), null, 2));
-  process.exit(mailosaurConfigured() ? 0 : 2);
+  const plan = await describeMailosaurPlan();
+  console.log(JSON.stringify(plan, null, 2));
+  process.exit(plan.ok ? 0 : 2);
 }
