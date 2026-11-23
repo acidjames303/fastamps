@@ -1,6 +1,6 @@
-# Base44 prompt — Playground iteration 072+ (funnel / UI)
+# Base44 prompt — Playground iteration 073+ (funnel / UI)
 
-Iterations **001–011**, **042–066** are live; **067–071** remasure-hold.
+Iterations **001–011**, **042–066** are live; **067–072** remasure-hold.
 
 ## Next levers
 1. Prefer **remeasure-hold** unless a playtest gate fails or James asks for a lever.
