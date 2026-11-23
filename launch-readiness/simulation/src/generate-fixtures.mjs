@@ -5,8 +5,9 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const outDir = join(__dirname, '..', 'fixtures');
 const PREFIX = 'QA-LAUNCH-2026';
-const INSTALLERS = 20;
-const PINS_NEEDED = 420; // 400 + buffer
+const INSTALLERS = Math.max(1, Number(process.env.QA_INSTALLER_COUNT || 20) || 20);
+const INSTALLS_PER = Math.max(1, Number(process.env.QA_INSTALLS_PER || 20) || 20);
+const PINS_NEEDED = INSTALLERS * INSTALLS_PER + Math.max(20, Math.ceil(INSTALLERS * 0.05)); // buffer
 
 function pin(i) {
   return String(600000 + i).padStart(6, '0');
@@ -19,15 +20,15 @@ function serial(i) {
 const installers = Array.from({ length: INSTALLERS }, (_, i) => {
   const n = i + 1;
   return {
-    id: `${PREFIX}-INSTALLER-${String(n).padStart(2, '0')}`,
-    email: `${PREFIX.toLowerCase()}.installer${String(n).padStart(2, '0')}@example.invalid`,
+    id: `${PREFIX}-INSTALLER-${String(n).padStart(INSTALLERS > 99 ? 3 : 2, '0')}`,
+    email: `${PREFIX.toLowerCase()}.installer${String(n).padStart(INSTALLERS > 99 ? 3 : 2, '0')}@example.invalid`,
     full_name: `${PREFIX} Installer ${n}`,
     business_name: `${PREFIX} Electrical Ltd ${n}`,
     mobile: `07${String(700000000 + n).slice(0, 9)}`,
     region: n % 2 === 0 ? 'North West' : 'South East',
     nominated_wholesaler: `${PREFIX} Northbridge Electrical Supplies`,
     nominated_branch: n % 3 === 0 ? 'Manchester' : 'Leeds',
-    target_installs: 20,
+    target_installs: INSTALLS_PER,
   };
 });
 
@@ -69,10 +70,10 @@ await writeFile(
       base44AppName: 'FastAmps Connect',
       baseUrl: 'https://connect.fastamps.com',
       installers: INSTALLERS,
-      installsPerInstaller: 20,
-      minimumTotalInstalls: 400,
+      installsPerInstaller: INSTALLS_PER,
+      minimumTotalInstalls: INSTALLERS * INSTALLS_PER,
       chargerBuffer: PINS_NEEDED,
-      concurrencyStages: [1, 5, 10, 20],
+      concurrencyStages: INSTALLERS >= 50 ? [1, 5, 10, 25, 50] : [1, 5, 10, 20],
       featureFreeze: true,
       createdAt: new Date().toISOString(),
     },
