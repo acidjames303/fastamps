@@ -1,11 +1,10 @@
-# Base44 prompt — Playground iteration 061+ (funnel / UI)
+# Base44 prompt — Playground iteration 062+ (funnel / UI)
 
-Iterations **001–011**, **042–060** are live. Prefer **funnel clarity**.
+Iterations **001–011**, **042–061** are live. Prefer **funnel clarity**.
 
 ## Next levers
-1. Motion-safe funnel stage highlight (subtle, no arcade).
-2. When analysis returns, briefly pulse/aria-live already ships — optional calm “analysis ready” chip under funnel step 3→4.
-3. Desktop ConnectionList empty-state already shipped — leave alone unless connect tip conflicts.
-4. Hold unless a gate fails or James asks for a specific lever.
+1. Soft-link the analysis-ready chip to `#playground-analysis` / before-after section (click scrolls).
+2. When mapReady and not analysed, optional quiet “next: free analysis” under funnel step 3.
+3. Hold for traffic unless a playtest gate fails or James asks for a specific lever.
 
 Out of scope: stickman, model/quota, new templates, non-Playground pages, brand redesign.
