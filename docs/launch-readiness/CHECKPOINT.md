@@ -4,64 +4,68 @@ Updated: 2026-11-23 (Europe/London)
 
 | Field | Value |
 | --- | --- |
-| Cycle | 2 (authorised production QA — stress wave complete) |
-| Clean cycles | 1 / 3 (Cycle 2 wave green; need two more consecutive) |
-| Phase | Post-400 reconcile → Cycles 3–4 → GO/NO-GO |
-| Environment | production-authorised (no further deploys without approval) |
+| Cycle | Lifecycle wave (admin approval + wallet/voucher boundary) |
+| Clean claim waves | Cycle 2 + 3 + 4 claim submits green (0 fails each) |
+| Phase | Admin approval done → Giftbit Testbed GBP boundary (secrets pending) |
+| Environment | production-authorised (feature freeze) |
 | Simulation prefix | QA-LAUNCH-2026 |
 | Base URL | https://connect.fastamps.com |
 
-## Cycle 2 stress results (2026-11-23)
+## Cohort inventory
 
 | Metric | Result |
 | --- | --- |
-| Mailosaur OTP installers | 20 / 20 verified (`qa-launch-2026-installer01..20@8deitqir.mailosaur.net`) |
-| Installer profiles | 20 / 20 `is_demo`, `demo_label=QA-LAUNCH-2026`, `excluded_from_reporting`, `reward_account_status=held` |
-| QA chargers imported | 420 (`QA-LAUNCH-2026-S00001`–`S00420`) all demo/excluded |
-| Claims submitted this wave | **399 / 399** ok (0 fails) |
-| Per-installer installs | **20 / 20** each (exactly) |
-| Total QA claims on register | **405** (400 from Mailosaur cohort + 5 earlier pilot claims) |
-| Concurrency ramp | 1 → 2 → 5 → 10 → 20 (final stage 299 parallel workers capped at 20) |
-| Photos | Two HTTPS URLs per claim (`serial_photo_url` + `install_photo_url`) |
-| Elapsed | ~179s for the 399-claim wave |
+| Mailosaur installers | 20 / 20 |
+| Claims per installer | 60 each (Cycles 2–4 × 20) |
+| Total QA claims | **1205** (1200 cohort + 5 earlier pilot) |
+| Admin approved (photos/serial reviewed) | **1201** (`status=approved`, `warranty_status=registered`) |
+| Needs information samples | **2** |
+| Rejected samples | **2** |
+| `reward_status` | **1203 held** + **2 rejected** |
+| Safety flags | **All** still `is_demo=true`, `excluded_from_reporting=true`, `demo_label=QA-LAUNCH-2026` |
 
-## Safety / Giftbit boundary
+Approvals mirror `AdminInstalls.jsx`: approving a held reward **keeps** `reward_status=held` (non-payable).
 
-All **405** QA claims:
+## Wallet + voucher boundary (production path)
 
-- `reward_status=held`
-- `excluded_from_reporting=true`
-- `is_demo=true`, `demo_label=QA-LAUNCH-2026`
-- `status=submitted` (not approved / not payable)
+| Check | Result |
+| --- | --- |
+| Earnings-style eligible wallet | **£0** for every QA installer (demo/excluded filtered out) |
+| Account reward hold | Still `held` on all 20 profiles |
+| `request-voucher-v2` | **Blocked** for all 20 (`Installer profile not found.` because `excluded_from_reporting`) |
+| Payable QA claims | **0** |
+| Real Giftbit / live vouchers | **None issued** |
 
-`payable_qa_claims = 0`. No QA rows in `VoucherRequest`. No Giftbit campaign created for this cohort.
+This is the correct production behaviour. Demo/exclusion guards were **not** lifted.
 
-## OTP mailbox
+## Giftbit Testbed / GBP
 
-- **Provider:** Mailosaur (connected; secrets present).
-- Server id resolved: `8deitqir`.
-- Genuine Base44 register → Mailosaur Messages API OTP → `verify-otp` proven for all 20.
-- See `docs/launch-readiness/QA_MAILBOX.md`.
+**Confirmed constraint:** Giftbit Testbed virtual funding is **USD/CAD only**. GBP campaigns will **not** deliver vouchers to recipients on Testbed.
+
+Harness stance:
+
+1. Isolated probe: `npm run giftbit-testbed-probe` (requires `GIFTBIT_API_TOKEN` + `GIFTBIT_TEMPLATE_ID`, mode testbed only).
+2. Expect stage `gbp_awaiting_funds_boundary` / `AWAITING_FUNDS` — **do not resend**.
+3. That result is **not** production payout proof and is **not** a Connect defect.
+4. Live UK Giftbit remains a separate FastAmps permissioned check.
+
+Secrets for the isolated Testbed probe were requested from the environment (pending).
 
 ## Harness commands
 
 ```bash
-export CONNECT_QA_MODE=production-authorised
-export CONNECT_QA_CONFIRM=QA-LAUNCH-2026
-# secrets: MAILOSAUR_*, CONNECT_QA_ADMIN_*, BASE44_APP_ID
-
-npm run otp-mailosaur --prefix launch-readiness/simulation
-npm run register-qa-installers --prefix launch-readiness/simulation -- --count 20
-npm run claim-wave --prefix launch-readiness/simulation -- --per-installer 20 --concurrency-max 20
+export CONNECT_QA_MODE=production-authorised CONNECT_QA_CONFIRM=QA-LAUNCH-2026
+npm run lifecycle-harness --prefix launch-readiness/simulation
+npm run giftbit-testbed-probe --prefix launch-readiness/simulation
+npm test --prefix . -- tests/giftbitTestbedBoundary.test.mjs
 ```
 
 ## Next action
 
-1. Admin UI reconcile sample (search, photo, duplicate, pending) under freeze — no new features.
-2. Run Cycle 3 and Cycle 4 claim/reconcile passes (or reset/re-run on fresh codes) for **3 consecutive clean cycles**.
-3. Store readiness / Giftbit auto-fulfililment remain **NO-GO** until separately verified.
-4. No further production deploys without explicit approval.
+1. Add Giftbit Testbed secrets → run probe once → record provider code → stop (no resend).
+2. Optional: admin UI spot-check photos on a sample of the 1201 approved claims.
+3. Keep feature freeze; no live financial control changes; no further unapproved deploys of payout behaviour.
 
 ## Notes
 
-Feature freeze remains in force. Prior Gmail plus-alias probes were abandoned; Mailosaur is the only OTP path.
+Rate limit: Base44 `entity_update` ≈ 350/min — lifecycle harness paces approvals (~220ms) and retries 429s.

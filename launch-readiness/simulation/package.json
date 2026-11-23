@@ -14,6 +14,8 @@
     "otp-mailosaur": "node src/otp-mailosaur.mjs",
     "register-qa-installers": "node src/register-qa-installers.mjs",
     "claim-wave": "node src/claim-wave.mjs",
+    "lifecycle-harness": "node src/lifecycle-harness.mjs",
+    "giftbit-testbed-probe": "node src/giftbit-testbed-probe.mjs",
     "guard": "node src/env-guard.mjs"
   }
 }

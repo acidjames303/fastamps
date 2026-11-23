@@ -24,7 +24,9 @@ With `CONNECT_QA_MODE=production-authorised` + `CONNECT_QA_CONFIRM=QA-LAUNCH-202
 - Concurrency ramp 1→20; **0** submit failures on the 399-claim wave.
 - Every QA claim/installer marked demo / excluded / reward **held** — Giftbit-safe (`payable_qa_claims=0`).
 
-Still required for GO: two more consecutive clean cycles, admin UI reconcile under load, store readiness, and Giftbit auto-fulfililment remaining NO-GO until separately verified. No further production deploys without approval.
+Admin lifecycle (2026-11-23): **1201** QA claims approved with photos/serial review while `reward_status` stayed **held**; **2** reject + **2** needs-information samples; wallets **£0**; `request-voucher-v2` blocked for all 20 (exclusion guard). Demo/exclusion flags untouched.
+
+**Giftbit:** Testbed cannot fund **GBP** (USD/CAD only) — vouchers will not reach recipients on Testbed. Isolated probe records `AWAITING_FUNDS` and must not resend. That is **not** production payout proof. Live UK Giftbit remains separately NO-GO until FastAmps funds/permissions are confirmed.
 
 ## Target app (mandatory)
 
