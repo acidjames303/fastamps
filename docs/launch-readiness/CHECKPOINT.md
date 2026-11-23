@@ -6,43 +6,35 @@ Updated: 2026-11-23 (Europe/London)
 | --- | --- |
 | Cycle | 2 (authorised production QA — in progress) |
 | Clean cycles | 0 / 3 |
-| Phase | publish cleared → authenticated claims → scale toward 20×20 |
-| Environment | production-authorised (user completed setup actions) |
+| Phase | QA mailbox / 20 synthetic installers → 400 claims → concurrency |
+| Environment | production-authorised (no further deploys without approval) |
 | Simulation prefix | QA-LAUNCH-2026 |
-| Base44 app id | `configured Base44 Connect app id` (FastAmps Connect) |
 | Base URL | https://connect.fastamps.com |
 
-## Cycle 2 progress (2026-11-23)
+## Safety: five earlier QA claims
 
-| Check | Result |
-| --- | --- |
-| App id pin | **verified** |
-| Frontend `deploy-dist` from PR branch | **ok** (`2026-11-23T11:56:27Z`) |
-| Smoke publish blockers | **none** (privacy/terms live; PWA icons FastAmps; Alpha-7 unlock tile gone) |
-| Admin login API | **ok** |
-| Installer login API | **ok** |
-| Browser installer/admin login UI | **ok** ([Authenticated Connect login smoke](bc-643b42dc-4d5e-5cb2-a213-5c1d8178ec2b); artifacts `/opt/cursor/artifacts/auth-smoke/`) |
-| Live `/privacy` + `/terms` (browser) | **ok** — full content (was 404 pre-publish) |
-| Admin import `QA-LAUNCH-2026-CYCLE2-25` | **25 chargers created** |
-| Install claims submitted | **5 / 5 ok** (`QA-LAUNCH-2026-S00001`–`S00005`) via existing installer account |
-| Giftbit | still non-fulfilment — no chargeable orders |
+All five `QA-LAUNCH-2026-S00001`–`S00005` claims now:
 
-Browser UI confirmed admin overview totals (installers / awaiting review / available chargers) and installer home. This does **not** yet equal three clean 20×20 cycles — still **CONDITIONAL GO**.
+- `reward_status=held` (admin fraud-review hold)
+- `excluded_from_reporting=true`
+- `is_demo=true`, `demo_label=QA-LAUNCH-2026`
 
-## Blockers / constraints
+They no longer appear in installer “active” wallet counts and cannot qualify Giftbit fulfilment paths that skip demo/excluded/held rewards. No Giftbit campaign was created for them.
 
-1. **20 distinct installer accounts:** registration requires email OTP. Provided credentials are existing real users (not `QA-LAUNCH-2026-*` synthetics). Full 20×20 concurrency needs either OTP inbox access or pre-created synthetic installer accounts.
-2. Workspace CLI deploy key (`b44k_…`) still not required after successful `deploy-dist` with personal token.
-3. Remaining 395 installs + 15 installer identities still outstanding for exit criteria.
+## Plus-alias investigation
+
+- Base44 `POST /auth/register` **accepts** Gmail `+` aliases and creates distinct pending users + sends OTP email.
+- Completing signup still requires the real email OTP (no bypass).
+- Blocked on a **dedicated QA Gmail** + App Password for read-only IMAP (`CONNECT_QA_GMAIL_ADDRESS`, `CONNECT_QA_GMAIL_APP_PASSWORD`).
+- See `docs/launch-readiness/QA_MAILBOX.md`.
 
 ## Next action
 
-1. Create or obtain **20 `QA-LAUNCH-2026` installer identities** (OTP / invite path).
-2. Import remaining charger buffer (up to 420) under QA batch refs.
-3. Scale claims: 1 → 5 → 10 → 20 concurrent sessions.
-4. Admin reconciliation during load; Giftbit readiness only.
-5. Aim for three consecutive clean critical cycles after last P0/P1.
+1. Wait for dedicated QA mailbox secrets / “QA mailbox ready”.
+2. Verify two plus-aliases end-to-end (register → OTP via IMAP → verify).
+3. Provision 20 `QA-LAUNCH-2026` installers; import remaining chargers; run 20×20 with photos; admin reconcile; three clean cycles.
+4. No further production deploys without explicit approval.
 
 ## Notes
 
-Feature freeze remains in force. Production mutations this cycle were limited to QA-prefixed charger imports and install claims. Do not issue real Giftbit rewards for QA rows.
+Feature freeze remains in force. Two exploratory registrations to disposable `qa.launch.2026+…@gmail.com` probes were API-only and are not part of the programme dataset (OTP not completed).
