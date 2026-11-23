@@ -21,9 +21,13 @@ Updated: 2026-11-23 (Europe/London)
 | Smoke publish blockers | **none** (privacy/terms live; PWA icons FastAmps; Alpha-7 unlock tile gone) |
 | Admin login API | **ok** |
 | Installer login API | **ok** |
+| Browser installer/admin login UI | **ok** ([Authenticated Connect login smoke](bc-643b42dc-4d5e-5cb2-a213-5c1d8178ec2b); artifacts `/opt/cursor/artifacts/auth-smoke/`) |
+| Live `/privacy` + `/terms` (browser) | **ok** — full content (was 404 pre-publish) |
 | Admin import `QA-LAUNCH-2026-CYCLE2-25` | **25 chargers created** |
 | Install claims submitted | **5 / 5 ok** (`QA-LAUNCH-2026-S00001`–`S00005`) via existing installer account |
 | Giftbit | still non-fulfilment — no chargeable orders |
+
+Browser UI confirmed admin overview totals (installers / awaiting review / available chargers) and installer home. This does **not** yet equal three clean 20×20 cycles — still **CONDITIONAL GO**.
 
 ## Blockers / constraints
 

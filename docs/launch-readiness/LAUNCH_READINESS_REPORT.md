@@ -179,12 +179,13 @@ Watch genuine installer submissions, photo quality, duplicate claims, and vouche
 
 ### Cycle 2 (authorised — 23 Nov)
 
-- Frontend published via Base44 `deploy-dist` to app `configured Base44 Connect app id` (privacy/terms + PWA icons live; Alpha-7 unlock tile gone)
+- Frontend published via Base44 `deploy-dist` (privacy/terms + PWA icons live; Alpha-7 unlock tile gone)
 - Admin + installer API login: pass
+- Browser auth smoke ([Authenticated Connect login smoke](bc-643b42dc-4d5e-5cb2-a213-5c1d8178ec2b)): installer + admin dashboards load; `/privacy` and `/terms` render full content — evidence under `/opt/cursor/artifacts/auth-smoke/`
 - Imported **25** `QA-LAUNCH-2026` chargers; submitted **5** install claims successfully
 - Remaining gap for 20×20: email OTP / synthetic installer identities (provided logins are existing real accounts)
 
-**Overall launch readiness:** **CONDITIONAL GO** for controlled pilot — core claim path proven on production; full concurrency + three clean cycles still open; Giftbit / stores still **NO-GO**.
+**Overall launch readiness:** **CONDITIONAL GO** for controlled pilot — auth, legal pages, and core claim path proven on production. Not a full GO: 20×20 concurrency, three clean cycles, Giftbit fulfilment, and store apps remain open / **NO-GO**.
 
 Ops route: `docs/launch-readiness/CONTINUOUS_AGENT.md` · Checkpoint: `docs/launch-readiness/CHECKPOINT.md`
 
