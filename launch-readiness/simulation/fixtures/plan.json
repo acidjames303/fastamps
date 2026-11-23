@@ -1,0 +1,15 @@
+{
+  "prefix": "QA-LAUNCH-2026",
+  "installers": 20,
+  "installsPerInstaller": 20,
+  "minimumTotalInstalls": 400,
+  "chargerBuffer": 420,
+  "concurrencyStages": [
+    1,
+    5,
+    10,
+    20
+  ],
+  "featureFreeze": true,
+  "createdAt": "2026-11-23T10:38:56.343Z"
+}

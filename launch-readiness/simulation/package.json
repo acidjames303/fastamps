@@ -1,0 +1,13 @@
+{
+  "name": "fastamps-connect-launch-simulation",
+  "private": true,
+  "type": "module",
+  "description": "External QA harness for FastAmps Connect launch stress tests (not a product feature)",
+  "scripts": {
+    "generate:fixtures": "node src/generate-fixtures.mjs",
+    "dry-run": "node src/dry-run.mjs",
+    "smoke": "node src/smoke.mjs",
+    "concurrency-plan": "node src/concurrency-plan.mjs",
+    "guard": "node src/env-guard.mjs"
+  }
+}

@@ -3,3 +3,7 @@ node_modules
 .env.local
 .agent-serve
 memory
+simulation/node_modules
+*.log
+credentials*.json
+!simulation/fixtures/

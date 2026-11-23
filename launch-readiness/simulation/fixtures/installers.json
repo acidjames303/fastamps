@@ -1,0 +1,225 @@
+{
+  "prefix": "QA-LAUNCH-2026",
+  "installers": [
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-01",
+      "email": "qa-launch-2026.installer01@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 1",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 1",
+      "mobile": "07700000001",
+      "region": "South East",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Leeds",
+      "target_installs": 20
+    },
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-02",
+      "email": "qa-launch-2026.installer02@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 2",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 2",
+      "mobile": "07700000002",
+      "region": "North West",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Leeds",
+      "target_installs": 20
+    },
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-03",
+      "email": "qa-launch-2026.installer03@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 3",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 3",
+      "mobile": "07700000003",
+      "region": "South East",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Manchester",
+      "target_installs": 20
+    },
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-04",
+      "email": "qa-launch-2026.installer04@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 4",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 4",
+      "mobile": "07700000004",
+      "region": "North West",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Leeds",
+      "target_installs": 20
+    },
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-05",
+      "email": "qa-launch-2026.installer05@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 5",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 5",
+      "mobile": "07700000005",
+      "region": "South East",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Leeds",
+      "target_installs": 20
+    },
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-06",
+      "email": "qa-launch-2026.installer06@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 6",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 6",
+      "mobile": "07700000006",
+      "region": "North West",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Manchester",
+      "target_installs": 20
+    },
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-07",
+      "email": "qa-launch-2026.installer07@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 7",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 7",
+      "mobile": "07700000007",
+      "region": "South East",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Leeds",
+      "target_installs": 20
+    },
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-08",
+      "email": "qa-launch-2026.installer08@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 8",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 8",
+      "mobile": "07700000008",
+      "region": "North West",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Leeds",
+      "target_installs": 20
+    },
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-09",
+      "email": "qa-launch-2026.installer09@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 9",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 9",
+      "mobile": "07700000009",
+      "region": "South East",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Manchester",
+      "target_installs": 20
+    },
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-10",
+      "email": "qa-launch-2026.installer10@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 10",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 10",
+      "mobile": "07700000010",
+      "region": "North West",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Leeds",
+      "target_installs": 20
+    },
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-11",
+      "email": "qa-launch-2026.installer11@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 11",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 11",
+      "mobile": "07700000011",
+      "region": "South East",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Leeds",
+      "target_installs": 20
+    },
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-12",
+      "email": "qa-launch-2026.installer12@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 12",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 12",
+      "mobile": "07700000012",
+      "region": "North West",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Manchester",
+      "target_installs": 20
+    },
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-13",
+      "email": "qa-launch-2026.installer13@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 13",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 13",
+      "mobile": "07700000013",
+      "region": "South East",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Leeds",
+      "target_installs": 20
+    },
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-14",
+      "email": "qa-launch-2026.installer14@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 14",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 14",
+      "mobile": "07700000014",
+      "region": "North West",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Leeds",
+      "target_installs": 20
+    },
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-15",
+      "email": "qa-launch-2026.installer15@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 15",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 15",
+      "mobile": "07700000015",
+      "region": "South East",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Manchester",
+      "target_installs": 20
+    },
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-16",
+      "email": "qa-launch-2026.installer16@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 16",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 16",
+      "mobile": "07700000016",
+      "region": "North West",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Leeds",
+      "target_installs": 20
+    },
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-17",
+      "email": "qa-launch-2026.installer17@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 17",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 17",
+      "mobile": "07700000017",
+      "region": "South East",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Leeds",
+      "target_installs": 20
+    },
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-18",
+      "email": "qa-launch-2026.installer18@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 18",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 18",
+      "mobile": "07700000018",
+      "region": "North West",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Manchester",
+      "target_installs": 20
+    },
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-19",
+      "email": "qa-launch-2026.installer19@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 19",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 19",
+      "mobile": "07700000019",
+      "region": "South East",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Leeds",
+      "target_installs": 20
+    },
+    {
+      "id": "QA-LAUNCH-2026-INSTALLER-20",
+      "email": "qa-launch-2026.installer20@example.invalid",
+      "full_name": "QA-LAUNCH-2026 Installer 20",
+      "business_name": "QA-LAUNCH-2026 Electrical Ltd 20",
+      "mobile": "07700000020",
+      "region": "North West",
+      "nominated_wholesaler": "QA-LAUNCH-2026 Northbridge Electrical Supplies",
+      "nominated_branch": "Leeds",
+      "target_installs": 20
+    }
+  ]
+}

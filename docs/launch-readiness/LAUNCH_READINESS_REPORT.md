@@ -1,11 +1,11 @@
 # FastAmps Connect — Launch Readiness Report
 
 **Generated:** Friday 20 November 2026, afternoon (Europe/London)  
-**Updated:** Friday 20 November 2026 — follow-up from codepath audit  
+**Updated:** Monday 23 November 2026 (Europe/London) — continuous stress-test agent + harness  
 **Application:** https://connect.fastamps.com  
 **Pilot window:** Monday 23 – Tuesday 24 November 2026  
 **Initial rollout:** One electrical wholesaler + real installers  
-**Agent:** `launch-readiness/` (Agent SDK QA agent in this repository)
+**Agent:** `launch-readiness/` (continuous QA orchestrator + `simulation/` harness)
 
 ---
 
@@ -161,15 +161,33 @@ Watch genuine installer submissions, photo quality, duplicate claims, and vouche
 
 ---
 
+## Continuous stress-test status (23 Nov 2026)
+
+| Metric | Value |
+| --- | --- |
+| Test installers (fixtures) | 20 (`QA-LAUNCH-2026`) |
+| Serial/PIN pool | 420 unique |
+| Completed installs verified | 0 (gated — no authorised prod/isolated run yet) |
+| Concurrent users demonstrated | 0 (plan stages 1→5→10→20 ready) |
+| Clean regression cycles | 0 / 3 |
+| Giftbit | Non-fulfilment boundary only; no chargeable QA orders |
+| Feature-freeze compliance | No product features added; agent + harness are external QA only |
+| Live publish blockers (smoke) | PWA Base44 icon; privacy/terms + Alpha-7 tile still in live JS bundle |
+
+**Overall launch readiness:** unchanged — **CONDITIONAL GO** for controlled pilot after publish + authenticated E2E; **NO-GO** for store apps and automatic Giftbit payouts.
+
+Ops route: `docs/launch-readiness/CONTINUOUS_AGENT.md` · Checkpoint: `docs/launch-readiness/CHECKPOINT.md`
+
 ## Agent usage
 
 ```bash
 cd launch-readiness
-npx @grok/agent-sdk validate --dir .
-npx @grok/agent-sdk tool call probe_url --dir . --input '{"url":"https://connect.fastamps.com"}'
-npx @grok/agent-sdk login   # once, for model turns / eval
-npx @grok/agent-sdk run --dir . --message "Run Friday launch health and refresh the report."
-npx @grok/agent-sdk eval --dir .
+npm install && npm run validate
+npx --yes @grok/agent-sdk@0.7.0 tool call probe_url --dir . --input '{"url":"https://connect.fastamps.com"}'
+npx --yes @grok/agent-sdk@0.7.0 tool call load_checkpoint --dir . --input '{}'
+cd simulation && npm run generate:fixtures && npm run dry-run && npm run smoke
 ```
 
 Model turns need a Cursor credential. `validate`, `tool call`, and `info` do not.
+
+Full 20×20 production stress requires `CONNECT_QA_MODE=production-authorised` + `CONNECT_QA_CONFIRM=QA-LAUNCH-2026` (or an isolated Connect DB) plus admin/installer credentials.

@@ -1,25 +1,38 @@
 # launch-readiness
 
-Agent SDK project (`@grok/agent-sdk`) for FastAmps Connect launch readiness and QA.
+Agent SDK project (`@grok/agent-sdk`) for FastAmps Connect **continuous** launch readiness, stress simulation orchestration, and QA under a hard **feature freeze**.
 
-The served prompt is `bot/instructions.md`. The customer-facing Connect app lives in the parent directory.
+The served prompt is `bot/instructions.md`. The customer-facing Connect app lives in the parent directory. Do not add product features from this agent.
 
 ## Loop
 
 ```bash
-npx @grok/agent-sdk validate --dir .
-npx @grok/agent-sdk info --dir . --json
-npx @grok/agent-sdk tool call probe_url --dir . --input '{"url":"https://connect.fastamps.com"}'
-npx @grok/agent-sdk run --dir . --message "Probe connect.fastamps.com and summarise launch health."
-npx @grok/agent-sdk eval --dir .
+npm install
+npm run validate
+npx --yes @grok/agent-sdk@0.7.0 info --dir . --json
+npx --yes @grok/agent-sdk@0.7.0 tool call probe_url --dir . --input '{"url":"https://connect.fastamps.com"}'
+npx --yes @grok/agent-sdk@0.7.0 tool call load_checkpoint --dir . --input '{}'
+npx --yes @grok/agent-sdk@0.7.0 run --dir . --message "Load checkpoint, smoke connect.fastamps.com, update health, save checkpoint."
+npx --yes @grok/agent-sdk@0.7.0 eval --dir .
 npm run check
+```
+
+Simulation harness (fixtures + publish smoke; production 400-run gated):
+
+```bash
+cd simulation
+npm run generate:fixtures
+npm run dry-run
+npm run smoke
+npm run concurrency-plan
 ```
 
 Run under Node, never Bun. Do not point `serve` at the parent FastAmps Connect folder.
 
 ## Layout
 
-- `bot/tools/` — one tool per file
-- `bot/skills/` — installer, admin, and store audits
-- `bot/schedules/pilot-health-check.md` — weekday morning health prompt
-- Parent `docs/launch-readiness/LAUNCH_READINESS_REPORT.md` — central report
+- `bot/tools/` — probe, issues, health, report, checkpoint, simulation stats
+- `bot/skills/` — continuous-cycle, stress-simulation, giftbit-boundary, installer/admin/store audits
+- `bot/schedules/pilot-health-check.md` — weekday 08:00 / 14:00 UTC
+- `simulation/` — QA-LAUNCH-2026 fixtures and env-gated runners
+- Parent `docs/launch-readiness/` — report, CHECKPOINT, CONTINUOUS_AGENT ops route
