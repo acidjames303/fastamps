@@ -55,6 +55,7 @@ Auth: `npx base44 login` (device) or `BASE44_API_KEY`
 - **048 live** (23 Nov 2026) — see `iterations/048-live.md` (prefill AnalysisGate contact; stale submit toast)
 - **049 live** (23 Nov 2026) — see `iterations/049-live.md` (no pan while linking; CTA/submit mutex; scroll validation)
 - **050 live** (23 Nov 2026) — see `iterations/050-live.md` (AnalysisGate autofocus; freeze toolbar while analysing)
+- **051 live** (23 Nov 2026) — see `iterations/051-live.md` (freeze templates, canvas tidy, StepEditor while analysing)
 
 ## Apply via sandbox (preferred when authenticated)
 ```bash
