@@ -4,55 +4,28 @@ Updated: 2026-11-23 (Europe/London)
 
 | Field | Value |
 | --- | --- |
-| Mission | V1 final audit (PR #10 baseline → UX → USD Testbed → stress) |
-| Interim decision | **CONDITIONAL GO** (see `BASELINE_PR10.md`) |
+| Mission | V1 final audit (PR #10 → UX → USD Testbed → 50×20) |
+| Decision | **CONDITIONAL GO** — see `FINAL_LAUNCH_READINESS_REPORT.md` |
 | Feature freeze | In force |
 | Base URL | https://connect.fastamps.com |
-| Frontend deploy | `index-Dqk2xKAX.js` (installer UX polish after admin search deploy) |
-| Backend wholesaler publish | `submit-install-claim` + `v2` deployed with required company/branch |
+| Frontend | `index-Dqk2xKAX.js` |
+| Cohort | **50** QA installers; **1811** QA claims; photos complete; rewards held / excluded |
 
 ## Phase status
 
 | Phase | Status |
 | --- | --- |
-| 1 PR #10 baseline | **Done** — `BASELINE_PR10.md` |
-| 2 Admin UI | **Done (browser)** — search + include demo/excluded verified live; photos + GPS on production claim; QA cohort 3→1204 when toggled |
-| 3–4 Installer UX / install flow | **Mostly done** — PIN + `/rewards` PASS; wholesaler **API** guard verified live after full deploy |
-| 5 Wholesaler required fields | **Verified live (API)** — see `WHOLESALER_VALIDATION.md` (SPA restored via deploy-dist) |
-| 6 Data/privacy audit | **Done (draft)** — `DATA_PRIVACY_AUDIT.md` |
-| 7 Mobile UI | **In progress** — PIN placeholder, 44px header targets, `/rewards`→`/earnings` |
-| 8 USD Giftbit Testbed | **Done (isolated)** |
-| 9 UK GBP unchanged | **Re-verified** after admin deploy — £10/£30 present; `$10`/`USD` absent in wallet bundle |
-| 10 International feasibility | **Done (read-only)** — `INTERNATIONAL_FEASIBILITY.md` |
-| 11 50×20 stress | Plan ready — `STRESS_50x20_PLAN.md` |
-| 12–14 Scenarios / report | Pending |
-
-## Cohort (unchanged safety)
-
-1205 QA claims; 1201 approved / 2 rejected / 2 needs_information; all `is_demo` + `excluded_from_reporting`; rewards held; wallets £0 redeemable.
+| 1 PR #10 baseline | Done |
+| 2 Admin UI | Done (browser) |
+| 3–4 Installer UX | Done enough for conditional go (emulation + fixes) |
+| 5 Wholesaler | Live API verified; SPA labels present |
+| 6 Privacy audit | Done (draft) |
+| 7 Mobile polish | PIN / rewards / touch shipped |
+| 8–9 Giftbit USD + GBP verify | Done (isolated USD; UK unchanged) |
+| 10 International note | Done (read-only) |
+| 11 50×20 stress | **Done** — `STRESS_50x20_RESULTS.md` |
+| 12–14 Scenarios / final report | Final report written; device camera optional |
 
 ## Giftbit
 
-| Probe | Result |
-| --- | --- |
-| GBP Testbed | `INFO_CAMPAIGN_CREATED_FUNDS_REQUIRED` — no delivery |
-| USD Testbed | Marketplace gift delivered in isolated harness only |
-| Live UK auto-fulfililment | **NO-GO** until live GBP funds/permissions |
-
-## Admin UI browser evidence (2026-11-23 Europe/London)
-
-| Check | Result |
-| --- | --- |
-| Default list (demo off) | 3 live approved claims; photos + device GPS visible |
-| Include demo / excluded QA | Pending 2; Approved **1204**; QA-LAUNCH serials visible |
-| Search | Filters on `QA-LAUNCH` |
-| Vouchers copy | Live: “1 reward request **needs** attention” (grammar OK) |
-| Typical review | ~15–20s / ~5–6 clicks with search |
-
-Artifacts: `admin-installs-without-demo.webp`, `admin-installs-with-demo-qa.webp`, `admin-installs-search.webp`, `admin-vouchers-gbp-testbed.webp`
-
-## Next
-
-1. Installer UX / mobile audits; freeze-safe fixes only.
-2. Execute isolated 50×20 stress per plan.
-3. Final GO / CONDITIONAL GO / NO-GO report for Links Electrical Shrewsbury 200-charger beta.
+Live UK auto-fulfililment **NO-GO**. USD Testbed ≠ production.

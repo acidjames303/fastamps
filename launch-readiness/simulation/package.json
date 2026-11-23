@@ -17,6 +17,8 @@
     "lifecycle-harness": "node src/lifecycle-harness.mjs",
     "giftbit-testbed-probe": "node src/giftbit-testbed-probe.mjs",
     "giftbit-usd-testbed-probe": "node src/giftbit-usd-testbed-probe.mjs",
+    "stress-50-prepare": "node src/stress-50-prepare.mjs",
+    "claim-wave-50": "node src/claim-wave-50.mjs",
     "guard": "node src/env-guard.mjs"
   }
 }
