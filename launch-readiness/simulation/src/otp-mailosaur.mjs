@@ -6,12 +6,19 @@ import { assertSafeMode } from './env-guard.mjs';
 
 assertSafeMode('otp-mailosaur');
 
-const apiKey = process.env.MAILOSAUR_API_KEY || process.env.CONNECT_QA_MAILOSAUR_API_KEY || '';
+const apiKey =
+  process.env.MAILOSAUR_API_KEY ||
+  process.env.CONNECT_QA_MAILOSAUR_API_KEY ||
+  process.env.MAILOSAUR_SMTP_PASSWORD ||
+  '';
 const serverId =
   process.env.MAILOSAUR_SERVER_ID || process.env.CONNECT_QA_MAILOSAUR_SERVER_ID || '';
+const smtpHost = process.env.MAILOSAUR_SMTP_HOST || '';
+const smtpUser = process.env.MAILOSAUR_SMTP_USER || '';
 const apiBase = (process.env.MAILOSAUR_API_BASE || 'https://mailosaur.com/api').replace(/\/$/, '');
 
 export function mailosaurConfigured() {
+  // Server id + API credential (explicit key or SMTP password used as API key)
   return Boolean(apiKey && serverId);
 }
 
@@ -80,14 +87,17 @@ export function describeMailosaurPlan() {
     ok: mailosaurConfigured(),
     serverIdSet: Boolean(serverId),
     apiKeySet: Boolean(apiKey),
+    smtpHostSet: Boolean(smtpHost),
+    smtpUserSet: Boolean(smtpUser),
     apiBase,
     aliasExamples: mailosaurConfigured()
       ? [installerEmail(1), installerEmail(2), installerEmail(20)]
       : ['qa-launch-2026-installer01@{SERVER_ID}.mailosaur.net'],
-    accessModel: 'Mailosaur Messages API (read-only search/get); genuine Base44 OTP verify',
+    accessModel:
+      'Mailosaur Messages API (read-only search/get); SMTP secrets identify account; genuine Base44 OTP verify',
     reason: mailosaurConfigured()
       ? 'Ready to register installers and fetch OTPs'
-      : 'Missing MAILOSAUR_API_KEY and/or MAILOSAUR_SERVER_ID',
+      : 'Missing MAILOSAUR_SERVER_ID and API credential (MAILOSAUR_API_KEY or MAILOSAUR_SMTP_PASSWORD)',
   };
 }
 

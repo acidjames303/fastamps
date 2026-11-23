@@ -14,11 +14,15 @@ Addresses will look like:
 
 | Secret | Purpose |
 | --- | --- |
-| `MAILOSAUR_API_KEY` | Read-only API access to search/fetch messages |
+| `MAILOSAUR_SMTP_HOST` | Outgoing SMTP server from Mailosaur settings |
+| `MAILOSAUR_SMTP_USER` | SMTP username |
+| `MAILOSAUR_SMTP_PASSWORD` | SMTP password |
 | `MAILOSAUR_SERVER_ID` | Server id used in `@{id}.mailosaur.net` |
+| `MAILOSAUR_API_KEY` | Optional if separate from SMTP password; used to search/fetch OTP messages |
 
 Optional: `MAILOSAUR_API_BASE` (default `https://mailosaur.com/api`).
 
+Note: Base44 sends the OTP **to** Mailosaur. We do not need to send mail via SMTP for registration. SMTP credentials identify the account; OTP retrieval uses the Mailosaur Messages API (`MAILOSAUR_API_KEY`, or SMTP password when that is the API key).
 ## Flow
 
 1. Register installer with a unique Mailosaur address via genuine Base44 `auth/register`.
