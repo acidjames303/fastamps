@@ -59,6 +59,7 @@ Auth: `npx base44 login` (device) or `BASE44_API_KEY`
 - **052 live** (23 Nov 2026) — see `iterations/052-live.md` (freeze inspector/canvas gestures while analysing)
 - **053 live** (23 Nov 2026) — see `iterations/053-live.md` (stale banner slot; ProjectPaths tab lock; aria-live)
 - **054 live** (23 Nov 2026) — see `iterations/054-live.md` (blocked-template toast; ComparisonView lock while submitting)
+- **055 live** (23 Nov 2026) — see `iterations/055-live.md` (busy undo/tidy/clear toasts; toast dedupe; sticky scroll-margin)
 
 ## Apply via sandbox (preferred when authenticated)
 ```bash
