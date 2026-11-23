@@ -8,7 +8,7 @@ Updated: 2026-11-23 (Europe/London)
 | Interim decision | **CONDITIONAL GO** (see `BASELINE_PR10.md`) |
 | Feature freeze | In force |
 | Base URL | https://connect.fastamps.com |
-| Frontend deploy | `index-sfvJjKvU.js` @ 2026-11-23T14:21:13Z (Europe/London same instant) |
+| Frontend deploy | `index-Dqk2xKAX.js` (installer UX polish after admin search deploy) |
 | Backend wholesaler publish | `submit-install-claim` + `v2` deployed with required company/branch |
 
 ## Phase status
@@ -17,10 +17,10 @@ Updated: 2026-11-23 (Europe/London)
 | --- | --- |
 | 1 PR #10 baseline | **Done** — `BASELINE_PR10.md` |
 | 2 Admin UI | **Done (browser)** — search + include demo/excluded verified live; photos + GPS on production claim; QA cohort 3→1204 when toggled |
-| 3–4 Installer UX / install flow | Pending browser + freeze-safe polish |
+| 3–4 Installer UX / install flow | **In progress** — emulation audit + PIN/rewards/touch fixes deployed |
 | 5 Wholesaler required fields | **Published** (UI + backend) |
 | 6 Data/privacy audit | **Done (draft)** — `DATA_PRIVACY_AUDIT.md` |
-| 7 Mobile UI | Pending |
+| 7 Mobile UI | **In progress** — PIN placeholder, 44px header targets, `/rewards`→`/earnings` |
 | 8 USD Giftbit Testbed | **Done (isolated)** |
 | 9 UK GBP unchanged | **Re-verified** after admin deploy — £10/£30 present; `$10`/`USD` absent in wallet bundle |
 | 10 International feasibility | **Done (read-only)** — `INTERNATIONAL_FEASIBILITY.md` |

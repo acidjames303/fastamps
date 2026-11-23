@@ -98,6 +98,7 @@ const AuthenticatedApp = () => {
           <Route path="/register-install" element={<SubmitInstall />} />
           <Route path="/installs" element={<Installs />} />
           <Route path="/earnings" element={<Earnings />} />
+          <Route path="/rewards" element={<Navigate to="/earnings" replace />} />
           <Route path="/profile" element={<Profile />} />
           {/* Kept for deep links; omitted from installer More menu for pilot. */}
           <Route path="/opportunities" element={<Opportunities />} />
