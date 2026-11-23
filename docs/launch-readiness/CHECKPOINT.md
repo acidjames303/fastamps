@@ -16,7 +16,7 @@ Updated: 2026-11-23 (Europe/London)
 | Phase | Status |
 | --- | --- |
 | 1 PR #10 baseline | **Done** — `BASELINE_PR10.md` |
-| 2 Admin UI | **In progress** — search + include demo/excluded shipped; browser re-verify running |
+| 2 Admin UI | **Done (browser)** — search + include demo/excluded verified live; photos + GPS on production claim; QA cohort 3→1204 when toggled |
 | 3–4 Installer UX / install flow | Pending browser + freeze-safe polish |
 | 5 Wholesaler required fields | **Published** (UI + backend) |
 | 6 Data/privacy audit | **Done (draft)** — `DATA_PRIVACY_AUDIT.md` |
@@ -39,9 +39,20 @@ Updated: 2026-11-23 (Europe/London)
 | USD Testbed | Marketplace gift delivered in isolated harness only |
 | Live UK auto-fulfililment | **NO-GO** until live GBP funds/permissions |
 
+## Admin UI browser evidence (2026-11-23 Europe/London)
+
+| Check | Result |
+| --- | --- |
+| Default list (demo off) | 3 live approved claims; photos + device GPS visible |
+| Include demo / excluded QA | Pending 2; Approved **1204**; QA-LAUNCH serials visible |
+| Search | Filters on `QA-LAUNCH` |
+| Vouchers copy | Live: “1 reward request **needs** attention” (grammar OK) |
+| Typical review | ~15–20s / ~5–6 clicks with search |
+
+Artifacts: `admin-installs-without-demo.webp`, `admin-installs-with-demo-qa.webp`, `admin-installs-search.webp`, `admin-vouchers-gbp-testbed.webp`
+
 ## Next
 
-1. Finish admin UI browser evidence (photos + search + toggle).
-2. Installer UX / mobile audits; freeze-safe fixes only.
-3. Execute isolated 50×20 stress per plan.
-4. Final GO / CONDITIONAL GO / NO-GO report for Links Electrical Shrewsbury 200-charger beta.
+1. Installer UX / mobile audits; freeze-safe fixes only.
+2. Execute isolated 50×20 stress per plan.
+3. Final GO / CONDITIONAL GO / NO-GO report for Links Electrical Shrewsbury 200-charger beta.
