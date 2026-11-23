@@ -68,6 +68,7 @@ Auth: `npx base44 login` (device) or `BASE44_API_KEY`
 - **061 live** (23 Nov 2026) — see `iterations/061-live.md` (motion-safe funnel highlight; analysis-ready chip)
 - **062 live** (23 Nov 2026) — see `iterations/062-live.md` (analysis-ready scrolls to before/after; mapReady next-cue)
 - **063 live** (23 Nov 2026) — see `iterations/063-live.md` (funnel step 3 soft-links to analysis when mapReady)
+- **064 live** (23 Nov 2026) — see `iterations/064-live.md` (funnel step 4 soft-links to paths after analysis)
 
 ## Apply via sandbox (preferred when authenticated)
 ```bash
