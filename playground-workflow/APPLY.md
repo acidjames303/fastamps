@@ -67,6 +67,7 @@ Auth: `npx base44 login` (device) or `BASE44_API_KEY`
 - **060 live** (23 Nov 2026) — see `iterations/060-live.md` (Smart Builder will see N/M by CTA; submit reply copy)
 - **061 live** (23 Nov 2026) — see `iterations/061-live.md` (motion-safe funnel highlight; analysis-ready chip)
 - **062 live** (23 Nov 2026) — see `iterations/062-live.md` (analysis-ready scrolls to before/after; mapReady next-cue)
+- **063 live** (23 Nov 2026) — see `iterations/063-live.md` (funnel step 3 soft-links to analysis when mapReady)
 
 ## Apply via sandbox (preferred when authenticated)
 ```bash
