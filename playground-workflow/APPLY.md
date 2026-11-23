@@ -46,6 +46,10 @@ Auth: `npx base44 login` (device) or `BASE44_API_KEY`
 - **039 hold** (21 Nov 2026) — see `iterations/039-remeasure-hold.md` (gates green; no ship)
 - **040 hold** (21 Nov 2026) — see `iterations/040-remeasure-hold.md` (gates green; no ship)
 - **041 hold** (21 Nov 2026) — see `iterations/041-remeasure-hold.md` (gates green; no ship)
+- **042 live** (23 Nov 2026) — see `iterations/042-live.md` (stability: double-submit, orphan dismiss, resize fit)
+- **043 live** (23 Nov 2026) — see `iterations/043-live.md` (fit thrash, Escape cancel, stale analysis, form locks)
+- **044 live** (23 Nov 2026) — see `iterations/044-live.md` (block project paths when analysis stale)
+- **045 live** (23 Nov 2026) — see `iterations/045-live.md` (Escape closes inspector; MAX_NODES toast)
 
 ## Apply via sandbox (preferred when authenticated)
 ```bash
