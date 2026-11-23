@@ -16,7 +16,7 @@ Every installation claim must record:
 | Installer UI | Present | Labels `Wholesaler company *` / `Wholesaler branch or town *`; client-side required + submit guard |
 | Prefill | Present | From nominated wholesaler/branch; installer may change per claim |
 | Live `submit-install-claim-v2` | **Pass (API)** | After production `POST /deploy`, empty/whitespace company or branch → **400** with clear error |
-| Browser step-2 | Partial | Live SPA bundle contains exact labels + prefill copy; API reject verified. Full step-2 screenshot on unclaimed serial pending (prior attempts hit claimed serials) |
+| Browser step-2 | **Pass** | Deep link `QA-LAUNCH-2026-S00008`; labels exact; prefill working; empty submit blocked; no claim created |
 | Live SPA strings | Pass | `Wholesaler company *`, `Wholesaler branch or town *`, prefill hint present in `index-Dqk2xKAX.js` |
 
 ## Critical publish lesson

@@ -18,7 +18,7 @@ Updated: 2026-11-23 (Europe/London)
 | 1 PR #10 baseline | Done |
 | 2 Admin UI | Done (browser) |
 | 3–4 Installer UX | Done enough for conditional go (emulation + fixes) |
-| 5 Wholesaler | Live API verified; SPA labels present |
+| 5 Wholesaler | **Done** — API 400 + browser step-2 labels/prefill/block on S00008 |
 | 6 Privacy audit | Done (draft) |
 | 7 Mobile polish | PIN / rewards / touch shipped |
 | 8–9 Giftbit USD + GBP verify | Done (isolated USD; UK unchanged) |

@@ -35,7 +35,7 @@ Core installer and admin paths are reliable enough for a bounded UK beta, with e
 | Login / dashboard GBP copy | Pass (emulation) |
 | PIN placeholder | Fixed + retested (`e.g. 012345` + hint) |
 | `/rewards` | Redirects to `/earnings` |
-| Wholesaler UI labels | Present in live SPA; API enforced |
+| Wholesaler UI labels | **Pass** (browser) — required markers, prefill, empty submit blocked |
 | Real iPhone/Android camera | **Not** fully proven (emulation only) |
 
 ### Administrator experience
@@ -66,7 +66,7 @@ No new journeys, reward amounts, multi-currency UK wallets, white-label, or unau
 | --- | --- | --- |
 | GIFTBIT-UK | High (ops) | Manual vouchers until live GBP ready |
 | DEVICE-CAM | Medium | Real-device photo/QR session |
-| WHOL-UI-SHOT | Low | Optional browser screenshot of step-2 on unclaimed serial (API already green) |
+| WHOL-UI-SHOT | Done | Browser step-2 verified on S00008 — see artifacts `installer-ux-wholesaler-s00008/` |
 
 ---
 
