@@ -74,7 +74,7 @@ export default function AdminVouchers() {
       <div>
         <div className="text-[11px] uppercase tracking-[0.22em] text-accent">FastAmps team</div>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight">Voucher requests</h1>
-        <p className="mt-2 text-muted-foreground">{outstanding.length} reward request{outstanding.length === 1 ? '' : 's'} need attention. Giftbit campaigns can be checked and managed here without creating duplicates.</p>
+        <p className="mt-2 text-muted-foreground">{outstanding.length} reward request{outstanding.length === 1 ? '' : 's'} {outstanding.length === 1 ? 'needs' : 'need'} attention. Giftbit campaigns can be checked and managed here without creating duplicates.</p>
       </div>
 
       {isLoading ? <div className="text-sm text-muted-foreground">Loading voucher requests…</div> : (
