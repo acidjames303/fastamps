@@ -16,6 +16,7 @@
     "claim-wave": "node src/claim-wave.mjs",
     "lifecycle-harness": "node src/lifecycle-harness.mjs",
     "giftbit-testbed-probe": "node src/giftbit-testbed-probe.mjs",
+    "giftbit-usd-testbed-probe": "node src/giftbit-usd-testbed-probe.mjs",
     "guard": "node src/env-guard.mjs"
   }
 }

@@ -4,78 +4,43 @@ Updated: 2026-11-23 (Europe/London)
 
 | Field | Value |
 | --- | --- |
-| Cycle | Lifecycle wave (admin approval + wallet/voucher boundary) |
-| Clean claim waves | Cycle 2 + 3 + 4 claim submits green (0 fails each) |
-| Phase | Admin approval done → Giftbit Testbed GBP boundary (secrets pending) |
-| Environment | production-authorised (feature freeze) |
-| Simulation prefix | QA-LAUNCH-2026 |
+| Mission | V1 final audit (PR #10 baseline → UX → USD Testbed → stress) |
+| Interim decision | **CONDITIONAL GO** (see `BASELINE_PR10.md`) |
+| Feature freeze | In force |
 | Base URL | https://connect.fastamps.com |
 
-## Cohort inventory
+## Phase status
 
-| Metric | Result |
+| Phase | Status |
 | --- | --- |
-| Mailosaur installers | 20 / 20 |
-| Claims per installer | 60 each (Cycles 2–4 × 20) |
-| Total QA claims | **1205** (1200 cohort + 5 earlier pilot) |
-| Admin approved (photos/serial reviewed) | **1201** (`status=approved`, `warranty_status=registered`) |
-| Needs information samples | **2** |
-| Rejected samples | **2** |
-| `reward_status` | **1203 held** + **2 rejected** |
-| Safety flags | **All** still `is_demo=true`, `excluded_from_reporting=true`, `demo_label=QA-LAUNCH-2026` |
+| 1 PR #10 baseline | **Done** — `docs/launch-readiness/BASELINE_PR10.md` |
+| 2 Admin UI browser | **In progress** (computer-use agent) |
+| 3–4 Installer UX / install flow | Pending browser + freeze-safe polish |
+| 5 Wholesaler required fields | **Fixed in source** (UI + submit-install-claim / v2) — needs publish |
+| 6 Data/privacy audit | Pending written assessment |
+| 7 Mobile UI | Pending |
+| 8 USD Giftbit Testbed | **Done (isolated)** — $10 Amazon `DELIVERED` / `SENT_AND_REDEEMABLE`; duplicate ID rejected |
+| 9 UK GBP unchanged | **Verified** — reward amounts £10; live bundle £10/£30; no USD wallet; no QA voucher sent |
+| 10 International feasibility | Pending read-only note |
+| 11 50×20 stress | Pending isolated plan (not disruptive live) |
+| 12–14 Scenarios / report | Pending |
 
-Approvals mirror `AdminInstalls.jsx`: approving a held reward **keeps** `reward_status=held` (non-payable).
+## Cohort (unchanged safety)
 
-## Wallet + voucher boundary (production path)
+1205 QA claims; 1201 approved / 2 rejected / 2 needs_information; all `is_demo` + `excluded_from_reporting`; rewards held; wallets £0 redeemable.
 
-| Check | Result |
+## Giftbit
+
+| Probe | Result |
 | --- | --- |
-| Earnings-style eligible wallet | **£0** for every QA installer (demo/excluded filtered out) |
-| Account reward hold | Still `held` on all 20 profiles |
-| `request-voucher-v2` | **Blocked** for all 20 (`Installer profile not found.` because `excluded_from_reporting`) |
-| Payable QA claims | **0** |
-| Real Giftbit / live vouchers | **None issued** |
+| GBP Testbed | `INFO_CAMPAIGN_CREATED_FUNDS_REQUIRED` — no delivery — do not resend |
+| USD Testbed | Marketplace gift id 1 @ 1000¢ — **DELIVERED** / **SENT_AND_REDEEMABLE** (`amazonus`) — isolated harness only |
+| Duplicate campaign id | Rejected (`ERROR_CAMPAIGN_INVALID_ID`) |
+| Live UK auto-fulfililment | **NO-GO** until live GBP funds/permissions |
 
-This is the correct production behaviour. Demo/exclusion guards were **not** lifted.
+## Next
 
-## Giftbit Testbed / GBP
-
-**Confirmed constraint:** Giftbit Testbed virtual funding is **USD/CAD only**. GBP campaigns will **not** deliver vouchers to recipients on Testbed.
-
-### Isolated probe result (2026-11-23 Europe/London)
-
-| Step | Result |
-| --- | --- |
-| Mode | `testbed` only (`GIFTBIT_MODE` confirmed non-live) |
-| Ping | HTTP 200 |
-| Funds | HTTP 200 |
-| GBP £30 campaign create | HTTP 200 |
-| Provider code | `INFO_CAMPAIGN_CREATED_FUNDS_REQUIRED` |
-| Stage reached | `gbp_awaiting_funds_boundary` |
-| Voucher delivered to recipient | **No** |
-| Resend | **Forbidden** — stop here |
-| Production payout proof | **No** |
-| QA `VoucherRequest` rows sent | **0** |
-
-Provider message: *Campaign creation has begun, but additional funds are required. You do not need to resend this campaign.*
-
-This matches Connect’s `admin-voucher-action` awaiting-funds handling. Live UK Giftbit remains a separate FastAmps permissioned check.
-
-## Harness commands
-
-```bash
-export CONNECT_QA_MODE=production-authorised CONNECT_QA_CONFIRM=QA-LAUNCH-2026
-npm run lifecycle-harness --prefix launch-readiness/simulation
-npm run giftbit-testbed-probe --prefix launch-readiness/simulation
-npm test --prefix . -- tests/giftbitTestbedBoundary.test.mjs
-```
-
-## Next action
-
-1. Optional: admin UI spot-check photos on a sample of the 1201 approved claims.
-2. Live UK Giftbit funding/permissions remain outside this QA cohort (NO-GO for auto-fulfililment).
-3. Keep feature freeze; no live financial control changes; no further unapproved deploys of payout behaviour.
-
-## Notes
-
-Rate limit: Base44 `entity_update` ≈ 350/min — lifecycle harness paces approvals (~220ms) and retries 429s.
+1. Finish admin UI browser evidence.
+2. Publish wholesaler required-field fix (`deploy-dist` + backend functions).
+3. Continue installer UX / mobile audits; only freeze-safe fixes.
+4. Plan 50×20 stress in isolated environment.
