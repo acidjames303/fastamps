@@ -1,7 +1,7 @@
 # Phase 3–4 — Installer UX audit (viewport emulation)
 
 Updated: 2026-11-23 (Europe/London)  
-Method: **Browser viewport 390×844** (iPhone 12 Pro emulation — not real device / not iOS Safari camera)
+Method: **Browser viewport 390×844** (iPhone 12 Pro emulation) **plus** product-owner handset testing on **Samsung Android** and **iPhone** (repeated passes, 2026-11-23)
 
 ## Section scores (pre-fix)
 
@@ -40,7 +40,7 @@ Method: **Browser viewport 390×844** (iPhone 12 Pro emulation — not real devi
 - Client submit guard + live `submit-install-claim` / `v2` reject empty/whitespace
 - Prefill from nominated wholesaler with change-allowed copy
 
-Real-device camera/QR and a full step-2 browser pass remain recommended before calling human usability complete.
+Real-device camera/QR: **closed** via owner Samsung Android + iPhone testing. Agent step-2 wholesaler UI was also verified in browser on S00008.
 
 ## Artifacts
 

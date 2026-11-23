@@ -12,8 +12,11 @@ Core installer and admin paths are reliable enough for a bounded UK beta, with e
 
 1. **UK Giftbit auto-fulfililment stays NO-GO** until live GBP funds/permissions are confirmed; continue manual / held voucher handling.
 2. **QA/demo segregation** remains enabled; do not include `QA-LAUNCH-2026` rows in commercial reporting.
-3. **Real-device** camera/QR and one full wholesaler step-2 human pass on a handset before or during first field day.
-4. No production reward-rule or currency changes.
+3. No production reward-rule or currency changes.
+
+### Owner real-device verification (2026-11-23)
+
+Product owner confirmed repeated handset testing on **Samsung Android** and **iPhone**. The previous DEVICE-CAM / real-device camera–QR open item is closed on that evidence (agent-side work remains browser emulation only).
 
 ---
 
@@ -36,7 +39,7 @@ Core installer and admin paths are reliable enough for a bounded UK beta, with e
 | PIN placeholder | Fixed + retested (`e.g. 012345` + hint) |
 | `/rewards` | Redirects to `/earnings` |
 | Wholesaler UI labels | **Pass** (browser) — required markers, prefill, empty submit blocked |
-| Real iPhone/Android camera | **Not** fully proven (emulation only) |
+| Real iPhone/Android camera | **Owner pass** — repeated tests on Samsung Android + iPhone (2026-11-23) |
 
 ### Administrator experience
 
@@ -65,11 +68,11 @@ No new journeys, reward amounts, multi-currency UK wallets, white-label, or unau
 | ID | Severity | Notes |
 | --- | --- | --- |
 | GIFTBIT-UK | High (ops) | Manual vouchers until live GBP ready |
-| DEVICE-CAM | Medium | Real-device photo/QR session |
+| DEVICE-CAM | **Closed** | Owner: repeated Samsung Android + iPhone testing |
 | WHOL-UI-SHOT | Done | Browser step-2 verified on S00008 — see artifacts `installer-ux-wholesaler-s00008/` |
 
 ---
 
 ## Recommendation for Links Electrical Shrewsbury 200-charger beta
 
-**Proceed under CONDITIONAL GO.** Start with a small field cohort, keep admin review on, keep Giftbit manual, and monitor claim latency / photo quality from real vans.
+**Proceed under CONDITIONAL GO.** Handset camera/QR is owner-verified. Remaining gate is operational: live UK Giftbit funding before auto-payouts. Start with a small field cohort, keep admin review on, keep Giftbit manual until funds are confirmed.
