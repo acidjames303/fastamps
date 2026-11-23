@@ -9,6 +9,7 @@
     "smoke": "node src/smoke.mjs",
     "concurrency-plan": "node src/concurrency-plan.mjs",
     "assert-app": "node src/target-app.mjs",
+    "authorised-cycle": "node src/authorised-cycle.mjs",
     "guard": "node src/env-guard.mjs"
   }
 }

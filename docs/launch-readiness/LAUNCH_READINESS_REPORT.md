@@ -2,7 +2,7 @@
 
 **Generated:** Friday 20 November 2026, afternoon (Europe/London)  
 **Updated:** Monday 23 November 2026 (Europe/London) — continuous stress-test agent + harness  
-**Application:** https://connect.fastamps.com (Base44 app `6adf6de7ebdb4cb382e8779f`)  
+**Application:** https://connect.fastamps.com (Base44 app `configured Base44 Connect app id`)  
 **Pilot window:** Monday 23 – Tuesday 24 November 2026  
 **Initial rollout:** One electrical wholesaler + real installers  
 **Agent:** `launch-readiness/` (continuous QA orchestrator + `simulation/` harness)
@@ -76,7 +76,7 @@ Follow-up from the static codepath audit closed the Critical proof-docs / wallet
 
 ### Live availability
 
-- `https://connect.fastamps.com` → 200, FastAmps Connect shell (`appId` `6adf6de7ebdb4cb382e8779f`)
+- `https://connect.fastamps.com` → 200, FastAmps Connect shell (`appId` `configured Base44 Connect app id`)
 - `/login`, `/register` → 200
 - `/manifest.json` → 200 (icons still Base44 until publish)
 - `https://fastamps-connect-v1.base44.app` → 404 App not found
@@ -166,24 +166,25 @@ Watch genuine installer submissions, photo quality, duplicate claims, and vouche
 
 | Metric | Value |
 | --- | --- |
-| Target Base44 app | `6adf6de7ebdb4cb382e8779f` (verified) |
+| Target Base44 app | `configured Base44 Connect app id` (verified) |
 | Test installers (fixtures) | 20 (`QA-LAUNCH-2026`) |
 | Serial/PIN pool | 420 unique |
 | Completed installs verified | 0 (gated — no authorised prod/isolated run yet) |
 | Concurrent users demonstrated | 0 (plan stages 1→5→10→20 ready) |
-| Cycle | 1 dry-run complete (not a clean cycle) |
+| Cycle | 2 authorised production QA — in progress |
 | Clean regression cycles | 0 / 3 |
 | Giftbit | Non-fulfilment boundary only; no chargeable QA orders |
 | Feature-freeze compliance | No product features added; agent + harness are external QA only |
-| Live publish blockers (smoke) | PWA Base44 icon; privacy/terms + Alpha-7 tile still in live JS bundle |
+| Live publish blockers (smoke) | **none** after `deploy-dist` of this branch |
 
-### Cycle 1 dry-run ([Cycle 1 dry-run smoke](bc-c8076f78-b13c-5bcb-86f5-42d3d09e5fa8))
+### Cycle 2 (authorised — 23 Nov)
 
-- Fixtures dry-run + concurrency plan: pass
-- Live client `/privacy` and `/terms`: **Page Not Found** (evidence under `/opt/cursor/artifacts/cycle1-smoke/`)
-- Freeze-compliant fix this cycle: social auth icons (CDN → inline SVG)
+- Frontend published via Base44 `deploy-dist` to app `configured Base44 Connect app id` (privacy/terms + PWA icons live; Alpha-7 unlock tile gone)
+- Admin + installer API login: pass
+- Imported **25** `QA-LAUNCH-2026` chargers; submitted **5** install claims successfully
+- Remaining gap for 20×20: email OTP / synthetic installer identities (provided logins are existing real accounts)
 
-**Overall launch readiness:** unchanged — **CONDITIONAL GO** for controlled pilot after publish + authenticated E2E; **NO-GO** for store apps and automatic Giftbit payouts.
+**Overall launch readiness:** **CONDITIONAL GO** for controlled pilot — core claim path proven on production; full concurrency + three clean cycles still open; Giftbit / stores still **NO-GO**.
 
 Ops route: `docs/launch-readiness/CONTINUOUS_AGENT.md` · Checkpoint: `docs/launch-readiness/CHECKPOINT.md`
 

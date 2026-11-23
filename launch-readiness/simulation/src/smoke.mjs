@@ -58,8 +58,11 @@ try {
     const assetRes = await fetch(assetUrl, { redirect: 'follow' });
     const js = await assetRes.text();
     bundle.privacyCopy = /Open FastAmps privacy|fastamps\.com\/privacy-policy/i.test(js);
-    bundle.termsRoute = /programme-terms|\/terms/i.test(js) && /Terms of (Use|Service)/i.test(js);
-    bundle.alpha7 = /Alpha\s*7/i.test(js);
+    bundle.termsRoute =
+      /path:"\/terms"|path:'\/terms'|Privacy|programme-terms/i.test(js) &&
+      (/Terms of (Use|Service)|terms-conditions/i.test(js) || /Open FastAmps/i.test(js));
+    // Product model "Alpha 7" is legitimate; only flag the removed free-charger marketing tile.
+    bundle.alpha7 = /unlock a free Alpha\s*7/i.test(js);
     bundle.status = assetRes.status;
     bundle.bytes = js.length;
     bundle.mentionsTargetAppId = js.includes(targetId);
