@@ -61,6 +61,8 @@ Auth: `npx base44 login` (device) or `BASE44_API_KEY`
 - **054 live** (23 Nov 2026) — see `iterations/054-live.md` (blocked-template toast; ComparisonView lock while submitting)
 - **055 live** (23 Nov 2026) — see `iterations/055-live.md` (busy undo/tidy/clear toasts; toast dedupe; sticky scroll-margin)
 - **056 live** (23 Nov 2026) — see `iterations/056-live.md` (mobile center scroll for validation/gate; skip phone autofocus)
+- **057 live** (23 Nov 2026) — see `iterations/057-live.md` (funnel UI: live stages, map-ready cue, mapping label)
+- **058 live** (23 Nov 2026) — see `iterations/058-live.md` (ready CTA ring; comparison how-to cue)
 
 ## Apply via sandbox (preferred when authenticated)
 ```bash

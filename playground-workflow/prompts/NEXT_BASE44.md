@@ -1,11 +1,11 @@
-# Base44 prompt — Playground iteration 057+ (stability)
+# Base44 prompt — Playground iteration 059+ (funnel / UI)
 
-Iterations **001–011**, **042–056** are live. Keep shipping **stability** edits.
+Iterations **001–011**, **042–058** are live. Prefer **funnel clarity**.
 
-## Next levers (ship one at a time)
-1. Soft-focus AnalysisGate fields only after the visitor taps into the gate form on mobile (explicit first interaction).
-2. When sticky CTA is showing, add `scroll-padding-bottom` on `html`/`body` for native hash/scrollIntoView consistency.
-3. Guard Escape-to-close inspector while a text field in the inspector is focused (already skips INPUT/TEXTAREA).
-4. Confirm canvas zoom remains usable while analysing (leave alone unless thrash reported).
+## Next levers
+1. When map is ready, lift the free/no-account line next to the CTA (not only the mono footer).
+2. After first analysis, a one-line “saved for this visit” cue near the gate so second-run feels fair.
+3. Mobile StepEditor: short “list order = connections” tip above the list (parity with sticky cue).
+4. Soft empty-state under ConnectionList when edges === 0 and nodes > 1.
 
-Out of scope: stickman, model/quota, new templates, non-Playground pages.
+Out of scope: stickman, model/quota, new templates, non-Playground pages, brand redesign.
