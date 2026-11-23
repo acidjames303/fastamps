@@ -71,6 +71,7 @@ Auth: `npx base44 login` (device) or `BASE44_API_KEY`
 - **064 live** (23 Nov 2026) — see `iterations/064-live.md` (funnel step 4 soft-links to paths after analysis)
 - **065 live** (23 Nov 2026) — see `iterations/065-live.md` (step 2→canvas; ready chip dual links)
 - **066 live** (23 Nov 2026) — see `iterations/066-live.md` (funnel step 1 soft-links to templates)
+- **067 hold** (23 Nov 2026) — see `iterations/067-hold.md` (gates green; no ship)
 
 ## Apply via sandbox (preferred when authenticated)
 ```bash
