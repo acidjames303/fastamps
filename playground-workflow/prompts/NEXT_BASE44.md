@@ -1,11 +1,11 @@
-# Base44 prompt — Playground iteration 050+ (stability)
+# Base44 prompt — Playground iteration 051+ (stability)
 
-Iterations **001–011**, **042–049** are live. Keep shipping **stability** edits.
+Iterations **001–011**, **042–050** are live. Keep shipping **stability** edits.
 
 ## Next levers (ship one at a time)
-1. Soft-focus first empty AnalysisGate field when the gate opens.
-2. Keep ComparisonView from jumping scroll when analysisStale flips.
-3. Guard undo while analysis is running (or bump analysisGen on undo of structural change).
-4. Soft-disable tidy/clear while analysis is running to avoid mid-flight map swaps.
+1. Disable canvas tidy control while analysing (toolbar already frozen; canvas chrome still clickable).
+2. Soft-disable TemplatePicker while analysing (parent already no-ops; grey out UI).
+3. Guard StepEditor structural edits while analysing (same freeze as desktop toolbar).
+4. Keep ComparisonView from jumping scroll when analysisStale flips.
 
 Out of scope: stickman, model/quota, new templates, non-Playground pages.

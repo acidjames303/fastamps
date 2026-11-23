@@ -54,6 +54,7 @@ Auth: `npx base44 login` (device) or `BASE44_API_KEY`
 - **047 live** (23 Nov 2026) — see `iterations/047-live.md` (re-arm orphan tip after full connect)
 - **048 live** (23 Nov 2026) — see `iterations/048-live.md` (prefill AnalysisGate contact; stale submit toast)
 - **049 live** (23 Nov 2026) — see `iterations/049-live.md` (no pan while linking; CTA/submit mutex; scroll validation)
+- **050 live** (23 Nov 2026) — see `iterations/050-live.md` (AnalysisGate autofocus; freeze toolbar while analysing)
 
 ## Apply via sandbox (preferred when authenticated)
 ```bash
