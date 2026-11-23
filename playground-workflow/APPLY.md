@@ -50,6 +50,7 @@ Auth: `npx base44 login` (device) or `BASE44_API_KEY`
 - **043 live** (23 Nov 2026) — see `iterations/043-live.md` (fit thrash, Escape cancel, stale analysis, form locks)
 - **044 live** (23 Nov 2026) — see `iterations/044-live.md` (block project paths when analysis stale)
 - **045 live** (23 Nov 2026) — see `iterations/045-live.md` (Escape closes inspector; MAX_NODES toast)
+- **046 live** (23 Nov 2026) — see `iterations/046-live.md` (coalesce mobile StepEditor history)
 
 ## Apply via sandbox (preferred when authenticated)
 ```bash
