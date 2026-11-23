@@ -19,6 +19,8 @@
     "giftbit-usd-testbed-probe": "node src/giftbit-usd-testbed-probe.mjs",
     "stress-50-prepare": "node src/stress-50-prepare.mjs",
     "claim-wave-50": "node src/claim-wave-50.mjs",
+    "reconcile-qa": "node src/reconcile-qa-dataset.mjs",
+    "genuine-photo-e2e": "node src/genuine-photo-e2e.mjs",
     "guard": "node src/env-guard.mjs"
   }
 }

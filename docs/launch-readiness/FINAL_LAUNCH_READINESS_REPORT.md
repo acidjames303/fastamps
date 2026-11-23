@@ -6,13 +6,14 @@ Feature freeze: **in force** throughout
 
 ## Decision: **CONDITIONAL GO**
 
-Core installer and admin paths are reliable enough for a bounded UK beta, with explicit external caveats.
+Core installer and admin paths are reliable enough for a bounded UK beta, with explicit external caveats. See also `RELEASE_INTEGRITY_CHECK.md` (2026-11-23).
 
 ### Conditions (must remain true)
 
 1. **UK Giftbit auto-fulfililment stays NO-GO** until live GBP funds/permissions are confirmed; continue manual / held voucher handling.
 2. **QA/demo segregation** remains enabled; do not include `QA-LAUNCH-2026` rows in commercial reporting.
 3. No production reward-rule or currency changes.
+4. **Approve publish** of create-time demo/QA claim protections (`submit-install-claim-v2`) so exclusion/hold no longer depends on a post-create harness patch.
 
 ### Owner real-device verification (2026-11-23)
 
@@ -70,6 +71,8 @@ No new journeys, reward amounts, multi-currency UK wallets, white-label, or unau
 | GIFTBIT-UK | High (ops) | Manual vouchers until live GBP ready |
 | DEVICE-CAM | **Closed** | Owner: repeated Samsung Android + iPhone testing |
 | WHOL-UI-SHOT | Done | Browser step-2 verified on S00008 — see artifacts `installer-ux-wholesaler-s00008/` |
+| DEMO-CREATE | Medium (deploy) | Create-time held/excluded fix in repo — **awaiting approved function publish** |
+| PHOTO-CLASS | Info | Mass stress photos = synthetic URL load; genuine-upload E2E = 1 claim only |
 
 ---
 

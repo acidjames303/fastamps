@@ -5,7 +5,7 @@ Updated: 2026-11-23 (Europe/London)
 | Field | Value |
 | --- | --- |
 | Mission | V1 final audit (PR #10 → UX → USD Testbed → 50×20) |
-| Decision | **CONDITIONAL GO** — see `FINAL_LAUNCH_READINESS_REPORT.md` |
+| Decision | **CONDITIONAL GO** — see `FINAL_LAUNCH_READINESS_REPORT.md` + `RELEASE_INTEGRITY_CHECK.md` |
 | Feature freeze | In force |
 | Base URL | https://connect.fastamps.com |
 | Frontend | `index-Dqk2xKAX.js` |

@@ -134,9 +134,15 @@ async function submitOne(item) {
     },
     tokens[installer],
   );
-  const claimId = data?.claim?.id;
+  const claim = data?.claim;
+  const claimId = claim?.id;
+  const createdProtected =
+    claim?.is_demo === true &&
+    claim?.excluded_from_reporting === true &&
+    claim?.reward_status === 'held';
   let patched = false;
-  if (data?.success && claimId) {
+  // Prefer create-time protections (submit-install-claim-v2). Patch only if a legacy deploy omitted them.
+  if (data?.success && claimId && !createdProtected) {
     const hold = await holdClaim(adminToken, claimId);
     patched = hold.status < 400;
     await new Promise((r) => setTimeout(r, 220));
@@ -147,6 +153,7 @@ async function submitOne(item) {
     ok: Boolean(data?.success),
     status,
     claim_id: claimId,
+    created_protected: Boolean(createdProtected),
     patched,
     error: data?.error,
     ms: Date.now() - t0,
