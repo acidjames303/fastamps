@@ -42,14 +42,24 @@ This is the correct production behaviour. Demo/exclusion guards were **not** lif
 
 **Confirmed constraint:** Giftbit Testbed virtual funding is **USD/CAD only**. GBP campaigns will **not** deliver vouchers to recipients on Testbed.
 
-Harness stance:
+### Isolated probe result (2026-11-23 Europe/London)
 
-1. Isolated probe: `npm run giftbit-testbed-probe` (requires `GIFTBIT_API_TOKEN` + `GIFTBIT_TEMPLATE_ID`, mode testbed only).
-2. Expect stage `gbp_awaiting_funds_boundary` / `AWAITING_FUNDS` — **do not resend**.
-3. That result is **not** production payout proof and is **not** a Connect defect.
-4. Live UK Giftbit remains a separate FastAmps permissioned check.
+| Step | Result |
+| --- | --- |
+| Mode | `testbed` only (`GIFTBIT_MODE` confirmed non-live) |
+| Ping | HTTP 200 |
+| Funds | HTTP 200 |
+| GBP £30 campaign create | HTTP 200 |
+| Provider code | `INFO_CAMPAIGN_CREATED_FUNDS_REQUIRED` |
+| Stage reached | `gbp_awaiting_funds_boundary` |
+| Voucher delivered to recipient | **No** |
+| Resend | **Forbidden** — stop here |
+| Production payout proof | **No** |
+| QA `VoucherRequest` rows sent | **0** |
 
-Secrets for the isolated Testbed probe were requested from the environment (pending).
+Provider message: *Campaign creation has begun, but additional funds are required. You do not need to resend this campaign.*
+
+This matches Connect’s `admin-voucher-action` awaiting-funds handling. Live UK Giftbit remains a separate FastAmps permissioned check.
 
 ## Harness commands
 
@@ -62,8 +72,8 @@ npm test --prefix . -- tests/giftbitTestbedBoundary.test.mjs
 
 ## Next action
 
-1. Add Giftbit Testbed secrets → run probe once → record provider code → stop (no resend).
-2. Optional: admin UI spot-check photos on a sample of the 1201 approved claims.
+1. Optional: admin UI spot-check photos on a sample of the 1201 approved claims.
+2. Live UK Giftbit funding/permissions remain outside this QA cohort (NO-GO for auto-fulfililment).
 3. Keep feature freeze; no live financial control changes; no further unapproved deploys of payout behaviour.
 
 ## Notes
