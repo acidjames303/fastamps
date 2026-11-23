@@ -16,7 +16,7 @@ Every installation claim must record:
 | Installer UI | Present | Labels `Wholesaler company *` / `Wholesaler branch or town *`; client-side required + submit guard |
 | Prefill | Present | From nominated wholesaler/branch; installer may change per claim |
 | Live `submit-install-claim-v2` | **Pass (API)** | After production `POST /deploy`, empty/whitespace company or branch → **400** with clear error |
-| Browser step-2 | Pending | Resolve-only UI pass outstanding (automation flaked earlier) |
+| Browser step-2 | In progress | Prior attempts used already-claimed serials; retest on available `QA-LAUNCH-2026-S00008` |
 
 ## Critical publish lesson
 
