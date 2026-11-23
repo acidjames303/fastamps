@@ -98,11 +98,21 @@ export default function Profile() {
     setFormError('');
     setSaving(true);
     try {
+      const nextMobile = normaliseUkMobile(form.mobile);
+      if (nextMobile !== normaliseUkMobile(installer.mobile)) {
+        const check = await base44.functions.invoke('register-installer', {
+          action: 'check_mobile',
+          mobile: nextMobile,
+        });
+        if (check?.data?.available === false) {
+          throw new Error(check?.data?.error || 'This mobile number is already associated with an installer account.');
+        }
+      }
       await base44.entities.Installer.update(installer.id, {
         full_name: form.full_name.trim(),
         business_name: (form.business_name || '').trim(),
         region: (form.region || '').trim(),
-        mobile: normaliseUkMobile(form.mobile),
+        mobile: nextMobile,
         nominated_wholesaler: (form.nominated_wholesaler || '').trim(),
         nominated_branch: (form.nominated_branch || '').trim(),
       });

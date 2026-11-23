@@ -145,7 +145,10 @@ export default function Earnings() {
   const issuedValue = value(issued) + (welcomeIssued ? welcomeAmount : 0) + referralCreditIssued;
   const amountRemaining = Math.max(MINIMUM_REDEMPTION_AMOUNT - availableValue, 0);
   const walletRequirementMet = availableValue >= MINIMUM_REDEMPTION_AMOUNT;
-  const canRequest = !activeVoucherRequest && !accountHeld && termsAccepted && walletRequirementMet && firstRedemptionInstallRequirementMet;
+  const proofApproved = installer.hq_training_completed === true
+    || installer.certificates_received === true;
+  const canRequest = !activeVoucherRequest && !accountHeld && termsAccepted
+    && walletRequirementMet && firstRedemptionInstallRequirementMet && proofApproved;
 
   return (
     <div className="space-y-8 max-w-4xl">
@@ -155,10 +158,12 @@ export default function Earnings() {
         <p className="mt-2 text-muted-foreground">A clear view of rewards waiting for review, approved and issued.</p>
       </div>
 
-      {(accountHeld || !termsAccepted) && <div className="rounded-2xl border border-amber-500/35 bg-amber-500/10 p-4 text-sm">
+      {(accountHeld || !termsAccepted || !proofApproved) && <div className="rounded-2xl border border-amber-500/35 bg-amber-500/10 p-4 text-sm">
         <ShieldAlert className="mr-2 inline h-4 w-4" />
         {accountHeld ? 'Your rewards are on FastAmps review hold. Available funds cannot be redeemed until the review is resolved.'
-          : <>Read and accept the updated <Link to="/profile" className="font-semibold underline">programme terms in My Profile</Link> to redeem rewards.</>}
+          : !termsAccepted
+            ? <>Read and accept the updated <Link to="/profile" className="font-semibold underline">programme terms in My Profile</Link> to redeem rewards.</>
+            : <>Upload your proof-of-approval documents in <Link to="/profile" className="font-semibold underline">My Profile</Link> and wait for FastAmps approval before redeeming rewards.</>}
       </div>}
       <section className="grid grid-cols-2 lg:grid-cols-3 gap-3">
         {[

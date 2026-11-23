@@ -1,0 +1,22 @@
+{
+  "name": "fastamps-connect-launch-simulation",
+  "private": true,
+  "type": "module",
+  "description": "External QA harness for FastAmps Connect launch stress tests (not a product feature)",
+  "scripts": {
+    "generate:fixtures": "node src/generate-fixtures.mjs",
+    "dry-run": "node src/dry-run.mjs",
+    "smoke": "node src/smoke.mjs",
+    "concurrency-plan": "node src/concurrency-plan.mjs",
+    "assert-app": "node src/target-app.mjs",
+    "authorised-cycle": "node src/authorised-cycle.mjs",
+    "otp-imap": "node src/otp-imap.mjs",
+    "otp-mailosaur": "node src/otp-mailosaur.mjs",
+    "register-qa-installers": "node src/register-qa-installers.mjs",
+    "claim-wave": "node src/claim-wave.mjs",
+    "lifecycle-harness": "node src/lifecycle-harness.mjs",
+    "giftbit-testbed-probe": "node src/giftbit-testbed-probe.mjs",
+    "giftbit-usd-testbed-probe": "node src/giftbit-usd-testbed-probe.mjs",
+    "guard": "node src/env-guard.mjs"
+  }
+}

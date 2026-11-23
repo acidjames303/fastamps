@@ -1,0 +1,20 @@
+{
+  "name": "launch-readiness",
+  "private": true,
+  "type": "module",
+  "description": "FastAmps Connect Launch Readiness & Quality Assurance Agent",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "validate": "npx --yes @grok/agent-sdk@0.7.0 validate --dir .",
+    "dev": "npx --yes @grok/agent-sdk@0.7.0 dev",
+    "eval": "npx --yes @grok/agent-sdk@0.7.0 eval --dir ."
+  },
+  "dependencies": {
+    "@grok/agent-sdk": "^0.7.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "typescript": "6.0.3"
+  }
+}

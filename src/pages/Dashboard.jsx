@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowRight, Camera, CheckCircle2, Clock3, Gift, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Camera, CheckCircle2, Clock3, ShieldCheck } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useInstaller } from '@/hooks/useInstaller';
 import OnboardingCard from '@/components/OnboardingCard';
@@ -66,29 +66,15 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <section className="grid lg:grid-cols-[1.4fr_1fr] gap-5">
-        <div className="rounded-3xl border border-border bg-muted/60 p-6 md:p-7">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">This month</div>
-              <h2 className="mt-2 text-xl font-semibold">20 installs unlock a free Alpha 7</h2>
-            </div>
-            <Gift className="w-7 h-7 text-accent" />
-          </div>
-          <div className="mt-6 h-2.5 rounded-full bg-muted overflow-hidden">
-            <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-all" style={{ width: `${Math.min((monthlyApproved / 20) * 100, 100)}%` }} />
-          </div>
-          <div className="mt-3 flex justify-between text-xs text-muted-foreground/80">
-            <span>{monthlyApproved} approved</span>
-            <span>{Math.max(20 - monthlyApproved, 0)} to go</span>
-          </div>
+      <section className="rounded-3xl border border-accent/25 bg-accent/[0.07] p-6 md:p-7">
+        <div className="flex items-center gap-2 text-accent"><ShieldCheck className="w-5 h-5" /><span className="text-[11px] uppercase tracking-[0.18em]">Current offer</span></div>
+        <div className="mt-3 text-3xl font-semibold">£10 + £10</div>
+        <div className="mt-1 text-sm text-foreground/70">A £10 welcome bonus, then £10 for every approved FastAmps installation.</div>
+        <div className="mt-4 text-xs text-muted-foreground/80">
+          Your first voucher unlocks after three unique approved installations and a £30 available wallet balance. Warranty registration is included in each submission.
         </div>
-
-        <div className="rounded-3xl border border-accent/25 bg-accent/[0.07] p-6 md:p-7">
-          <div className="flex items-center gap-2 text-accent"><ShieldCheck className="w-5 h-5" /><span className="text-[11px] uppercase tracking-[0.18em]">Current offer</span></div>
-          <div className="mt-3 text-3xl font-semibold">£10 + £10</div>
-          <div className="mt-1 text-sm text-foreground/70">A £10 welcome bonus, then £10 for every approved FastAmps installation.</div>
-          <div className="mt-4 text-xs text-muted-foreground/80">Voucher claims unlock when your available wallet balance reaches £30. Warranty registration is included in each submission.</div>
+        <div className="mt-4 text-xs text-muted-foreground/80">
+          Approved this month: <strong className="text-foreground">{monthlyApproved}</strong>
         </div>
       </section>
 

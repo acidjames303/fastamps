@@ -191,6 +191,22 @@
 .fa-auth-back-row a:hover { color: #f6faff; }
 .fa-auth-card a:hover, .fa-auth-card-footer a:hover { text-decoration: underline; }
 .fa-auth-legal { text-align: center; margin-top: 19px; color: #7e95af; font-size: 11px; letter-spacing: .09em; }
+.fa-auth-legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  color: #7e95af;
+  font-size: 12px;
+}
+.fa-auth-legal-links a {
+  color: #9ec0e8;
+  font-weight: 600;
+  text-decoration: none;
+}
+.fa-auth-legal-links a:hover { color: #f6faff; text-decoration: underline; }
 .fa-auth-mobile-heading { display: none; }
 @media (max-width: 780px) {
   .fa-auth-shell {

@@ -45,6 +45,13 @@ export default async function (req) {
     if (!body.install_date || !body.site_postcode || body.consent_confirmed !== true) {
       return Response.json({ error: "Please complete the installation details and confirmation." }, { status: 400 });
     }
+    const wholesalerName = String(body.wholesaler || "").trim();
+    const wholesalerBranch = String(body.wholesaler_branch || "").trim();
+    if (!wholesalerName || !wholesalerBranch) {
+      return Response.json({
+        error: "Enter the wholesaler company and the exact branch or town where this charger was purchased.",
+      }, { status: 400 });
+    }
 
     const compactPostcode = String(body.site_postcode).toUpperCase().replace(/\s+/g, "");
     const formattedPostcode = compactPostcode.length > 3
@@ -119,8 +126,8 @@ export default async function (req) {
         install_photo_url: body.install_photo_url,
         install_date: body.install_date,
         site_postcode: verifiedPostcode,
-        wholesaler: String(body.wholesaler || "").trim(),
-        wholesaler_branch: String(body.wholesaler_branch || "").trim(),
+        wholesaler: wholesalerName,
+        wholesaler_branch: wholesalerBranch,
         consent_confirmed: true,
         status: "submitted",
         warranty_status: "queued",

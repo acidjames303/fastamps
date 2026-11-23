@@ -257,6 +257,10 @@ export default function SubmitInstall() {
       setError('Add both photos: a readable serial number fixed to the charger, and the complete fitted charger.');
       return;
     }
+    if (!(form.wholesaler || '').trim() || !(form.wholesaler_branch || '').trim()) {
+      setError('Enter the wholesaler company and the exact branch or town where this charger was purchased.');
+      return;
+    }
 
     const formattedPostcode = formatPostcode(form.site_postcode);
     if (!UK_POSTCODE_PATTERN.test(formattedPostcode)) {
@@ -456,7 +460,7 @@ export default function SubmitInstall() {
                 <div className="mt-1 text-xs text-muted-foreground">Take photo or choose from gallery</div>
               </div>
             )}
-            <input id="serial-photo" type="file" accept="image/*" required aria-label="Photo showing the serial number on the charger" className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0" onChange={(event) => choosePhoto(event.target.files?.[0] || null, 'serial')} />
+            <input id="serial-photo" type="file" accept="image/*" capture="environment" required aria-label="Photo showing the serial number on the charger" className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0" onChange={(event) => choosePhoto(event.target.files?.[0] || null, 'serial')} />
           </label>
           {serialPhoto && (
             <div className="mt-2 space-y-1 text-xs">
@@ -482,6 +486,7 @@ export default function SubmitInstall() {
               id="photo"
               type="file"
               accept="image/*"
+              capture="environment"
               required
               aria-label="Take or choose an installed charger photo"
               className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
@@ -525,15 +530,15 @@ export default function SubmitInstall() {
             {postcodeError && <p id="postcode-error" className="text-xs text-destructive">{postcodeError}</p>}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="wholesaler">Wholesaler</Label>
-            <Input id="wholesaler" placeholder="Where was it purchased?"
+            <Label htmlFor="wholesaler">Wholesaler company *</Label>
+            <Input id="wholesaler" required placeholder="e.g. Links Electrical"
               value={form.wholesaler} onChange={(event) => setForm({ ...form, wholesaler: event.target.value })}
               className="h-12 bg-background border-border" />
             <p className="text-xs text-muted-foreground">Pre-filled from your usual wholesaler — change it if this charger was bought elsewhere.</p>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="branch">Wholesaler branch</Label>
-            <Input id="branch" placeholder="Town or branch name"
+            <Label htmlFor="branch">Wholesaler branch or town *</Label>
+            <Input id="branch" required placeholder="e.g. Shrewsbury"
               value={form.wholesaler_branch} onChange={(event) => setForm({ ...form, wholesaler_branch: event.target.value })}
               className="h-12 bg-background border-border" />
           </div>

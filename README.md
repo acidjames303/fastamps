@@ -1,8 +1,16 @@
-# Base44 Project
+# FastAmps Connect (Base44)
+
+Live app: [https://connect.fastamps.com](https://connect.fastamps.com)
 
 Use this repository to run and edit the app locally, then publish changes back through Base44.
 
 Any change pushed to the repo will also be reflected in the Base44 Builder.
+
+## Launch readiness
+
+- Central report: [`docs/launch-readiness/LAUNCH_READINESS_REPORT.md`](docs/launch-readiness/LAUNCH_READINESS_REPORT.md)
+- QA agent (Agent SDK): [`launch-readiness/`](launch-readiness/)
+- Installer/admin test register: [`docs/FASTAMPS_CONNECT_V1_TESTING.md`](docs/FASTAMPS_CONNECT_V1_TESTING.md)
 
 ## Prerequisites
 
