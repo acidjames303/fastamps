@@ -63,6 +63,7 @@ Auth: `npx base44 login` (device) or `BASE44_API_KEY`
 - **056 live** (23 Nov 2026) — see `iterations/056-live.md` (mobile center scroll for validation/gate; skip phone autofocus)
 - **057 live** (23 Nov 2026) — see `iterations/057-live.md` (funnel UI: live stages, map-ready cue, mapping label)
 - **058 live** (23 Nov 2026) — see `iterations/058-live.md` (ready CTA ring; comparison how-to cue)
+- **059 live** (23 Nov 2026) — see `iterations/059-live.md` (free line by CTA; connect empty-state; visit cue)
 
 ## Apply via sandbox (preferred when authenticated)
 ```bash
