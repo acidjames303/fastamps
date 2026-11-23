@@ -17,7 +17,7 @@ Updated: 2026-11-23 (Europe/London)
 | --- | --- |
 | 1 PR #10 baseline | **Done** — `BASELINE_PR10.md` |
 | 2 Admin UI | **Done (browser)** — search + include demo/excluded verified live; photos + GPS on production claim; QA cohort 3→1204 when toggled |
-| 3–4 Installer UX / install flow | **In progress** — emulation audit + PIN/rewards/touch fixes deployed |
+| 3–4 Installer UX / install flow | **Mostly done** — PIN + `/rewards` retest PASS; wholesaler step-2 UI check in progress |
 | 5 Wholesaler required fields | **Published** (UI + backend) |
 | 6 Data/privacy audit | **Done (draft)** — `DATA_PRIVACY_AUDIT.md` |
 | 7 Mobile UI | **In progress** — PIN placeholder, 44px header targets, `/rewards`→`/earnings` |

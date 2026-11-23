@@ -23,6 +23,15 @@ Method: **Browser viewport 390×844** (iPhone 12 Pro emulation — not real devi
 | TOUCH-001 | Theme + sign-out ~40px | `h-11 w-11` (44px) |
 | EMAIL-IM-001 | Login email keyboard | `inputMode="email"` |
 
+## Retest (browser, 2026-11-23 Europe/London)
+
+| Check | Result |
+| --- | --- |
+| PIN placeholder + hint | **Pass** — `e.g. 012345` + leading-zeros hint |
+| `/rewards` → `/earnings` | **Pass** — Reward wallet loads; no 404 |
+| Bundle | `index-Dqk2xKAX.js` |
+| Wholesaler step-2 UI | Resolve-only browser check in progress |
+
 ## Wholesaler / branch required
 
 **Verified in source + published backend** (not fully exercised in step-2 browser pass):
