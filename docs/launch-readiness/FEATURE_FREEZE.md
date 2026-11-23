@@ -14,6 +14,7 @@ All work under the launch-readiness exercise must repair or stabilise **existing
 | Bootstrap query hardening | Fix | Security of existing bootstrap |
 | Photo capture attribute | Fix | Existing upload flow |
 | Auth polish | Fix | Existing login/reset |
+| Social auth icons (Facebook/Apple) | Fix | Replace broken CDN images on existing OAuth buttons with inline SVGs |
 | `launch-readiness/` agent expansion | External QA | Orchestrator only — not Connect product UI |
 | `launch-readiness/simulation/` | External QA | Fixtures + gated runners — not Connect features |
 

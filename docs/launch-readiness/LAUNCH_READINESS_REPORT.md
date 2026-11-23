@@ -66,6 +66,7 @@ Follow-up from the static codepath audit closed the Critical proof-docs / wallet
 | PHOTO-CAPTURE-001 | Medium | fixed | photo uploads | No | Install photo inputs lacked `capture="environment"` | Added on serial + install file inputs | Source updated | Base44 publish; retest on iOS/Android |
 | AUTH-POLISH-001 | Medium | fixed | login / password reset | No | Forgot-password email not lowercased; reset lacked 8-char minimum; claim returnTo dropped on forgot-password | Normalise email, minLength 8, preserve returnTo | Source updated | Base44 publish |
 | LEGAL-404-001 | Critical | fixed | privacy / terms | Yes until publish | Live `/privacy` and `/terms` rendered app 404; no auth-page legal links ([Browser audit live Connect site](bc-643b42dc-4d5e-5cb2-a213-5c1d8178ec2b)) | Added public Privacy + Terms pages linking official Magento privacy-policy / terms-conditions; embed Connect programme terms; auth footer links; public `/programme-terms` | Source routes added; live still 404 until Base44 publish | Publish frontend; confirm `/privacy` and `/terms` no longer show Page Not Found |
+| SOCIAL-ICON-001 | Low | fixed | login / social auth | No | Facebook/Apple buttons used `cdn.simpleicons.org` images blocked by Cloudflare challenge | Inline SVG icons in `SocialAuthButtons.jsx` | Source updated Cycle 1; live until publish | Base44 publish |
 
 \*Does not block registering installs and holding rewards; **does** block automatic Giftbit payouts.
 
@@ -165,14 +166,22 @@ Watch genuine installer submissions, photo quality, duplicate claims, and vouche
 
 | Metric | Value |
 | --- | --- |
+| Target Base44 app | `6adf6de7ebdb4cb382e8779f` (verified) |
 | Test installers (fixtures) | 20 (`QA-LAUNCH-2026`) |
 | Serial/PIN pool | 420 unique |
 | Completed installs verified | 0 (gated — no authorised prod/isolated run yet) |
 | Concurrent users demonstrated | 0 (plan stages 1→5→10→20 ready) |
+| Cycle | 1 dry-run complete (not a clean cycle) |
 | Clean regression cycles | 0 / 3 |
 | Giftbit | Non-fulfilment boundary only; no chargeable QA orders |
 | Feature-freeze compliance | No product features added; agent + harness are external QA only |
 | Live publish blockers (smoke) | PWA Base44 icon; privacy/terms + Alpha-7 tile still in live JS bundle |
+
+### Cycle 1 dry-run ([Cycle 1 dry-run smoke](bc-c8076f78-b13c-5bcb-86f5-42d3d09e5fa8))
+
+- Fixtures dry-run + concurrency plan: pass
+- Live client `/privacy` and `/terms`: **Page Not Found** (evidence under `/opt/cursor/artifacts/cycle1-smoke/`)
+- Freeze-compliant fix this cycle: social auth icons (CDN → inline SVG)
 
 **Overall launch readiness:** unchanged — **CONDITIONAL GO** for controlled pilot after publish + authenticated E2E; **NO-GO** for store apps and automatic Giftbit payouts.
 
