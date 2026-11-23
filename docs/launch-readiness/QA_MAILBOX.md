@@ -1,29 +1,35 @@
-# QA mailbox plan (Gmail plus-aliases)
+# QA mailbox plan — Mailosaur
 
-## Findings (23 Nov 2026)
+## Decision
 
-- Connect/`auth/register` **accepts Gmail plus-aliases** and returns distinct user ids (two probe registrations succeeded at the API layer and triggered OTP emails).
-- Completing verification still requires the real OTP from email — no security bypass.
-- Existing production logins are **not** suitable as the 20 synthetic installers.
+Use **Mailosaur** for Connect registration OTP retrieval (not personal Gmail).
 
-## Preferred approach
+Addresses will look like:
 
-1. One **dedicated** Gmail (or Google Workspace) inbox for Connect QA only.
-2. Register installers as `{local}+qa-launch-2026-installer01@gmail.com` … `…installer20@…`.
-3. Retrieve OTPs via **read-only IMAP** using a Google **App Password** (2SV required). Never use a personal mailbox password.
+`qa-launch-2026-installer01@{SERVER_ID}.mailosaur.net`
 
-Secrets (Cursor environment — not chat):
+…through `installer20@…` — all land in one Mailosaur server inbox and are readable via API.
 
-- `CONNECT_QA_GMAIL_ADDRESS` — base inbox
-- `CONNECT_QA_GMAIL_APP_PASSWORD` — App Password for IMAP
+## Required secrets (Cursor environment — not chat)
 
-## Fallback if plus-aliases fail in practice
+| Secret | Purpose |
+| --- | --- |
+| `MAILOSAUR_API_KEY` | Read-only API access to search/fetch messages |
+| `MAILOSAUR_SERVER_ID` | Server id used in `@{id}.mailosaur.net` |
 
-- Google Workspace / custom domain **catch-all** to one inbox, or
-- Pre-invite 20 users from admin and complete first login with OTP to the same catch-all.
+Optional: `MAILOSAUR_API_BASE` (default `https://mailosaur.com/api`).
+
+## Flow
+
+1. Register installer with a unique Mailosaur address via genuine Base44 `auth/register`.
+2. Poll Mailosaur for the OTP email to that address.
+3. Complete Base44 `auth.verifyOtp` with the code.
+4. Finish onboarding as `QA-LAUNCH-2026` synthetic installer.
+5. Repeat for 20 accounts; then 20×20 installs under feature freeze.
 
 ## Safety
 
-- All synthetic identities / companies / batches keep `QA-LAUNCH-2026`.
-- Claims marked `is_demo=true`, `demo_label=QA-LAUNCH-2026`, `excluded_from_reporting=true`, `reward_status=held` so they cannot drive Giftbit or programme totals.
-- No further production deploys without explicit approval.
+- No personal mailbox passwords.
+- No auth bypass — real OTP from Mailosaur only.
+- Claims remain `QA-LAUNCH-2026` / demo / excluded / held so Giftbit cannot fulfil them.
+- No production deploys without explicit approval.

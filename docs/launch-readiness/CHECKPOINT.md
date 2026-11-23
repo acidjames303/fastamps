@@ -21,17 +21,17 @@ All five `QA-LAUNCH-2026-S00001`–`S00005` claims now:
 
 They no longer appear in installer “active” wallet counts and cannot qualify Giftbit fulfilment paths that skip demo/excluded/held rewards. No Giftbit campaign was created for them.
 
-## Plus-alias investigation
+## OTP mailbox
 
-- Base44 `POST /auth/register` **accepts** Gmail `+` aliases and creates distinct pending users + sends OTP email.
-- Completing signup still requires the real email OTP (no bypass).
-- Blocked on a **dedicated QA Gmail** + App Password for read-only IMAP (`CONNECT_QA_GMAIL_ADDRESS`, `CONNECT_QA_GMAIL_APP_PASSWORD`).
+- **Provider:** Mailosaur (not personal Gmail).
+- Base44 register accepts unique addresses and emails a real OTP.
+- Blocked on secrets: `MAILOSAUR_API_KEY` + `MAILOSAUR_SERVER_ID`.
 - See `docs/launch-readiness/QA_MAILBOX.md`.
 
 ## Next action
 
-1. Wait for dedicated QA mailbox secrets / “QA mailbox ready”.
-2. Verify two plus-aliases end-to-end (register → OTP via IMAP → verify).
+1. Wait for Mailosaur secrets / “Mailosaur ready”.
+2. Verify two addresses end-to-end (register → OTP via Mailosaur API → verify).
 3. Provision 20 `QA-LAUNCH-2026` installers; import remaining chargers; run 20×20 with photos; admin reconcile; three clean cycles.
 4. No further production deploys without explicit approval.
 

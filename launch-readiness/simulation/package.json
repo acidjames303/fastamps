@@ -11,6 +11,7 @@
     "assert-app": "node src/target-app.mjs",
     "authorised-cycle": "node src/authorised-cycle.mjs",
     "otp-imap": "node src/otp-imap.mjs",
+    "otp-mailosaur": "node src/otp-mailosaur.mjs",
     "guard": "node src/env-guard.mjs"
   }
 }
