@@ -11,8 +11,11 @@ const REFERRAL_CREDIT_VALUE = 20;
  * this function best-effort unlocks. Overlap checks include failed vouchers.
  */
 
+const isQaLifecycle = (row: any) => row?.qa_financial_lifecycle === true;
+const commerciallyExcluded = (row: any) =>
+  (row?.excluded_from_reporting || row?.is_demo) && !isQaLifecycle(row);
 const eligible = (claim: any) => claim.status === "approved" && claim.reward_status === "approved"
-  && !claim.excluded_from_reporting && !claim.is_demo
+  && !commerciallyExcluded(claim)
   && Boolean(claim.serial_photo_url && claim.install_photo_url);
 const uniqueCount = (claims: any[]) => new Set(claims.map((claim) => String(claim.serial_number || "").trim().toUpperCase()).filter(Boolean)).size;
 
@@ -40,7 +43,9 @@ export default async function (req) {
     const user = await db.auth.me();
     if (!user?.email) return Response.json({ error: "Sign in before requesting a voucher." }, { status: 401 });
     const installer = (await db.asServiceRole.entities.Installer.filter({ user_email: user.email }))[0];
-    if (!installer || installer.excluded_from_reporting) return Response.json({ error: "Installer profile not found." }, { status: 404 });
+    if (!installer || (installer.excluded_from_reporting && !isQaLifecycle(installer))) {
+      return Response.json({ error: "Installer profile not found." }, { status: 404 });
+    }
     installerId = installer.id;
     if (["held", "blocked"].includes(installer.reward_account_status)) {
       return Response.json({ error: "Your rewards are under FastAmps review. Contact the team before requesting redemption." }, { status: 409 });
@@ -56,7 +61,7 @@ export default async function (req) {
 
     const previous = await db.asServiceRole.entities.VoucherRequest.filter({ installer_email: user.email });
     // Include failed: those claims may still be locked or need admin release before a new request.
-    const active = previous.find((item) => !item.excluded_from_reporting
+    const active = previous.find((item) => !commerciallyExcluded(item)
       && ["requested", "processing", "failed"].includes(item.status));
     if (active) {
       return Response.json({ success: true, provider: active.fulfilment_provider, status: active.status,
@@ -78,11 +83,11 @@ export default async function (req) {
     }
 
     const allApproved = await db.asServiceRole.entities.InstallClaim.filter({ installer_email: user.email, status: "approved" });
-    const validInstallations = allApproved.filter((claim) => !claim.excluded_from_reporting && !claim.is_demo
+    const validInstallations = allApproved.filter((claim) => !commerciallyExcluded(claim)
       && !["rejected", "held"].includes(claim.reward_status)
       && Boolean(claim.install_photo_url && claim.serial_photo_url));
     const count = uniqueCount(validInstallations);
-    const earlierSent = previous.some((item) => !item.excluded_from_reporting && item.status === "sent");
+    const earlierSent = previous.some((item) => !commerciallyExcluded(item) && item.status === "sent");
     if (!earlierSent && count < FIRST_REDEMPTION_INSTALLS) {
       return Response.json({ error: `Your first voucher requires three verified, unique approved installations. You currently have ${count}.` }, { status: 400 });
     }
@@ -197,6 +202,12 @@ export default async function (req) {
       provider_status: "awaiting_admin_fraud_review",
       provider_order_id: `fastamps-voucher-${crypto.randomUUID()}`,
       status: "requested", fraud_review_status: "clear", requested_date: new Date().toISOString(),
+      ...(isQaLifecycle(installer) ? {
+        is_demo: true,
+        demo_label: "VIRTUAL-LINKS-SIM-2026",
+        excluded_from_reporting: true,
+        qa_financial_lifecycle: true,
+      } : {}),
     });
 
     return Response.json({ success: true, status: "requested", request, amount, provider: "FastAmps",

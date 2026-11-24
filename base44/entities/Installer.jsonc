@@ -717,6 +717,18 @@
           }
         }
       }
+    },
+    "qa_financial_lifecycle": {
+      "type": "boolean",
+      "default": false,
+      "description": "Isolated virtual QA flag: allows redemption lifecycle tests while remaining excluded from commercial reporting",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     }
   },
   "required": [

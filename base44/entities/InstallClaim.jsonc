@@ -192,6 +192,11 @@
       "default": false,
       "description": "Retires invalid legacy test records without deleting linked data"
     },
+    "qa_financial_lifecycle": {
+      "type": "boolean",
+      "default": false,
+      "description": "Isolated virtual QA flag: allows redemption lifecycle tests while remaining excluded from commercial reporting"
+    },
     "exclusion_reason": {
       "type": "string"
     },

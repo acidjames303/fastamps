@@ -101,7 +101,7 @@ Welcome / pre-register / interest-list dashboard copy shortened for clarity (les
 | Eligibility probe claim creation | Fail-closed eligibility before reserve + dual signals | 403, 0 claims |
 | Virtual charger PIN collisions at 100 | Random unique PIN allocator vs full register | 200 chargers imported |
 | Giftbit payload shape | Use `marketplace_gifts: [{id, price_in_cents}]` | DELIVERED |
-| QA cohort password env mismatch | Use `QA-Launch-2026!Pass` template for installer01–50 | 50/50 logins |
+| QA cohort password env mismatch | Use `CONNECT_QA_INSTALLER_PASSWORD_TEMPLATE` secret for installer01–50 | 50/50 logins |
 
 ## 11. Independent release verification (post-simulation)
 

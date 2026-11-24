@@ -62,7 +62,12 @@ export default async function (req) {
     // Eligibility must fail closed before any charger reserve or claim create.
     // Also treat held pre-registration accounts as ineligible even if membership_status
     // was stripped by a schema overwrite (historical deploy race).
-    const membershipStatus = String(installer.membership_status || "active");
+    // If the membership_status field is unexpectedly undefined on a held/deferred
+    // account, never default that account to active.
+    const membershipStatus = installer.membership_status == null
+      && (installer.reward_account_status === "held" || installer.welcome_reward_status === "deferred")
+      ? "pre_registered"
+      : String(installer.membership_status || "active");
     const heldPreRegistration = installer.reward_account_status === "held"
       && /pre-?regist/i.test(String(installer.reward_account_reason || ""));
     const deferredWelcomeOnly = installer.welcome_reward_status === "deferred"
