@@ -1,0 +1,131 @@
+{
+  "name": "IncentiveProgramme",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Public programme name"
+    },
+    "programme_code": {
+      "type": "string",
+      "description": "Stable invitation code used in /invite/{code} URLs"
+    },
+    "wholesaler_name": {
+      "type": "string",
+      "description": "Participating wholesaler company"
+    },
+    "branch_name": {
+      "type": "string",
+      "description": "Participating wholesaler branch"
+    },
+    "country": {
+      "type": "string",
+      "default": "United Kingdom"
+    },
+    "currency": {
+      "type": "string",
+      "default": "GBP",
+      "description": "Live commercial programmes use GBP only"
+    },
+    "programme_type": {
+      "type": "string",
+      "enum": [
+        "controlled_commercial_beta",
+        "commercial_rollout",
+        "qa_synthetic"
+      ],
+      "default": "controlled_commercial_beta"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "paused",
+        "closed"
+      ],
+      "default": "draft",
+      "description": "draft/inactive until explicitly authorised"
+    },
+    "claim_verification": {
+      "type": "string",
+      "enum": [
+        "manual_admin_approval"
+      ],
+      "default": "manual_admin_approval"
+    },
+    "payout_mode": {
+      "type": "string",
+      "enum": [
+        "held_pending_authorisation",
+        "manual_release",
+        "giftbit_live"
+      ],
+      "default": "held_pending_authorisation"
+    },
+    "expected_charger_allocation": {
+      "type": "number",
+      "description": "Expected authorised charger count for this programme"
+    },
+    "invitation_enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "When false, invitation QR is revoked even if the programme record remains"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "activated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "paused_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "closed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_status_changed_by": {
+      "type": "string"
+    },
+    "is_demo": {
+      "type": "boolean",
+      "default": false
+    },
+    "excluded_from_reporting": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "name",
+    "programme_code",
+    "wholesaler_name",
+    "branch_name",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

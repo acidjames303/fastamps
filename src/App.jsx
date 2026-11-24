@@ -12,6 +12,9 @@ import AdminRoute from '@/components/AdminRoute';
 import Layout from '@/components/Layout';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
+import Welcome from '@/pages/Welcome';
+import PreRegister from '@/pages/PreRegister';
+import ProgrammeInvite from '@/pages/ProgrammeInvite';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import Dashboard from '@/pages/Dashboard';
@@ -24,6 +27,7 @@ import AdminChargers from '@/pages/AdminChargers';
 import AdminReports from '@/pages/AdminReports';
 import AdminVouchers from '@/pages/AdminVouchers';
 import AdminBetaTest from '@/pages/AdminBetaTest';
+import AdminProgrammes from '@/pages/AdminProgrammes';
 import Opportunities from '@/pages/Opportunities';
 import Earnings from '@/pages/Earnings';
 import Academy from '@/pages/Academy';
@@ -45,6 +49,10 @@ const LoginRedirect = () => {
   const returnTo = `${location.pathname}${qs ? `?${qs}` : ''}`;
   if (location.pathname.startsWith('/claim/')) {
     rememberPendingClaimPath(returnTo);
+  }
+  // Marketing QR / bare domain visits land on the public registration gateway.
+  if (location.pathname === '/' && !qs) {
+    return <Navigate to="/welcome" replace />;
   }
   return <Navigate to={`/login?returnTo=${encodeURIComponent(returnTo)}`} replace />;
 };
@@ -78,6 +86,9 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
+      <Route path="/welcome" element={<Welcome />} />
+      <Route path="/pre-register" element={<PreRegister />} />
+      <Route path="/invite/:programmeCode" element={<ProgrammeInvite />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -109,6 +120,7 @@ const AuthenticatedApp = () => {
             <Route path="/admin/installs" element={<AdminInstalls />} />
             <Route path="/admin/installers" element={<AdminInstallers />} />
             <Route path="/admin/chargers" element={<AdminChargers />} />
+            <Route path="/admin/programmes" element={<AdminProgrammes />} />
             <Route path="/admin/reports" element={<AdminReports />} />
             <Route path="/admin/vouchers" element={<AdminVouchers />} />
             <Route path="/admin/fraud-review" element={<AdminFraudReview />} />

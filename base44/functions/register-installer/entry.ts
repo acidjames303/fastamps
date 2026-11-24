@@ -123,8 +123,17 @@ Deno.serve(async (req) => {
       referral_terms_accepted_at: now,
       reward_account_status: "active",
       referral_review_status: "clear",
+      membership_status: "active",
+      activated_at: now,
       welcome_reward_amount: 10,
       welcome_reward_status: "available",
+      town_city: String(body.town_city || "").trim(),
+      postcode: String(body.postcode || "").trim(),
+      coverage_area: region,
+      notify_programme_availability: body.notify_programme_availability !== false,
+      privacy_terms_version: String(body.privacy_terms_version || "").trim() || undefined,
+      privacy_accepted_at: body.privacy_accepted === true ? now : undefined,
+      attributed_programme_code: String(body.attributed_programme_code || "").trim().toLowerCase() || undefined,
       // ?demo=1 trade-show auto-demo accounts are retired. Explicit admin/beta
       // tooling may still mark an installer demo via a non-URL path later.
       ...(body.demo === true ? { is_demo: true, demo_label: "BETA-DEMO" } : {}),

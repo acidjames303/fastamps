@@ -1,16 +1,16 @@
 # Launch readiness checkpoint
 
-Updated: 2026-11-23 (Europe/London)
+Updated: 2026-11-24 (Europe/London)
 
 | Field | Value |
 | --- | --- |
-| Mission | V1 final audit (PR #10 → UX → USD Testbed → 50×20) |
-| Decision | **GO** for manual testing · **CONDITIONAL GO** for Links beta ops |
-| Feature freeze | In force |
+| Mission | Controlled live beta prep + nationwide pre-registration |
+| Decision | Pre-reg **CONDITIONAL GO** · Links commercial beta **NO-GO** (draft) |
+| Recoverable checkpoint | `checkpoint/controlled-beta-pre-20261124` |
 | Base URL | https://connect.fastamps.com |
-| Frontend | `index-Dqk2xKAX.js` (restored via deploy-dist 2026-11-24) |
-| Backend | create-time QA protections live (`submit-install-claim-v2`) |
-| Cohort | **50** QA installers; **1811** QA claims; photos complete; rewards held / excluded |
+| Frontend | `index-vRWzqKAZ.js` (deploy-dist 2026-11-24) |
+| Backend | create-time QA protections + membership eligibility + Links draft programme |
+| Cohort | QA installers/claims preserved; rewards held / excluded |
 
 ## Phase status
 

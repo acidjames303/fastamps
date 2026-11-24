@@ -559,12 +559,124 @@
     "welcome_reward_status": {
       "type": "string",
       "enum": [
+        "deferred",
         "available",
         "redemption_requested",
         "issued"
       ],
       "default": "available",
-      "description": "Redemption state of the one-time \u00a310 installer welcome bonus",
+      "description": "Redemption state of the one-time \u00a310 installer welcome bonus. deferred = pre-registered / not yet programme-eligible",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "membership_status": {
+      "type": "string",
+      "enum": [
+        "pre_registered",
+        "invited",
+        "active",
+        "suspended"
+      ],
+      "default": "active",
+      "description": "Installer programme lifecycle. Existing commercial accounts remain active. Pre-registered installers cannot submit incentive claims until activated.",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "town_city": {
+      "type": "string",
+      "description": "Installer town or city for rollout demand mapping"
+    },
+    "postcode": {
+      "type": "string",
+      "description": "Installer postcode for rollout demand mapping"
+    },
+    "coverage_area": {
+      "type": "string",
+      "description": "Primary installation coverage area described by the installer"
+    },
+    "preferred_wholesaler_manual": {
+      "type": "string",
+      "description": "Manual wholesaler company when the directory has no match"
+    },
+    "preferred_branch_manual": {
+      "type": "string",
+      "description": "Manual branch when the directory has no match"
+    },
+    "notify_programme_availability": {
+      "type": "boolean",
+      "default": true,
+      "description": "Installer consents to programme-availability notifications for their preferred wholesaler or area"
+    },
+    "privacy_terms_version": {
+      "type": "string",
+      "description": "Privacy notice version accepted at pre-registration or onboarding"
+    },
+    "privacy_accepted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the installer accepted the privacy notice"
+    },
+    "attributed_programme_code": {
+      "type": "string",
+      "description": "Invitation or programme code attributed during onboarding",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "pre_registered_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the installer first pre-registered interest",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "invited_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the installer was invited into an active programme",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "activated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the installer became eligible for the active incentive programme",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "availability_notified_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the last programme-availability notification was sent",
       "rls": {
         "update": {
           "user_condition": {

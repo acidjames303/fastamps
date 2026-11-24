@@ -24,6 +24,31 @@ export default function Dashboard() {
   if (data?.user?.role === 'admin') return <AdminOverview />;
   if (!installer) return <OnboardingCard user={data?.user} />;
 
+  const membershipStatus = installer.membership_status || 'active';
+  if (membershipStatus === 'pre_registered' || membershipStatus === 'invited') {
+    return (
+      <div className="space-y-6">
+        <section className="rounded-3xl border border-border bg-gradient-to-br from-primary/15 via-muted/50 to-transparent p-7 md:p-10">
+          <div className="text-[11px] uppercase tracking-[0.22em] text-accent">You&apos;re on the list</div>
+          <h1 className="mt-3 max-w-2xl text-3xl md:text-4xl font-semibold tracking-tight">
+            Thanks for registering your interest in FastAmps Connect.
+          </h1>
+          <p className="mt-4 max-w-xl text-foreground/70">
+            We&apos;re gradually introducing our installer rewards programme across the UK. We&apos;ll notify you when the programme becomes available through your preferred wholesaler or in your area.
+          </p>
+          <div className="mt-6 rounded-2xl border border-border bg-background/70 p-4 text-sm">
+            <div><span className="text-muted-foreground">Preferred branch:</span> {installer.nominated_wholesaler || installer.preferred_wholesaler_manual} – {installer.nominated_branch || installer.preferred_branch_manual}</div>
+            <div className="mt-1"><span className="text-muted-foreground">Coverage:</span> {installer.coverage_area || installer.region || '—'}</div>
+            <div className="mt-1"><span className="text-muted-foreground">Status:</span> {membershipStatus === 'invited' ? 'Invited — awaiting activation' : 'Pre-registered'}</div>
+          </div>
+          <p className="mt-4 text-xs text-muted-foreground">
+            Pre-registered accounts cannot submit installation reward claims until FastAmps activates programme eligibility. No welcome bonus is issued until then.
+          </p>
+        </section>
+      </div>
+    );
+  }
+
   const activeClaims = claims.filter((claim) => !claim.excluded_from_reporting);
   const firstName = installer.full_name?.split(' ')[0] || 'Installer';
   const approved = activeClaims.filter((claim) => claim.status === 'approved');

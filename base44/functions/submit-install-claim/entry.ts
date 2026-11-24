@@ -53,6 +53,21 @@ export default async function (req) {
       }, { status: 400 });
     }
 
+    const installers = await base44.entities.Installer.filter({ user_email: user.email });
+    const installer = installers[0];
+    if (!installer) return Response.json({ error: "Create your installer profile before submitting this claim." }, { status: 400 });
+
+    const membershipStatus = String(installer.membership_status || "active");
+    if (membershipStatus !== "active") {
+      return Response.json({
+        error: "Your account is not yet eligible for installation rewards. Pre-registered installers cannot submit incentive claims until FastAmps activates programme access.",
+        membership_status: membershipStatus,
+      }, { status: 403 });
+    }
+    if (installer.reward_account_status === "blocked") {
+      return Response.json({ error: "This installer account cannot submit installation rewards right now. Contact FastAmps." }, { status: 403 });
+    }
+
     const compactPostcode = String(body.site_postcode).toUpperCase().replace(/\s+/g, "");
     const formattedPostcode = compactPostcode.length > 3
       ? `${compactPostcode.slice(0, -3)} ${compactPostcode.slice(-3)}`
@@ -71,10 +86,6 @@ export default async function (req) {
     } catch {
       return Response.json({ error: "We could not verify the postcode right now. Please try again." }, { status: 503 });
     }
-
-    const installers = await base44.entities.Installer.filter({ user_email: user.email });
-    const installer = installers[0];
-    if (!installer) return Response.json({ error: "Create your installer profile before submitting this claim." }, { status: 400 });
 
     const chargers = await base44.asServiceRole.entities.Charger.filter({ claim_token: claimToken });
     if (chargers.length !== 1) return Response.json({ error: "This charger reference is not uniquely recognised." }, { status: 409 });
