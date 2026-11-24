@@ -12,4 +12,4 @@
 
 ## One-line verdict
 
-Live **Cadence** (`https://cadence.base44.app`) is still a 3-page **communication decision** tool (meeting / email / async). It is **not** the multi-workspace sales operating system described in the master brief. That sales OS was **not found** in this Base44 account, this repo, or related published apps under the credentials available to this agent.
+Live **Cadence** (`https://cadence.base44.app`, Base44 app `6a7338f6106b1962aa31c00a`) is still a 3-page **communication decision** tool (meeting / email / async). It is **not** the multi-workspace sales operating system described in the master brief. That sales OS was **not found** under the credentials available to this agent (token currently scoped to FastAmps Connect only).

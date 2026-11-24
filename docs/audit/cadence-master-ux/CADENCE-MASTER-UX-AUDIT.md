@@ -25,12 +25,16 @@ The product described in the master brief — a multi-business sales operating s
 
 - **Name:** Cadence  
 - **Live URL:** https://cadence.base44.app  
-- **Public app id:** `691dd05eafa0754fb1590632`  
+- **Base44 app id (confirmed by owner):** `6a7338f6106b1962aa31c00a`  
+- **Editor:** https://app.base44.com/apps/6a7338f6106b1962aa31c00a  
+- **Published asset / branding path id (observed in live HTML):** `691dd05eafa0754fb1590632` — same live product surface; not a second app  
 - **Product:** Communication decision-support — recommend **meeting / email / async message**, then draft agenda / email / Slack-style copy  
 - **Routes:** `Home`, `NewDecision`, `History`  
 - **Entity:** `CommunicationDecision`  
 - **Auth:** Hard login wall; no public landing beyond login chrome  
-- **Legacy brand:** Production footer still says **CommDecide** (© 2024)
+- **Legacy brand:** Production footer still says **CommDecide** (© 2024)  
+
+**Access note (24 Nov 2026 follow-up):** The workspace-scoped `BASE44_API_TOKEN` injected into this agent only lists **FastAmps Connect**. API calls to `6a7338f6106b1962aa31c00a` return `ContainedAppNotFoundError`. Cadence likely lives in a different Base44 workspace than Connect — a Cadence-scoped token (and QA login) is still required for editor/entity/authenticated UX audit.
 
 ### Implication for the brief
 
@@ -109,7 +113,7 @@ Sections 5–21 of the brief cannot be audited as *existing* Cadence workflows. 
 
 **No custom backend functions** are invoked from the **live** client. PR #5 adds four functions but they are **not** on production.
 
-**Note on app ids:** Prior docs used editor id `6a7338f6106b1962aa31c00a`. Public auth challenge for the published site resolves to `691dd05eafa0754fb1590632`. Treat the public id as the live published app; reconcile editor linkage when Cadence API access is available.
+**App ids (owner-confirmed):** Editor / canonical Cadence app = `6a7338f6106b1962aa31c00a`. Live CDN/branding object path uses `691dd05eafa0754fb1590632`. Treat these as the same Cadence product unless Base44 access later proves otherwise.
 
 ---
 
