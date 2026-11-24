@@ -9,6 +9,7 @@ import {
   ArrowRight, Search, CheckCircle2, Pencil, ClipboardList,
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
+import { setActiveCampaign } from "@/lib/campaignContext";
 import DeleteCampaignDialog from "@/components/campaigns/DeleteCampaignDialog";
 import RenameCampaignDialog from "@/components/campaigns/RenameCampaignDialog";
 import PushProgress from "@/components/PushProgress";

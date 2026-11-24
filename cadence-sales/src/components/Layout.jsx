@@ -164,6 +164,13 @@ export default function Layout() {
                     <UserCircle className="w-4 h-4 mr-2" /> My Profile
                   </Link>
                 </DropdownMenuItem>
+                {userLevel >= 50 && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/settings" className="flex items-center">
+                      <SettingsIcon className="w-4 h-4 mr-2" /> Settings
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem asChild>
                   <Link to="/support" className="flex items-center">
                     <LifeBuoy className="w-4 h-4 mr-2" /> Support
