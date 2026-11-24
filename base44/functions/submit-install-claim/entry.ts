@@ -118,10 +118,20 @@ export default async function (req) {
         status: "submitted",
         warranty_status: "queued",
         reward_amount: 10,
-        reward_status: "pending",
+        // Demo/QA claims must be non-payable and excluded at create time — never wait for a later harness patch.
+        reward_status: (charger.is_demo === true || String(charger.batch_reference || "").startsWith("HOME-BETA"))
+          ? "held"
+          : "pending",
         is_demo: charger.is_demo === true || String(charger.batch_reference || "").startsWith("HOME-BETA"),
         demo_label: charger.is_demo || String(charger.batch_reference || "").startsWith("HOME-BETA")
           ? charger.demo_label || "HOME-BETA" : "",
+        ...((charger.is_demo === true || String(charger.batch_reference || "").startsWith("HOME-BETA"))
+          ? {
+              excluded_from_reporting: true,
+              exclusion_reason:
+                `Demo/QA claim (${charger.demo_label || (String(charger.batch_reference || "").startsWith("HOME-BETA") ? "HOME-BETA" : "demo")}) — exclude from live rewards and commercial reporting.`,
+            }
+          : {}),
         charger_record_id: charger.id,
         claim_reference: claimToken,
         ...photoLocationFields(body, "serial_photo"),

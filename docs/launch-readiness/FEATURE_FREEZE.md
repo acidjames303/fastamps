@@ -17,5 +17,6 @@ All work under the launch-readiness exercise must repair or stabilise **existing
 | Social auth icons (Facebook/Apple) | Fix | Replace broken CDN images on existing OAuth buttons with inline SVGs |
 | `launch-readiness/` agent expansion | External QA | Orchestrator only — not Connect product UI |
 | `launch-readiness/simulation/` | External QA | Fixtures + gated runners — not Connect features |
+| Demo/QA claim create-time hold + reporting exclusion | Fix | Close gap where harness had to PATCH after create; live non-demo claims unchanged |
 
 **Confirmed:** no new dashboards, integrations, incentive rules, or installer journeys were introduced as product features.

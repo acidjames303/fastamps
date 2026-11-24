@@ -13,6 +13,7 @@ Method: External harness (`stress-50-prepare`, `claim-wave-50`) — **not** brow
 | ≥1,000 successful installs | **1,811** QA-LAUNCH claims |
 | Photo pairs | **1,811 / 1,811** |
 | Concurrent sessions | Ramp **1 → 5 → 10 → 25** (wave for installers 21–50) |
+| Verified concurrency limit | **25** (no higher peak required for this beta) |
 | W2 claim wave | **600 / 600 ok** in **82s**; p50 **1353ms**, p95 **2063ms** |
 
 ## Safety
