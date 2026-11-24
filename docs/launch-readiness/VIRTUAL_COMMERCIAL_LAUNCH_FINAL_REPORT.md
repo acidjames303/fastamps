@@ -143,10 +143,19 @@ Columns as requested (installer id, installs, welcome, earnings, lifetime gross,
 
 ## 8. Responsive browser testing
 
-Screenshots: `/opt/cursor/artifacts/phase2/responsive/`  
-Viewports captured include desktop 1440, tablet 768, iPhone 390, small 360.  
-Journeys: welcome, pre-register, invite (inactive), admin programmes, installer dashboard/earnings.  
-Physical-device camera: **NOT TESTED** (browser only).
+**PASS** — [Responsive browser UX audit](bc-643b42dc-4d5e-5cb2-a213-5c1d8178ec2b); full notes in `/opt/cursor/artifacts/phase2/responsive/RESPONSIVE-UX-REPORT.md`.
+
+| Viewport | Status |
+| --- | --- |
+| Desktop 1440×900 | PASS |
+| Tablet portrait 768×1024 | PASS |
+| iPhone 390×844 | PASS |
+| Small mobile 360×640 | PASS |
+| Spot checks: laptop 1366, tablet landscape 1024, Android 412 | PASS |
+
+Pages: `/welcome`, `/pre-register`, `/invite/links-electrical-shrewsbury`, `/admin/programmes`, installer dashboard, `/earnings`.  
+Findings: no overflow, clipping, unclear earnings, or copy/CSS fixes required (11 screenshots).  
+Physical-device camera: **NOT TESTED** (browser emulation only).
 
 ---
 
