@@ -17,6 +17,7 @@ import useTwilioDevice from "@/hooks/useTwilioDevice";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { fetchListCompanyIds, resolveWorkingListId } from "@/lib/targetLists";
 import { readDialPosition, saveDialPosition, clearDialPosition } from "@/lib/dialPosition";
+import { setActiveCampaign, getActiveCampaign } from "@/lib/campaignContext";
 import { Link } from "react-router-dom";
 import MobileCallBar from "@/components/dialer/MobileCallBar";
 import DialPad from "@/components/dialer/DialPad";
@@ -210,6 +211,17 @@ export default function Dialer() {
   };
 
   useEffect(() => { loadQueue(); }, [listId]);
+
+  // Keep sticky campaign chrome in sync with the list the dialer is working.
+  useEffect(() => {
+    if (targetList?.id) {
+      setActiveCampaign(targetList);
+      return;
+    }
+    if (listId && !getActiveCampaign()?.id) {
+      setActiveCampaign({ id: listId, name: "Campaign" });
+    }
+  }, [targetList?.id, targetList?.name, listId]);
 
   // Remember the caller's place in this queue, so returning to the Dialer picks
   // up on the company they were on. Cleared once the queue is finished.

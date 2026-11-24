@@ -27,9 +27,9 @@ export default function CampaignContextChip() {
     <div className="hidden sm:flex items-center gap-1 max-w-[220px] rounded-full border border-emerald-200 bg-emerald-50 pl-2.5 pr-1 py-1 text-xs text-emerald-900">
       <ClipboardList className="w-3.5 h-3.5 flex-shrink-0 text-emerald-600" />
       <Link
-        to={`/campaigns`}
+        to={`/dialer?list=${campaign.id}`}
         className="truncate font-medium hover:underline"
-        title={`Working on ${campaign.name}`}
+        title={`Continue on ${campaign.name}`}
       >
         {campaign.name}
       </Link>

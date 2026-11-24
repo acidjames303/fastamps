@@ -23,6 +23,7 @@ import CampaignExportButton from '@/components/campaigns/CampaignExportButton';
 import CampaignBriefEditor from '@/components/campaigns/CampaignBriefEditor';
 import DataReadinessPanel from '@/components/campaigns/DataReadinessPanel';
 import ReviewQueuePanel from '@/components/campaigns/ReviewQueuePanel';
+import { setActiveCampaign, getActiveCampaign } from "@/lib/campaignContext";
 
 // Simple prospecting flow: paste a brief → extract ICP → add companies → enrich
 // data → review results. Uses ProspectList + Prospect entities.
@@ -119,10 +120,16 @@ export default function Prospecting({ embedded = false }) {
       })
       .catch(() => {});
     // Restore the last-selected list so work survives navigation/refresh.
+    // Fall back to sticky campaign context when no list was remembered.
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("campaign")) return;
     const lastListId = localStorage.getItem(LAST_LIST_KEY);
-    if (lastListId && !new URLSearchParams(window.location.search).get('campaign')) {
+    if (lastListId) {
       pickList(lastListId);
+      return;
     }
+    const sticky = getActiveCampaign();
+    if (sticky?.id) openListSelection(`campaign:${sticky.id}`);
   }, []);
 
   // Poll an active enrichment session until it completes.
@@ -240,6 +247,7 @@ export default function Prospecting({ embedded = false }) {
         });
       }
       setLists((items) => items.some((item) => item.id === linked.id) ? items : [linked, ...items]);
+      setActiveCampaign(campaign);
       await pickList(linked.id);
       setMsg(`Campaign “${campaign.name}” is ready for prospecting. Its brief, ICP and target roles are linked to this workspace.`);
     } catch (e) {
@@ -269,6 +277,13 @@ export default function Prospecting({ embedded = false }) {
     setIcp(l?.icp || "");
     setNameDraft(l?.name || "");
     setPermittedCountries(l?.permitted_countries || ["GB"]);
+    if (l.campaign_id) {
+      const linkedCampaign = targetLists.find((item) => item.id === l.campaign_id);
+      setActiveCampaign(linkedCampaign || { id: l.campaign_id, name: l.name || "Campaign" });
+    } else if (l.id) {
+      // Prospect lists without a campaign_id still count as working context.
+      setActiveCampaign({ id: l.id, name: l.name || "Prospect list" });
+    }
     await loadProspects(id);
   };
 

@@ -1,45 +1,130 @@
-# Phase 1 changes — simplify everyday chrome
+# Phase 1 — Cadence UX changes
 
+**Date:** 24 Nov 2026  
 **Branch:** `cursor/cadence-ux-master-audit-2475`  
-**Code:** `cadence-sales/`
+**App:** Cadence — Sales Calling Workspace (`6a7338f6106b1962aa31c00a`)  
+**Live:** https://evasive-dial-flow-go.base44.app  
+**Source tree:** `cadence-sales/` (ejected)
 
-## Goal
+---
 
-Make Cadence feel more intuitive without removing power: shorter primary nav, clearer Calling label, sticky campaign context, admin/platform kept secondary.
+## Guiding principle
 
-## Before → After (primary nav)
+Powerful underneath. Effortless on the surface.  
+More intuitive **and** more powerful — not more screens.
 
-| Before (desktop) | After |
+---
+
+## Nav before → after
+
+### Desktop primary (before)
+
+Today · Dialer · Campaigns · Contacts · Results · Team · Admin inbox · Outreach · Insights · Settings
+
+### Desktop primary (after)
+
+**Today · Campaigns · Prospecting · Calling · Outreach · Inbox · Team**
+
+Secondary (More / user menu): Contacts · Results · Insights · Settings · Get Started  
+Platform tools: unchanged dropdown for `platform_owner`
+
+### Mobile bottom tabs (before)
+
+Today · Contacts · Dialer · Results · More
+
+### Mobile bottom tabs (after)
+
+**Today · Campaigns · Calling · Outreach · More**
+
+---
+
+## What changed
+
+| Area | Change | Risk |
+|---|---|---|
+| `src/lib/navConfig.js` | Shared IA + role filters; Prospecting promoted; Settings secondary | Low — routes unchanged |
+| `src/components/Layout.jsx` | Uses navConfig; campaign chip; Settings in user menu for admins | Low |
+| `src/components/MobileNav.jsx` | Aligned to shared navConfig / new tabs | Low |
+| `src/lib/campaignContext.js` | Sticky campaign in `localStorage` + event bus | Low — client-only |
+| `src/components/CampaignContextChip.jsx` | Header chip → opens dialer for that campaign; clearable | Low |
+| `src/lib/targetLists.js` | `resolveWorkingListId` prefers sticky campaign when still valid | Medium — changes default dialer list when no `?list=` |
+| `src/pages/Campaigns.jsx` | Sets sticky context on Call / Contacts / Prospect / Open; shorter copy; “Call” verb | Low |
+| `src/pages/Dialer.jsx` | Syncs sticky campaign from loaded target list | Low |
+| `src/pages/Prospecting.jsx` | Sets sticky on campaign/list pick; restores sticky when no last list | Low |
+| `src/pages/Today.jsx` | Role-adaptive home: Continue calling; manager approvals/team strip; less instructional text | Medium — layout/CTA changes only; same APIs |
+| `src/components/today/TaskRow.jsx` | Primary verb “Call” | None |
+
+### Intentionally untouched
+
+- Outreach mailbox / draft / send / studio flows (nav label only)
+- Backend functions (`getTodayWork`, `prepareCallingSession`, `getTeamWorkload`, email APIs)
+- FastAmps Connect / SmartFunction playground trees
+- No feature deletion; no data model changes
+
+---
+
+## Campaign context retention
+
+**Before:** Prospecting remembered last list; Dialer remembered dial position per queue; Campaigns → Dialer passed `?list=` only for that click. Navigating away often dropped “what am I working on?” chrome.
+
+**After:** `cadence_active_campaign_v1` in localStorage + header chip. Set when:
+- Campaigns actions (Call, Contacts, Find prospects, Open, accounts)
+- Dialer loads a target list
+- Prospecting opens a campaign-linked (or prospect) list
+
+Consumed by:
+- Header chip (continue calling)
+- Dialer `resolveWorkingListId` fallback
+- Prospecting restore when no last-list key
+- Today “Continue calling” / sticky name in subtitle
+
+---
+
+## Today / My Day
+
+| Role | Primary surface |
 |---|---|
-| Today, Dialer, Campaigns, Contacts, Results, Team, Admin inbox, Outreach, Insights, Settings | **Today, Calling, Campaigns, Outreach, Inbox, Team** |
-| Contacts / Results / Insights / Settings / Prospecting always competing | Moved to **More** (secondary) |
-| Dialer | Renamed **Calling** |
-| Admin inbox | Renamed **Inbox** |
-| No campaign context in chrome | **Campaign chip** when user focuses a campaign |
+| Caller (`bdm` / similar) | Large **Continue calling** → `prepareCallingSession` → Dialer |
+| Manager / admin | Approvals (Manager Inbox count), Team workload snapshot, overdue clear — still can call |
+| Empty day | One empty state with Find prospects / Open campaigns |
 
-Mobile bottom tabs: **Today · Calling · Campaigns · Outreach · More** (was Today · Contacts · Dialer · Results · More).
+Removed from first viewport emphasis: long ContextHelp paragraph, “Start calling” wording, competing admin-inbox copy for non-managers.
 
-## Files
+---
 
-- `src/lib/navConfig.js` — shared nav source of truth  
-- `src/lib/campaignContext.js` — local sticky campaign focus  
-- `src/components/CampaignContextChip.jsx`  
-- `src/components/Layout.jsx`  
-- `src/components/MobileNav.jsx`  
-- `src/pages/Campaigns.jsx` — sets active campaign on key actions  
+## Deploy status
 
-## Preserved
+**Not deployed to production.**
 
-- Outreach routes/functions untouched in behaviour  
-- Platform menu for platform_owner  
-- Role gates unchanged  
+Base44 `branches list` returns only `main` — no non-production branch available for safe CLI deploy. Sandbox write to `main` would publish live UX without authenticated QA.
 
-## Deploy
+### Ready-to-deploy steps (when approved)
 
-Not published to production `evasive-dial-flow-go` in this step. Local eject tree + optional sandbox copy from eject. Publish only after James reviews.
+```bash
+cd cadence-sales
+# Prefer a Base44 branch if one is created in the builder:
+# npx base44 --app-id 6a7338f6106b1962aa31c00a --branch <sandbox-name> sandbox write …
+# Or site deploy after explicit owner approval:
+npx base44 --app-id 6a7338f6106b1962aa31c00a deploy --build -y
+```
 
-## Next Phase 1 candidates
+What would be published: frontend site changes only (nav, Today, campaign chip, sticky context). No entity/schema or function changes in this Phase 1 pack.
 
-- Role-adaptive Today hero (manager vs caller emphasis)  
-- Persist campaign context into Dialer/Outreach query params when missing  
-- Global Ask Cadence command bar (Phase 2)
+---
+
+## Still needs authenticated UI verification
+
+Current agent token cannot open Cadence workspace entities via API (Connect-scoped). Verify after QA login:
+
+1. Caller sees Today → Continue calling ≤3 clicks into Dialer with sticky chip
+2. Manager sees Inbox/Team strips when pending/active
+3. Campaign selected on Campaigns stays visible on Prospecting / Calling / Outreach
+4. Settings / Platform not in everyday primary nav
+5. Outreach drafts / mailbox / studio unchanged
+6. Mobile More drawer still reaches Contacts, Results, Settings
+
+---
+
+## PR note (for parent / PR #15)
+
+Phase 1 in-repo UX is on this branch under `cadence-sales/`. Docs: this file + prior audit package. No production publish performed.

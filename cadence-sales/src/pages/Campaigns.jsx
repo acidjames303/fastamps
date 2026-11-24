@@ -15,7 +15,6 @@ import RenameCampaignDialog from "@/components/campaigns/RenameCampaignDialog";
 import PushProgress from "@/components/PushProgress";
 import Prospecting from "@/pages/Prospecting";
 import Import from "@/pages/Import";
-import { setActiveCampaign } from "@/lib/campaignContext";
 
 const TABS = [
   { id: "campaigns", label: "Campaigns" },
@@ -222,8 +221,8 @@ export default function Campaigns() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-4xl font-semibold tracking-tight text-slate-900">Campaigns</h1>
-          <p className="text-slate-500 mt-2 max-w-2xl">
-            One place to create a campaign, find or import prospects, then start calling — or push the work to your team.
+          <p className="text-slate-500 mt-2 max-w-xl">
+            Create, research, then call — context sticks as you move.
           </p>
         </div>
         {tab === "campaigns" && isManager && (
@@ -417,7 +416,7 @@ export default function Campaigns() {
                             className="rounded-full h-9 bg-emerald-600 hover:bg-emerald-700"
                             onClick={() => { setActiveCampaign(c); navigate(`/dialer?list=${c.id}`); }}
                           >
-                            <Phone className="w-4 h-4 mr-1" /> Start calling
+                            <Phone className="w-4 h-4 mr-1" /> Call
                           </Button>
                           <Button
                             size="sm"
@@ -440,7 +439,7 @@ export default function Campaigns() {
                               <Users className="w-4 h-4 mr-1" /> Push to team
                             </Button>
                           )}
-                          <Link to={`/target-lists/${c.id}`}>
+                          <Link to={`/target-lists/${c.id}`} onClick={() => setActiveCampaign(c)}>
                             <Button size="sm" variant="ghost" className="rounded-full h-9">
                               Open <ArrowRight className="w-4 h-4 ml-1" />
                             </Button>
@@ -449,7 +448,9 @@ export default function Campaigns() {
                       </div>
 
                       <div className="flex flex-wrap gap-2">
-                        <Link to={`/campaign-delivery/${c.id}`}><Button size="sm" variant="outline">Data quality & review</Button></Link>
+                        <Link to={`/campaign-delivery/${c.id}`} onClick={() => setActiveCampaign(c)}>
+                          <Button size="sm" variant="outline">Data quality & review</Button>
+                        </Link>
                         <Button size="sm" variant="outline" className="rounded-full" onClick={() => { setActiveCampaign(c); navigate(`/campaigns/${c.id}/accounts`); }}>
                           <ClipboardList className="w-3.5 h-3.5 mr-1" /> Accounts &amp; notes
                         </Button>
