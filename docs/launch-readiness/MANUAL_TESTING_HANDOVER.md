@@ -18,18 +18,18 @@ Live app: https://connect.fastamps.com
 
 Reserve one code per tester; mark it used after submit.
 
-**Official sticker-template labels (same as Admin → QR batches print):**  
-download [demo-sticker-labels.zip](/opt/cursor/artifacts/demo-sticker-labels.zip) or open [PRINT-SHEET.html](/opt/cursor/artifacts/demo-sticker-labels/PRINT-SHEET.html).
+**Preferred for human manual testing: non-demo Beta stickers**  
+download [manual-test-stickers.zip](/opt/cursor/artifacts/manual-test-stickers.zip) or open [PRINT-SHEET.html](/opt/cursor/artifacts/manual-test-stickers/PRINT-SHEET.html).
 
-These use the live FastAmps warranty registration poster template with QR + serial + PIN composited exactly as production 50.8 × 76.2 mm stickers. Bare QR-only images are **not** the production format.
+These use the official FastAmps warranty sticker template and are **live `FastAmps_Beta_500_Codes_Ready` codes** (not demo/QA). They appear in normal **My installs** and follow real reward rules if approved. Mark used after submit. Do not approve/pay unless intentional.
 
 | Serial | PIN | Sticker | Claim URL |
 | --- | --- | --- | --- |
-| `FA-DEMO-001` | `000123` | [sticker](/opt/cursor/artifacts/demo-sticker-labels/FA-DEMO-001-sticker.png) | https://connect.fastamps.com/claim/a52841b28e2e4962b5af847d2cf3b264 |
-| `BETA-13277556` | `190977` | [sticker](/opt/cursor/artifacts/demo-sticker-labels/BETA-13277556-sticker.png) | https://connect.fastamps.com/claim/f4222f61304048f4b03e20e7f2bf71e9 |
-| `QA-LAUNCH-2026-W2-S00048` | `700048` | [sticker](/opt/cursor/artifacts/demo-sticker-labels/QA-LAUNCH-2026-W2-S00048-sticker.png) | https://connect.fastamps.com/claim/985339fb15034e928bea69c2bdac1f8a |
+| `FA-BETA-0001` | `232581` | [sticker](/opt/cursor/artifacts/manual-test-stickers/FA-BETA-0001-sticker.png) | https://connect.fastamps.com/claim/25422ec6545a42f7ad7ed6b8350efcf5 |
+| `FA-BETA-0002` | `515788` | [sticker](/opt/cursor/artifacts/manual-test-stickers/FA-BETA-0002-sticker.png) | https://connect.fastamps.com/claim/a3e20376d70344febd8e56911f6d24e3 |
+| `FA-BETA-0003` | `621579` | [sticker](/opt/cursor/artifacts/manual-test-stickers/FA-BETA-0003-sticker.png) | https://connect.fastamps.com/claim/fbe86d77c4764c88b101c363431bd433 |
 
-All three were **available** when generated. Open a sticker full-screen (or print at 50.8 × 76.2 mm) and scan with Connect. If a code is already claimed, pick another available **HOME-BETA** or **QA-LAUNCH-2026** charger from Admin → QR batches (demo only).
+Demo/HOME-BETA/QA stickers remain available only if needed for segregation testing; they stay hidden from normal installer history by design.
 
 Admin login: use the existing FastAmps admin account (not shared in this doc).
 
