@@ -156,6 +156,7 @@ Auth: `npx base44 login` (device) or `BASE44_API_KEY`
 - **149 hold** (24 Nov 2026) — see `iterations/149-hold.md` (gates green; no ship)
 - **150 hold** (24 Nov 2026) — see `iterations/150-hold.md` (gates green; no ship)
 - **151 live** (24 Nov 2026) — see `iterations/151-live.md` (dictate steps + lead notes)
+- **152 live** (24 Nov 2026) — see `iterations/152-live.md` (desktop Dictate a step on toolbar)
 
 ## Apply via sandbox (preferred when authenticated)
 ```bash
