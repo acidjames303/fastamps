@@ -59,13 +59,23 @@ export default async function (req) {
     const installer = installers[0];
     if (!installer) return Response.json({ error: "Create your installer profile before submitting this claim." }, { status: 400 });
 
+    // Eligibility must fail closed before any charger reserve or claim create.
+    // Also treat held pre-registration accounts as ineligible even if membership_status
+    // was stripped by a schema overwrite (historical deploy race).
     const membershipStatus = String(installer.membership_status || "active");
-    if (membershipStatus !== "active") {
+    const heldPreRegistration = installer.reward_account_status === "held"
+      && /pre-?regist/i.test(String(installer.reward_account_reason || ""));
+    const deferredWelcomeOnly = installer.welcome_reward_status === "deferred"
+      && !installer.activated_at
+      && membershipStatus !== "active";
+    if (membershipStatus !== "active" || heldPreRegistration || deferredWelcomeOnly) {
       return Response.json({
-        error: membershipStatus === "pre_registered" || membershipStatus === "invited"
+        error: membershipStatus === "pre_registered" || membershipStatus === "invited" || heldPreRegistration || deferredWelcomeOnly
           ? "Your account is on the interest list and is not yet eligible for installation rewards. We will notify you when the programme becomes available in your area."
           : "This installer account is not currently eligible to submit installation rewards. Contact FastAmps.",
-        membership_status: membershipStatus,
+        membership_status: membershipStatus === "active" && (heldPreRegistration || deferredWelcomeOnly)
+          ? "pre_registered"
+          : membershipStatus,
       }, { status: 403 });
     }
     if (installer.reward_account_status === "blocked") {

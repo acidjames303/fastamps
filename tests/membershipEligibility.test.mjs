@@ -31,7 +31,18 @@ test('claim submitters enforce membership eligibility', () => {
   assert.match(v2, /membership_status/);
   assert.match(v2, /status: 403/);
   assert.match(v2, /links-electrical-shrewsbury/);
+  assert.match(v2, /heldPreRegistration/);
+  assert.match(v2, /fail closed|Eligibility must fail closed/i);
   assert.match(v1, /membership_status/);
+  assert.match(v1, /heldPreRegistration/);
+});
+
+test('deploy-preserve harness re-pushes schemas after publish', () => {
+  const script = read('launch-readiness/simulation/src/deploy-preserve.mjs');
+  assert.match(script, /schemas_after_publish|pushSchemas/);
+  assert.match(script, /deploy-dist/);
+  assert.match(script, /membership_status/);
+  assert.match(script, /\/welcome/);
 });
 
 test('public gateway and pre-registration routes are wired', () => {
