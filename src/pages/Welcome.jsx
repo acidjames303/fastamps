@@ -16,7 +16,7 @@ export default function Welcome() {
   return (
     <AuthLayout
       title="FastAmps Connect"
-      subtitle="Installer rewards for eligible FastAmps charger installations across the UK."
+      subtitle="Earn rewards for eligible FastAmps charger installations."
       footer={
         <>
           Already have an account?{' '}
@@ -29,10 +29,10 @@ export default function Welcome() {
       <div className="space-y-4">
         <section className="rounded-2xl border border-border bg-muted/30 p-4">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-primary font-semibold">
-            <Store className="h-3.5 w-3.5" /> Active installer programme
+            <Store className="h-3.5 w-3.5" /> Active programme
           </div>
           <p className="mt-3 text-sm text-foreground/80 leading-relaxed">
-            Purchased a FastAmps charger through a participating electrical wholesaler? Join FastAmps Connect and start earning rewards for your installations.
+            Bought a FastAmps charger from a participating wholesaler? Join and start earning.
           </p>
           <Button asChild className="mt-4 w-full h-12 font-semibold">
             <Link to={joinTo}>
@@ -40,17 +40,14 @@ export default function Welcome() {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Initially Links Electrical, Shrewsbury is the controlled beta branch once FastAmps authorises activation.
-          </p>
         </section>
 
         <section className="rounded-2xl border border-border bg-muted/30 p-4">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-accent font-semibold">
-            <ClipboardList className="h-3.5 w-3.5" /> Nationwide pre-registration
+            <ClipboardList className="h-3.5 w-3.5" /> Nationwide interest list
           </div>
           <p className="mt-3 text-sm text-foreground/80 leading-relaxed">
-            FastAmps Connect is rolling out across the UK. Register your interest and we&apos;ll notify you when the programme becomes available in your area.
+            Not near an active branch yet? Register your interest and we&apos;ll tell you when it opens in your area.
           </p>
           <Button asChild variant="outline" className="mt-4 w-full h-12 font-semibold">
             <Link to={preRegTo}>
@@ -63,7 +60,7 @@ export default function Welcome() {
         <Button asChild variant="ghost" className="w-full h-11">
           <Link to="/login">
             <LogIn className="mr-2 h-4 w-4" />
-            Sign in to an existing account
+            Sign in
           </Link>
         </Button>
       </div>

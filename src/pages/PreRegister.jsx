@@ -146,7 +146,7 @@ export default function PreRegister() {
         }
       >
         <div className="rounded-2xl border border-primary/25 bg-primary/5 p-4 text-sm leading-relaxed text-foreground/80">
-          You are not an active incentive programme member yet. We will notify you when FastAmps Connect becomes available through your preferred wholesaler or in your area.
+          You&apos;re on the interest list — not an active rewards member yet. We&apos;ll email you when your area opens.
         </div>
         <Button className="mt-6 w-full h-12" onClick={() => navigate('/')}>
           Go to FastAmps Connect
@@ -198,7 +198,7 @@ export default function PreRegister() {
     <AuthLayout
       icon={UserPlus}
       title="Pre-register your interest"
-      subtitle="Tell us where you install and which wholesaler branch you use. We'll notify you when FastAmps Connect is available nearby."
+      subtitle="Tell us your preferred wholesaler branch. We'll email you when FastAmps Connect opens nearby."
       footer={
         <>
           Prefer to join an active programme?{' '}

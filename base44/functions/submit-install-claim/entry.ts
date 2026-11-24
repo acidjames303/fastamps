@@ -58,10 +58,12 @@ export default async function (req) {
     if (!installer) return Response.json({ error: "Create your installer profile before submitting this claim." }, { status: 400 });
 
     const membershipStatus = String(installer.membership_status || "active");
-    if (membershipStatus !== "active") {
+    const heldPreRegistration = installer.reward_account_status === "held"
+      && /pre-?regist/i.test(String(installer.reward_account_reason || ""));
+    if (membershipStatus !== "active" || heldPreRegistration) {
       return Response.json({
         error: "Your account is not yet eligible for installation rewards. Pre-registered installers cannot submit incentive claims until FastAmps activates programme access.",
-        membership_status: membershipStatus,
+        membership_status: heldPreRegistration ? "pre_registered" : membershipStatus,
       }, { status: 403 });
     }
     if (installer.reward_account_status === "blocked") {

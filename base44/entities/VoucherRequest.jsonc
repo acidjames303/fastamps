@@ -107,6 +107,11 @@
       "type": "boolean",
       "default": false
     },
+    "qa_financial_lifecycle": {
+      "type": "boolean",
+      "default": false,
+      "description": "Isolated virtual QA redemption; excluded from commercial reporting"
+    },
     "last_checked_date": {
       "type": "string",
       "format": "date-time",

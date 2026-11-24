@@ -8,6 +8,14 @@ function isReferralCreditToken(value) {
   return String(value || "").startsWith("referral-credit-");
 }
 
+function isQaLifecycle(row) {
+  return row?.qa_financial_lifecycle === true;
+}
+
+function commerciallyExcluded(row) {
+  return (row?.excluded_from_reporting || row?.is_demo) && !isQaLifecycle(row);
+}
+
 const PENDING_CODES = new Set([
   "INFO_CAMPAIGN_CREATED_FUNDS_REQUIRED",
   "INFO_CAMPAIGN_CREATED_FUNDS_PENDING",
@@ -116,7 +124,7 @@ Deno.serve(async (req) => {
       installer_email: voucherRequest.installer_email,
     });
     const hasPreviousCompletedRedemption = installerRequests.some((item) =>
-      item.id !== voucherRequest.id && !item.excluded_from_reporting && item.status === "sent"
+      item.id !== voucherRequest.id && !commerciallyExcluded(item) && item.status === "sent"
     );
     if (["send", "manual_sent"].includes(action)) {
       const currentTokens = new Set(voucherRequest.claim_ids || []);
@@ -137,7 +145,7 @@ Deno.serve(async (req) => {
       });
       const uniqueApprovedInstallCount = new Set(
         approvedInstalls
-          .filter((claim) => !claim.excluded_from_reporting && !claim.is_demo && !["held", "rejected"].includes(claim.reward_status) && claim.install_photo_url && claim.serial_photo_url)
+          .filter((claim) => !commerciallyExcluded(claim) && !["held", "rejected"].includes(claim.reward_status) && claim.install_photo_url && claim.serial_photo_url)
           .map((claim) => String(claim.serial_number || "").trim().toUpperCase())
           .filter(Boolean),
       ).size;
@@ -154,7 +162,7 @@ Deno.serve(async (req) => {
       const claimRecords = [];
       for (const claimId of rewardParts.filter((value) => !isReferralCreditToken(value))) {
         const claim = await base44.asServiceRole.entities.InstallClaim.get(claimId);
-        if (!claim || claim.excluded_from_reporting || claim.is_demo || claim.status !== "approved" ||
+        if (!claim || commerciallyExcluded(claim) || claim.status !== "approved" ||
             !claim.serial_photo_url || !claim.install_photo_url ||
             !["redemption_requested", "approved"].includes(claim.reward_status) ||
             claim.installer_email !== voucherRequest.installer_email) {
@@ -168,8 +176,7 @@ Deno.serve(async (req) => {
           return Response.json({ error: "This installation is not linked to a valid matching charger register record. Hold payout and investigate." }, { status: 409 });
         }
         const sameSerialClaims = await base44.asServiceRole.entities.InstallClaim.filter({ serial_number: claim.serial_number });
-        if (sameSerialClaims.some((other) => other.id !== claim.id && !other.is_demo &&
-          !other.excluded_from_reporting && other.status === "approved")) {
+        if (sameSerialClaims.some((other) => other.id !== claim.id && !commerciallyExcluded(other) && other.status === "approved")) {
           return Response.json({ error: "Multiple approved installation claims exist for one charger serial number. Payout is blocked." }, { status: 409 });
         }
         claimRecords.push(claim);
