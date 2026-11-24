@@ -21,6 +21,7 @@
     "claim-wave-50": "node src/claim-wave-50.mjs",
     "reconcile-qa": "node src/reconcile-qa-dataset.mjs",
     "genuine-photo-e2e": "node src/genuine-photo-e2e.mjs",
+    "verify-create-time": "node src/verify-create-time-protections.mjs",
     "guard": "node src/env-guard.mjs"
   }
 }

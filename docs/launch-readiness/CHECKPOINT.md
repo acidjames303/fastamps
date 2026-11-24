@@ -5,10 +5,11 @@ Updated: 2026-11-23 (Europe/London)
 | Field | Value |
 | --- | --- |
 | Mission | V1 final audit (PR #10 → UX → USD Testbed → 50×20) |
-| Decision | **CONDITIONAL GO** — see `FINAL_LAUNCH_READINESS_REPORT.md` + `RELEASE_INTEGRITY_CHECK.md` |
+| Decision | **GO** for manual testing · **CONDITIONAL GO** for Links beta ops |
 | Feature freeze | In force |
 | Base URL | https://connect.fastamps.com |
-| Frontend | `index-Dqk2xKAX.js` |
+| Frontend | `index-Dqk2xKAX.js` (restored via deploy-dist 2026-11-24) |
+| Backend | create-time QA protections live (`submit-install-claim-v2`) |
 | Cohort | **50** QA installers; **1811** QA claims; photos complete; rewards held / excluded |
 
 ## Phase status

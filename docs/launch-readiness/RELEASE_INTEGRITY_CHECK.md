@@ -4,9 +4,9 @@ Updated: 2026-11-23 (Europe/London)
 Scope: controlled final check only (no new stress wave, no feature expansion)  
 Feature freeze: **in force**
 
-## Decision: **CONDITIONAL GO** (unchanged class)
+## Decision: **CONDITIONAL GO** for beta ops · **GO** for manual testing
 
-Core product remains suitable for a bounded Shrewsbury beta. One **approved, undeployed** backend hardening item remains before create-time QA protections are live.
+Core product remains suitable for a bounded Shrewsbury beta. Create-time QA protections were **deployed and verified on 2026-11-24** (see `DEPLOYMENT_REPORT.md`).
 
 ---
 
@@ -18,9 +18,9 @@ Core product remains suitable for a bounded Shrewsbury beta. One **approved, und
 | Harness behaviour today | Post-create admin `PUT` patches `is_demo` + `excluded_from_reporting` + `reward_status=held` (gap window exists until patch) |
 | Repo fix (this branch) | Demo/QA claims now create with **`held` + `excluded_from_reporting` + `is_demo`** immediately; live installers unchanged (`pending`, not excluded) |
 | Unit proof | `tests/demoClaimProtections.test.mjs` PASS |
-| Deployed? | **No** — requires approved Base44 function publish (`POST /deploy`) |
+| Deployed? | **Yes** — 2026-11-24: redeploy-function + `POST /deploy` + `deploy-dist` SPA restore |
 
-Genuine-photo E2E on live confirmed `created_protected: false` then successful harness patch. **Do not treat create-time protections as live until function deploy is approved and verified.**
+Post-deploy verify (no harness patch): `QA-LAUNCH-2026-W2-S00049` created with `is_demo` + excluded + `held` immediately.
 
 ---
 
