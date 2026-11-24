@@ -152,6 +152,7 @@ Auth: `npx base44 login` (device) or `BASE44_API_KEY`
 - **145 hold** (24 Nov 2026) — see `iterations/145-hold.md` (gates green; no ship)
 - **146 hold** (24 Nov 2026) — see `iterations/146-hold.md` (gates green; no ship)
 - **147 hold** (24 Nov 2026) — see `iterations/147-hold.md` (gates green; no ship)
+- **148 hold** (24 Nov 2026) — see `iterations/148-hold.md` (gates green; no ship)
 
 ## Apply via sandbox (preferred when authenticated)
 ```bash
