@@ -1,0 +1,196 @@
+{
+  "name": "Task",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side, never trusted from the client."
+    },
+    "assigned_user_id": {
+      "type": "string",
+      "description": "User the task is assigned to. Empty/missing = unassigned (claimable)."
+    },
+    "created_by_user_id": {
+      "type": "string",
+      "description": "User or system that created the task."
+    },
+    "target_list_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "contact_id": {
+      "type": "string"
+    },
+    "prospect_id": {
+      "type": "string"
+    },
+    "call_log_id": {
+      "type": "string",
+      "description": "CallLog that originated this task, for call_outcome-sourced tasks."
+    },
+    "task_type": {
+      "type": "string",
+      "enum": [
+        "new_call",
+        "callback",
+        "follow_up",
+        "revisit",
+        "research_review",
+        "data_review",
+        "opportunity_review",
+        "info_request_followup",
+        "manual"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "skipped",
+        "cancelled"
+      ],
+      "default": "pending"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "urgent",
+        "high",
+        "normal",
+        "low"
+      ],
+      "default": "normal"
+    },
+    "priority_score": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 deterministic priority score."
+    },
+    "priority_reason": {
+      "type": "string",
+      "description": "Human-readable explanation of the priority score."
+    },
+    "due_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Canonical due date-time in ISO UTC. Never a display-formatted string."
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date-only convenience field (organisation timezone calendar day)."
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "snoozed_until": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When set, the task is hidden from the queue until this time."
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "timezone": {
+      "type": "string",
+      "description": "Organisation timezone at creation time (IANA, e.g. Europe/London)."
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "system",
+        "call_outcome",
+        "target_list",
+        "prospect_approval",
+        "user",
+        "manager"
+      ],
+      "default": "system"
+    },
+    "source_reference": {
+      "type": "string",
+      "description": "Opaque reference to the originating record or event."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "Prevents duplicate active tasks for the same record + type."
+    },
+    "attempt_number": {
+      "type": "number",
+      "default": 1
+    },
+    "maximum_attempts": {
+      "type": "number",
+      "default": 1
+    },
+    "locked_by_user_id": {
+      "type": "string",
+      "description": "User currently working this task. Prevents simultaneous work."
+    },
+    "locked_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "skip_reason": {
+      "type": "string",
+      "description": "Required short reason when a task is skipped."
+    }
+  },
+  "required": [
+    "organisation_id",
+    "task_type"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

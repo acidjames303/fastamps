@@ -1,0 +1,4 @@
+{
+  "name": "pollEnrichmentJob",
+  "entry": "entry.ts"
+}

@@ -1,0 +1,124 @@
+{
+  "name": "LawfulBasisRecord",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side."
+    },
+    "subject_type": {
+      "type": "string",
+      "enum": [
+        "contact",
+        "company",
+        "campaign"
+      ]
+    },
+    "contact_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "campaign_id": {
+      "type": "string"
+    },
+    "lawful_basis": {
+      "type": "string",
+      "enum": [
+        "legitimate_interest",
+        "consent",
+        "contract",
+        "legal_obligation",
+        "public_interest",
+        "vital_interest"
+      ]
+    },
+    "purpose": {
+      "type": "string",
+      "description": "Specific purpose for which the data is processed."
+    },
+    "source": {
+      "type": "string"
+    },
+    "decision_summary": {
+      "type": "string",
+      "description": "Summary of the decision rationale. Not automated legal advice."
+    },
+    "assessment_reference": {
+      "type": "string",
+      "description": "Reference to the organisation's LIA or assessment document."
+    },
+    "decided_by_user_id": {
+      "type": "string"
+    },
+    "decided_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "review_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "review_required",
+        "superseded",
+        "withdrawn"
+      ],
+      "default": "active"
+    },
+    "evidence_references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "References to supporting evidence."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "subject_type",
+    "lawful_basis",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

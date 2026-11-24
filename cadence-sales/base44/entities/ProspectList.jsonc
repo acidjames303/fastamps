@@ -1,0 +1,110 @@
+{
+  "name": "ProspectList",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "campaign_id": {
+      "type": "string",
+      "description": "Optional Campaign linked to this prospecting workspace. One workspace is reused per campaign."
+    },
+    "brief": {
+      "type": "string",
+      "description": "Campaign brief, independent from the structured ICP."
+    },
+    "icp": {
+      "type": "string",
+      "description": "JSON of structured ideal customer profile criteria."
+    },
+    "original_brief": {
+      "type": "string",
+      "description": "Original brief preserved before structured ICP separation. Not overwritten by the editor."
+    },
+    "original_icp": {
+      "type": "string",
+      "description": "Original ICP contents preserved before separation."
+    },
+    "target_titles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Explicit target job titles for decision-maker ranking. Overrides organisation defaults."
+    },
+    "target_departments": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "excluded_titles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "preferred_seniority": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "max_contacts_per_company": {
+      "type": "number",
+      "default": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "enriching",
+        "ready"
+      ],
+      "enumColors": [
+        "gray",
+        "yellow",
+        "green"
+      ],
+      "default": "draft"
+    },
+    "company_count": {
+      "type": "number",
+      "default": 0
+    },
+    "permitted_countries": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "GB"
+      ]
+    },
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; set from the authenticated user."
+    },
+    "owner_user_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "brief",
+    "organisation_id"
+  ],
+  "rls": {
+    "read": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "delete": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    }
+  }
+}

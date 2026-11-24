@@ -1,0 +1,137 @@
+{
+  "name": "Organisation",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "suspended",
+        "cancelled"
+      ],
+      "default": "active"
+    },
+    "subscription_plan": {
+      "type": "string"
+    },
+    "billing_email": {
+      "type": "string"
+    },
+    "timezone": {
+      "type": "string",
+      "default": "Europe/London"
+    },
+    "country": {
+      "type": "string",
+      "default": "United Kingdom"
+    },
+    "default_calling_mode": {
+      "type": "string",
+      "enum": [
+        "external_device",
+        "embedded",
+        "power_dial"
+      ],
+      "default": "external_device"
+    },
+    "telephony_provider": {
+      "type": "string"
+    },
+    "crm_provider": {
+      "type": "string"
+    },
+    "monthly_research_limit": {
+      "type": "number"
+    },
+    "monthly_enrichment_limit": {
+      "type": "number"
+    },
+    "monthly_call_minutes": {
+      "type": "number"
+    },
+    "onboarding_progress": {
+      "type": "object",
+      "description": "Map of onboarding step keys to completion booleans."
+    },
+    "onboarding_completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "created_by_user_id": {
+      "type": "string"
+    },
+    "settings": {
+      "type": "object"
+    },
+    "pilot_status": {
+      "type": "string",
+      "enum": [
+        "setup",
+        "internal_test",
+        "pilot",
+        "live",
+        "paused",
+        "offboarding"
+      ],
+      "default": "setup"
+    },
+    "pilot_activated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "pilot_readiness_checks": {
+      "type": "object",
+      "description": "Map of readiness check key to { status, checked_at, notes }."
+    },
+    "pilot_recommended_user_limit": {
+      "type": "number",
+      "default": 5
+    },
+    "pilot_support_contact": {
+      "type": "string"
+    },
+    "pilot_tenant_isolation_tested_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "name",
+    "slug"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

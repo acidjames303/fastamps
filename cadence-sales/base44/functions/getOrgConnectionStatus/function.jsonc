@@ -1,0 +1,4 @@
+{
+  "name": "getOrgConnectionStatus",
+  "entry": "entry.ts"
+}

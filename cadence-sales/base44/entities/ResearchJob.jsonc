@@ -1,0 +1,133 @@
+{
+  "name": "ResearchJob",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side, never from the client."
+    },
+    "target_list_id": {
+      "type": "string",
+      "description": "Target List (Campaign) this job researches for."
+    },
+    "requested_by_user_id": {
+      "type": "string"
+    },
+    "job_type": {
+      "type": "string",
+      "enum": [
+        "company_research",
+        "company_discovery",
+        "fit_scoring",
+        "decision_maker_search",
+        "contact_enrichment",
+        "research_refresh"
+      ],
+      "description": "What kind of research job this is."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "processing",
+        "completed",
+        "partially_completed",
+        "failed",
+        "cancelled"
+      ],
+      "default": "queued"
+    },
+    "total_records": {
+      "type": "number",
+      "default": 0
+    },
+    "processed_records": {
+      "type": "number",
+      "default": 0
+    },
+    "successful_records": {
+      "type": "number",
+      "default": 0
+    },
+    "failed_records": {
+      "type": "number",
+      "default": 0
+    },
+    "skipped_records": {
+      "type": "number",
+      "default": 0,
+      "description": "Records skipped because already current, cooling down, or out of scope."
+    },
+    "estimated_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "actual_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "error_summary": {
+      "type": "string",
+      "description": "Sanitised summary of failures; never provider secrets."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "Prevents simultaneous duplicate jobs of the same type for the same target list."
+    }
+  },
+  "required": [
+    "organisation_id",
+    "target_list_id",
+    "job_type",
+    "idempotency_key"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

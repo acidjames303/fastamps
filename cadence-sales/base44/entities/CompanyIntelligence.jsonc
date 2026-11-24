@@ -1,0 +1,167 @@
+{
+  "name": "CompanyIntelligence",
+  "type": "object",
+  "properties": {
+    "company_id": {
+      "type": "string",
+      "description": "Reference to the Company record this intelligence belongs to"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Denormalised company name for display without a join"
+    },
+    "canonical_key": {
+      "type": "string",
+      "description": "Organisation-scoped normalised identity (domain preferred, company name fallback) used to reuse research across duplicate company records and lists."
+    },
+    "research_lock_expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Short-lived lock preventing concurrent batches from researching the same canonical company."
+    },
+    "turnover_estimate": {
+      "type": "string",
+      "description": "AI-researched estimated annual turnover/revenue"
+    },
+    "tech_stack": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Detected technologies / platforms used by the company"
+    },
+    "news": {
+      "type": "string",
+      "description": "Recent developments, funding, leadership changes, expansions"
+    },
+    "buyer_signals": {
+      "type": "string",
+      "description": "Trigger events indicating purchase intent or timing"
+    },
+    "icp_fit_score": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 score of how well the company fits the active campaign ICP"
+    },
+    "icp_fit_reason": {
+      "type": "string"
+    },
+    "target_roles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Senior job titles this campaign should target at the company"
+    },
+    "ai_summary": {
+      "type": "string",
+      "description": "AI-generated concise briefing about the company (JSON: summary/what_they_do/who_they_target)"
+    },
+    "researched_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string",
+      "description": "Where the intelligence was gathered: ai_web, lusha, fullenrich, manual"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "researching",
+        "current",
+        "stale",
+        "failed"
+      ],
+      "default": "pending",
+      "description": "Lifecycle of this intelligence record; prevents concurrent duplicate research."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the current research was generated."
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this intelligence should be considered stale and re-researched."
+    },
+    "confidence": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 confidence in the research quality."
+    },
+    "intelligence_version": {
+      "type": "number",
+      "default": 1,
+      "description": "Increments each time this company is re-researched."
+    },
+    "model_provider": {
+      "type": "string",
+      "description": "Provider of the model used (e.g. google)."
+    },
+    "model_name": {
+      "type": "string",
+      "description": "Model identifier used to generate this intelligence."
+    },
+    "estimated_cost": {
+      "type": "number",
+      "default": 0,
+      "description": "Estimated integration-credit cost of generating this research."
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Failure detail when status is 'failed'."
+    },
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; set from the authenticated user, never trusted from the client."
+    }
+  },
+  "required": [
+    "company_id",
+    "organisation_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

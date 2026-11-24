@@ -1,0 +1,216 @@
+{
+  "name": "Company",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Canonical registered/trading name of the company"
+    },
+    "domain": {
+      "type": "string",
+      "description": "Primary website domain (e.g. acme.co.uk), no protocol, no www"
+    },
+    "website": {
+      "type": "string",
+      "description": "Full homepage URL"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "employee_range": {
+      "type": "string",
+      "enum": [
+        "1-10",
+        "11-50",
+        "51-200",
+        "201-500",
+        "501-1000",
+        "1000+"
+      ],
+      "enumColors": [
+        "green",
+        "green",
+        "yellow",
+        "yellow",
+        "red",
+        "red"
+      ]
+    },
+    "location": {
+      "type": "string",
+      "description": "HQ city, country"
+    },
+    "linkedin": {
+      "type": "string",
+      "description": "Company LinkedIn URL"
+    },
+    "landline": {
+      "type": "string",
+      "description": "Company main phone/switchboard number"
+    },
+    "generic_email": {
+      "type": "string",
+      "description": "Company inbox accepted through the data-review workflow."
+    },
+    "email_source": {
+      "type": "string",
+      "description": "Source for the reviewed company inbox."
+    },
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; set from the authenticated user, never trusted from the client."
+    },
+    "owner_user_id": {
+      "type": "string",
+      "description": "User who owns this company record within the organisation."
+    },
+    "data_source": {
+      "type": "string",
+      "description": "Where the company data originated."
+    },
+    "source_reference": {
+      "type": "string"
+    },
+    "business_entity_type": {
+      "type": "string",
+      "enum": [
+        "limited_company",
+        "llp",
+        "sole_trader",
+        "partnership",
+        "public_limited",
+        "charity",
+        "unknown"
+      ],
+      "default": "unknown",
+      "enumColors": [
+        "blue",
+        "purple",
+        "yellow",
+        "pink",
+        "green",
+        "blue",
+        "gray"
+      ]
+    },
+    "country": {
+      "type": "string",
+      "default": "United Kingdom"
+    },
+    "calling_jurisdiction": {
+      "type": "string",
+      "description": "Jurisdiction governing calls to this company (e.g. UK, EU)."
+    },
+    "corporate_subscriber_status": {
+      "type": "string",
+      "enum": [
+        "corporate",
+        "sole_trader",
+        "partnership",
+        "unknown"
+      ],
+      "default": "unknown",
+      "enumColors": [
+        "blue",
+        "yellow",
+        "purple",
+        "gray"
+      ]
+    },
+    "sole_trader_or_partnership_flag": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, may require different compliance handling."
+    },
+    "suppression_status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "active",
+        "overridden",
+        "expired"
+      ],
+      "default": "none",
+      "enumColors": [
+        "gray",
+        "red",
+        "yellow",
+        "gray"
+      ]
+    },
+    "suppression_reason": {
+      "type": "string"
+    },
+    "compliance_review_status": {
+      "type": "string",
+      "enum": [
+        "not_reviewed",
+        "review_required",
+        "reviewed",
+        "approved",
+        "flagged"
+      ],
+      "default": "not_reviewed",
+      "enumColors": [
+        "gray",
+        "yellow",
+        "blue",
+        "green",
+        "red"
+      ]
+    },
+    "last_compliance_check_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "retention_review_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "name",
+    "organisation_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

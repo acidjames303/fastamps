@@ -1,0 +1,111 @@
+{
+  "name": "CampaignHighlight",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side."
+    },
+    "campaign_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "contact_id": {
+      "type": "string"
+    },
+    "call_log_id": {
+      "type": "string",
+      "description": "CallLog this highlight originated from, if any"
+    },
+    "highlight_type": {
+      "type": "string",
+      "enum": [
+        "meaningful_conversation",
+        "interested_prospect",
+        "callback_arranged",
+        "decision_maker_identified",
+        "opportunity_qualified",
+        "meeting_agreed",
+        "market_feedback"
+      ]
+    },
+    "client_visible_summary": {
+      "type": "string",
+      "description": "Safe-to-share summary for client reports"
+    },
+    "next_action": {
+      "type": "string"
+    },
+    "owner_user_id": {
+      "type": "string",
+      "description": "Caller who created this highlight"
+    },
+    "created_by_user_id": {
+      "type": "string"
+    },
+    "approval_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "approved_by_user_id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "campaign_id",
+    "highlight_type"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

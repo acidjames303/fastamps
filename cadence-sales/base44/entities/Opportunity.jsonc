@@ -1,0 +1,273 @@
+{
+  "name": "Opportunity",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side, never from the client."
+    },
+    "company_id": {
+      "type": "string",
+      "description": "Company this opportunity is with."
+    },
+    "primary_contact_id": {
+      "type": "string",
+      "description": "Main decision-maker contact."
+    },
+    "campaign_id": {
+      "type": "string",
+      "description": "Target list / campaign that generated this opportunity."
+    },
+    "owner_user_id": {
+      "type": "string",
+      "description": "User who owns this opportunity."
+    },
+    "source_call_log_id": {
+      "type": "string",
+      "description": "CallLog that created this opportunity."
+    },
+    "source_task_id": {
+      "type": "string",
+      "description": "Task that originated the call which created this opportunity."
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Denormalised client name for convenience."
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable opportunity name."
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "discovered",
+        "qualifying",
+        "qualified",
+        "meeting_proposed",
+        "meeting_booked",
+        "handoff_ready",
+        "handed_off",
+        "closed_won",
+        "closed_lost"
+      ],
+      "default": "discovered",
+      "description": "Simple pipeline stage \u2014 not a full CRM pipeline."
+    },
+    "qualification_status": {
+      "type": "string",
+      "enum": [
+        "incomplete",
+        "qualifying",
+        "qualified",
+        "disqualified"
+      ],
+      "default": "incomplete"
+    },
+    "estimated_value": {
+      "type": "number",
+      "default": 0
+    },
+    "currency": {
+      "type": "string",
+      "default": "GBP"
+    },
+    "expected_close_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "need_summary": {
+      "type": "string",
+      "description": "What the prospect needs."
+    },
+    "pain_points": {
+      "type": "string",
+      "description": "Problems they are experiencing."
+    },
+    "current_solution": {
+      "type": "string",
+      "description": "What they use today."
+    },
+    "business_impact": {
+      "type": "string",
+      "description": "Commercial impact of the problem."
+    },
+    "timing": {
+      "type": "string",
+      "description": "Urgency / likely timescale."
+    },
+    "budget_status": {
+      "type": "string",
+      "description": "Budget indication."
+    },
+    "decision_makers": {
+      "type": "string",
+      "description": "Who is involved in the decision."
+    },
+    "decision_process": {
+      "type": "string",
+      "description": "How they make buying decisions."
+    },
+    "authority_status": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "influencer",
+        "decision_maker",
+        "economic_buyer",
+        "technical_buyer",
+        "end_user",
+        "gatekeeper",
+        "champion"
+      ],
+      "default": "unknown",
+      "description": "Authority level of the primary contact."
+    },
+    "next_step": {
+      "type": "string",
+      "description": "Agreed next action."
+    },
+    "next_step_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "meeting_id": {
+      "type": "string",
+      "description": "Linked Meeting record."
+    },
+    "meeting_status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "proposed",
+        "booked",
+        "completed",
+        "cancelled",
+        "no_show",
+        "rescheduled"
+      ],
+      "default": "none",
+      "description": "Mirrors the linked Meeting status for quick filtering."
+    },
+    "manager_review_status": {
+      "type": "string",
+      "enum": [
+        "not_submitted",
+        "awaiting_review",
+        "approved",
+        "changes_requested",
+        "rejected"
+      ],
+      "default": "not_submitted"
+    },
+    "manager_reviewed_by": {
+      "type": "string"
+    },
+    "manager_reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "manager_review_notes": {
+      "type": "string"
+    },
+    "handoff_status": {
+      "type": "string",
+      "enum": [
+        "not_ready",
+        "awaiting_review",
+        "approved",
+        "sending",
+        "handed_off",
+        "failed",
+        "changes_requested"
+      ],
+      "default": "not_ready"
+    },
+    "handoff_destination": {
+      "type": "string",
+      "description": "Destination type selected for handoff: csv, webhook, hubspot, manual."
+    },
+    "external_record_id": {
+      "type": "string",
+      "description": "ID of the external CRM record created by handoff."
+    },
+    "external_record_url": {
+      "type": "string",
+      "description": "URL to the external CRM record."
+    },
+    "handoff_payload": {
+      "type": "string",
+      "description": "JSON string of the last approved canonical handoff payload."
+    },
+    "handoff_payload_version": {
+      "type": "number",
+      "default": 1
+    },
+    "last_handoff_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_handoff_error": {
+      "type": "string",
+      "description": "Safe error message from the last handoff attempt."
+    },
+    "ai_summary": {
+      "type": "string",
+      "description": "AI-generated summary, created only when handoff-ready. Not on every render."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "company_id",
+    "name"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

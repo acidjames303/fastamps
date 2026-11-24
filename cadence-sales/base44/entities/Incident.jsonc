@@ -1,0 +1,142 @@
+{
+  "name": "Incident",
+  "type": "object",
+  "properties": {
+    "severity": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "normal",
+        "low"
+      ],
+      "default": "normal"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "investigating",
+        "identified",
+        "monitoring",
+        "resolved"
+      ],
+      "default": "investigating"
+    },
+    "title": {
+      "type": "string"
+    },
+    "safe_summary": {
+      "type": "string",
+      "description": "Safe summary. Never credentials or customer content."
+    },
+    "affected_organisation_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "affected_features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "detected_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "acknowledged_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "mitigated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "incident_owner_user_id": {
+      "type": "string"
+    },
+    "customer_impact": {
+      "type": "string",
+      "description": "Description of customer-visible impact."
+    },
+    "workaround": {
+      "type": "string"
+    },
+    "root_cause_category": {
+      "type": "string",
+      "enum": [
+        "code_defect",
+        "config_error",
+        "provider_outage",
+        "data_issue",
+        "capacity",
+        "security",
+        "unknown"
+      ]
+    },
+    "resolution_summary": {
+      "type": "string"
+    },
+    "follow_up_actions": {
+      "type": "string",
+      "description": "Corrective actions and owners."
+    },
+    "status_notice_published": {
+      "type": "boolean",
+      "default": false
+    },
+    "post_mortem_completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "post_mortem": {
+      "type": "object",
+      "description": "Root-cause review: what happened, impact, detection, mitigation, root cause, why safeguards failed, corrective action, owner, due date, regression test, release containing fix."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "severity",
+    "status",
+    "title",
+    "safe_summary"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

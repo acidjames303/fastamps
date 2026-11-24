@@ -1,0 +1,196 @@
+{
+  "name": "SubscriptionPlan",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Display name (e.g. Starter, Team, Scale)"
+    },
+    "code": {
+      "type": "string",
+      "description": "Unique plan code (e.g. trial, starter, team, scale)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "retired"
+      ],
+      "default": "active"
+    },
+    "billing_interval": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "annual"
+      ],
+      "default": "monthly"
+    },
+    "price_gbp": {
+      "type": "number",
+      "default": 0
+    },
+    "included_users": {
+      "type": "number",
+      "default": 1
+    },
+    "maximum_users": {
+      "type": "number",
+      "default": 1
+    },
+    "included_admins": {
+      "type": "number",
+      "default": 1,
+      "description": "Operations-admin accounts included in the plan."
+    },
+    "included_sdrs": {
+      "type": "number",
+      "default": 0,
+      "description": "Caller/SDR accounts included in the plan."
+    },
+    "additional_sdr_price_gbp": {
+      "type": "number",
+      "default": 35,
+      "description": "Monthly list price for each approved additional SDR seat."
+    },
+    "founding_price_protected": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether an organisation-specific subscription may retain its founding price."
+    },
+    "included_smart_actions": {
+      "type": "number",
+      "default": 0,
+      "description": "Monthly organisation pool for Cadence-funded AI and file-processing actions. Core workflow and customer-funded provider calls are excluded."
+    },
+    "core_workflow_policy": {
+      "type": "string",
+      "enum": [
+        "unlimited_fair_use"
+      ],
+      "default": "unlimited_fair_use"
+    },
+    "provider_billing_model": {
+      "type": "string",
+      "enum": [
+        "customer_owned"
+      ],
+      "default": "customer_owned",
+      "description": "Calling, enrichment and connected provider charges are paid directly by the customer."
+    },
+    "plan_summary": {
+      "type": "string"
+    },
+    "support_level": {
+      "type": "string",
+      "enum": [
+        "standard",
+        "priority",
+        "dedicated"
+      ],
+      "default": "standard"
+    },
+    "included_call_minutes": {
+      "type": "number",
+      "default": 0
+    },
+    "included_integration_actions": {
+      "type": "number",
+      "default": 0
+    },
+    "included_message_actions": {
+      "type": "number",
+      "default": 0
+    },
+    "included_enrichment_requests": {
+      "type": "number",
+      "default": 0
+    },
+    "included_research_requests": {
+      "type": "number",
+      "default": 0
+    },
+    "included_ai_actions": {
+      "type": "number",
+      "default": 0
+    },
+    "included_storage_mb": {
+      "type": "number",
+      "default": 100
+    },
+    "maximum_contacts": {
+      "type": "number",
+      "default": 0,
+      "description": "Maximum active contact records. Zero means no plan-level cap."
+    },
+    "maximum_active_lists": {
+      "type": "number",
+      "default": 0,
+      "description": "Maximum active prospect lists. Zero means no plan-level cap."
+    },
+    "default_retention_days": {
+      "type": "number",
+      "default": 365,
+      "description": "Recommended customer-configurable retention period; not an automatic deletion instruction."
+    },
+    "overage_policy": {
+      "type": "string",
+      "enum": [
+        "block",
+        "warn",
+        "charge"
+      ],
+      "default": "block"
+    },
+    "feature_flags": {
+      "type": "object",
+      "description": "Map of feature key to boolean"
+    },
+    "trial_days": {
+      "type": "number",
+      "default": 0
+    },
+    "external_product_id": {
+      "type": "string",
+      "description": "Stripe product ID"
+    },
+    "external_price_id": {
+      "type": "string",
+      "description": "Stripe price ID"
+    },
+    "display_order": {
+      "type": "number",
+      "default": 0
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "name",
+    "code"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

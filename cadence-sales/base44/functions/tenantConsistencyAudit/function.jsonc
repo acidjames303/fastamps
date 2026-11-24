@@ -1,0 +1,4 @@
+{
+  "name": "tenantConsistencyAudit",
+  "entry": "entry.ts"
+}

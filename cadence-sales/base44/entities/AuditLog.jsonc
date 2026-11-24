@@ -1,0 +1,107 @@
+{
+  "name": "AuditLog",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side, never from the client."
+    },
+    "actor_user_id": {
+      "type": "string",
+      "description": "User who performed the action."
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "outcome_submitted",
+        "callback_created",
+        "callback_rescheduled",
+        "contact_suppressed",
+        "suppression_overridden",
+        "opportunity_created",
+        "opportunity_stage_changed",
+        "opportunity_marked_ready_for_handoff",
+        "opportunity_handed_off",
+        "credential_updated",
+        "credential_removed",
+        "meeting_proposed",
+        "meeting_booked",
+        "meeting_rescheduled",
+        "meeting_cancelled",
+        "meeting_completed",
+        "opportunity_submitted_for_review",
+        "opportunity_review_approved",
+        "opportunity_review_changes_requested",
+        "opportunity_review_rejected",
+        "handoff_initiated",
+        "handoff_succeeded",
+        "handoff_failed",
+        "handoff_retried",
+        "integration_connected",
+        "integration_changed",
+        "integration_disconnected",
+        "security_access_denied",
+        "authorisation_revoked",
+        "webhook_rejected",
+        "membership_created",
+        "membership_changed",
+        "membership_disabled",
+        "membership_restored",
+        "elevated_action"
+      ]
+    },
+    "entity_type": {
+      "type": "string",
+      "description": "Meeting, Opportunity, HandoffAttempt, HandoffDestination, etc."
+    },
+    "entity_id": {
+      "type": "string"
+    },
+    "previous_value": {
+      "type": "string",
+      "description": "Previous state/value where appropriate."
+    },
+    "new_value": {
+      "type": "string",
+      "description": "New state/value where appropriate."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "action",
+    "entity_type"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

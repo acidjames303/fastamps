@@ -1,0 +1,87 @@
+{
+  "name": "OutreachWorkspace",
+  "properties": {
+    "organisation_id": {
+      "type": "string"
+    },
+    "owner_user_id": {
+      "type": "string"
+    },
+    "brand_key": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "tone_guidance": {
+      "type": "string"
+    },
+    "sender_address": {
+      "type": "string"
+    },
+    "is_archived": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "organisation_id",
+    "owner_user_id",
+    "brand_key",
+    "name"
+  ],
+  "type": "object",
+  "rls": {
+    "create": {
+      "$and": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "data.owner_user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "read": {
+      "$and": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "data.owner_user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "update": {
+      "$and": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "data.owner_user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "delete": {
+      "$and": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "data.owner_user_id": "{{user.id}}"
+        }
+      ]
+    }
+  }
+}

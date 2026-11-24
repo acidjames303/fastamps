@@ -1,0 +1,59 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "description": "Built-in app role (admin/user). Fine-grained access uses app_role.",
+      "enum": [
+        "admin",
+        "user"
+      ],
+      "enumColors": [
+        "purple",
+        "blue"
+      ]
+    },
+    "organisation_id": {
+      "type": "string",
+      "description": "Trusted organisation mirror, assigned server-side only.",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "collaborator_role": "editor"
+          }
+        }
+      }
+    },
+    "app_role": {
+      "type": "string",
+      "description": "Trusted application-role mirror, assigned server-side only.",
+      "enum": [
+        "platform_owner",
+        "organisation_admin",
+        "sales_manager",
+        "internal_bd",
+        "bdm",
+        "reporting_user"
+      ],
+      "enumColors": [
+        "purple",
+        "blue",
+        "green",
+        "yellow",
+        "pink",
+        "gray"
+      ],
+      "rls": {
+        "update": {
+          "user_condition": {
+            "collaborator_role": "editor"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "role"
+  ]
+}

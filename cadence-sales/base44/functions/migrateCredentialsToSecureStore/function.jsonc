@@ -1,0 +1,4 @@
+{
+  "name": "migrateCredentialsToSecureStore",
+  "entry": "entry.ts"
+}

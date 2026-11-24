@@ -1,0 +1,4 @@
+{
+  "name": "releaseTask",
+  "entry": "entry.ts"
+}

@@ -1,0 +1,149 @@
+{
+  "name": "HandoffAttempt",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side, never from the client."
+    },
+    "opportunity_id": {
+      "type": "string"
+    },
+    "campaign_id": {
+      "type": "string"
+    },
+    "destination_type": {
+      "type": "string",
+      "enum": [
+        "csv",
+        "webhook",
+        "hubspot",
+        "manual"
+      ]
+    },
+    "destination_id": {
+      "type": "string",
+      "description": "HandoffDestination record id, if applicable."
+    },
+    "payload_version": {
+      "type": "number",
+      "default": 1
+    },
+    "payload_snapshot": {
+      "type": "string",
+      "description": "JSON string of the canonical payload sent. Never contains secrets."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "processing",
+        "succeeded",
+        "failed",
+        "retry_scheduled",
+        "cancelled"
+      ],
+      "default": "pending"
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "Stable key preventing duplicate processing."
+    },
+    "attempt_number": {
+      "type": "number",
+      "default": 1
+    },
+    "requested_by_user_id": {
+      "type": "string"
+    },
+    "approved_by_user_id": {
+      "type": "string"
+    },
+    "requested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "external_company_id": {
+      "type": "string"
+    },
+    "external_contact_id": {
+      "type": "string"
+    },
+    "external_opportunity_id": {
+      "type": "string"
+    },
+    "external_record_url": {
+      "type": "string"
+    },
+    "response_status": {
+      "type": "number",
+      "description": "HTTP status code from the destination."
+    },
+    "safe_response_summary": {
+      "type": "string",
+      "description": "Sanitised excerpt of the response; never secrets."
+    },
+    "error_code": {
+      "type": "string"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Safe, user-facing error message."
+    },
+    "next_retry_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "opportunity_id",
+    "destination_type",
+    "idempotency_key"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

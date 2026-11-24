@@ -1,0 +1,4 @@
+{
+  "name": "stripeCheckout",
+  "entry": "entry.ts"
+}

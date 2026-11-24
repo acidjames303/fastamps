@@ -1,0 +1,182 @@
+{
+  "name": "SuppressionEntry",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side, never from the client."
+    },
+    "suppression_type": {
+      "type": "string",
+      "enum": [
+        "do_not_call",
+        "marketing_objection",
+        "invalid_number",
+        "deceased",
+        "legal_restriction",
+        "client_exclusion",
+        "duplicate",
+        "other"
+      ]
+    },
+    "subject_type": {
+      "type": "string",
+      "enum": [
+        "contact",
+        "company",
+        "phone_number",
+        "email"
+      ]
+    },
+    "contact_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "campaign_id": {
+      "type": "string"
+    },
+    "normalised_phone_hash": {
+      "type": "string",
+      "description": "SHA-256 hash of normalised phone for matching without storing raw PII."
+    },
+    "normalised_email_hash": {
+      "type": "string",
+      "description": "SHA-256 hash of normalised email for matching without storing raw PII."
+    },
+    "source": {
+      "type": "string",
+      "description": "Where the suppression originated: caller, import, provider, admin."
+    },
+    "reason": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "string",
+      "enum": [
+        "contact",
+        "phone_number",
+        "company",
+        "campaign",
+        "organisation"
+      ],
+      "default": "contact"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "overridden",
+        "expired",
+        "pending_review"
+      ],
+      "default": "active"
+    },
+    "recorded_by_user_id": {
+      "type": "string"
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "effective_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this suppression expires. Null = permanent."
+    },
+    "review_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this suppression should be reviewed."
+    },
+    "override_allowed": {
+      "type": "boolean",
+      "default": false
+    },
+    "override_reason": {
+      "type": "string"
+    },
+    "overridden_by_user_id": {
+      "type": "string"
+    },
+    "overridden_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "screening_status": {
+      "type": "string",
+      "enum": [
+        "not_checked",
+        "manually_checked",
+        "provider_checked",
+        "check_expired",
+        "review_required"
+      ],
+      "default": "not_checked"
+    },
+    "screening_reference": {
+      "type": "string"
+    },
+    "screened_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "screening_expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "suppression_type",
+    "scope",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

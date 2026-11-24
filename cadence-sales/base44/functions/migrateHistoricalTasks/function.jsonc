@@ -1,0 +1,4 @@
+{
+  "name": "migrateHistoricalTasks",
+  "entry": "entry.ts"
+}

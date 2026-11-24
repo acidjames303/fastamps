@@ -1,0 +1,4 @@
+{
+  "name": "migrateAileenToCanonical",
+  "entry": "entry.ts"
+}

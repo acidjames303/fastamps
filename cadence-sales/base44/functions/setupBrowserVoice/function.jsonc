@@ -1,0 +1,4 @@
+{
+  "name": "setupBrowserVoice",
+  "entry": "entry.ts"
+}

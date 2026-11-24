@@ -1,0 +1,96 @@
+{
+  "name": "UsageReservation",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side."
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "feature": {
+      "type": "string",
+      "description": "Feature being reserved (e.g. enrichment, research, ai_summary)"
+    },
+    "quantity": {
+      "type": "number",
+      "default": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "reserved",
+        "committed",
+        "released",
+        "expired"
+      ],
+      "default": "reserved"
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "Prevents duplicate reservations for the same action."
+    },
+    "reserved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "committed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "released_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "related_entity_type": {
+      "type": "string"
+    },
+    "related_entity_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "feature",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

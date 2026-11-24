@@ -1,0 +1,93 @@
+{
+  "name": "SupportSession",
+  "type": "object",
+  "properties": {
+    "platform_user_id": {
+      "type": "string",
+      "description": "Platform owner conducting the support session."
+    },
+    "organisation_id": {
+      "type": "string",
+      "description": "Organisation being supported."
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason for support access \u2014 required."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "expired",
+        "ended"
+      ],
+      "default": "active"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ended_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "permitted_actions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "read_data",
+          "view_billing",
+          "view_usage",
+          "view_diagnostics"
+        ]
+      },
+      "default": [
+        "read_data"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "platform_user_id",
+    "organisation_id",
+    "reason",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

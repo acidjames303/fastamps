@@ -1,0 +1,216 @@
+{
+  "name": "ProspectingRun",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side, never from the client."
+    },
+    "created_by_user_id": {
+      "type": "string",
+      "description": "User who started the run."
+    },
+    "run_name": {
+      "type": "string",
+      "description": "Human-readable run label derived from the source URL, ICP or brief."
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "url",
+        "icp",
+        "brief"
+      ],
+      "description": "What the agent was given to work from."
+    },
+    "seed_url": {
+      "type": "string",
+      "description": "Account URL supplied as the reference point."
+    },
+    "brief": {
+      "type": "string",
+      "description": "Campaign brief supplied at run start."
+    },
+    "icp": {
+      "type": "string",
+      "description": "Ideal customer profile supplied or derived at run start."
+    },
+    "max_accounts": {
+      "type": "number",
+      "default": 10
+    },
+    "permitted_countries": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "GB"
+      ]
+    },
+    "auto_enrich": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether decision-maker enrichment follows account discovery."
+    },
+    "prospect_list_id": {
+      "type": "string",
+      "description": "ProspectList qualified accounts are saved into."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "researching",
+        "discovering",
+        "saving",
+        "completed",
+        "enriching",
+        "failed",
+        "cancelled"
+      ],
+      "default": "queued"
+    },
+    "current_phase": {
+      "type": "string",
+      "enum": [
+        "context",
+        "discover",
+        "save",
+        "enrich",
+        "done"
+      ],
+      "default": "context"
+    },
+    "profile": {
+      "type": "object",
+      "description": "Working profile the agent derived: summary, industries, sizes, geographies, buyer roles, buying signals, campaign angle, disqualifiers."
+    },
+    "campaign_intel": {
+      "type": "string",
+      "description": "Campaign angle and talking points produced from the brief or site."
+    },
+    "candidates": {
+      "type": "array",
+      "description": "Accounts the agent found, with fit evidence and review verdict.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "industry": {
+            "type": "string"
+          },
+          "employee_range": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "country_code": {
+            "type": "string"
+          },
+          "why_fits": {
+            "type": "string"
+          },
+          "fit_score": {
+            "type": "number"
+          },
+          "fit_reason": {
+            "type": "string"
+          },
+          "evidence_url": {
+            "type": "string"
+          },
+          "signals": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "rejected",
+              "pending"
+            ]
+          },
+          "prospect_id": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "accounts_found": {
+      "type": "number",
+      "default": 0
+    },
+    "accounts_qualified": {
+      "type": "number",
+      "default": 0
+    },
+    "accounts_rejected": {
+      "type": "number",
+      "default": 0
+    },
+    "prospect_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Prospect records created by this run."
+    },
+    "enrichment_session_id": {
+      "type": "string",
+      "description": "EnrichmentSession started automatically after saving accounts."
+    },
+    "smart_actions_used": {
+      "type": "number",
+      "default": 0
+    },
+    "empty_discovery_steps": {
+      "type": "number",
+      "default": 0,
+      "description": "Consecutive steps that found no new accounts; discovery stops after two."
+    },
+    "error_summary": {
+      "type": "string"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "created_by_user_id",
+    "source_type",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "delete": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    }
+  }
+}

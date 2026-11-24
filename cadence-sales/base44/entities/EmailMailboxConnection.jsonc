@@ -1,0 +1,123 @@
+{
+  "type": "object",
+  "name": "EmailMailboxConnection",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; set server-side."
+    },
+    "user_id": {
+      "type": "string",
+      "description": "App user who connected this mailbox."
+    },
+    "provider": {
+      "type": "string",
+      "description": "Mailbox provider.",
+      "enum": [
+        "gmail",
+        "outlook"
+      ]
+    },
+    "email_address": {
+      "type": "string",
+      "description": "Connected mailbox address (non-secret)."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "revoked",
+        "error"
+      ],
+      "default": "active"
+    },
+    "encrypted_tokens": {
+      "type": "string",
+      "description": "AES-GCM encrypted access + refresh tokens. Never returned to the frontend."
+    },
+    "token_expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "scopes": {
+      "type": "string",
+      "description": "Space-separated scopes granted."
+    },
+    "connected_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_error": {
+      "type": "string",
+      "description": "Sanitised last error for the user; never raw tokens."
+    }
+  },
+  "required": [
+    "organisation_id",
+    "user_id",
+    "provider",
+    "encrypted_tokens"
+  ],
+  "rls": {
+    "create": {
+      "$and": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "_server_only_mailbox_secrets_"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$and": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "_server_only_mailbox_secrets_"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$and": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "_server_only_mailbox_secrets_"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$and": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "_server_only_mailbox_secrets_"
+          }
+        }
+      ]
+    }
+  }
+}

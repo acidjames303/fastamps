@@ -1,0 +1,182 @@
+{
+  "name": "UserProfile",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "organisation_id": {
+      "type": "string"
+    },
+    "full_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "app_role": {
+      "type": "string",
+      "enum": [
+        "platform_owner",
+        "organisation_admin",
+        "sales_manager",
+        "internal_bd",
+        "bdm",
+        "reporting_user"
+      ],
+      "enumColors": [
+        "purple",
+        "blue",
+        "green",
+        "yellow",
+        "pink",
+        "gray"
+      ]
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "daily_call_target": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "invited",
+        "active",
+        "suspended"
+      ],
+      "enumColors": [
+        "yellow",
+        "green",
+        "red"
+      ],
+      "default": "active"
+    },
+    "telephony_identity": {
+      "type": "string"
+    },
+    "managed_by_user_id": {
+      "type": "string",
+      "description": "BDM / sales_manager who manages this caller (SDR)."
+    },
+    "activity_status": {
+      "type": "string",
+      "enum": [
+        "idle",
+        "in_call",
+        "logging",
+        "offline"
+      ],
+      "enumColors": [
+        "gray",
+        "green",
+        "blue",
+        "gray"
+      ],
+      "default": "offline",
+      "description": "Live activity for manager Team board. Updated by Dialer heartbeat."
+    },
+    "last_activity_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last Dialer / Today activity heartbeat."
+    },
+    "activity_detail": {
+      "type": "string",
+      "description": "Short non-secret activity label (e.g. company name on call)."
+    },
+    "notification_preferences": {
+      "type": "object",
+      "description": "Caller notification opt-ins.",
+      "properties": {
+        "email_call_summary": {
+          "type": "boolean",
+          "default": true
+        },
+        "callback_reminders": {
+          "type": "boolean",
+          "default": true
+        },
+        "daily_digest": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "briefing_customization": {
+      "type": "object",
+      "description": "AI briefing personalisation settings.",
+      "properties": {
+        "focus_areas": {
+          "type": "string"
+        },
+        "tone": {
+          "type": "string",
+          "enum": [
+            "concise",
+            "detailed",
+            "conversational"
+          ],
+          "enumColors": [
+            "blue",
+            "purple",
+            "green"
+          ],
+          "default": "concise"
+        },
+        "include_signals": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id",
+    "organisation_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

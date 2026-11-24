@@ -1,0 +1,135 @@
+{
+  "name": "UsageEvent",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side, never from the client."
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "campaign_id": {
+      "type": "string",
+      "description": "Campaign this usage is attributed to, where applicable."
+    },
+    "target_list_id": {
+      "type": "string"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "company_research",
+        "company_discovery",
+        "fit_scoring",
+        "people_search",
+        "phone_enrichment",
+        "email_enrichment",
+        "call_started",
+        "call_connected",
+        "call_minute",
+        "integration_action",
+        "message_action",
+        "enrichment_request",
+        "research_request",
+        "ai_action",
+        "client_report_generated",
+        "pdf_export",
+        "webhook_attempt",
+        "crm_request",
+        "storage_added"
+      ]
+    },
+    "provider": {
+      "type": "string",
+      "description": "Provider that consumed the credit: ai_web, lusha, fullenrich, twilio, stripe, etc."
+    },
+    "quantity": {
+      "type": "number",
+      "default": 1
+    },
+    "unit": {
+      "type": "string",
+      "description": "Unit of measurement: call, minute, action, request, mb.",
+      "default": "action"
+    },
+    "source_function": {
+      "type": "string",
+      "description": "Backend function that recorded this event."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "Prevents duplicate usage charges for the same action."
+    },
+    "estimated_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "actual_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "related_record_id": {
+      "type": "string",
+      "description": "Company/Contact/Prospect id this usage relates to."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Non-secret context data for this usage event."
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "event_type",
+    "provider"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

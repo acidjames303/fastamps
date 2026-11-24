@@ -1,0 +1,4 @@
+{
+  "name": "provisionUser",
+  "entry": "entry.ts"
+}

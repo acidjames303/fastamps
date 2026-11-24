@@ -1,0 +1,4 @@
+{
+  "name": "processDoNotCall",
+  "entry": "entry.ts"
+}

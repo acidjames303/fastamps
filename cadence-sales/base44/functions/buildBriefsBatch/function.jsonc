@@ -1,0 +1,4 @@
+{
+  "name": "buildBriefsBatch",
+  "entry": "entry.ts"
+}

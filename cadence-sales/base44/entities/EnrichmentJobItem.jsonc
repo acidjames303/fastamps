@@ -1,0 +1,213 @@
+{
+  "name": "EnrichmentJobItem",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side, never from the client."
+    },
+    "session_id": {
+      "type": "string",
+      "description": "EnrichmentSession this item belongs to."
+    },
+    "prospect_id": {
+      "type": "string",
+      "description": "Prospect record to enrich."
+    },
+    "company_id": {
+      "type": "string",
+      "description": "Company record, if applicable."
+    },
+    "contact_id": {
+      "type": "string",
+      "description": "Contact record, if applicable."
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Denormalised company name for display without an extra read."
+    },
+    "requested_fields": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "personal_email",
+          "alternative_email",
+          "mobile",
+          "direct_dial",
+          "company_phone",
+          "decision_maker_role",
+          "company_intelligence"
+        ]
+      },
+      "description": "Which fields this item should enrich."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "processing",
+        "complete",
+        "partial",
+        "failed",
+        "cached",
+        "skipped",
+        "cancelled"
+      ],
+      "default": "pending",
+      "description": "Current processing state of this item."
+    },
+    "attempt_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of provider attempts made for this item."
+    },
+    "max_attempts": {
+      "type": "number",
+      "default": 3,
+      "description": "Maximum retry attempts before giving up."
+    },
+    "provider_sequence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Ordered list of provider IDs to try for this item."
+    },
+    "current_provider": {
+      "type": "string",
+      "description": "Provider currently being tried."
+    },
+    "providers_tried": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Providers already attempted for this item."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "Unique key preventing duplicate provider requests for the same item, field and attempt."
+    },
+    "lease_token": {
+      "type": "string",
+      "description": "Token held by the worker currently processing this item."
+    },
+    "lease_expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the current lease expires \u2014 expired leases can be reclaimed."
+    },
+    "next_retry_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Earliest time to retry after a transient failure."
+    },
+    "failure_category": {
+      "type": "string",
+      "enum": [
+        "none",
+        "auth_error",
+        "rate_limit",
+        "not_found",
+        "timeout",
+        "server_error",
+        "network_error",
+        "invalid_response",
+        "quota_exceeded",
+        "no_result",
+        "unknown"
+      ],
+      "default": "none",
+      "description": "Categorised failure reason for retry logic."
+    },
+    "safe_failure_message": {
+      "type": "string",
+      "description": "User-safe failure explanation. Never credentials or raw provider responses."
+    },
+    "fields_found": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Fields successfully enriched."
+    },
+    "fields_missing": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Fields still missing after processing."
+    },
+    "fields_cached": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Fields satisfied from organisation memory without a provider call."
+    },
+    "provider_used": {
+      "type": "string",
+      "description": "Last provider that contributed data."
+    },
+    "provider_requests_made": {
+      "type": "number",
+      "default": 0,
+      "description": "Actual external provider API calls made for this item."
+    },
+    "org_cache_hits": {
+      "type": "number",
+      "default": 0,
+      "description": "Fields satisfied from organisation data without a provider call."
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "existing_value": {
+            "type": "string"
+          },
+          "new_value": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Field conflicts for review."
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "session_id",
+    "prospect_id",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "delete": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    }
+  }
+}

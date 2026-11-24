@@ -1,0 +1,415 @@
+{
+  "name": "Prospect",
+  "type": "object",
+  "properties": {
+    "list_id": {
+      "type": "string"
+    },
+    "company_name": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    },
+    "domain": {
+      "type": "string",
+      "description": "Primary company/website domain."
+    },
+    "email_domain": {
+      "type": "string",
+      "description": "Confirmed employee email domain when it differs from the website domain. Used for deterministic pattern inference."
+    },
+    "industry": {
+      "type": "string"
+    },
+    "employee_range": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "country_code": {
+      "type": "string",
+      "description": "ISO 3166-1 alpha-2 country code derived from AI research."
+    },
+    "geography_status": {
+      "type": "string",
+      "enum": [
+        "matched",
+        "out_of_scope",
+        "unknown"
+      ],
+      "default": "unknown",
+      "description": "Whether the company is within the list's permitted geography."
+    },
+    "geography_reason": {
+      "type": "string",
+      "description": "Why the company was marked matched/out_of_scope/unknown."
+    },
+    "landline": {
+      "type": "string",
+      "description": "Company main phone/switchboard from web research"
+    },
+    "full_name": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Best dialable number for the campaign. May be a switchboard fallback; phone_type says which."
+    },
+    "mobile": {
+      "type": "string",
+      "description": "A number deterministically classified as a UK mobile (07 / +447). Never a landline."
+    },
+    "direct_dial": {
+      "type": "string",
+      "description": "A direct office line for the named contact (geographic or non-geographic), not a mobile."
+    },
+    "company_phone": {
+      "type": "string",
+      "description": "Company switchboard, kept separate from any person's number."
+    },
+    "phone_type": {
+      "type": "string",
+      "enum": [
+        "mobile",
+        "geographic",
+        "non_geographic",
+        "freephone",
+        "premium",
+        "corporate",
+        "voip",
+        "switchboard",
+        "unknown",
+        "invalid"
+      ],
+      "default": "unknown",
+      "description": "Deterministic UK classification of the dialable number."
+    },
+    "phone_status": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "provider_returned_unverified",
+        "verified",
+        "manually_confirmed",
+        "employment_mismatch",
+        "contact_match_requires_review",
+        "conflict_review",
+        "invalid",
+        "switchboard_fallback"
+      ],
+      "default": "unknown",
+      "description": "Verification state of the dialable number. Provider-returned data starts unverified."
+    },
+    "phone_source": {
+      "type": "string",
+      "description": "Which provider or source supplied the dialable number."
+    },
+    "phone_retrieved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "phone_verified_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Only set when a human or an independent check confirmed the number."
+    },
+    "phone_confidence": {
+      "type": "number",
+      "default": 0
+    },
+    "phone_review_reason": {
+      "type": "string",
+      "description": "Why the number needs review before use on a campaign."
+    },
+    "email": {
+      "type": "string",
+      "description": "Best personal work email if found; may hold a generic email if that is all that was found."
+    },
+    "generic_email": {
+      "type": "string",
+      "description": "Generic company inbox (info@, sales@) stored separately from the personal email field."
+    },
+    "email_type": {
+      "type": "string",
+      "enum": [
+        "personal_work",
+        "role_based_work",
+        "generic_company",
+        "personal_non_work",
+        "invalid",
+        "unknown"
+      ],
+      "default": "unknown",
+      "description": "Classification of the email field by the email quality classifier."
+    },
+    "email_verification_status": {
+      "type": "string",
+      "enum": [
+        "verified",
+        "provider_returned",
+        "inferred",
+        "unknown"
+      ],
+      "default": "unknown",
+      "description": "Whether the primary email is verified, provider-returned or inferred from a company pattern."
+    },
+    "email_pattern": {
+      "type": "string",
+      "description": "Detected same-company email format, such as first.last."
+    },
+    "email_pattern_source": {
+      "type": "string",
+      "description": "Known same-domain email used to derive the pattern."
+    },
+    "inferred_email_count": {
+      "type": "number",
+      "default": 0
+    },
+    "field_provenance": {
+      "type": "object",
+      "description": "Per-field provenance metadata: source_provider, confidence, enriched_at, verified_at.",
+      "properties": {
+        "email": {
+          "type": "object"
+        },
+        "phone": {
+          "type": "object"
+        },
+        "landline": {
+          "type": "object"
+        }
+      }
+    },
+    "linkedin": {
+      "type": "string"
+    },
+    "contacts": {
+      "type": "array",
+      "description": "Decision-makers found at the company (name, title, phone, email, linkedin)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "linkedin": {
+            "type": "string"
+          },
+          "apollo_id": {
+            "type": "string"
+          },
+          "email_status": {
+            "type": "string",
+            "enum": [
+              "verified",
+              "provider_returned",
+              "inferred",
+              "unknown"
+            ]
+          },
+          "email_source": {
+            "type": "string"
+          },
+          "email_pattern": {
+            "type": "string"
+          },
+          "email_verified": {
+            "type": "boolean"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "direct_dial": {
+            "type": "string"
+          },
+          "phone_type": {
+            "type": "string"
+          },
+          "phone_status": {
+            "type": "string"
+          },
+          "phone_source": {
+            "type": "string"
+          },
+          "phone_confidence": {
+            "type": "number"
+          },
+          "phone_review_reason": {
+            "type": "string"
+          },
+          "lusha_id": {
+            "type": "string"
+          },
+          "employment_check": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "mismatch",
+              "unconfirmed"
+            ]
+          }
+        }
+      }
+    },
+    "target_role": {
+      "type": "string",
+      "description": "AI-suggested best role to call at this company"
+    },
+    "fit_score": {
+      "type": "number",
+      "default": 0
+    },
+    "fit_reason": {
+      "type": "string"
+    },
+    "enrichment_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "enriching",
+        "enriched",
+        "complete",
+        "partially_enriched",
+        "no_contact_details",
+        "not_found",
+        "out_of_scope",
+        "provider_unavailable",
+        "failed"
+      ],
+      "default": "pending",
+      "description": "Granular enrichment result. Legacy 'enriched' is migrated at read time to 'complete' or 'partially_enriched'."
+    },
+    "company_found": {
+      "type": "boolean",
+      "default": false,
+      "description": "True if AI research confirmed the company exists and returned firmographics."
+    },
+    "landline_found": {
+      "type": "boolean",
+      "default": false
+    },
+    "decision_makers_found": {
+      "type": "boolean",
+      "default": false,
+      "description": "True if at least one named decision-maker was identified."
+    },
+    "work_email_found": {
+      "type": "boolean",
+      "default": false,
+      "description": "True if a personal work email was found for a decision-maker."
+    },
+    "mobile_found": {
+      "type": "boolean",
+      "default": false,
+      "description": "True only when a number deterministically classified as a UK mobile was found."
+    },
+    "linkedin_found": {
+      "type": "boolean",
+      "default": false
+    },
+    "provider_used": {
+      "type": "string",
+      "description": "Last provider that contributed data: ai_web, lusha, fullenrich, apollo."
+    },
+    "provider_error": {
+      "type": "string",
+      "description": "Sanitised provider error category, if the last attempt failed."
+    },
+    "last_attempted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "retry_cooldown_expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When a genuine not-found result may be retried (7-day cooldown)."
+    },
+    "source": {
+      "type": "string",
+      "description": "Where the number came from: lusha, fullenrich, apollo, ai_only"
+    },
+    "pushed": {
+      "type": "boolean",
+      "default": false
+    },
+    "call_status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "attempted",
+        "connected",
+        "callback"
+      ],
+      "default": "new",
+      "description": "Quick-call tracking: has this prospect been dialled yet."
+    },
+    "last_called_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; set from the authenticated user, never trusted from the client."
+    }
+  },
+  "required": [
+    "list_id",
+    "company_name",
+    "organisation_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

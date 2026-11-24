@@ -1,0 +1,163 @@
+{
+  "name": "SupportRequest",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side."
+    },
+    "submitted_by_user_id": {
+      "type": "string"
+    },
+    "assigned_platform_user_id": {
+      "type": "string",
+      "description": "Platform owner assigned to handle this request."
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "calling",
+        "callbacks",
+        "data_import",
+        "campaign",
+        "reporting",
+        "integration",
+        "billing",
+        "user_access",
+        "privacy",
+        "performance",
+        "feature_request",
+        "other"
+      ]
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "normal",
+        "low"
+      ],
+      "default": "normal"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "investigating",
+        "waiting_for_customer",
+        "fix_in_progress",
+        "resolved",
+        "closed"
+      ],
+      "default": "new"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "page": {
+      "type": "string",
+      "description": "App route where the problem occurred."
+    },
+    "app_version": {
+      "type": "string",
+      "description": "Deployed Cadence version at time of submission."
+    },
+    "correlation_id": {
+      "type": "string",
+      "description": "For tracing related events across functions."
+    },
+    "related_entity_type": {
+      "type": "string"
+    },
+    "related_entity_id": {
+      "type": "string"
+    },
+    "safe_diagnostics": {
+      "type": "object",
+      "description": "Safe browser/system info. Never credentials, tokens, or full notes."
+    },
+    "customer_impact": {
+      "type": "string",
+      "description": "Description of impact on the customer's work."
+    },
+    "workaround": {
+      "type": "string",
+      "description": "Temporary workaround if known."
+    },
+    "resolution": {
+      "type": "string",
+      "description": "Resolution summary when resolved."
+    },
+    "first_response_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "closed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reopened_count": {
+      "type": "number",
+      "default": 0
+    },
+    "breached_target": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this request breached its response target."
+    },
+    "linked_feedback_id": {
+      "type": "string",
+      "description": "Linked ProductFeedback if converted."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "submitted_by_user_id",
+    "category",
+    "title",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

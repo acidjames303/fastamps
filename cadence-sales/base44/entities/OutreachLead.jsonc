@@ -1,0 +1,197 @@
+{
+  "name": "OutreachLead",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string"
+    },
+    "owner_user_id": {
+      "type": "string"
+    },
+    "brand_key": {
+      "type": "string"
+    },
+    "import_batch_id": {
+      "type": "string"
+    },
+    "normalised_email": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "full_name": {
+      "type": "string"
+    },
+    "first_name": {
+      "type": "string"
+    },
+    "last_name": {
+      "type": "string"
+    },
+    "name_source": {
+      "type": "string"
+    },
+    "name_suggestion": {
+      "type": "string",
+      "description": "Never used as confirmed recipient identity"
+    },
+    "original_company_name": {
+      "type": "string"
+    },
+    "company_name_normalized": {
+      "type": "string"
+    },
+    "company_match_token": {
+      "type": "string"
+    },
+    "company_domain": {
+      "type": "string"
+    },
+    "company_domain_source": {
+      "type": "string"
+    },
+    "company_registration_number": {
+      "type": "string"
+    },
+    "company_match_status": {
+      "type": "string"
+    },
+    "company_match_reason": {
+      "type": "string"
+    },
+    "company_match_candidate_id": {
+      "type": "string"
+    },
+    "company_match_candidate_name": {
+      "type": "string"
+    },
+    "company_match_candidate_domain": {
+      "type": "string"
+    },
+    "company_review_source_url": {
+      "type": "string"
+    },
+    "company_reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "research_fact": {
+      "type": "string"
+    },
+    "research_source_url": {
+      "type": "string"
+    },
+    "research_review_status": {
+      "type": "string"
+    },
+    "research_reviewed_by_user_id": {
+      "type": "string"
+    },
+    "research_checked_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "company_name": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    },
+    "source_file": {
+      "type": "string"
+    },
+    "source_url": {
+      "type": "string"
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "inferred",
+        "provider_returned",
+        "verified"
+      ],
+      "default": "unknown"
+    },
+    "review_status": {
+      "type": "string",
+      "enum": [
+        "needs_review",
+        "flagged_company",
+        "approved",
+        "excluded",
+        "duplicate",
+        "suppressed"
+      ],
+      "default": "needs_review"
+    },
+    "review_note": {
+      "type": "string"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "owner_user_id",
+    "normalised_email",
+    "email",
+    "review_status"
+  ],
+  "rls": {
+    "create": {
+      "$and": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "data.owner_user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "read": {
+      "$and": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "data.owner_user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "update": {
+      "$and": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "data.owner_user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "delete": {
+      "$and": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "data.owner_user_id": "{{user.id}}"
+        }
+      ]
+    }
+  }
+}

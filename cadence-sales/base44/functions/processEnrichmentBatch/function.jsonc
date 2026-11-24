@@ -1,0 +1,4 @@
+{
+  "name": "processEnrichmentBatch",
+  "entry": "entry.ts"
+}

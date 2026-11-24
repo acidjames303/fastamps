@@ -1,0 +1,31 @@
+{
+  "name": "Cadence — Sales Calling Workspace",
+  "short_name": "Cadence",
+  "description": "Intelligent sales calling workspace with AI-powered lead briefings, prospecting, and campaign management.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#0f172a",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "https://media.base44.com/images/public/6a7338f6106b1962aa31c00a/80ab95b9b_generated_image.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://media.base44.com/images/public/6a7338f6106b1962aa31c00a/80ab95b9b_generated_image.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://media.base44.com/images/public/6a7338f6106b1962aa31c00a/80ab95b9b_generated_image.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
