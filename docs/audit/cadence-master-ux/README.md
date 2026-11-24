@@ -2,14 +2,20 @@
 
 **Date:** 24 Nov 2026 (Europe/London)  
 **Branch:** `cursor/cadence-ux-master-audit-2475`  
-**Status:** Audit only — no product feature implementation in this PR
+**Status:** Audit / direction only — no product feature implementation
 
-## Start here
+## Real target (owner-provided)
 
-1. **[CADENCE-MASTER-UX-AUDIT.md](./CADENCE-MASTER-UX-AUDIT.md)** — full evidence-based audit and roadmap  
-2. **[evidence/](./evidence/)** — live UI screenshots  
-3. Prior related work: PR [#5](https://github.com/acidjames303/fastamps/pull/5) (`cursor/cadence-app-audit-ac95`) — CommDecide hardening (not deployed)
+- **Live:** https://evasive-dial-flow-go.base44.app  
+- **App id:** `6a7338f6106b1962aa31c00a`  
+- **Product:** Cadence — Sales Calling Workspace  
 
-## One-line verdict
+## Documents
 
-**Correction:** `https://cadence.base44.app` / Base44 app `6a7338f6106b1962aa31c00a` is a CommDecide communication tool and has been **rejected by the owner as not their Cadence**. The sales OS in the master brief has **not been located** yet — this agent’s Base44 token only sees FastAmps Connect.
+1. [REAL-TARGET-AND-UX-AMPLIFICATION.md](./REAL-TARGET-AND-UX-AMPLIFICATION.md) — correct target + “more intuitive & powerful” principles  
+2. [CADENCE-MASTER-UX-AUDIT.md](./CADENCE-MASTER-UX-AUDIT.md) — earlier full audit (CommDecide false-start preserved as contrast; sales OS sections remain the roadmap)  
+3. [evidence/real-target/](./evidence/real-target/) — login-wall screenshots of the real app  
+
+## Blocker
+
+Authenticated UI / entity inventory still needs a Cadence-workspace Base44 token + QA login (current token only sees FastAmps Connect).
