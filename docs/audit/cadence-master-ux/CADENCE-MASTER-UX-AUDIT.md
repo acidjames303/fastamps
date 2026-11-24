@@ -25,16 +25,12 @@ The product described in the master brief — a multi-business sales operating s
 
 - **Name:** Cadence  
 - **Live URL:** https://cadence.base44.app  
-- **Base44 app id (confirmed by owner):** `6a7338f6106b1962aa31c00a`  
-- **Editor:** https://app.base44.com/apps/6a7338f6106b1962aa31c00a  
-- **Published asset / branding path id (observed in live HTML):** `691dd05eafa0754fb1590632` — same live product surface; not a second app  
-- **Product:** Communication decision-support — recommend **meeting / email / async message**, then draft agenda / email / Slack-style copy  
-- **Routes:** `Home`, `NewDecision`, `History`  
-- **Entity:** `CommunicationDecision`  
-- **Auth:** Hard login wall; no public landing beyond login chrome  
-- **Legacy brand:** Production footer still says **CommDecide** (© 2024)  
+- **What we inspected:** https://cadence.base44.app and Base44 id `6a7338f6106b1962aa31c00a`  
+- **Owner correction (24 Nov 2026):** That CommDecide product is **not** James’s Cadence sales app. Treat prior “owner-confirmed” wording as **withdrawn**.  
+- **Product on that URL/id:** Communication decision-support (meeting / email / async) — 3 pages, `CommunicationDecision` only  
+- **James’s sales Cadence (campaigns / calling / prospecting / outreach):** **Not yet identified** — awaiting correct Base44 app URL or app id  
 
-**Access note (24 Nov 2026 follow-up):** The workspace-scoped `BASE44_API_TOKEN` injected into this agent only lists **FastAmps Connect**. API calls to `6a7338f6106b1962aa31c00a` return `ContainedAppNotFoundError`. Cadence likely lives in a different Base44 workspace than Connect — a Cadence-scoped token (and QA login) is still required for editor/entity/authenticated UX audit.
+**Access note:** The agent token only lists **FastAmps Connect**. Until the correct Cadence app id/URL is provided (and a token that can open that workspace), the sales OS audit cannot proceed against the real product.
 
 ### Implication for the brief
 
@@ -113,7 +109,7 @@ Sections 5–21 of the brief cannot be audited as *existing* Cadence workflows. 
 
 **No custom backend functions** are invoked from the **live** client. PR #5 adds four functions but they are **not** on production.
 
-**App ids (owner-confirmed):** Editor / canonical Cadence app = `6a7338f6106b1962aa31c00a`. Live CDN/branding object path uses `691dd05eafa0754fb1590632`. Treat these as the same Cadence product unless Base44 access later proves otherwise.
+**App ids:** `6a7338f6106b1962aa31c00a` / cadence.base44.app were audited as the published CommDecide tool and then **rejected by the owner as not their Cadence**. Do not use them as the sales OS target.
 
 ---
 
