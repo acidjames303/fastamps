@@ -18,15 +18,18 @@ Live app: https://connect.fastamps.com
 
 Reserve one code per tester; mark it used after submit.
 
-**QR labels (scan on phone):** download [demo-qr-labels.zip](/opt/cursor/artifacts/demo-qr-labels.zip) or open [PRINT-SHEET.html](/opt/cursor/artifacts/demo-qr-labels/PRINT-SHEET.html) and display/print one card.
+**Official sticker-template labels (same as Admin → QR batches print):**  
+download [demo-sticker-labels.zip](/opt/cursor/artifacts/demo-sticker-labels.zip) or open [PRINT-SHEET.html](/opt/cursor/artifacts/demo-sticker-labels/PRINT-SHEET.html).
 
-| Serial | PIN | QR | Claim URL |
+These use the live FastAmps warranty registration poster template with QR + serial + PIN composited exactly as production 50.8 × 76.2 mm stickers. Bare QR-only images are **not** the production format.
+
+| Serial | PIN | Sticker | Claim URL |
 | --- | --- | --- | --- |
-| `FA-DEMO-001` | `000123` | [PNG](/opt/cursor/artifacts/demo-qr-labels/FA-DEMO-001.png) | https://connect.fastamps.com/claim/a52841b28e2e4962b5af847d2cf3b264 |
-| `BETA-13277556` | `190977` | [PNG](/opt/cursor/artifacts/demo-qr-labels/BETA-13277556.png) | https://connect.fastamps.com/claim/f4222f61304048f4b03e20e7f2bf71e9 |
-| `QA-LAUNCH-2026-W2-S00048` | `700048` | [PNG](/opt/cursor/artifacts/demo-qr-labels/QA-LAUNCH-2026-W2-S00048.png) | https://connect.fastamps.com/claim/985339fb15034e928bea69c2bdac1f8a |
+| `FA-DEMO-001` | `000123` | [sticker](/opt/cursor/artifacts/demo-sticker-labels/FA-DEMO-001-sticker.png) | https://connect.fastamps.com/claim/a52841b28e2e4962b5af847d2cf3b264 |
+| `BETA-13277556` | `190977` | [sticker](/opt/cursor/artifacts/demo-sticker-labels/BETA-13277556-sticker.png) | https://connect.fastamps.com/claim/f4222f61304048f4b03e20e7f2bf71e9 |
+| `QA-LAUNCH-2026-W2-S00048` | `700048` | [sticker](/opt/cursor/artifacts/demo-sticker-labels/QA-LAUNCH-2026-W2-S00048-sticker.png) | https://connect.fastamps.com/claim/985339fb15034e928bea69c2bdac1f8a |
 
-All three were **available** when generated. Open the PNG full-screen on another device/laptop and scan with Connect on your phone, or print the sheet. If a code is already claimed, pick another available **HOME-BETA** or **QA-LAUNCH-2026** charger from Admin → QR batches / chargers (demo only).
+All three were **available** when generated. Open a sticker full-screen (or print at 50.8 × 76.2 mm) and scan with Connect. If a code is already claimed, pick another available **HOME-BETA** or **QA-LAUNCH-2026** charger from Admin → QR batches (demo only).
 
 Admin login: use the existing FastAmps admin account (not shared in this doc).
 
