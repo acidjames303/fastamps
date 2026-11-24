@@ -23,6 +23,7 @@ Backend create-time demo/QA protections are live and verified. Human manual test
 | SPA impact | Full deploy briefly overwrote frontend (`index-DRjqsHhC.js`) |
 | SPA restore | `deploy-dist` of verified build — **HTTP 200** at 2026-11-24 09:50:10 UTC |
 | Live frontend | **`assets/index-Dqk2xKAX.js`** restored (admin demo toggle, wholesaler labels, PIN hint, £10/£30) |
+| SPA drift note | A later Base44 publish briefly replaced the SPA with a build **without** “Include demo / excluded QA”. Re-restored via `deploy-dist` on **2026-11-24 11:01 UTC**. After any future `POST /deploy`, always re-run `deploy-dist` of the verified SPA. |
 
 ### Functions published
 
