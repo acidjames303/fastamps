@@ -58,6 +58,7 @@ function suggestedFullName(user) {
 export default function OnboardingCard({ user }) {
   const qc = useQueryClient();
   const location = useLocation();
+  const inviteCode = new URLSearchParams(location.search).get('invite') || '';
   const storageKey = `fastamps-installer-onboarding:${user?.email || 'new'}`;
   const [form, setForm] = useState(() => {
     try {
@@ -143,6 +144,7 @@ export default function OnboardingCard({ user }) {
         demo: false,
         terms_accepted: form.terms_accepted === true,
         programme_terms_version: PROGRAMME_TERMS_VERSION,
+        attributed_programme_code: inviteCode,
         approval_documents: form.documents.map((doc) => doc.uri),
         approval_document_names: form.documents.map((doc) => doc.name),
       });

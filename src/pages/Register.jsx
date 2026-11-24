@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,9 @@ import { toast } from "@/components/ui/use-toast";
 import { safeReturnTo } from "@/lib/authReturnTo";
 
 export default function Register() {
+  const [params] = useSearchParams();
+  const invite = (params.get("invite") || "links-electrical-shrewsbury").trim().toLowerCase();
+  const intent = params.get("intent") || "join";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -21,6 +24,24 @@ export default function Register() {
   const [otpCode, setOtpCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [programmeActive, setProgrammeActive] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const response = await base44.functions.invoke("manage-incentive-programme", {
+          action: "public_invite",
+          programme_code: invite,
+        });
+        const data = response?.data || response;
+        if (!cancelled) setProgrammeActive(Boolean(data?.active));
+      } catch {
+        if (!cancelled) setProgrammeActive(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [invite]);
 
   const passwordLongEnough = password.length >= 8;
   const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword;
@@ -151,11 +172,20 @@ export default function Register() {
       }
     >
       <div className="fa-auth-back-row">
-        <Link to={"/login" + (safeReturnTo() !== "/" ? "?returnTo=" + encodeURIComponent(safeReturnTo()) : "")}>
+        <Link to="/welcome">
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Back to sign in
+          Back to options
         </Link>
       </div>
+      {intent === "join" && programmeActive === false ? (
+        <div className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm">
+          The participating programme is not active yet. You can still create an account, but live installation rewards stay closed until FastAmps activates the programme. Prefer the interest list?{" "}
+          <Link className="text-primary font-medium hover:underline" to={`/pre-register?invite=${encodeURIComponent(invite)}`}>
+            Pre-register instead
+          </Link>
+          .
+        </div>
+      ) : null}
       <SocialAuthButtons returnTo={safeReturnTo()} />
 
       <div className="relative mb-6">

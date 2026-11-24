@@ -39,12 +39,9 @@ export default function Login() {
       subtitle="Sign in to manage your installs and rewards."
       footer={
         <>
-          Don't have an account?{" "}
-          <Link
-            to={"/register" + (returnTo !== "/" ? "?returnTo=" + encodeURIComponent(returnTo) : "")}
-            className="text-primary font-medium hover:underline"
-          >
-            Create account
+          New to FastAmps Connect?{" "}
+          <Link to="/welcome" className="text-primary font-medium hover:underline">
+            Join or pre-register
           </Link>
         </>
       }

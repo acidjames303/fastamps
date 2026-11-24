@@ -3,7 +3,7 @@ import { Link, Outlet, NavLink, useLocation, useNavigate } from 'react-router-do
 import {
   LayoutDashboard, Camera, ListChecks, Wallet, User, Users, ShieldCheck, QrCode, BarChart3,
   FlaskConical, ChevronDown, LogOut, ShieldHalf, ShieldAlert, ClipboardCheck, Menu,
-  FileText, MoreHorizontal,
+  FileText, MoreHorizontal, Store,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useInstaller } from '@/hooks/useInstaller';
@@ -26,6 +26,7 @@ const SUBPAGE_TITLES = {
   '/coach': 'Coach',
   '/programme-terms': 'Programme terms',
   '/admin/chargers': 'QR batches',
+  '/admin/programmes': 'Programmes',
   '/admin/fraud-review': 'Fraud review',
   '/admin/reports': 'Reports',
   '/admin/beta-test': 'Beta test',
@@ -53,6 +54,7 @@ const adminNav = [
   { to: '/admin/installers', label: 'Installers', icon: Users },
   { to: '/admin/installs', label: 'Review installs', icon: ShieldCheck },
   { to: '/admin/chargers', label: 'QR batches', icon: QrCode },
+  { to: '/admin/programmes', label: 'Programmes', icon: Store },
   { to: '/admin/vouchers', label: 'Vouchers', icon: Wallet },
   { to: '/admin/fraud-review', label: 'Fraud review', icon: ShieldAlert },
   { to: '/admin/reports', label: 'Reports', icon: BarChart3 },
@@ -67,6 +69,7 @@ const adminMobilePrimary = [
 
 const adminMoreItems = [
   { to: '/admin/chargers', label: 'QR batches', icon: QrCode },
+  { to: '/admin/programmes', label: 'Programmes', icon: Store },
   { to: '/admin/fraud-review', label: 'Fraud review', icon: ShieldAlert },
   { to: '/admin/reports', label: 'Reports', icon: BarChart3 },
   { to: '/admin/beta-test', label: 'Beta test', icon: FlaskConical },

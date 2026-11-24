@@ -10,6 +10,33 @@
       "type": "string",
       "description": "Approved canonical branch identifier or location"
     },
+    "town": {
+      "type": "string",
+      "description": "Branch town or city for installer search"
+    },
+    "postcode": {
+      "type": "string",
+      "description": "Branch postcode for installer search"
+    },
+    "county": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string",
+      "default": "United Kingdom"
+    },
+    "programme_availability": {
+      "type": "string",
+      "enum": [
+        "not_available",
+        "planned",
+        "active",
+        "paused",
+        "closed"
+      ],
+      "default": "not_available",
+      "description": "Nationwide rollout status for this branch"
+    },
     "approved_aliases": {
       "type": "array",
       "items": {

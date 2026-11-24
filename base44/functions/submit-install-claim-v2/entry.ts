@@ -53,6 +53,25 @@ export default async function (req) {
       }, { status: 400 });
     }
 
+    // Programme eligibility is enforced server-side before postcode/charger work.
+    // Pre-registered / invited / suspended installers must not submit live incentive claims via direct API calls.
+    const installers = await base44.entities.Installer.filter({ user_email: user.email });
+    const installer = installers[0];
+    if (!installer) return Response.json({ error: "Create your installer profile before submitting this claim." }, { status: 400 });
+
+    const membershipStatus = String(installer.membership_status || "active");
+    if (membershipStatus !== "active") {
+      return Response.json({
+        error: membershipStatus === "pre_registered" || membershipStatus === "invited"
+          ? "Your account is on the interest list and is not yet eligible for installation rewards. We will notify you when the programme becomes available in your area."
+          : "This installer account is not currently eligible to submit installation rewards. Contact FastAmps.",
+        membership_status: membershipStatus,
+      }, { status: 403 });
+    }
+    if (installer.reward_account_status === "blocked") {
+      return Response.json({ error: "This installer account cannot submit installation rewards right now. Contact FastAmps." }, { status: 403 });
+    }
+
     const compactPostcode = String(body.site_postcode).toUpperCase().replace(/\s+/g, "");
     const formattedPostcode = compactPostcode.length > 3
       ? `${compactPostcode.slice(0, -3)} ${compactPostcode.slice(-3)}`
@@ -72,10 +91,6 @@ export default async function (req) {
       return Response.json({ error: "We could not verify the postcode right now. Please try again." }, { status: 503 });
     }
 
-    const installers = await base44.entities.Installer.filter({ user_email: user.email });
-    const installer = installers[0];
-    if (!installer) return Response.json({ error: "Create your installer profile before submitting this claim." }, { status: 400 });
-
     const chargers = await base44.asServiceRole.entities.Charger.filter({ claim_token: claimToken });
     if (chargers.length !== 1) return Response.json({ error: "This charger reference is not uniquely recognised." }, { status: 409 });
     const charger = chargers[0];
@@ -94,6 +109,31 @@ export default async function (req) {
     const isHistoricalTradeShow = batchRef.toUpperCase().startsWith("TRADE-SHOW");
     const isHomeBeta = batchRef.startsWith("HOME-BETA");
     const isDemoClaim = isHistoricalTradeShow || charger.is_demo === true || installer.is_demo === true || isHomeBeta;
+
+    // Controlled Links Electrical beta: non-demo chargers allocated to that branch
+    // cannot be claimed while the Links programme remains draft/paused/closed.
+    if (!isDemoClaim) {
+      const suppliedName = String(
+        charger.distribution_wholesaler_name || charger.supplied_to_name_raw || "",
+      ).toLowerCase();
+      const suppliedBranch = String(
+        charger.distribution_branch_name || charger.supplied_to_branch_raw || "",
+      ).toLowerCase();
+      const looksLikeLinksShrewsbury =
+        suppliedName.includes("links") && suppliedBranch.includes("shrewsbury");
+      if (looksLikeLinksShrewsbury) {
+        const programmes = await base44.asServiceRole.entities.IncentiveProgramme.filter({
+          programme_code: "links-electrical-shrewsbury",
+        });
+        const programme = programmes[0];
+        if (!programme || programme.status !== "active") {
+          return Response.json({
+            error: "The Links Electrical Shrewsbury programme is not active yet. Installation rewards for this allocation cannot be submitted until FastAmps authorises go-live.",
+            programme_status: programme?.status || "missing",
+          }, { status: 403 });
+        }
+      }
+    }
     const demoLabel = isHistoricalTradeShow
       ? "TRADE-SHOW"
       : installer.is_demo === true

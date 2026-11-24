@@ -22,3 +22,7 @@ export const createClaimUrl = (claimToken) =>
   `${getClaimBaseUrl()}/claim/${encodeURIComponent(claimToken)}`;
 
 export const GENERIC_REGISTRATION_URL = `${getClaimBaseUrl()}/register-install`;
+
+/** Type B programme invitation QR — never a charger claim URL. */
+export const createProgrammeInviteUrl = (programmeCode) =>
+  `${FASTAMPS_CONNECT_URL}/invite/${encodeURIComponent(String(programmeCode || '').trim().toLowerCase())}`;
