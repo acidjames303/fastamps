@@ -113,25 +113,23 @@ export default function AdminInstalls() {
     onSettled: () => setPendingAction(null),
   });
 
-  if (loadingIdentity) return <div className="text-sm text-muted-foreground">Loading…</div>;
-  if (identity?.user?.role !== 'admin') return (
-    <div className="rounded-2xl border border-border bg-muted/60 p-8">
-      <h1 className="text-xl font-semibold">FastAmps team access only</h1>
-      <p className="mt-2 text-sm text-muted-foreground">Your account does not have permission to review installation claims.</p>
-    </div>
-  );
-
-  const chargersById = new Map(suppliedChargers.map((charger) => [charger.id, charger]));
   const selectedClaimId = searchParams.get('claim');
   const selectedStatus = searchParams.get('status') || 'all';
   const selectedRange = searchParams.get('range') || 'all';
+  // Keep hooks above any conditional return so admin/installer identity flips stay stable.
   const scopedClaims = useMemo(
     () => (includeExcluded ? claims : claims.filter((claim) => !claim.excluded_from_reporting)),
     [claims, includeExcluded],
   );
   const allActiveClaims = scopedClaims;
-  const activeClaims = allActiveClaims.filter((claim) => isInReportingRange(claim.created_date, selectedRange));
-  const pending = activeClaims.filter((claim) => ['submitted', 'needs_information'].includes(claim.status));
+  const activeClaims = useMemo(
+    () => allActiveClaims.filter((claim) => isInReportingRange(claim.created_date, selectedRange)),
+    [allActiveClaims, selectedRange],
+  );
+  const pending = useMemo(
+    () => activeClaims.filter((claim) => ['submitted', 'needs_information'].includes(claim.status)),
+    [activeClaims],
+  );
   const selectedClaim = selectedClaimId
     ? claims.find((claim) => claim.id === selectedClaimId) || allActiveClaims.find((claim) => claim.id === selectedClaimId)
     : null;
@@ -169,6 +167,16 @@ export default function AdminInstalls() {
         ? 'Approved installations'
         : 'Installation review';
 
+  if (loadingIdentity) return <div className="text-sm text-muted-foreground">Loading…</div>;
+  if (identity?.user?.role !== 'admin') return (
+    <div className="rounded-2xl border border-border bg-muted/60 p-8">
+      <h1 className="text-xl font-semibold">FastAmps team access only</h1>
+      <p className="mt-2 text-sm text-muted-foreground">Your account does not have permission to review installation claims.</p>
+    </div>
+  );
+
+  const chargersById = new Map(suppliedChargers.map((charger) => [charger.id, charger]));
+
   return (
     <div className="space-y-8">
       <div>
@@ -184,7 +192,21 @@ export default function AdminInstalls() {
           </div>
         )}
         {!selectedClaim && (
-          <div className="mt-5 grid gap-3 md:grid-cols-[1fr_auto]">
+          <div className="mt-5 space-y-3">
+            <label className="flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm font-medium text-foreground">
+              <input
+                type="checkbox"
+                checked={includeExcluded}
+                onChange={(event) => setIncludeExcluded(event.target.checked)}
+                className="h-5 w-5 shrink-0 accent-blue-500"
+              />
+              <span>
+                Include demo / excluded QA
+                <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
+                  Required to see HOME-BETA and QA-LAUNCH test claims.
+                </span>
+              </span>
+            </label>
             <label className="relative block">
               <Search className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
               <Input
@@ -193,15 +215,6 @@ export default function AdminInstalls() {
                 placeholder="Search serial, PIN, installer, postcode or wholesaler"
                 className="h-11 bg-background pl-10"
               />
-            </label>
-            <label className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 text-sm text-muted-foreground">
-              <input
-                type="checkbox"
-                checked={includeExcluded}
-                onChange={(event) => setIncludeExcluded(event.target.checked)}
-                className="h-4 w-4 accent-blue-500"
-              />
-              Include demo / excluded QA
             </label>
           </div>
         )}
