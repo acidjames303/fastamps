@@ -16,14 +16,16 @@ export interface SpendingControls {
   disable_force_refresh_for_non_admins: boolean;
 }
 
-// Safe defaults (from Sprint 17 spec).
+// Defaults assume a high / unlimited Lusha allowance — Cadence should fill
+// mobiles for every known person, not pause after a handful of lookups.
+// Orgs can still tighten these in organisation.settings.enrichment_config.
 export const DEFAULT_SPENDING_CONTROLS: SpendingControls = {
-  max_provider_calls_per_session: 10,
-  max_contacts_per_company: 1,
-  max_ai_actions_per_session: 0,
-  max_daily_provider_operations: 50,
-  pause_at_percentages: [50, 80, 100],
-  require_admin_above_threshold: 15,
+  max_provider_calls_per_session: 5000,
+  max_contacts_per_company: 8,
+  max_ai_actions_per_session: 200,
+  max_daily_provider_operations: 20000,
+  pause_at_percentages: [90, 100],
+  require_admin_above_threshold: 5000,
   disable_automatic_paid_fallback: true,
   disable_force_refresh_for_non_admins: true,
 };

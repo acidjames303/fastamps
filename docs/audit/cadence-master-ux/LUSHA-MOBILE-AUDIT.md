@@ -38,12 +38,19 @@ When Lusha returns `matched_no_number` / `contact_not_matched` / plan-restricted
 3. Coverage copy updated to match the real behaviour.  
 4. Provenance no longer stores `provider_value: [object Object]`.
 
+## Unlimited Lusha posture (updated)
+
+Workspace has unlimited Lusha credits — defaults raised accordingly:
+
+- Spending caps no longer pause after ~10 provider calls  
+- Up to **8** known people per company can be phone-revealed  
+- Enrich dialog defaults to **Connected providers** + **Expanded** + other-known on  
+- Widen runs for every known person missing a mobile, not just until the first hit  
+
 ## How to run it for every person
 
-In the enrich dialog:
+In the enrich dialog (these are now the defaults when Lusha is connected):
 
 - Search method: **Connected providers** (Lusha)  
-- Depth: **Expanded** or **Exhaustive** (not Standard)  
-- Phone coverage: leave **Also find mobiles for other already-known contacts** on  
-
-Expect more Lusha credits when several people already have emails.
+- Depth: **Expanded**  
+- Phone coverage: **Also find mobiles for other already-known contacts** on

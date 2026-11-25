@@ -83,6 +83,9 @@ export default async function (req) {
       onlyMissing: true,
       forceRefresh: !!force_refresh,
       inferEmailPattern: true,
+      // Unlimited Lusha: always chase mobiles for other known people on re-enrich.
+      singleBestContact: false,
+      widenMobileSearch: true,
     });
 
     const patch = { ...result.patch, enrichment_status: result.patch.enrichment_status || 'enriched' };

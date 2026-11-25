@@ -690,16 +690,17 @@ export async function enrichProspectWaterfall(
   // Mobile widening: when the chosen people have no mobile, look further down
   // the list at this company for someone who does.
   const widenMobileSearch = opts.widenMobileSearch === true;
-  const WIDEN_EXTRA = 4;
+  // Unlimited-Lusha posture: check every named person we already hold (up to 8).
+  const WIDEN_EXTRA = 8;
   // Only a number the numbering plan calls a mobile counts as a mobile.
   const hasDialableMobile = (c: any) => isUkMobile(c?.mobile || c?.phone);
   // A contact whose only number is the company switchboard has no person number
   // yet — that gap must still be offered to the phone providers.
   const hasPersonNumber = (c: any) => hasDirectNumber(c?.mobile || c?.direct_dial || c?.phone, out?.landline);
   const probedPhoneNames = new Set<string>();
-  // When single-best-contact mode is on, only search/enrich 1 person per
-  // company instead of 5 — drastically cuts provider credit usage.
-  const maxContacts = singleBestContact ? 1 : 5;
+  // Single-best is the only credit-saving mode; default runs reveal up to 8
+  // people per company so emails and mobiles stay aligned.
+  const maxContacts = singleBestContact ? 1 : 8;
   // Apollo person-match/reveal can consume credits. Permit at most one reveal
   // attempt per company in a run; once one confirmed email is returned, the
   // remaining named contacts use credit-free pattern inference.

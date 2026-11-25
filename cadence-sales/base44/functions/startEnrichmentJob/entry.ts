@@ -65,11 +65,19 @@ export default async function (req) {
     }
 
     const allowedSearchDepths = ['standard', 'expanded', 'exhaustive'];
-    const effectiveSearchDepth = allowedSearchDepths.includes(search_depth) ? search_depth : 'standard';
+    const effectiveSearchDepth = allowedSearchDepths.includes(search_depth) ? search_depth : 'expanded';
     const effectiveEmailOnly = email_only === true || requested_fields.every((field: string) =>
       ['personal_email', 'alternative_email', 'decision_maker_role'].includes(field)
     );
-    const effectiveSingleBest = effectiveSearchDepth === 'standard' || single_best_contact === true;
+    const wantsPhone = requested_fields.some((field: string) => field === 'mobile' || field === 'direct_dial');
+    // Unlimited Lusha: only pin to a single contact when the user explicitly
+    // asked for Standard AND did not request widening. Phone runs default to
+    // checking every already-known person.
+    const effectiveWiden = widen_mobile_search === true
+      || (wantsPhone && effectiveSearchDepth !== 'standard');
+    const effectiveSingleBest = single_best_contact === true
+      && !effectiveWiden
+      && effectiveSearchDepth === 'standard';
     const effectiveForceRefresh = force_refresh === true || find_stronger_decision_maker === true;
 
     // Resolve connected providers in priority order.
@@ -183,7 +191,7 @@ export default async function (req) {
       force_refresh: effectiveForceRefresh,
       email_only: effectiveEmailOnly,
       single_best_contact: effectiveSingleBest,
-      widen_mobile_search: widen_mobile_search === true,
+      widen_mobile_search: effectiveWiden,
       search_depth: effectiveSearchDepth,
       find_stronger_decision_maker: !!find_stronger_decision_maker,
       infer_email_pattern: infer_email_pattern !== false,

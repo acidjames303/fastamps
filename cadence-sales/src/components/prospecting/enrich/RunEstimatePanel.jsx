@@ -72,7 +72,7 @@ export default function RunEstimatePanel({ estimate, searchMethod }) {
         <span>
           {searchMethod === "providers"
             ? phoneSelected
-              ? `Up to ${maxLushaLookups} Lusha phone lookup${maxLushaLookups === 1 ? "" : "s"} may be made.`
+              ? `Up to ${maxLushaLookups} Lusha phone lookup${maxLushaLookups === 1 ? "" : "s"} may be made — including other known people on each company.`
               : "Providers will only be asked for the fields you selected."
             : "Lusha will not be called in this mode. No new phone numbers can be retrieved."}
         </span>

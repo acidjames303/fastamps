@@ -46,9 +46,9 @@ const SEARCH_METHODS = [
 ];
 
 const SEARCH_DEPTHS = [
-  { key: "standard", label: "Standard", detail: "One best contact per company" },
-  { key: "expanded", label: "Expanded", detail: "Check alternative relevant contacts" },
-  { key: "exhaustive", label: "Exhaustive", detail: "Maximum permitted search" },
+  { key: "standard", label: "Standard", detail: "Best ICP contact first (still widens when other-known is on)" },
+  { key: "expanded", label: "Expanded", detail: "Mobiles for every already-known contact (recommended)" },
+  { key: "exhaustive", label: "Exhaustive", detail: "Maximum search across known people" },
 ];
 
 const FIND_OPTIONS = [
@@ -132,7 +132,8 @@ export default function SelectiveEnrichDialog({
   const [findOptions, setFindOptions] = useState(
     phoneIntent ? ["direct_phone"] : ["decision_maker", "personal_email", "direct_phone"],
   );
-  const [searchMethod, setSearchMethod] = useState("free");
+  // Default to connected providers when Lusha is available — credits are not the constraint.
+  const [searchMethod, setSearchMethod] = useState("providers");
   const [searchDepth, setSearchDepth] = useState("expanded");
   const [phoneCoverage, setPhoneCoverage] = useState({ best: true, otherKnown: true, discover: false });
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -169,9 +170,11 @@ export default function SelectiveEnrichDialog({
       // available as explicit fallbacks without being called automatically.
       setEnabledProviders(connectedList.includes("lusha") ? ["lusha"] : [...connectedList]);
     }
+    // With unlimited Lusha, open on Connected providers whenever Lusha is linked.
+    if (connectedList.includes("lusha")) {
+      setSearchMethod((current) => (current === "free" ? "providers" : current));
+    }
   }, [open, connectedList]);
-
-  // Search method is always an explicit user choice; never upgrade a free run to paid providers.
 
   const requestedFields = useMemo(() => {
     const fields = [];
@@ -268,8 +271,8 @@ export default function SelectiveEnrichDialog({
           requestedFields.every((field) =>
             ["personal_email", "alternative_email", "decision_maker_role"].includes(field),
           ),
-        single_best_contact: searchDepth === "standard",
-        widen_mobile_search: phoneCoverage.otherKnown || searchDepth === "expanded",
+        single_best_contact: searchDepth === "standard" && !phoneCoverage.otherKnown,
+        widen_mobile_search: phoneCoverage.otherKnown || searchDepth !== "standard",
         search_depth: searchDepth,
         find_stronger_decision_maker: findStrongerDecisionMaker || discoverContacts,
         infer_email_pattern: inferEmailPattern,
