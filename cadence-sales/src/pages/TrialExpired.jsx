@@ -41,13 +41,19 @@ export default function TrialExpired() {
       if (type === "contacts") {
         const rows = await allRows(base44.entities.Contact, "-updated_date");
         downloadCsv(`cadence-contacts-${date}.csv`,
-          ["Name","Title","Company","Phone","Email","Industry","Location","Notes","Last called"],
-          rows.map(c => [c.full_name,c.job_title,c.company,c.phone,c.email,c.industry,c.location,c.notes,c.last_called]));
+          ["First name","Last name","Title","Company","Phone","Email","Industry","Location","Notes","Last called"],
+          rows.map(c => {
+            const parts = String(c.full_name || "").trim().split(/\s+/).filter(Boolean);
+            return [parts[0] || "", parts.slice(1).join(" "), c.job_title, c.company, c.phone, c.email, c.industry, c.location, c.notes, c.last_called];
+          }));
       } else if (type === "calls") {
         const rows = await allRows(base44.entities.CallLog);
         downloadCsv(`cadence-calls-${date}.csv`,
-          ["Date","Contact","Company","Outcome","Conversation","Notes","Follow-up"],
-          rows.map(c => [c.created_date,c.contact_name,c.company,c.primary_outcome || c.outcome,c.conversation_held === true ? "Yes" : "No",c.notes,c.follow_up_date]));
+          ["Date","First name","Last name","Company","Phone","Email","Outcome","Conversation","Notes","Follow-up"],
+          rows.map(c => {
+            const parts = String(c.contact_name || "").trim().split(/\s+/).filter(Boolean);
+            return [c.created_date, parts[0] || "", parts.slice(1).join(" "), c.company, c.phone || "", c.email || "", c.primary_outcome || c.outcome, c.conversation_held === true ? "Yes" : "No", c.notes, c.follow_up_date];
+          }));
       } else {
         const rows = await allRows(base44.entities.Company);
         downloadCsv(`cadence-companies-${date}.csv`,
