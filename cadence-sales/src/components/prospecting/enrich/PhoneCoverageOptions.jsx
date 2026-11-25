@@ -10,9 +10,9 @@ const OPTIONS = [
   },
   {
     key: "otherKnown",
-    label: "Check other already-known contacts if no number is returned",
+    label: "Also find mobiles for other already-known contacts",
     detail:
-      "Can generate additional provider lookups, but does not discover new people — it only checks people Cadence already holds for the company.",
+      "After the best match, keep asking Lusha for mobiles on the other named people Cadence already holds (emails often cover several people). Does not discover new people.",
   },
   {
     key: "discover",

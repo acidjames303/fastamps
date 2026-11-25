@@ -359,7 +359,9 @@ async function lushaEnrich(
             ...(out.field_provenance || {}),
             phone: {
               source_provider: 'lusha', confidence: decision.confidence, enriched_at: now,
-              verified_at: null, provider_value: person.raw, phone_type: 'mobile',
+              verified_at: null,
+              provider_value: person.number || person.normalised || '',
+              phone_type: 'mobile',
               normalised: decision.uk.e164, phone_status: decision.status,
               employment_check: r.employment_check, returned_company: r.company_name || '',
             },
@@ -604,10 +606,18 @@ export function getMissingFields(prospect: any, requestedFields: string[]): stri
         if (new Set(allEmails).size < 2) missing.push(field);
         break;
       case 'mobile':
-        if (!prospect.phone || (prospect.landline && prospect.phone === prospect.landline)) missing.push(field);
+        // Only a real UK mobile satisfies this field — a landline, switchboard,
+        // or empty phone must not stop further mobile lookups.
+        {
+          const candidate = prospect.mobile || prospect.phone || '';
+          const board = prospect.landline || '';
+          if (!isUkMobile(candidate) || (board && phoneDigits(candidate) === phoneDigits(board))) {
+            missing.push(field);
+          }
+        }
         break;
       case 'direct_dial':
-        if (!prospect.phone) missing.push(field);
+        if (!prospect.direct_dial && !prospect.phone) missing.push(field);
         break;
       case 'company_phone':
         if (!prospect.landline) missing.push(field);
@@ -1403,13 +1413,13 @@ Be factual. Never invent a phone number or person's name. If you cannot find som
     }
   }
 
-  // 3b. Mobile widening — the people probed so far had no mobile, so check
-  // other named people at the same company (outside the normal contact cap)
-  // and keep the first one who has a dialable number.
+  // 3b. Mobile widening — when the run asks to check other known people, keep
+  // revealing mobiles for named contacts who still lack one. Do NOT stop after
+  // the first success: emails often cover several people while only the lead
+  // previously received a number.
   if (widenMobileSearch && !emailOnly && out.contacts.length) {
-    const phoneMissing = getMissingFields(out, requestedFields)
-      .some((f) => f === 'mobile' || f === 'direct_dial');
-    if (phoneMissing && !out.contacts.some(hasDialableMobile)) {
+    const phoneWanted = requestedFields.some((f) => f === 'mobile' || f === 'direct_dial');
+    if (phoneWanted) {
       const others = out.contacts
         .filter((c: any) => {
           const name = String(c.name || '').trim();
@@ -1418,53 +1428,59 @@ Be factual. Never invent a phone number or person's name. If you cannot find som
           return !hasDialableMobile(c);
         })
         .slice(0, WIDEN_EXTRA);
-      for (const provider of providerOrder) {
-        const need = others.filter((c: any) => !hasDialableMobile(c));
-        if (!need.length) break;
-        const ctx = { company_name: out.company_name, domain: out.domain };
-        if (provider === 'lusha' && lushaKey && !lushaCooldownActive) {
-          await beforeCharge();
-          const lushaResult = await lushaEnrich(base44, org, need, out, lushaKey, {
-            prospect_id, list_id, correlation_id: correlationId, wantPhones: true, wantEmails: false,
-          });
-          lushaStatuses = lushaStatuses.concat(lushaResult.statuses);
-          if (lushaResult.phones_applied) applyLushaPhoneResult(lushaResult, out);
-          if (lushaResult.message && !lushaResult.phones_applied) lushaProviderError = lushaResult.message;
-          if (lushaResult.definitive_miss) out.retry_cooldown_expires_at = cooldownExpiry();
-          if (lushaResult.credits > 0) {
+      if (others.length) {
+        for (const provider of providerOrder) {
+          const need = others.filter((c: any) => !hasDialableMobile(c) && !probedPhoneNames.has(String(c.name || '').toLowerCase()));
+          if (!need.length) break;
+          const ctx = { company_name: out.company_name, domain: out.domain };
+          if (provider === 'lusha' && lushaKey && !lushaCooldownActive) {
+            await beforeCharge();
+            need.forEach((c: any) => probedPhoneNames.add(String(c.name || '').toLowerCase()));
+            const lushaResult = await lushaEnrich(base44, org, need, out, lushaKey, {
+              prospect_id, list_id, correlation_id: correlationId, wantPhones: true, wantEmails: false,
+            });
+            lushaStatuses = lushaStatuses.concat(lushaResult.statuses);
+            if (lushaResult.phones_applied) applyLushaPhoneResult(lushaResult, out);
+            if (lushaResult.message && !lushaResult.phones_applied) lushaProviderError = lushaResult.message;
+            // A widen miss must not cool down the whole company when another
+            // person already has a usable mobile — that blocked re-tries.
+            if (lushaResult.definitive_miss && !out.contacts.some(hasDialableMobile)) {
+              out.retry_cooldown_expires_at = cooldownExpiry();
+            }
+            if (lushaResult.credits > 0) {
+              await recordUsage(base44, org, {
+                event_type: 'phone_enrichment', provider: 'lusha', quantity: lushaResult.credits,
+                unit: 'credit', source_function: 'enrichProspectWaterfall',
+                idempotency_key: `${correlationId}_lusha_widen`, related_record_id: prospect_id,
+                metadata: { correlation_id: correlationId, purpose: 'mobile_widen_all_known' },
+              });
+            }
+            if (lushaResult.phones_applied) providerUsed = 'lusha';
+            for (const review of (lushaResult.phone_reviews || [])) {
+              await raisePhoneReview(base44, org, {
+                ...review,
+                prospect_id,
+                list_id,
+                company_name: out.company_name,
+                existing_value: out.phone || out.landline || '',
+                existing_source: out.phone_source || '',
+                new_source: 'lusha',
+              });
+            }
+          }
+          if (provider === 'fullenrich' && fullKey) {
+            await beforeCharge();
+            need.forEach((c: any) => probedPhoneNames.add(String(c.name || '').toLowerCase()));
+            await fullenrichEnrich(need, ctx, fullKey);
             await recordUsage(base44, org, {
-              event_type: 'phone_enrichment', provider: 'lusha', quantity: lushaResult.credits,
-              unit: 'credit', source_function: 'enrichProspectWaterfall',
-              idempotency_key: `${correlationId}_lusha_widen`, related_record_id: prospect_id,
-              metadata: { correlation_id: correlationId, purpose: 'mobile_widen' },
+              event_type: 'phone_enrichment', provider: 'fullenrich', quantity: need.length,
+              unit: 'contact', source_function: 'enrichProspectWaterfall',
+              idempotency_key: `${correlationId}_fullenrich_widen`, related_record_id: prospect_id,
+              metadata: { correlation_id: correlationId, purpose: 'mobile_widen_all_known' },
             });
-          }
-          if (lushaResult.phones_applied) providerUsed = 'lusha';
-          for (const review of (lushaResult.phone_reviews || [])) {
-            await raisePhoneReview(base44, org, {
-              ...review,
-              prospect_id,
-              list_id,
-              company_name: out.company_name,
-              existing_value: out.phone || out.landline || '',
-              existing_source: out.phone_source || '',
-              new_source: 'lusha',
-            });
+            providerUsed = 'fullenrich';
           }
         }
-        if (provider === 'fullenrich' && fullKey) {
-          await beforeCharge();
-          await fullenrichEnrich(need, ctx, fullKey);
-          await recordUsage(base44, org, {
-            event_type: 'phone_enrichment', provider: 'fullenrich', quantity: need.length,
-            unit: 'contact', source_function: 'enrichProspectWaterfall',
-            idempotency_key: `${correlationId}_fullenrich_widen`, related_record_id: prospect_id,
-            metadata: { correlation_id: correlationId, purpose: 'mobile_widen' },
-          });
-          providerUsed = 'fullenrich';
-        }
-        for (const c of need) probedPhoneNames.add(String(c.name || '').toLowerCase());
-        if (others.some(hasDialableMobile)) break;
       }
     }
   }
