@@ -58,3 +58,12 @@ From [Audit UX simplification targets](bc-cf3a114d-337f-5ea2-acc9-17450afa29d9) 
 
 ### Publishing
 Redeploy after build in this cycle.
+
+---
+
+## CI cycle 4 — 25 Nov 2026 ~21:00 (Europe/London)
+
+Overnight timer. **CI-014:** Campaigns Prospecting/Import tabs use one clear heading + back to campaigns (no competing “Campaigns” hero + Find prospects chrome). Nav labels aligned to Prospecting. No API changes.
+
+### Next
+CI-005 Team metrics clarity (calls/hour vs login duration).

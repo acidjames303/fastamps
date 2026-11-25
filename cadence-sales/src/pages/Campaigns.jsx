@@ -18,9 +18,24 @@ import Import from "@/pages/Import";
 
 const TABS = [
   { id: "campaigns", label: "Campaigns" },
-  { id: "prospect", label: "Find prospects" },
-  { id: "import", label: "Import CSV" },
+  { id: "prospect", label: "Prospecting" },
+  { id: "import", label: "Import" },
 ];
+
+const TAB_HEADING = {
+  campaigns: {
+    title: "Campaigns",
+    subtitle: "Create, research, then call — context sticks as you move.",
+  },
+  prospect: {
+    title: "Prospecting",
+    subtitle: "Research accounts and enrich contacts for a campaign — same tools as always, without a second workspace.",
+  },
+  import: {
+    title: "Import",
+    subtitle: "Bring companies and contacts into a campaign from a spreadsheet.",
+  },
+};
 
 const STATUS_TONE = {
   draft: "bg-slate-100 text-slate-600",
@@ -216,14 +231,23 @@ export default function Campaigns() {
     );
   }
 
+  const heading = TAB_HEADING[tab] || TAB_HEADING.campaigns;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-4xl font-semibold tracking-tight text-slate-900">Campaigns</h1>
-          <p className="text-slate-500 mt-2 max-w-xl">
-            Create, research, then call — context sticks as you move.
-          </p>
+          {tab !== "campaigns" && (
+            <button
+              type="button"
+              onClick={() => setTab("campaigns")}
+              className="text-xs font-medium text-emerald-700 hover:text-emerald-800 mb-2"
+            >
+              ← All campaigns
+            </button>
+          )}
+          <h1 className="font-display text-4xl font-semibold tracking-tight text-slate-900">{heading.title}</h1>
+          <p className="text-slate-500 mt-2 max-w-xl">{heading.subtitle}</p>
         </div>
         {tab === "campaigns" && isManager && (
           <Button onClick={() => setOpen((v) => !v)} className="rounded-full bg-emerald-600 hover:bg-emerald-700">
@@ -232,24 +256,28 @@ export default function Campaigns() {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {TABS.map((t) => {
-          if (t.id !== "campaigns" && !canProspect) return null;
-          const active = tab === t.id;
-          return (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setTab(t.id)}
-              className={`rounded-full px-4 py-2 text-sm transition-colors ${
-                active ? "bg-slate-900 text-white" : "bg-white border border-slate-200 text-slate-600 hover:border-slate-400"
-              }`}
-            >
-              {t.label}
-            </button>
-          );
-        })}
-      </div>
+      {tab === "campaigns" && (
+        <div className="flex flex-wrap gap-2" role="tablist" aria-label="Campaign workspace">
+          {TABS.map((t) => {
+            if (t.id !== "campaigns" && !canProspect) return null;
+            const active = tab === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setTab(t.id)}
+                className={`rounded-full px-4 py-2 text-sm transition-colors ${
+                  active ? "bg-slate-900 text-white" : "bg-white border border-slate-200 text-slate-600 hover:border-slate-400"
+                }`}
+              >
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {message && <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3">{message}</p>}
       {error && <p className="text-sm text-rose-600">{error}</p>}
@@ -333,7 +361,7 @@ export default function Campaigns() {
                 {canProspect && (
                   <>
                     <Button variant="outline" className="rounded-full" onClick={() => setTab("prospect")}>
-                      <Target className="w-4 h-4 mr-2" /> Find prospects
+                      <Target className="w-4 h-4 mr-2" /> Prospecting
                     </Button>
                     <Button variant="outline" className="rounded-full" onClick={() => setTab("import")}>
                       <Upload className="w-4 h-4 mr-2" /> Import CSV
@@ -456,7 +484,7 @@ export default function Campaigns() {
                         </Button>
                         {canProspect && (
                           <Button size="sm" variant="outline" className="rounded-full" onClick={() => { setActiveCampaign(c); navigate(`/campaigns?tab=prospect&campaign=${c.id}`); }}>
-                            <Target className="w-3.5 h-3.5 mr-1" /> Find prospects
+                            <Target className="w-3.5 h-3.5 mr-1" /> Prospecting
                           </Button>
                         )}
                         {canProspect && (

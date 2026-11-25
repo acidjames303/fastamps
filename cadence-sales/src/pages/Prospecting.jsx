@@ -745,17 +745,15 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          {!embedded && (
+      <div className={`flex flex-wrap items-end gap-4 ${embedded ? "justify-end" : "justify-between"}`}>
+        {!embedded && (
+          <div>
             <h1 className="font-display text-4xl font-semibold tracking-tight text-slate-900">Prospecting</h1>
-          )}
-          <p className={`${embedded ? "text-sm" : ""} text-slate-500 ${embedded ? "" : "mt-2"}`}>
-            {embedded
-              ? "Paste a brief, extract your ICP, add companies, enrich, then push into a campaign."
-              : "Paste a brief, extract your ICP, add companies, and enrich data — all in one place."}
-          </p>
-        </div>
+            <p className="text-slate-500 mt-2">
+              Paste a brief, extract your ICP, add companies, and enrich data — all in one place.
+            </p>
+          </div>
+        )}
         <div className="flex items-center gap-2">
           <div className="relative">
             <select
