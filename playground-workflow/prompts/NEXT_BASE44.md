@@ -1,6 +1,6 @@
-# Base44 prompt — Playground iteration 187+ (funnel / UI)
+# Base44 prompt — Playground iteration 188+ (funnel / UI)
 
-Iterations **001–011**, **042–066**, **151–152** are live; **067–150**, **153–186** remasure-hold.
+Iterations **001–011**, **042–066**, **151–152** are live; **067–150**, **153–187** remasure-hold.
 
 ## Next levers
 1. Dictate polish: interim transcript preview, or CallRequestForm preferred-times dictate.
