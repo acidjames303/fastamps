@@ -3,7 +3,7 @@
 **Date:** 24 Nov 2026  
 **Branch:** `cursor/cadence-ux-master-audit-2475`  
 **App:** Cadence — Sales Calling Workspace (`6a7338f6106b1962aa31c00a`)  
-**Live:** https://evasive-dial-flow-go.base44.app  
+**Live:** https://cadence.smartfunction.io (also https://evasive-dial-flow-go.base44.app)  
 **Source tree:** `cadence-sales/` (ejected)
 
 ---
@@ -94,21 +94,14 @@ Removed from first viewport emphasis: long ContextHelp paragraph, “Start calli
 
 ## Deploy status
 
-**Not deployed to production.**
-
-Base44 `branches list` returns only `main` — no non-production branch available for safe CLI deploy. Sandbox write to `main` would publish live UX without authenticated QA.
-
-### Ready-to-deploy steps (when approved)
+**Published 25 Nov 2026 (Europe/London)** → https://cadence.smartfunction.io
 
 ```bash
 cd cadence-sales
-# Prefer a Base44 branch if one is created in the builder:
-# npx base44 --app-id 6a7338f6106b1962aa31c00a --branch <sandbox-name> sandbox write …
-# Or site deploy after explicit owner approval:
-npx base44 --app-id 6a7338f6106b1962aa31c00a deploy --build -y
+npx base44 --app-id "$BASE44_APP_ID" deploy --build -y
 ```
 
-What would be published: frontend site changes only (nav, Today, campaign chip, sticky context). No entity/schema or function changes in this Phase 1 pack.
+Published: Phase 1 UX (nav, Today, sticky campaign) + research pack v2 (add your research, dig deeper, `researchAccountsPrompted` merge mode). Live bundle verified for Dig deeper / Add your research / Search further.
 
 ---
 

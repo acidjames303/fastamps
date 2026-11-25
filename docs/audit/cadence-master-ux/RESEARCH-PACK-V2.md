@@ -34,11 +34,15 @@
 
 ---
 
+## Deploy
+
+**Published 25 Nov 2026 (Europe/London)** to https://cadence.smartfunction.io.
+
 ## Intentionally not done yet
 
-- Live publish to Base44 production (needs your OK).
 - App MCP / Cursor driving the same tools (Phase 3).
 - Auto-always-on crawler (guided autopilot only).
+- Research packs on Dialer / call prep card.
 
 ---
 
