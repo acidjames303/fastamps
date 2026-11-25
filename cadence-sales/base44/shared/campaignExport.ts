@@ -2,24 +2,26 @@ import { clean, key, genericEmail, peopleOf, accountState } from './campaignData
 import { classifyUkPhone, PHONE_STATUS_LABELS } from './ukPhone.ts';
 import { splitPersonName } from './lusha.ts';
 
-// One row per person so uploads know which phone/email belongs to whom.
+// Prospecting / campaign CSV: one row per person so uploads know which phone
+// and email belong to whom. Person + company + phone + email lead the sheet.
 export const CAMPAIGN_EXPORT_HEADERS = [
-  'Client',
-  'Campaign',
-  'Target list',
-  'Company',
-  'Website',
   'First name',
   'Last name',
-  'Job title',
+  'Company',
+  'Phone',
   'Personal email',
-  'Company email',
-  'Email status',
-  'Email source',
+  'Job title',
   'Mobile',
   'Direct dial',
   'Switchboard',
-  'Phone',
+  'Target list',
+  'Date',
+  'Website',
+  'Client',
+  'Campaign',
+  'Company email',
+  'Email status',
+  'Email source',
   'Phone type',
   'Phone status',
   'Phone source',
@@ -43,7 +45,11 @@ function cell(value) {
 }
 
 function personKey(person) {
-  return key(person?.name || person?.full_name || [person?.first_name, person?.last_name].filter(Boolean).join(' '));
+  return key(
+    person?.name ||
+      person?.full_name ||
+      [person?.first_name, person?.last_name].filter(Boolean).join(' '),
+  );
 }
 
 function matchEmailForPerson(person, emailEntries) {
@@ -137,7 +143,6 @@ function rowForPerson({
   boardSet,
   activity,
   reviews,
-  profiles,
   state,
   ownerName,
 }) {
@@ -190,6 +195,7 @@ function rowForPerson({
   const next = (activity.tasks || [])
     .filter((t) => t.company_id === company.id && ['pending', 'in_progress'].includes(t.status))
     .sort((a, b) => clean(a.due_at).localeCompare(clean(b.due_at)))[0];
+  const activityDate = dateOnly(last?.started_at || prospect.last_called_at || prospect.updated_date || prospect.created_date);
   const reviewStatus = state.ready
     ? 'Ready to call'
     : [...decisions.map((r) => human(r.status)), ...state.reasons, 'Not ready to call']
@@ -213,29 +219,30 @@ function rowForPerson({
     .join('\n');
 
   return [
-    campaign.client_name || campaign.name || '',
-    campaign.name || '',
-    list.name || campaign.name || '',
-    prospect.company_name,
-    prospect.website || company.website || prospect.domain || '',
     firstName,
     lastName,
-    clean(person?.title || person?.job_title || ''),
+    prospect.company_name,
+    phone,
     personalEmail,
-    companyEmails[0] || '',
-    emailStatus,
-    emailSource,
+    clean(person?.title || person?.job_title || ''),
     mobiles[0] || '',
     directs[0] || '',
     board,
-    phone,
+    list.name || campaign.name || '',
+    activityDate,
+    prospect.website || company.website || prospect.domain || '',
+    campaign.client_name || campaign.name || '',
+    campaign.name || '',
+    companyEmails[0] || '',
+    emailStatus,
+    emailSource,
     phoneType,
     phoneStatus,
     phoneSource,
     evidence,
     reviewStatus,
     ownerName,
-    dateOnly(last?.started_at || prospect.last_called_at),
+    activityDate,
     next ? `${human(next.task_type)} ${dateOnly(next.due_at || next.due_date)}` : '',
     notes,
   ];
@@ -309,7 +316,6 @@ export function buildCampaignExport(data, activity = {}) {
           boardSet,
           activity,
           reviews,
-          profiles,
           state,
           ownerName,
         }),

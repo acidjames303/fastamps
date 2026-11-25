@@ -48,22 +48,48 @@ export default function EnrichmentBatchSummary({ summary, prospects, onClose }) 
   ];
 
   const exportSummary = () => {
-    const headers = ["Company", "Country", "Geography", "Company found", "Landline", "Landline found", "Decision-makers", "Email found", "Mobile found", "Mobile", "Phone lookup result", "LinkedIn found", "Provider", "Provider error", "Status", "Last attempted"];
-    const rows = prospects.map((p) => [
-      p.company_name, p.country_code || "", p.geography_status || "",
-      p.company_found ? "Yes" : "No", p.landline || "", p.landline_found ? "Yes" : "No",
-      p.decision_makers_found ? "Yes" : "No", p.work_email_found ? "Yes" : "No",
-      p.mobile_found ? "Yes" : "No", p.phone || "",
-      (p.field_provenance && p.field_provenance.phone && PHONE_RESULT_LABELS[p.field_provenance.phone.lookup_result]) || "",
-      p.linkedin_found ? "Yes" : "No",
-      p.provider_used || "", p.provider_error || "", p.enrichment_status || "",
-      p.last_attempted_at ? new Date(p.last_attempted_at).toLocaleDateString("en-GB") : "",
-    ]);
+    // One row per person so the download matches prospecting contact exports.
+    const headers = [
+      "First name", "Last name", "Company", "Phone", "Personal email", "Job title",
+      "Mobile", "Direct dial", "Switchboard", "Date", "Country", "Geography",
+      "Status", "Provider", "Provider error",
+    ];
+    const rows = [];
+    for (const p of prospects || []) {
+      const contacts = Array.isArray(p.contacts) && p.contacts.length
+        ? p.contacts
+        : [{ name: p.full_name || "", title: p.job_title || "", email: p.email || "", mobile: p.mobile || "", phone: p.phone || "", direct_dial: p.direct_dial || "" }];
+      const date = p.last_attempted_at ? new Date(p.last_attempted_at).toLocaleDateString("en-GB") : "";
+      const switchboard = p.landline || p.company_phone || "";
+      for (const c of contacts) {
+        const parts = String(c.name || c.full_name || "").trim().split(/\s+/).filter(Boolean);
+        const mobile = c.mobile || "";
+        const direct = c.direct_dial || "";
+        const phone = mobile || direct || c.phone || switchboard || "";
+        rows.push([
+          parts[0] || "",
+          parts.slice(1).join(" "),
+          p.company_name || "",
+          phone,
+          c.email || "",
+          c.title || c.job_title || "",
+          mobile,
+          direct,
+          switchboard,
+          date,
+          p.country_code || "",
+          p.geography_status || "",
+          p.enrichment_status || "",
+          p.provider_used || "",
+          p.provider_error || "",
+        ]);
+      }
+    }
     const csv = [headers, ...rows].map((r) => r.map((c) => `"${String(c ?? "").replace(/"/g, '""')}"`).join(",")).join("\r\n");
     const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = "enrichment-batch-summary.csv"; a.click();
+    a.href = url; a.download = "enrichment-contacts.csv"; a.click();
     URL.revokeObjectURL(url);
   };
 
@@ -76,7 +102,7 @@ export default function EnrichmentBatchSummary({ summary, prospects, onClose }) 
         </div>
         <div className="flex items-center gap-2">
           <Button onClick={exportSummary} variant="outline" size="sm" className="rounded-full border-slate-300">
-            <Download className="w-3.5 h-3.5 mr-1.5" /> Export summary
+            <Download className="w-3.5 h-3.5 mr-1.5" /> Export contacts
           </Button>
           {onClose && (
             <Button onClick={onClose} variant="ghost" size="icon" className="rounded-full h-8 w-8">

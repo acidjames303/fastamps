@@ -7,10 +7,17 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const source = readFileSync(join(root, 'base44/shared/campaignExport.ts'), 'utf8');
 
-test('campaign export headers split first and last name', () => {
-  assert.match(source, /'First name'/);
-  assert.match(source, /'Last name'/);
-  assert.match(source, /'Phone'/);
+test('campaign export headers lead with person, company, phone and email', () => {
+  const match = source.match(/export const CAMPAIGN_EXPORT_HEADERS = \[([\s\S]*?)\];/);
+  assert.ok(match, 'headers export missing');
+  const headers = [...match[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
+  assert.deepEqual(headers.slice(0, 5), [
+    'First name',
+    'Last name',
+    'Company',
+    'Phone',
+    'Personal email',
+  ]);
   assert.doesNotMatch(source, /'Contact name'/);
 });
 
