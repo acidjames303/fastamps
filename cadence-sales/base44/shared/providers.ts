@@ -129,41 +129,10 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
 export const PeopleSearchProvider = {
   async findDecisionMakers(base44, secrets, { company, domain, target_roles }) {
     const results = [];
-    const fullKey = (secrets.get('FULLENRICH_API_KEY') || '').trim();
+    // FullEnrich people-search is intentionally disabled: this org's FullEnrich
+    // balance is reserved for phone reveals on contacts that still have no number.
 
-    // 1. FullEnrich people search (names, titles, LinkedIn — no phones).
-    if (fullKey) {
-      try {
-        const titles = (target_roles && target_roles.length ? target_roles : SENIOR_TITLES)
-          .slice(0, 5).map((t) => ({ value: t, exact_match: false, exclude: false }));
-        const res = await fetch(`${FULLENRICH}/people/search`, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${fullKey}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            limit: 10,
-            current_company_names: [{ value: company, exact_match: false, exclude: false }],
-            current_position_titles: titles,
-          }),
-        });
-        if (res.ok) {
-          const data = await res.json().catch(() => ({}));
-          for (const p of (data.people || [])) {
-            let linkedin = p.social_profiles?.professional_network?.url || '';
-            if (!linkedin && Array.isArray(p.social_profiles)) {
-              const li = p.social_profiles.find((s) => /linkedin\.com\/in\//.test(s?.url || ''));
-              linkedin = li?.url || '';
-            }
-            results.push({
-              name: p.full_name || [p.first_name, p.last_name].filter(Boolean).join(' ') || '',
-              title: p.employment?.current?.title || p.headline || '',
-              linkedin, provider: 'fullenrich', confidence: 70,
-            });
-          }
-        }
-      } catch {}
-    }
-
-    // 2. AI fallback — named directors/leaders from public sources (no phones).
+    // AI — named directors/leaders from public sources (no phones).
     if (!results.length) {
       try {
         const res = await base44.asServiceRole.integrations.Core.InvokeLLM({

@@ -180,7 +180,7 @@ function getProviderCapabilities(provider) {
   const caps = {
     apollo: "Decision-makers, personal emails, mobiles, company intelligence",
     lusha: "Personal emails, mobile numbers, direct dials",
-    fullenrich: "Personal emails, mobile numbers, alternative emails",
+    fullenrich: "Limited credits — mobile numbers only for contacts still missing a phone",
   };
   return caps[provider] || "";
 }

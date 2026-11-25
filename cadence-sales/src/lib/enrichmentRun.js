@@ -9,7 +9,8 @@ export const PHONE_FIELDS = ["mobile", "direct_dial"];
 export const PROVIDER_CAPABILITIES = {
   apollo: ["decision_maker_role", "personal_email", "mobile", "company_intelligence"],
   lusha: ["personal_email", "mobile", "direct_dial"],
-  fullenrich: ["personal_email", "mobile", "alternative_email"],
+  // Limited FullEnrich account: phones only for people still missing a number.
+  fullenrich: ["mobile"],
 };
 
 export const PROVIDER_KEY_MAP = {

@@ -189,9 +189,13 @@ export default function SelectiveEnrichDialog({
     }
     setErr("");
     if (enabledProviders === null && connectedList.length) {
-      // Lusha is the default phone source. Other connected providers remain
-      // available as explicit fallbacks without being called automatically.
-      setEnabledProviders(connectedList.includes("lusha") ? ["lusha"] : [...connectedList]);
+      // Lusha first. FullEnrich is optional phone-only fallback for contacts
+      // still missing a number (limited credits) — never the primary/email path.
+      const defaults = [];
+      if (connectedList.includes("lusha")) defaults.push("lusha");
+      else if (connectedList.includes("apollo")) defaults.push("apollo");
+      if (connectedList.includes("fullenrich")) defaults.push("fullenrich");
+      setEnabledProviders(defaults.length ? defaults : [...connectedList]);
     }
     // With unlimited Lusha, open on Connected providers + Maximum search so
     // every known contact is checked for a mobile, not just the lead.
@@ -517,8 +521,9 @@ export default function SelectiveEnrichDialog({
                   <div className="space-y-2">
                     {connectedList.map((provider) => {
                       const checked = (enabledProviders || connectedList).includes(provider);
+                      const isFullEnrich = provider === "fullenrich";
                       return (
-                        <label key={provider} className="flex cursor-pointer items-center gap-2 text-sm text-slate-700">
+                        <label key={provider} className="flex cursor-pointer items-start gap-2 text-sm text-slate-700">
                           <Checkbox
                             checked={checked}
                             onCheckedChange={(value) => {
@@ -530,8 +535,16 @@ export default function SelectiveEnrichDialog({
                                   : active.filter((item) => item !== provider);
                               });
                             }}
+                            className="mt-0.5"
                           />
-                          {PROVIDER_LABELS[provider] || provider}
+                          <span>
+                            <span className="font-medium">{PROVIDER_LABELS[provider] || provider}</span>
+                            {isFullEnrich && (
+                              <span className="mt-0.5 block text-xs leading-relaxed text-amber-800">
+                                Limited credits — only looks up a phone for named people who still have no number (after Lusha). Never emails or discovery.
+                              </span>
+                            )}
+                          </span>
                         </label>
                       );
                     })}

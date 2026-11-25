@@ -489,20 +489,30 @@ async function lushaEnrich(
   };
 }
 
-// FullEnrich bulk enrichment — mobiles + emails.
+// FullEnrich bulk enrichment — PHONES ONLY.
+// This Cadence org holds a limited FullEnrich balance. Never request emails,
+// never people-search, never spend on contacts that already have a dialable number.
+const FULLENRICH_MAX_PER_COMPANY = 3;
 async function fullenrichEnrich(list: any[], out: any, key: string) {
   try {
     const data = list.map((c) => {
       const { first, last } = splitName(c.name);
-      return { first_name: first, last_name: last, company_name: out.company_name, ...(out.domain ? { domain: out.domain } : {}), ...(c.linkedin ? { linkedin_url: c.linkedin } : {}), enrich_fields: ['contact.phones', 'contact.emails'] };
+      return {
+        first_name: first,
+        last_name: last,
+        company_name: out.company_name,
+        ...(out.domain ? { domain: out.domain } : {}),
+        ...(c.linkedin ? { linkedin_url: c.linkedin } : {}),
+        enrich_fields: ['contact.phones'],
+      };
     });
     const start = await fetch(`${FULLENRICH}/contact/enrich/bulk`, {
       method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: `Prospect ${out.company_name}`.slice(0, 80), data }),
     });
-    if (!start.ok) return { http_status: start.status, error_category: 'auth_error', retryable: false };
+    if (!start.ok) return { http_status: start.status, error_category: 'auth_error', retryable: false, phones_applied: 0 };
     const eid = (await start.json().catch(() => ({}))).enrichment_id;
-    if (!eid) return { http_status: 200, error_category: 'none', retryable: false };
+    if (!eid) return { http_status: 200, error_category: 'none', retryable: false, phones_applied: 0 };
     let result: any = null;
     const deadline = Date.now() + 20000;
     while (Date.now() < deadline) {
@@ -516,11 +526,11 @@ async function fullenrichEnrich(list: any[], out: any, key: string) {
       const g = await fetch(`${FULLENRICH}/contact/enrich/bulk/${eid}?forceResults=true`, { headers: { Authorization: `Bearer ${key}` } });
       if (g.ok) result = await g.json().catch(() => result);
     }
+    let phonesApplied = 0;
     for (const row of (result?.data || [])) {
       const ci = row.contact_info || {};
       const phone = ci.most_probable_phone?.number || ci.phones?.[0]?.number || '';
-      const email = ci.most_probable_email?.email || ci.emails?.[0]?.email || '';
-      if (!phone && !email) continue;
+      if (!phone) continue;
       const first = (row.input?.first_name || '').toLowerCase();
       const last = (row.input?.last_name || '').toLowerCase();
       const match = list.find((c) => {
@@ -528,13 +538,20 @@ async function fullenrichEnrich(list: any[], out: any, key: string) {
         return f.toLowerCase() === first && l.toLowerCase() === last;
       });
       if (match) {
-        if (phone) match.phone = phone;
-        if (email) match.email = email;
+        if (isUkMobile(phone)) {
+          match.mobile = phone;
+          match.phone = phone;
+          phonesApplied += 1;
+        } else if (!match.phone && !match.direct_dial) {
+          match.direct_dial = phone;
+          match.phone = phone;
+          phonesApplied += 1;
+        }
       }
     }
-    return { http_status: 200, error_category: 'none', retryable: false };
+    return { http_status: 200, error_category: 'none', retryable: false, phones_applied: phonesApplied };
   } catch {
-    return { http_status: 0, error_category: 'network_error', retryable: true };
+    return { http_status: 0, error_category: 'network_error', retryable: true, phones_applied: 0 };
   }
 }
 
@@ -1439,27 +1456,49 @@ Be factual. Never invent a phone number or person's name. If you cannot find som
       }
 
       if (provider === 'fullenrich' && fullKey && !emailOnly) {
-        const need = out.contacts.filter((c: any) => {
-          if (!isPlausiblePersonName(c?.name)) return false;
-          if (!hasDialableMobile(c) || !c.email) return true;
-          return classifyEmail(c.email, out.domain).isGeneric;
-        }).slice(0, maxContacts);
-        if (need.length) {
-          const ctx = { company_name: out.company_name, domain: out.domain };
-          need.forEach((c: any) => {
-            const key = String(c.name || '').toLowerCase();
-            if (!hasDialableMobile(c)) probedPhoneNames.add(key);
-            if (!c.email || classifyEmail(c.email, out.domain).isGeneric) probedEmailNames.add(key);
-          });
-          await beforeCharge();
-          await fullenrichEnrich(need, ctx, fullKey);
-          await recordUsage(base44, org, {
-            event_type: 'phone_enrichment', provider: 'fullenrich', quantity: need.length,
-            unit: 'contact', source_function: 'enrichProspectWaterfall',
-            idempotency_key: `${correlationId}_fullenrich`, related_record_id: prospect_id,
-            metadata: { correlation_id: correlationId },
-          });
-          providerUsed = 'fullenrich';
+        // Limited FullEnrich: only named people still missing a phone, and only
+        // when this run asked for a mobile/direct. Never emails. Cap spend hard.
+        const phoneRequested = requestedFields.includes('mobile') || requestedFields.includes('direct_dial');
+        if (phoneRequested) {
+          const need = out.contacts
+            .filter((c: any) => {
+              if (!isPlausiblePersonName(c?.name)) return false;
+              if (hasDialableMobile(c) || hasPersonNumber(c)) return false;
+              if (probedPhoneNames.has(String(c.name || '').toLowerCase())) return false;
+              return true;
+            })
+            .sort((a: any, b: any) => {
+              const aEmail = a.email && classifyEmail(a.email, out.domain).isPersonal ? 1 : 0;
+              const bEmail = b.email && classifyEmail(b.email, out.domain).isPersonal ? 1 : 0;
+              return bEmail - aEmail;
+            })
+            .slice(0, FULLENRICH_MAX_PER_COMPANY);
+          if (need.length) {
+            const ctx = { company_name: out.company_name, domain: out.domain };
+            need.forEach((c: any) => probedPhoneNames.add(String(c.name || '').toLowerCase()));
+            await beforeCharge();
+            const fe = await fullenrichEnrich(need, ctx, fullKey);
+            await recordUsage(base44, org, {
+              event_type: 'phone_enrichment', provider: 'fullenrich', quantity: need.length,
+              unit: 'contact', source_function: 'enrichProspectWaterfall',
+              idempotency_key: `${correlationId}_fullenrich`, related_record_id: prospect_id,
+              metadata: {
+                correlation_id: correlationId,
+                purpose: 'phone_only_missing_contacts',
+                phones_applied: fe?.phones_applied || 0,
+              },
+            });
+            if (fe?.phones_applied) {
+              providerUsed = 'fullenrich';
+              if (!out.phone) {
+                const withPhone = need.find((c: any) => c.mobile || c.phone);
+                if (withPhone) {
+                  out.phone = withPhone.mobile || withPhone.phone;
+                  out.phone_source = 'fullenrich';
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -1528,16 +1567,26 @@ Be factual. Never invent a phone number or person's name. If you cannot find som
             }
           }
           if (provider === 'fullenrich' && fullKey) {
-            await beforeCharge();
-            need.forEach((c: any) => probedPhoneNames.add(String(c.name || '').toLowerCase()));
-            await fullenrichEnrich(need, ctx, fullKey);
-            await recordUsage(base44, org, {
-              event_type: 'phone_enrichment', provider: 'fullenrich', quantity: need.length,
-              unit: 'contact', source_function: 'enrichProspectWaterfall',
-              idempotency_key: `${correlationId}_fullenrich_widen`, related_record_id: prospect_id,
-              metadata: { correlation_id: correlationId, purpose: 'mobile_widen_all_known' },
-            });
-            providerUsed = 'fullenrich';
+            // After Lusha: only the remaining phoneless contacts, hard-capped.
+            const feNeed = need
+              .filter((c: any) => !hasDialableMobile(c) && !hasPersonNumber(c))
+              .slice(0, FULLENRICH_MAX_PER_COMPANY);
+            if (feNeed.length) {
+              await beforeCharge();
+              feNeed.forEach((c: any) => probedPhoneNames.add(String(c.name || '').toLowerCase()));
+              const fe = await fullenrichEnrich(feNeed, ctx, fullKey);
+              await recordUsage(base44, org, {
+                event_type: 'phone_enrichment', provider: 'fullenrich', quantity: feNeed.length,
+                unit: 'contact', source_function: 'enrichProspectWaterfall',
+                idempotency_key: `${correlationId}_fullenrich_widen`, related_record_id: prospect_id,
+                metadata: {
+                  correlation_id: correlationId,
+                  purpose: 'phone_only_missing_after_lusha',
+                  phones_applied: fe?.phones_applied || 0,
+                },
+              });
+              if (fe?.phones_applied) providerUsed = 'fullenrich';
+            }
           }
         }
       }

@@ -13,10 +13,12 @@ export const ENRICHMENT_PROVIDERS = ['apollo', 'lusha', 'fullenrich'] as const;
 export type EnrichmentProvider = typeof ENRICHMENT_PROVIDERS[number];
 
 // Fields each provider can resolve.
+// FullEnrich is a limited-credit account in Cadence: phone numbers only for
+// named contacts who still have no dialable number. Never emails or discovery.
 export const PROVIDER_CAPABILITIES: Record<string, string[]> = {
   apollo: ['decision_maker_role', 'personal_email', 'mobile', 'company_intelligence'],
   lusha: ['personal_email', 'mobile', 'direct_dial'],
-  fullenrich: ['personal_email', 'mobile', 'alternative_email'],
+  fullenrich: ['mobile'],
 };
 
 // Human-readable labels for the settings UI.

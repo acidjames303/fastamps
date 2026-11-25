@@ -68,9 +68,8 @@ function splitName(full) {
   return { first: parts[0], last: parts.slice(1).join(' ') };
 }
 
-// FullEnrich fallback: reveal mobiles for decision-makers via the async bulk
-// enrichment job (start → poll). Mutates each contact's `phone` when found.
-// Mobiles cost 10 FullEnrich credits each on success. Returns diagnostics.
+// FullEnrich fallback: PHONES ONLY for decision-makers still missing a number.
+// Limited-credit account — never request emails. Mutates `phone` when found.
 async function fullenrichEnrich(list, out, key) {
   try {
     const data = list.map((c) => {
@@ -81,7 +80,7 @@ async function fullenrichEnrich(list, out, key) {
         company_name: out.company_name,
         ...(out.domain ? { domain: out.domain } : {}),
         ...(c.linkedin ? { linkedin_url: c.linkedin } : {}),
-        enrich_fields: ['contact.phones', 'contact.emails'],
+        enrich_fields: ['contact.phones'],
       };
     });
     const start = await fetch(`${FULLENRICH}/contact/enrich/bulk`, {
@@ -109,18 +108,14 @@ async function fullenrichEnrich(list, out, key) {
     for (const row of (result?.data || [])) {
       const ci = row.contact_info || {};
       const phone = ci.most_probable_phone?.number || ci.phones?.[0]?.number || '';
-      const email = ci.most_probable_email?.email || ci.emails?.[0]?.email || '';
-      if (!phone && !email) continue;
+      if (!phone) continue;
       const first = (row.input?.first_name || '').toLowerCase();
       const last = (row.input?.last_name || '').toLowerCase();
       const match = list.find((c) => {
         const { first: f, last: l } = splitName(c.name);
         return f.toLowerCase() === first && l.toLowerCase() === last;
       });
-      if (match) {
-        if (phone) match.phone = phone;
-        if (email) match.email = email;
-      }
+      if (match && phone) match.phone = phone;
     }
     return { http_status: 200, error_category: 'none', retryable: false };
   } catch (e) {
@@ -371,9 +366,9 @@ export async function enrichCompany(base44, secrets, { company_name, brief, icp,
     }
     const lushaResolved = new Set(contacts.filter((c) => c.phone).map((c) => c.name.toLowerCase()));
 
-    // FullEnrich fallback — last resort for mobiles/emails.
+    // FullEnrich fallback — phones only for people still missing a number.
     if (fullKey) {
-      const need = contacts.filter((c) => !c.phone || !c.email).slice(0, 3);
+      const need = contacts.filter((c) => !c.phone).slice(0, 3);
       if (need.length) await fullenrichEnrich(need, ctx, fullKey);
     }
 
@@ -598,41 +593,8 @@ Be factual. Never invent a phone number or a person's name.${preData}`,
     }
   }
 
-  // 3. FullEnrich people search (names/titles/LinkedIn; no phones in search results)
-  if (fullKey) {
-    try {
-      const titles = (ai.target_roles && ai.target_roles.length ? ai.target_roles : SENIOR_TITLES)
-        .slice(0, 5)
-        .map((t) => ({ value: t, exact_match: false, exclude: false }));
-      const res = await fetch(`${FULLENRICH}/people/search`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${fullKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          limit: 10,
-          current_company_names: [{ value: out.company_name, exact_match: false, exclude: false }],
-          current_position_titles: titles,
-        }),
-      });
-      if (res.ok) {
-        const data = await res.json().catch(() => ({}));
-        (data.people || []).forEach((p) => {
-          add(feToContact(p));
-          const co = p.employment?.current?.company;
-          if (co) {
-            if (!out.domain && co.domain) out.domain = co.domain.replace(/^www\./, '');
-            if (!out.website && co.website) out.website = co.website;
-            if (!out.industry && co.industry?.main_industry) out.industry = co.industry.main_industry;
-            if (!out.employee_range && co.headcount_range) out.employee_range = co.headcount_range;
-            if (!out.landline && co.phone) out.landline = co.phone;
-            if (!out.location) {
-              const hq = co.locations?.headquarters;
-              if (hq) out.location = [hq.city, hq.country].filter(Boolean).join(', ');
-            }
-          }
-        });
-      }
-    } catch {}
-  }
+  // FullEnrich people-search disabled — limited credits are reserved for
+  // phone reveals on contacts that still have no number.
 
   // rank so the most senior decision-maker comes first
   contacts.sort((a, b) => rankContact(b) - rankContact(a));
@@ -667,10 +629,10 @@ Be factual. Never invent a phone number or a person's name.${preData}`,
   }
   const lushaResolved = new Set(contacts.filter((c) => c.phone).map((c) => c.name.toLowerCase()));
 
-  // 5. FullEnrich fallback — reveal mobiles/emails for contacts Lusha couldn't resolve
+  // 5. FullEnrich fallback — phones only for contacts Lusha left without a number
   let feDiag = { http_status: 0, error_category: 'none', retryable: false };
   if (fullKey) {
-    const remaining = contacts.slice(0, 3).filter((c) => !c.phone || !c.email);
+    const remaining = contacts.slice(0, 3).filter((c) => !c.phone);
     if (remaining.length) {
       feDiag = await fullenrichEnrich(remaining, out, fullKey);
       await recordUsage(base44, orgObj, {
