@@ -149,6 +149,24 @@ function sanitizeValue(val: any): string {
   return s;
 }
 
+// Drop AI/page-scrape junk before it burns Lusha credits or pollutes exports
+// (e.g. "Silos Passivation After", "Case Studies Contact", "Sales Team").
+const NON_PERSON_NAME_RE = /^(company reception|switchboard|contact details|customer service|sales team|general enquiries|reception|main office|case studies|contact us|about us|our team|leadership team)$/i;
+const NON_PERSON_TOKEN_RE = /\b(passivation|case studies|whitepaper|brochure|download|newsletter|privacy|cookie|linkedin|follow us|silos after|solutions contact)\b/i;
+const TITLE_ONLY_RE = /^(managing director|director|manager|engineer|consultant|ceo|cfo|cto|coo|president|vp|vice president|head of .+|chief .+ officer)$/i;
+function isPlausiblePersonName(raw: any): boolean {
+  const name = String(raw || '').trim();
+  if (!name) return false;
+  const parts = name.split(/\s+/).filter(Boolean);
+  if (parts.length < 2) return false;
+  if (parts.length > 5) return false;
+  if (NON_PERSON_NAME_RE.test(name) || NON_PERSON_TOKEN_RE.test(name) || TITLE_ONLY_RE.test(name)) return false;
+  if (/^contact details\b/i.test(name) || /\b(switchboard|reception)\b/i.test(name)) return false;
+  // Require at least one token that looks like a personal name (letter-led, not all caps acronym soup).
+  const nameLike = parts.filter((p) => /^[A-Za-z][A-Za-z'’\-]*$/.test(p) && p.length >= 2);
+  return nameLike.length >= 2;
+}
+
 // Apollo people search — finds decision-makers by domain, returns contacts with emails/phones.
 // Tries multiple search strategies: domain+titles → domain only → company name+titles → company name only.
 // This ensures we find the company even when the title filter is too restrictive or
@@ -697,7 +715,11 @@ export async function enrichProspectWaterfall(
   // A contact whose only number is the company switchboard has no person number
   // yet — that gap must still be offered to the phone providers.
   const hasPersonNumber = (c: any) => hasDirectNumber(c?.mobile || c?.direct_dial || c?.phone, out?.landline);
+  // Phone and email probes are tracked separately. Marking an email-only Lusha
+  // call as a phone probe previously blocked mobile widen for those people —
+  // the Oxi-Tech pattern of "emails for many, mobile for one/none".
   const probedPhoneNames = new Set<string>();
+  const probedEmailNames = new Set<string>();
   // Single-best is the only credit-saving mode; default runs reveal up to 8
   // people per company so emails and mobiles stay aligned.
   const maxContacts = singleBestContact ? 1 : 8;
@@ -1195,8 +1217,7 @@ Be factual. Never invent a phone number or person's name. If you cannot find som
     for (const dm of (ai.decision_makers || [])) {
       const dmName = sanitizeValue(dm.name);
       const dmEmail = sanitizeValue(dm.email);
-      if (!dmName) continue;
-      if (dmName.trim().split(/\s+/).length < 2) continue;
+      if (!isPlausiblePersonName(dmName)) continue;
       const exists = out.contacts.find((c: any) => c.name.toLowerCase() === dmName.toLowerCase());
       if (!exists) {
         out.contacts.push({ name: dmName, title: sanitizeValue(dm.title) || '', phone: '', email: dmEmail, linkedin: '' });
@@ -1321,18 +1342,35 @@ Be factual. Never invent a phone number or person's name. If you cannot find som
       }
 
       if (provider === 'lusha' && lushaKey && !emailOnly) {
-        // Ask for exactly the fields still missing — never an unrestricted
-        // reveal across several people.
-        const wantPhones = stillMissing.some((f) => f === 'mobile' || f === 'direct_dial');
-        const wantEmails = stillMissing.includes('personal_email');
+        // Contact-level phone gaps matter even after the company already has
+        // one mobile — otherwise siblings with emails never get a phone ask.
+        const mobileRequested = requestedFields.includes('mobile') || requestedFields.includes('direct_dial');
+        const contactsMissingMobile = out.contacts.some((c: any) => isPlausiblePersonName(c?.name) && !hasDialableMobile(c));
+        const wantPhones = mobileRequested && (
+          forceRefresh
+          || stillMissing.some((f) => f === 'mobile' || f === 'direct_dial')
+          || contactsMissingMobile
+        );
+        const wantEmails = forceRefresh || stillMissing.includes('personal_email')
+          || out.contacts.some((c: any) => isPlausiblePersonName(c?.name) && (!c.email || classifyEmail(c.email, out.domain).isGeneric));
         const need = out.contacts.filter((c: any) => {
-          if (!c.name) return false;
-          if (wantPhones && !hasPersonNumber(c)) return true;
+          if (!isPlausiblePersonName(c?.name)) return false;
+          // Prefer UK mobile when mobile was requested — a landline must not
+          // silence further mobile reveals for that person.
+          if (wantPhones && mobileRequested && !hasDialableMobile(c)) return true;
+          if (wantPhones && !mobileRequested && !hasPersonNumber(c)) return true;
           if (wantEmails && (!c.email || classifyEmail(c.email, out.domain).isGeneric)) return true;
           return false;
         }).slice(0, maxContacts);
-        // Never ask Lusha for the same person twice in one run.
-        const unprobed = need.filter((c: any) => !probedPhoneNames.has(String(c.name || '').toLowerCase()));
+        // Never ask Lusha for the same person+field twice in one run.
+        const unprobed = need.filter((c: any) => {
+          const key = String(c.name || '').toLowerCase();
+          const needsPhone = wantPhones && !hasDialableMobile(c);
+          const needsEmail = wantEmails && (!c.email || classifyEmail(c.email, out.domain).isGeneric);
+          if (needsPhone && !probedPhoneNames.has(key)) return true;
+          if (needsEmail && !probedEmailNames.has(key)) return true;
+          return false;
+        });
         if (need.length && !unprobed.length) {
           if (wantPhones) setPhoneLookup('duplicate_lookup_prevented', PHONE_RESULT_MESSAGES.duplicate_lookup_prevented);
         } else if (unprobed.length && (wantPhones || wantEmails)) {
@@ -1353,13 +1391,22 @@ Be factual. Never invent a phone number or person's name. If you cannot find som
               };
             }
           } else {
-            unprobed.forEach((c: any) => probedPhoneNames.add(String(c.name || '').toLowerCase()));
+            const askPhones = wantPhones && unprobed.some((c: any) => !hasDialableMobile(c) && !probedPhoneNames.has(String(c.name || '').toLowerCase()));
+            const askEmails = wantEmails && unprobed.some((c: any) => {
+              const key = String(c.name || '').toLowerCase();
+              return (!c.email || classifyEmail(c.email, out.domain).isGeneric) && !probedEmailNames.has(key);
+            });
+            unprobed.forEach((c: any) => {
+              const key = String(c.name || '').toLowerCase();
+              if (askPhones && !hasDialableMobile(c)) probedPhoneNames.add(key);
+              if (askEmails && (!c.email || classifyEmail(c.email, out.domain).isGeneric)) probedEmailNames.add(key);
+            });
             await beforeCharge();
             const lushaResult = await lushaEnrich(base44, org, unprobed, out, lushaKey, {
-              prospect_id, list_id, correlation_id: correlationId, wantPhones, wantEmails,
+              prospect_id, list_id, correlation_id: correlationId, wantPhones: askPhones, wantEmails: askEmails,
             });
             lushaStatuses = lushaResult.statuses;
-            if (wantPhones) applyLushaPhoneResult(lushaResult, out);
+            if (askPhones) applyLushaPhoneResult(lushaResult, out);
             if (lushaResult.message && (!lushaResult.phones_applied && !lushaResult.emails_applied)) {
               lushaProviderError = lushaResult.message;
             }
@@ -1393,13 +1440,17 @@ Be factual. Never invent a phone number or person's name. If you cannot find som
 
       if (provider === 'fullenrich' && fullKey && !emailOnly) {
         const need = out.contacts.filter((c: any) => {
-          if (!c.name) return false;
-          if (!c.phone || !c.email) return true;
+          if (!isPlausiblePersonName(c?.name)) return false;
+          if (!hasDialableMobile(c) || !c.email) return true;
           return classifyEmail(c.email, out.domain).isGeneric;
         }).slice(0, maxContacts);
         if (need.length) {
           const ctx = { company_name: out.company_name, domain: out.domain };
-          need.forEach((c: any) => probedPhoneNames.add(c.name));
+          need.forEach((c: any) => {
+            const key = String(c.name || '').toLowerCase();
+            if (!hasDialableMobile(c)) probedPhoneNames.add(key);
+            if (!c.email || classifyEmail(c.email, out.domain).isGeneric) probedEmailNames.add(key);
+          });
           await beforeCharge();
           await fullenrichEnrich(need, ctx, fullKey);
           await recordUsage(base44, org, {
@@ -1424,9 +1475,16 @@ Be factual. Never invent a phone number or person's name. If you cannot find som
       const others = out.contacts
         .filter((c: any) => {
           const name = String(c.name || '').trim();
-          if (name.split(/\s+/).length < 2) return false;
+          if (!isPlausiblePersonName(name)) return false;
           if (probedPhoneNames.has(name.toLowerCase())) return false;
           return !hasDialableMobile(c);
+        })
+        // People who already have a personal email are the highest-yield
+        // mobile reveals — Lusha can match them more reliably.
+        .sort((a: any, b: any) => {
+          const aEmail = a.email && classifyEmail(a.email, out.domain).isPersonal ? 1 : 0;
+          const bEmail = b.email && classifyEmail(b.email, out.domain).isPersonal ? 1 : 0;
+          return bEmail - aEmail;
         })
         .slice(0, WIDEN_EXTRA);
       if (others.length) {
@@ -1537,7 +1595,7 @@ Only include REAL people with their full name (first and last). Never invent nam
 
       for (const person of (peopleRes.people || [])) {
         const pName = sanitizeValue(person.name);
-        if (!pName || pName.trim().split(/\s+/).length < 2) continue;
+        if (!isPlausiblePersonName(pName)) continue;
         out.contacts.push({ name: pName, title: sanitizeValue(person.title) || '', phone: '', email: '', linkedin: '' });
       }
       if (out.contacts.length) {
@@ -1552,13 +1610,10 @@ Only include REAL people with their full name (first and last). Never invent nam
   // 2 words) — these are low-quality data that repeat across unrelated companies
   // (likely AI hallucinations or partial scrapes). Also drop entries with no
   // name at all.
-  const nonPersonPattern = /^(company reception|switchboard|contact details|customer service|sales team|general enquiries|reception|main office)$/i;
   out.contacts = out.contacts.filter((c: any) => {
-    const name = String(c.name || '').trim();
     const title = String(c.title || '').trim();
-    if (!name || name.split(/\s+/).length < 2) return false;
-    if (nonPersonPattern.test(name) || nonPersonPattern.test(title)) return false;
-    if (/^contact details\b/i.test(name) || /\b(switchboard|reception)\b/i.test(title)) return false;
+    if (!isPlausiblePersonName(c?.name)) return false;
+    if (NON_PERSON_NAME_RE.test(title) || /\b(switchboard|reception)\b/i.test(title)) return false;
     return true;
   });
   out.contacts = rankByIcp(out.contacts, targetRoles, preferredSeniority, {

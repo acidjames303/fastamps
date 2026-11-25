@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+// people-v3 waterfall + search-improve bundle
 import { processSessionBatch } from '../../shared/sessionProcessing.ts';
 import { CAPABILITIES } from '../../shared/capabilities.ts';
 import { loadActiveMembership, capabilitiesForMembership, membershipIsActive, auditSecurity, requireCapability } from '../../shared/authorization.ts';
