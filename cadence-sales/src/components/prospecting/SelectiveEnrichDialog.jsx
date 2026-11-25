@@ -51,6 +51,25 @@ const SEARCH_DEPTHS = [
   { key: "exhaustive", label: "Exhaustive", detail: "Maximum search across known people" },
 ];
 
+function applyMaximumSearchPreset(setters) {
+  const {
+    setFindOptions,
+    setSearchMethod,
+    setSearchDepth,
+    setPhoneCoverage,
+    setFindStrongerDecisionMaker,
+    setExistingInfoMode,
+    setConfirmOpen,
+  } = setters;
+  setFindOptions(["decision_maker", "personal_email", "direct_phone", "company_information"]);
+  setSearchMethod("providers");
+  setSearchDepth("exhaustive");
+  setPhoneCoverage({ best: true, otherKnown: true, discover: true });
+  setFindStrongerDecisionMaker(true);
+  setExistingInfoMode("newer");
+  setConfirmOpen(false);
+}
+
 const FIND_OPTIONS = [
   {
     key: "decision_maker",
@@ -338,6 +357,41 @@ export default function SelectiveEnrichDialog({
         </div>
 
         <div className="space-y-6 overflow-y-auto px-5 py-5 sm:px-6">
+          <section className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-emerald-950">Maximum search</p>
+                <p className="mt-1 text-xs leading-relaxed text-emerald-900/80">
+                  Find ICP people, personal emails and mobiles for every already-known contact —
+                  then discover more relevant people if needed. One clear full-power run.
+                </p>
+              </div>
+              <Button
+                type="button"
+                className="rounded-full bg-emerald-600 hover:bg-emerald-500 shrink-0"
+                onClick={() =>
+                  applyMaximumSearchPreset({
+                    setFindOptions,
+                    setSearchMethod,
+                    setSearchDepth,
+                    setPhoneCoverage,
+                    setFindStrongerDecisionMaker,
+                    setExistingInfoMode,
+                    setConfirmOpen,
+                  })
+                }
+              >
+                <Search className="w-4 h-4 mr-1.5" />
+                Use Maximum search
+              </Button>
+            </div>
+            {searchDepth === "exhaustive" && phoneCoverage.otherKnown && phoneCoverage.discover && searchMethod === "providers" && (
+              <p className="mt-3 text-[11px] font-medium text-emerald-800">
+                Maximum search is selected — review the estimate below, then start.
+              </p>
+            )}
+          </section>
+
           <section>
             <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-slate-400">
               What do you want to find?

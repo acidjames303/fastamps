@@ -1,8 +1,10 @@
 import React, { useState, useRef } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Phone, Smartphone, User, Sparkles, ArrowRight, Trash2, Loader2, Check, Mail, PhoneCall, BadgeCheck } from "lucide-react";
+import { Phone, Smartphone, Sparkles, ArrowRight, Trash2, Loader2, Check, PhoneCall } from "lucide-react";
 import ProspectDiagnosticsDialog from "./ProspectDiagnosticsDialog";
 import AccountResearchDetail from "./AccountResearchDetail";
+import ProspectPersonCard from "./ProspectPersonCard";
+import { isUkMobileNumber } from "@/lib/enrichmentRun";
 
 const statusStyle = {
   enriched: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -54,7 +56,6 @@ export default function ProspectTable({
   listId = "",
   onResearchUpdated,
 }) {
-  const [open, setOpen] = useState(null);
   const [diagProspect, setDiagProspect] = useState(null);
   const [researchRecord, setResearchRecord] = useState(null);
   const [researchProspect, setResearchProspect] = useState(null);
@@ -90,137 +91,78 @@ export default function ProspectTable({
       <div className="hidden sm:grid grid-cols-12 gap-3 px-5 py-3 bg-slate-50 text-xs uppercase tracking-widest text-slate-400">
         <span className="col-span-1 flex items-center"><Checkbox checked={all} onCheckedChange={toggleAll} /></span>
         <span className="col-span-3">Company</span>
-        <span className="col-span-2">Decision-makers</span>
-        <span className="col-span-2">Number</span>
-        <span className="col-span-1">Fit</span>
-        <span className="col-span-1">Status</span>
+        <span className="col-span-5">People · mobiles · emails</span>
+        <span className="col-span-1">Fit / status</span>
         <span className="col-span-2 text-right">Actions</span>
       </div>
       {prospects.map((p, index) => {
-        const contacts = p.contacts || [];
-        const shown = contacts.slice(0, 2);
-        const extra = contacts.length - shown.length;
-        const hasMobile = p.phone && p.landline && p.phone !== p.landline;
+        const contacts = Array.isArray(p.contacts) ? p.contacts : [];
+        const mobileCount = contacts.filter((c) => isUkMobileNumber(c.mobile || c.phone)).length;
+        const emailCount = contacts.filter((c) => c.email).length;
         const isBusy = busyId === p.id;
         return (
           <div key={p.id} className="border-t border-slate-100">
             {/* Desktop grid row */}
             <div className="hidden sm:grid grid-cols-12 gap-3 px-5 py-3 items-start text-sm">
               <span className="col-span-1 pt-1"><Checkbox checked={selected.includes(p.id)} onCheckedChange={() => toggle(p.id)} onClick={(e) => handleRowClick(e, p, index)} /></span>
-              <div className="col-span-3">
-                <p className="font-medium text-slate-900">{p.company_name}</p>
-                <p className="text-xs text-slate-400">{[p.industry, p.employee_range, p.location].filter(Boolean).join(" · ")}</p>
+              <div className="col-span-3 space-y-1.5">
+                <div>
+                  <p className="font-medium text-slate-900">{p.company_name}</p>
+                  <p className="text-xs text-slate-400">{[p.industry, p.employee_range, p.location].filter(Boolean).join(" · ")}</p>
+                </div>
                 {p.landline && (
-                  <a href={`tel:${p.landline.replace(/\s+/g, '')}`} className="text-xs text-slate-600 mt-1 flex items-center gap-1 hover:text-emerald-600"><Phone className="w-3 h-3" /> {p.landline}</a>
+                  <a href={`tel:${p.landline.replace(/\s+/g, '')}`} className="text-xs text-slate-600 flex items-center gap-1 hover:text-emerald-600">
+                    <Phone className="w-3 h-3" /> Switchboard · {p.landline}
+                  </a>
                 )}
+                <p className="text-[11px] text-slate-500">
+                  {contacts.length} people · {mobileCount} mobile{mobileCount === 1 ? "" : "s"} · {emailCount} email{emailCount === 1 ? "" : "s"}
+                </p>
                 {p.call_status && p.call_status !== 'new' && (
-                  <span className={`inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium border mt-1 ${callStatusStyle[p.call_status] || ''}`}>
+                  <span className={`inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium border ${callStatusStyle[p.call_status] || ''}`}>
                     {callStatusLabel[p.call_status] || p.call_status}
                   </span>
                 )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResearchRecord(researchByProspect[p.id] || null);
+                    setResearchProspect(p);
+                  }}
+                  className="text-xs text-emerald-700 underline-offset-2 hover:underline"
+                >
+                  {researchByProspect[p.id] ? "see research" : "add research"}
+                </button>
               </div>
-              <div className="col-span-2">
+              <div className="col-span-5">
                 {contacts.length === 0 ? (
-                  <p className="text-slate-300">No decision-makers found</p>
+                  <p className="text-slate-400 text-sm py-2">No decision-makers found yet — run Maximum search.</p>
                 ) : (
-                  <div className="space-y-1">
-                    {shown.map((c, i) => (
-                      <div key={i} className="space-y-0.5">
-                        <p className="text-slate-800">
-                          <span className="font-medium">{c.name}</span>
-                          {c.title ? <span className="text-slate-400"> — {c.title}</span> : null}
-                          {c.phone ? <a href={`tel:${c.phone.replace(/\s+/g, '')}`} className="text-emerald-600 ml-1.5 text-xs hover:underline">· {c.phone}</a> : null}
-                        </p>
-                        {c.email && (
-                          <a href={`mailto:${c.email}?subject=Following up from our call`} className="block text-xs text-blue-600 hover:underline">
-                            <Mail className="w-3 h-3 inline mr-0.5" /> {c.email}
-                            {c.email_status === "verified" && <BadgeCheck className="w-3 h-3 inline ml-0.5 text-emerald-600" />}
-                            {c.email_status === "inferred" && <span className="ml-1 text-amber-600 no-underline">· inferred, unverified</span>}
-                          </a>
-                        )}
-                      </div>
+                  <div className="grid gap-2 sm:grid-cols-1 xl:grid-cols-2">
+                    {contacts.map((c, i) => (
+                      <ProspectPersonCard key={`${c.name || "person"}-${i}`} contact={c} />
                     ))}
-                    {extra > 0 && (
-                      <button onClick={() => setOpen(open === p.id ? null : p.id)} className="text-xs text-slate-500 hover:text-slate-800">
-                        {open === p.id ? "Hide" : `+${extra} more`}
-                      </button>
-                    )}
-                    {open === p.id && (
-                      <div className="pt-1 space-y-0.5">
-                        {contacts.slice(2).map((c, i) => (
-                          <div key={i} className="space-y-0.5">
-                            <p className="text-slate-700 text-xs">
-                              <span className="font-medium">{c.name}</span>
-                              {c.title ? <span className="text-slate-400"> — {c.title}</span> : null}
-                              {c.phone ? <a href={`tel:${c.phone.replace(/\s+/g, '')}`} className="text-emerald-600 ml-1 hover:underline">· {c.phone}</a> : null}
-                            </p>
-                            {c.email && (
-                              <a href={`mailto:${c.email}`} className="block text-xs text-blue-600 hover:underline">
-                                <Mail className="w-3 h-3 inline mr-0.5" /> {c.email}
-                                {c.email_status === "verified" && <BadgeCheck className="w-3 h-3 inline ml-0.5 text-emerald-600" />}
-                                {c.email_status === "inferred" && <span className="ml-1 text-amber-600 no-underline">· inferred, unverified</span>}
-                              </a>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
-              <div className="col-span-2 space-y-0.5 pt-0.5">
-                {hasMobile ? (
-                  <>
-                    <a href={`tel:${p.phone.replace(/\s+/g, '')}`} className="text-xs text-slate-800 flex items-center gap-1 hover:text-emerald-600"><Smartphone className="w-3 h-3 text-emerald-600" /> {p.phone}</a>
-                    <a href={`tel:${p.landline.replace(/\s+/g, '')}`} className="text-xs text-slate-500 flex items-center gap-1 hover:text-emerald-600"><Phone className="w-3 h-3" /> {p.landline}</a>
-                  </>
-                ) : (
-                  p.phone ? (
-                    <a href={`tel:${p.phone.replace(/\s+/g, '')}`} className="text-slate-700 font-mono text-xs flex items-center gap-1 hover:text-emerald-600">
-                      <Phone className="w-3 h-3" /> {p.phone}
-                    </a>
-                  ) : (
-                    <p className="text-slate-300 font-mono text-xs flex items-center gap-1">
-                      <User className="w-3 h-3" /> —
-                    </p>
-                  )
-                )}
-              </div>
-              <span className="col-span-1 pt-0.5">
-                {researchByProspect[p.id] ? (
-                  <button
-                    type="button"
-                    onClick={() => { setResearchRecord(researchByProspect[p.id]); setResearchProspect(p); }}
-                    className="text-xs text-emerald-700 underline-offset-2 hover:underline"
-                  >
-                    see research
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => { setResearchRecord(null); setResearchProspect(p); }}
-                    className="text-xs text-slate-500 underline-offset-2 hover:underline hover:text-emerald-700"
-                    title="Add research or dig deeper"
-                  >
-                    research
-                  </button>
-                )}
-              </span>
-              <span className="col-span-1 pt-0.5">
+              <div className="col-span-1 pt-0.5 space-y-1.5">
+                {p.fit_score ? (
+                  <span className={`inline-flex items-center justify-center w-9 h-6 rounded-full text-xs font-semibold ${scoreTone(p.fit_score)}`}>{p.fit_score}</span>
+                ) : null}
                 <span className={`inline-flex px-2 py-0.5 rounded-full text-xs border ${statusStyle[p.enrichment_status] || statusStyle.not_found}`}>
                   {p.enrichment_status?.replace("_", " ") || "pending"}
                 </span>
                 {hasGenericEmailOnly(p) && (
-                  <span className="block text-[10px] text-amber-600 mt-1 leading-tight" title="This record only has a generic company inbox — a personal work email is still needed">
+                  <span className="block text-[10px] text-amber-600 leading-tight">
                     Generic email only
                   </span>
                 )}
                 {p.provider_error && p.enrichment_status !== 'pending' && p.enrichment_status !== 'enriching' && (
-                  <button onClick={() => setDiagProspect(p)} className="block text-[10px] text-slate-400 mt-1 leading-tight hover:text-slate-700 transition-colors">
+                  <button onClick={() => setDiagProspect(p)} className="block text-[10px] text-slate-400 leading-tight hover:text-slate-700 transition-colors">
                     Why no email? →
                   </button>
                 )}
-              </span>
+              </div>
               <div className="col-span-2 flex items-center justify-end gap-0.5 pt-0.5">
                 {p.pushed && (
                   <span className="inline-flex items-center gap-0.5 text-emerald-600 text-xs" title="Pushed to target list">
@@ -295,37 +237,21 @@ export default function ProspectTable({
 
               {p.landline && (
                 <a href={`tel:${p.landline.replace(/\s+/g, '')}`} className="text-xs text-slate-600 flex items-center gap-1 hover:text-emerald-600">
-                  <Phone className="w-3 h-3" /> {p.landline}
+                  <Phone className="w-3 h-3" /> Switchboard · {p.landline}
                 </a>
               )}
 
-              {contacts.length > 0 && (
-                <div className="space-y-1.5">
+              {contacts.length > 0 ? (
+                <div className="space-y-2">
+                  <p className="text-[11px] uppercase tracking-wide text-slate-400">
+                    {contacts.length} people · {mobileCount} mobile{mobileCount === 1 ? "" : "s"} · {emailCount} email{emailCount === 1 ? "" : "s"}
+                  </p>
                   {contacts.map((c, i) => (
-                    <div key={i} className="space-y-0.5">
-                      <p className="text-xs text-slate-800">
-                        <span className="font-medium">{c.name}</span>
-                        {c.title ? <span className="text-slate-400"> — {c.title}</span> : null}
-                      </p>
-                      {c.phone && (
-                        <a href={`tel:${c.phone.replace(/\s+/g, '')}`} className="text-xs text-emerald-600 flex items-center gap-1 hover:underline">
-                          <Smartphone className="w-3 h-3" /> {c.phone}
-                        </a>
-                      )}
-                      {c.email && (
-                        <a href={`mailto:${c.email}?subject=Following up from our call`} className="text-xs text-blue-600 flex items-center gap-1 hover:underline">
-                          <Mail className="w-3 h-3" /> {c.email}
-                          {c.email_status === "verified" && <BadgeCheck className="w-3 h-3 text-emerald-600" />}
-                          {c.email_status === "inferred" && <span className="text-amber-600">· inferred, unverified</span>}
-                        </a>
-                      )}
-                    </div>
+                    <ProspectPersonCard key={`${c.name || "person"}-${i}`} contact={c} />
                   ))}
                 </div>
-              )}
-
-              {!p.landline && contacts.length === 0 && (
-                <p className="text-xs text-slate-300">No contact details found yet.</p>
+              ) : (
+                <p className="text-xs text-slate-400">No decision-makers found yet — run Maximum search.</p>
               )}
 
               {p.call_status && p.call_status !== 'new' && (
