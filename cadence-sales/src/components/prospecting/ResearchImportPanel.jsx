@@ -39,7 +39,7 @@ function splitSections(text) {
 
 // Drop a research document onto the list and every account it covers gets the
 // findings filed against it — readable from the row's "see research" view.
-export default function ResearchImportPanel({ listId, prospects = [], onImported }) {
+export default function ResearchImportPanel({ listId, prospects = [], onImported, embedded = false }) {
   const [files, setFiles] = useState([]);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState("");
@@ -137,8 +137,9 @@ export default function ResearchImportPanel({ listId, prospects = [], onImported
   const totalSections = files.reduce((sum, file) => sum + file.total, 0);
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 space-y-4">
+    <div className={embedded ? "space-y-4" : "rounded-3xl border border-slate-200 bg-white p-5 space-y-4"}>
       <div className="flex items-start justify-between gap-3">
+        {!embedded ? (
         <div className="flex items-start gap-2">
           <FileText className="w-4 h-4 mt-0.5 flex-none text-emerald-600" />
           <div>
@@ -149,6 +150,7 @@ export default function ResearchImportPanel({ listId, prospects = [], onImported
             </p>
           </div>
         </div>
+        ) : <div />}
         {files.length > 0 && (
           <button
             type="button"

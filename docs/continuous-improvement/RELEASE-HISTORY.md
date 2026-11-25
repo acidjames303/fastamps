@@ -31,3 +31,17 @@ Revert the PR / restore prior BriefPanel + PhoneCandidates + ProspectTable commi
 ### Next priority
 
 CI-003 multi-file campaign ingest, or Dialer session continuity — whichever scores higher after live verification.
+
+---
+
+## CI cycle 2 — 25 Nov 2026 evening (Europe/London)
+
+**Focus:** Publish cycle 1 + reduce Prospecting research clutter.
+
+### Changes
+- Base44 production deploy of cycle 1 (Dialer research + Confirm for calling). Rollback SHA recorded in RELEASE notes / agent checkpoint.
+- Unified ProspectResearchWorkspace (Quick / Custom / Import tabs) — same APIs, progressive disclosure.
+- Removed duplicate Enrich CTA when the table already shows Enrich; trimmed push helper noise.
+
+### Publishing
+Deployed via `base44 deploy -y --build` to production app (cadence.smartfunction.io / evasive-dial-flow-go). Cycle 2 UX redeployed after build in same evening session.

@@ -11,9 +11,7 @@ import EnrichmentCostPreview from "@/components/prospecting/EnrichmentCostPrevie
 import EnrichmentBatchSummary from "@/components/prospecting/EnrichmentBatchSummary";
 import SelectiveEnrichDialog from "@/components/prospecting/SelectiveEnrichDialog";
 import ProspectStart from "@/components/prospecting/ProspectStart";
-import AccountResearchBar from "@/components/prospecting/AccountResearchBar";
-import ResearchPromptPanel from "@/components/prospecting/ResearchPromptPanel";
-import ResearchImportPanel from "@/components/prospecting/ResearchImportPanel";
+import ProspectResearchWorkspace from "@/components/prospecting/ProspectResearchWorkspace";
 import EnrichmentSessionBanner from "@/components/prospecting/EnrichmentSessionBanner";
 import ProspectFilters, { matchesFilter } from "@/components/prospecting/ProspectFilters";
 import { useAuth } from "@/lib/AuthContext";
@@ -871,43 +869,37 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
             discoveredCount={discoveredCount}
             listId={listId}
           />
-          {listId && (
+          {listId && !prospects.length && (
             <Button
               onClick={openEnrichDialog}
-              disabled={enriching || (!prospects.length && !companies.length)}
+              disabled={enriching || !companies.length}
               className="rounded-full bg-emerald-600 hover:bg-emerald-500 w-full"
             >
               {enriching ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
-              {enriching ? "Enriching…" : `Enrich ${selected.length || companies.filter((c) => !prospects.some((p) => (p.company_name || "").toLowerCase() === (c.name || "").toLowerCase())).length} companies`}
+              {enriching ? "Enriching…" : `Enrich ${companies.length} companies`}
             </Button>
           )}
-          <AccountResearchBar
-            listId={listId}
-            prospects={prospects}
-            onResearched={async () => {
-              await loadProspects(listId);
-              await reloadResearch();
-            }}
-            onFindContacts={openProviderEnrich}
-          />
         </div>
       </div>
 
       {listId && (
-        <div className="space-y-6">
-          <ResearchPromptPanel
-            listId={listId}
-            prospects={prospects}
-            onChanged={async () => {
-              await loadProspects(listId);
-              await reloadResearch();
-            }}
-            onResearchLoaded={(records) =>
-              setResearchByProspect(Object.fromEntries([...records].reverse().map((r) => [r.prospect_id, r])))
-            }
-          />
-          <ResearchImportPanel listId={listId} prospects={prospects} onImported={reloadResearch} />
-        </div>
+        <ProspectResearchWorkspace
+          listId={listId}
+          prospects={prospects}
+          onResearched={async () => {
+            await loadProspects(listId);
+            await reloadResearch();
+          }}
+          onFindContacts={openProviderEnrich}
+          onPromptChanged={async () => {
+            await loadProspects(listId);
+            await reloadResearch();
+          }}
+          onResearchLoaded={(records) =>
+            setResearchByProspect(Object.fromEntries([...records].reverse().map((r) => [r.prospect_id, r])))
+          }
+          onImported={reloadResearch}
+        />
       )}
 
       {campaignContext && <><DataReadinessPanel campaignId={campaignContext}/><ReviewQueuePanel campaignId={campaignContext} onChanged={()=>loadProspects(listId)}/></>}
@@ -1013,7 +1005,6 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
                       {pushing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ArrowRight className="w-4 h-4 mr-2" />}
                       {pushing ? "Pushing…" : `Push ${selected.length || ""} selected`}
                     </Button>
-                    <p className="text-xs text-slate-400 sm:ml-auto">Tick rows to push in bulk, or use the buttons on each row.</p>
                   </div>
                 )}
                 {pushing && (

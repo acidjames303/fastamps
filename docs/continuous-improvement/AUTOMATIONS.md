@@ -23,7 +23,13 @@ Update living docs. Do not expand scope. Protect all data and secrets.
 
 ### 2. Active Cloud Agent + `subscribe_timer`
 
-On a running Cloud Agent conversation, subscribe a recurring timer (e.g. every 24h) with the same prompt. Timers only fire when the agent run is otherwise free; they are not a substitute for Automations if the chat ends.
+On a running Cloud Agent conversation, subscribe a recurring timer. Prefer overnight UX cadence (e.g. every 3 hours) while James wants continuous simplification:
+
+- Implement one UX reduction per cycle (clutter, decisions, duplicate panels) without breaking APIs.
+- After tests, **publish low-risk frontend UX** with `base44 deploy -y --build` and record rollback SHA.
+- Hold deploy for auth/secrets/schema/billing/external send changes.
+
+Timers only fire when the agent run is otherwise free; they are not a substitute for Automations if the chat ends.
 
 ### 3. Repo-only fallback (always present)
 

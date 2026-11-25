@@ -10,7 +10,7 @@ const DEFAULT_PROMPT =
 // Step two of the prospecting flow: AI account research runs before any
 // provider credits are spent, so Lusha/Apollo are asked about the right
 // people at the right company. Supports a first pass and dig-deeper.
-export default function AccountResearchBar({ listId, prospects = [], onResearched, onFindContacts }) {
+export default function AccountResearchBar({ listId, prospects = [], onResearched, onFindContacts, embedded = false }) {
   const [running, setRunning] = useState(false);
   const [mode, setMode] = useState("standard");
   const [done, setDone] = useState(0);
@@ -69,7 +69,8 @@ export default function AccountResearchBar({ listId, prospects = [], onResearche
   const allResearched = pending.length === 0;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-3">
+    <div className={embedded ? "space-y-3" : "rounded-2xl border border-slate-200 bg-white p-5 space-y-3"}>
+      {!embedded && (
       <div className="flex items-start gap-2">
         <BrainCircuit className="w-4 h-4 mt-0.5 flex-none text-emerald-600" />
         <div>
@@ -80,6 +81,7 @@ export default function AccountResearchBar({ listId, prospects = [], onResearche
           </p>
         </div>
       </div>
+      )}
 
       {running && (
         <div className="space-y-1">

@@ -11,7 +11,7 @@ const EXAMPLE =
 
 // Prompt-driven research across every account in the list: one instruction,
 // sourced findings stored per account, downloadable and usable by Lusha.
-export default function ResearchPromptPanel({ listId, prospects = [], onChanged, onResearchLoaded }) {
+export default function ResearchPromptPanel({ listId, prospects = [], onChanged, onResearchLoaded, embedded = false }) {
   const [prompt, setPrompt] = useState("");
   const [focus, setFocus] = useState("");
   const [records, setRecords] = useState([]);
@@ -81,7 +81,8 @@ export default function ResearchPromptPanel({ listId, prospects = [], onChanged,
   if (!listId || !prospects.length) return null;
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 space-y-4">
+    <div className={embedded ? "space-y-4" : "rounded-3xl border border-slate-200 bg-white p-5 space-y-4"}>
+      {!embedded && (
       <div className="flex items-start gap-2">
         <BrainCircuit className="w-4 h-4 mt-0.5 flex-none text-emerald-600" />
         <div>
@@ -92,6 +93,7 @@ export default function ResearchPromptPanel({ listId, prospects = [], onChanged,
           </p>
         </div>
       </div>
+      )}
 
       <Textarea
         value={prompt}
