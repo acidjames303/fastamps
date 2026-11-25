@@ -10,9 +10,11 @@
 
 ## Theme B — Prospecting intelligence
 
-1. Multi-worksheet / multi-file + NL instructions into one campaign context (CI-003).
-2. Keep enrichment waterfall credit-safe (Lusha first; FullEnrich phones-only).
-3. Employment confirm UX when provider match is ambiguous.
+1. Confirm-first enrich dialog — Maximum search surface, Adjust for power users (CI-011).
+2. Multi-worksheet / multi-file + NL instructions into one campaign context (CI-003).
+3. Keep enrichment waterfall credit-safe (Lusha first; FullEnrich phones-only).
+4. Research panels → one workspace (CI-009 — landing on this branch).
+5. Employment confirm UX when provider match is ambiguous.
 
 ## Theme C — Caller workspace
 
