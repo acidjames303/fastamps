@@ -13,6 +13,9 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | CI-004 | P1 | Research templates / dictation reuse across Dialer & Outreach | Research workspace in Prospecting; Dialer brief partial | Duplicate research effort | Partially addressed (CI-001 + unified research tabs) |
 | CI-011 | P1 | Enrich dialog still exposes ~15 choices despite Maximum-search defaults | `SelectiveEnrichDialog.jsx`: find + method + depth + phone + advanced all above the fold; Maximum banner redundant when preset applied | Slows every enrich; Free/Standard mis-clicks leave lists not call-ready | **Next** (audit cycle 2 — sketch only, not implemented) |
 | CI-009 | P2 | Prospecting showed three stacked research panels + duplicate Enrich CTAs | AccountResearchBar + Prompt + Import all visible at once | Decision overload for BDMs | **Implemented** — ProspectResearchWorkspace tabs |
+| CI-011 | P1 | Enrich dialog forces ~15 choices despite Maximum defaults | SelectiveEnrichDialog open surface | Under-search mis-clicks; slow call-ready volume | **Implemented** — confirm-first + Adjust search |
+| CI-012 | P2 | Permanent people-v3 hard-refresh banner | Prospecting.jsx | Noise every session | **Done** — removed |
+| CI-013 | P3 | Dead EnrichmentCostPreview (costPreviewOpen never true) | Prospecting.jsx | Dead code | **Done** — removed mount |
 | CI-005 | P2 | Team member drill-down: calls/hour vs login duration clarity | Team page exists; metric definitions need audit | Misleading management decisions | Backlog |
 | CI-006 | P2 | Admin Inbox → prefilled lead sheet from qualified outcome | Lead sheet flows exist; discoverability / prefills uneven | Dropped opportunities | Backlog |
 | CI-007 | P2 | Reporting download + lead sheets together | getClientReport / Results | Client delivery friction | Backlog |

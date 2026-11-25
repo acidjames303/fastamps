@@ -45,3 +45,16 @@ CI-003 multi-file campaign ingest, or Dialer session continuity — whichever sc
 
 ### Publishing
 Deployed via `base44 deploy -y --build` to production app (cadence.smartfunction.io / evasive-dial-flow-go). Cycle 2 UX redeployed after build in same evening session.
+
+---
+
+## CI cycle 3 — 25 Nov 2026 evening (Europe/London)
+
+From [Audit UX simplification targets](bc-cf3a114d-337f-5ea2-acc9-17450afa29d9) / `AUDIT-CYCLE-2.md`.
+
+### Changes
+- **CI-011:** SelectiveEnrichDialog confirm-first (Maximum summary + estimate + Start; Adjust search for full controls). Same `startEnrichmentJob` payload.
+- Removed people-v3 banner; removed unused EnrichmentCostPreview mount.
+
+### Publishing
+Redeploy after build in this cycle.

@@ -7,7 +7,6 @@ import BriefInput from "@/components/prospecting/BriefInput";
 import CompanyInput from "@/components/prospecting/CompanyInput";
 import ProspectTable from "@/components/prospecting/ProspectTable";
 import GeographySelector from "@/components/prospecting/GeographySelector";
-import EnrichmentCostPreview from "@/components/prospecting/EnrichmentCostPreview";
 import EnrichmentBatchSummary from "@/components/prospecting/EnrichmentBatchSummary";
 import SelectiveEnrichDialog from "@/components/prospecting/SelectiveEnrichDialog";
 import ProspectStart from "@/components/prospecting/ProspectStart";
@@ -81,7 +80,6 @@ export default function Prospecting({ embedded = false }) {
   const [savingName, setSavingName] = useState(false);
   const [savingDetails, setSavingDetails] = useState(false);
   const [permittedCountries, setPermittedCountries] = useState(["GB"]);
-  const [costPreviewOpen, setCostPreviewOpen] = useState(false);
   const [batchSummary, setBatchSummary] = useState(null);
   const [discovering, setDiscovering] = useState(false);
   const [discoverErr, setDiscoverErr] = useState("");
@@ -747,13 +745,6 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-950">
-        <p className="font-semibold">People view updated (build people-v3)</p>
-        <p className="mt-1 text-xs leading-relaxed text-emerald-900/80">
-          Every person now shows as a card with mobile + email — no “+N more” hide, no separate Number column.
-          If you still see columns labelled Decision-makers and Number, hard-refresh this page (Ctrl/Cmd+Shift+R) or open it in a private window.
-        </p>
-      </div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           {!embedded && (
@@ -1058,15 +1049,6 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
           setEnriching(false);
           setMsg(`Enrichment started — ${sessionData.queued_count || sessionData.total_records || 0} records processing in the background. This takes a while (perfect for a coffee break or pairing with calls). We'll let you know when your fresh data is ready.`);
         }}
-      />
-      <EnrichmentCostPreview
-        open={costPreviewOpen}
-        onClose={() => setCostPreviewOpen(false)}
-        onConfirm={enrich}
-        prospects={prospects}
-        newCompaniesCount={companies.length}
-        listId={listId}
-        permittedCountries={permittedCountries}
       />
     </div>
   );
