@@ -40,10 +40,24 @@ function scoreTone(s) {
   return "bg-slate-300 text-slate-700";
 }
 
-export default function ProspectTable({ prospects, selected, setSelected, onEnrich, onPush, onDelete, onToggleCall, onFindPhone, busyId, researchByProspect = {} }) {
+export default function ProspectTable({
+  prospects,
+  selected,
+  setSelected,
+  onEnrich,
+  onPush,
+  onDelete,
+  onToggleCall,
+  onFindPhone,
+  busyId,
+  researchByProspect = {},
+  listId = "",
+  onResearchUpdated,
+}) {
   const [open, setOpen] = useState(null);
   const [diagProspect, setDiagProspect] = useState(null);
   const [researchRecord, setResearchRecord] = useState(null);
+  const [researchProspect, setResearchProspect] = useState(null);
   const all = prospects.length > 0 && selected.length === prospects.length;
   const toggle = (id) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
   const toggleAll = () => setSelected(all ? [] : prospects.map((p) => p.id));
@@ -176,14 +190,21 @@ export default function ProspectTable({ prospects, selected, setSelected, onEnri
                 {researchByProspect[p.id] ? (
                   <button
                     type="button"
-                    onClick={() => setResearchRecord(researchByProspect[p.id])}
+                    onClick={() => { setResearchRecord(researchByProspect[p.id]); setResearchProspect(p); }}
                     className="text-xs text-emerald-700 underline-offset-2 hover:underline"
                   >
                     see research
                   </button>
-                ) : p.fit_score ? (
-                  <span className={`inline-flex items-center justify-center w-9 h-6 rounded-full text-xs font-semibold ${scoreTone(p.fit_score)}`}>{p.fit_score}</span>
-                ) : "—"}
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => { setResearchRecord(null); setResearchProspect(p); }}
+                    className="text-xs text-slate-500 underline-offset-2 hover:underline hover:text-emerald-700"
+                    title="Add research or dig deeper"
+                  >
+                    research
+                  </button>
+                )}
               </span>
               <span className="col-span-1 pt-0.5">
                 <span className={`inline-flex px-2 py-0.5 rounded-full text-xs border ${statusStyle[p.enrichment_status] || statusStyle.not_found}`}>
@@ -259,15 +280,16 @@ export default function ProspectTable({ prospects, selected, setSelected, onEnri
                    {p.provider_error && p.enrichment_status !== 'pending' && p.enrichment_status !== 'enriching' && (
                      <button onClick={() => setDiagProspect(p)} className="text-[9px] text-slate-400 leading-tight hover:text-slate-700 transition-colors">Why no email?</button>
                    )}
-                   {researchByProspect[p.id] && (
-                     <button
-                       type="button"
-                       onClick={() => setResearchRecord(researchByProspect[p.id])}
-                       className="text-[10px] text-emerald-700 underline-offset-2 hover:underline"
-                     >
-                       see research
-                     </button>
-                   )}
+                   <button
+                     type="button"
+                     onClick={() => {
+                       setResearchRecord(researchByProspect[p.id] || null);
+                       setResearchProspect(p);
+                     }}
+                     className="text-[10px] text-emerald-700 underline-offset-2 hover:underline"
+                   >
+                     {researchByProspect[p.id] ? "see research" : "research"}
+                   </button>
                  </div>
               </div>
 
@@ -353,7 +375,18 @@ export default function ProspectTable({ prospects, selected, setSelected, onEnri
         <ProspectDiagnosticsDialog prospect={diagProspect} onClose={() => setDiagProspect(null)} />
       )}
 
-      <AccountResearchDetail record={researchRecord} onClose={() => setResearchRecord(null)} />
+      {(researchRecord || researchProspect) && (
+        <AccountResearchDetail
+          record={researchRecord}
+          prospect={researchProspect}
+          listId={listId}
+          onClose={() => { setResearchRecord(null); setResearchProspect(null); }}
+          onRecordUpdated={(next) => {
+            setResearchRecord(next);
+            onResearchUpdated?.(next);
+          }}
+        />
+      )}
     </div>
   );
 }

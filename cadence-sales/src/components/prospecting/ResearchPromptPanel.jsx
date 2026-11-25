@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { BrainCircuit, CircleAlert, Loader2, Square } from "lucide-react";
+import { BrainCircuit, CircleAlert, Loader2, Search, Square } from "lucide-react";
 
 const BATCH = 4;
 
@@ -13,8 +13,10 @@ const EXAMPLE =
 // sourced findings stored per account, downloadable and usable by Lusha.
 export default function ResearchPromptPanel({ listId, prospects = [], onChanged, onResearchLoaded }) {
   const [prompt, setPrompt] = useState("");
+  const [focus, setFocus] = useState("");
   const [records, setRecords] = useState([]);
   const [running, setRunning] = useState(false);
+  const [runMode, setRunMode] = useState("standard");
   const [progress, setProgress] = useState({ done: 0, total: 0 });
   const [error, setError] = useState("");
   const stopRef = useRef(false);
@@ -37,12 +39,15 @@ export default function ResearchPromptPanel({ listId, prospects = [], onChanged,
   );
   const pending = prospects.filter((p) => !covered.has(p.id));
 
-  const run = async () => {
+  const run = async (mode = "standard") => {
     if (!instruction || running || !listId) return;
-    const ids = pending.map((p) => p.id);
+    const ids = mode === "deeper"
+      ? prospects.filter((p) => covered.has(p.id)).map((p) => p.id)
+      : pending.map((p) => p.id);
     if (!ids.length) return;
     stopRef.current = false;
     setRunning(true);
+    setRunMode(mode);
     setError("");
     setProgress({ done: 0, total: ids.length });
     try {
@@ -52,6 +57,8 @@ export default function ResearchPromptPanel({ listId, prospects = [], onChanged,
           prospect_list_id: listId,
           prompt: instruction,
           prospect_ids: ids.slice(i, i + BATCH),
+          mode,
+          focus: mode === "deeper" ? focus.trim() : "",
         });
         const data = res.data || res;
         if (data?.error) throw new Error(data.error);
@@ -67,6 +74,7 @@ export default function ResearchPromptPanel({ listId, prospects = [], onChanged,
       setError(e?.response?.data?.error || e.message || "Research stopped. Try again in a moment.");
     } finally {
       setRunning(false);
+      setRunMode("standard");
     }
   };
 
@@ -93,8 +101,16 @@ export default function ResearchPromptPanel({ listId, prospects = [], onChanged,
         disabled={running}
         className="rounded-xl text-sm"
       />
+      <Textarea
+        value={focus}
+        onChange={(e) => setFocus(e.target.value)}
+        placeholder="Optional dig-deeper focus — e.g. find contract value, end date, and named buyer"
+        rows={2}
+        disabled={running}
+        className="rounded-xl text-sm"
+      />
       <p className="text-[11px] text-slate-400">
-        One Smart Action per account · re-running the same instruction refreshes its findings instead of duplicating them.
+        One Smart Action per account · dig deeper merges new sources into the pack and keeps anything you confirmed.
       </p>
 
       {running && (
@@ -106,7 +122,7 @@ export default function ResearchPromptPanel({ listId, prospects = [], onChanged,
             />
           </div>
           <p className="text-xs text-slate-500">
-            {progress.done} of {progress.total} accounts researched — you can carry on with your day.
+            {progress.done} of {progress.total} accounts {runMode === "deeper" ? "searched further" : "researched"} — you can carry on with your day.
           </p>
         </div>
       )}
@@ -120,17 +136,28 @@ export default function ResearchPromptPanel({ listId, prospects = [], onChanged,
 
       <div className="flex flex-wrap gap-2">
         <Button
-          onClick={run}
+          onClick={() => run("standard")}
           disabled={!instruction || running || !pending.length}
           className="rounded-full bg-emerald-600 hover:bg-emerald-500"
         >
-          {running ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <BrainCircuit className="w-4 h-4 mr-2" />}
-          {running
+          {running && runMode === "standard" ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <BrainCircuit className="w-4 h-4 mr-2" />}
+          {running && runMode === "standard"
             ? "Researching…"
             : pending.length
               ? `Research ${pending.length} account${pending.length === 1 ? "" : "s"}`
               : "Every account researched for this instruction"}
         </Button>
+        {prospects.some((p) => covered.has(p.id)) && (
+          <Button
+            variant="outline"
+            className="rounded-full border-emerald-300 text-emerald-700"
+            disabled={!instruction || running}
+            onClick={() => run("deeper")}
+          >
+            {running && runMode === "deeper" ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
+            {running && runMode === "deeper" ? "Searching further…" : "Dig deeper on researched"}
+          </Button>
+        )}
         {running && (
           <Button variant="outline" className="rounded-full border-slate-300" onClick={() => { stopRef.current = true; }}>
             <Square className="w-3.5 h-3.5 mr-1.5" /> Stop

@@ -877,7 +877,10 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
           <AccountResearchBar
             listId={listId}
             prospects={prospects}
-            onResearched={() => loadProspects(listId)}
+            onResearched={async () => {
+              await loadProspects(listId);
+              await reloadResearch();
+            }}
             onFindContacts={openProviderEnrich}
           />
         </div>
@@ -888,7 +891,10 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
           <ResearchPromptPanel
             listId={listId}
             prospects={prospects}
-            onChanged={() => loadProspects(listId)}
+            onChanged={async () => {
+              await loadProspects(listId);
+              await reloadResearch();
+            }}
             onResearchLoaded={(records) =>
               setResearchByProspect(Object.fromEntries([...records].reverse().map((r) => [r.prospect_id, r])))
             }
@@ -1023,6 +1029,11 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
               onFindPhone={(p) => openProviderEnrich([p.id], "phone")}
               busyId={busyId}
               researchByProspect={researchByProspect}
+              listId={listId}
+              onResearchUpdated={(next) => {
+                if (!next?.prospect_id) return;
+                setResearchByProspect((prev) => ({ ...prev, [next.prospect_id]: next }));
+              }}
             />
             {batchSummary && (
               <EnrichmentBatchSummary
