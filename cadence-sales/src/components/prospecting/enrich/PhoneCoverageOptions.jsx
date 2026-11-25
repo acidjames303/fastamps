@@ -12,13 +12,13 @@ const OPTIONS = [
     key: "otherKnown",
     label: "Also find mobiles for other already-known contacts",
     detail:
-      "After the best match, keep asking Lusha for mobiles on the other named people Cadence already holds (emails often cover several people). Does not discover new people.",
+      "Keep asking Lusha for a UK mobile on every named person who still lacks one — especially people who already have an email. Does not stop after the first mobile.",
   },
   {
     key: "discover",
     label: "Discover additional ICP contacts before checking for numbers",
     detail:
-      "Runs a separate decision-maker research step first and may use Smart Actions. Newly found people are saved to this prospect list before any number is requested.",
+      "Runs a separate decision-maker research step first and may use Smart Actions. Newly found people are saved before numbers are requested. Recommended for Maximum search.",
   },
 ];
 

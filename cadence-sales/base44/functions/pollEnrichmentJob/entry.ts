@@ -1,4 +1,6 @@
 import { resolveTenant } from '../../shared/tenantAuth.ts';
+// fullenrich phone-only limited credits
+// people-v3 waterfall + search-improve bundle
 import { assertProviderAccess, canUseProviders } from '../../shared/providerAccess.ts';
 import { processSessionBatch } from '../../shared/sessionProcessing.ts';
 export default async function(req) {

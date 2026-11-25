@@ -749,6 +749,13 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
 
   return (
     <div className="space-y-6">
+      <div className="rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-950">
+        <p className="font-semibold">People view updated (build people-v3)</p>
+        <p className="mt-1 text-xs leading-relaxed text-emerald-900/80">
+          Every person now shows as a card with mobile + email — no “+N more” hide, no separate Number column.
+          If you still see columns labelled Decision-makers and Number, hard-refresh this page (Ctrl/Cmd+Shift+R) or open it in a private window.
+        </p>
+      </div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           {!embedded && (

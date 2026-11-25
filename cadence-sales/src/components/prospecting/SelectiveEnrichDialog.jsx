@@ -145,19 +145,23 @@ export default function SelectiveEnrichDialog({
 }) {
   const phoneIntent = intent === "phone";
 
-  // Mobile-first defaults: prospecting normally looks for the best contact,
-  // their work email and a dialable mobile/direct number. When Lusha is
-  // connected the dialog switches to provider search automatically.
+  // Default to Maximum search: with unlimited Lusha, the expensive miss is
+  // under-searching (emails without mobiles), not credit spend.
   const [findOptions, setFindOptions] = useState(
-    phoneIntent ? ["direct_phone"] : ["decision_maker", "personal_email", "direct_phone"],
+    phoneIntent
+      ? ["direct_phone", "personal_email"]
+      : ["decision_maker", "personal_email", "direct_phone", "company_information"],
   );
-  // Default to connected providers when Lusha is available — credits are not the constraint.
   const [searchMethod, setSearchMethod] = useState("providers");
-  const [searchDepth, setSearchDepth] = useState("expanded");
-  const [phoneCoverage, setPhoneCoverage] = useState({ best: true, otherKnown: true, discover: false });
+  const [searchDepth, setSearchDepth] = useState(phoneIntent ? "expanded" : "exhaustive");
+  const [phoneCoverage, setPhoneCoverage] = useState({
+    best: true,
+    otherKnown: true,
+    discover: !phoneIntent,
+  });
   const [advancedOpen, setAdvancedOpen] = useState(false);
-  const [existingInfoMode, setExistingInfoMode] = useState("missing");
-  const [findStrongerDecisionMaker, setFindStrongerDecisionMaker] = useState(intent === "better");
+  const [existingInfoMode, setExistingInfoMode] = useState(phoneIntent ? "missing" : "newer");
+  const [findStrongerDecisionMaker, setFindStrongerDecisionMaker] = useState(intent === "better" || !phoneIntent);
   const [includeAlternativeEmail, setIncludeAlternativeEmail] = useState(false);
   const [companyFields, setCompanyFields] = useState(["company_phone", "company_intelligence"]);
   const [inferEmailPattern, setInferEmailPattern] = useState(true);
@@ -185,15 +189,39 @@ export default function SelectiveEnrichDialog({
     }
     setErr("");
     if (enabledProviders === null && connectedList.length) {
-      // Lusha is the default phone source. Other connected providers remain
-      // available as explicit fallbacks without being called automatically.
-      setEnabledProviders(connectedList.includes("lusha") ? ["lusha"] : [...connectedList]);
+      // Lusha first. FullEnrich is optional phone-only fallback for contacts
+      // still missing a number (limited credits) — never the primary/email path.
+      const defaults = [];
+      if (connectedList.includes("lusha")) defaults.push("lusha");
+      else if (connectedList.includes("apollo")) defaults.push("apollo");
+      if (connectedList.includes("fullenrich")) defaults.push("fullenrich");
+      setEnabledProviders(defaults.length ? defaults : [...connectedList]);
     }
-    // With unlimited Lusha, open on Connected providers whenever Lusha is linked.
-    if (connectedList.includes("lusha")) {
+    // With unlimited Lusha, open on Connected providers + Maximum search so
+    // every known contact is checked for a mobile, not just the lead.
+    if (connectedList.includes("lusha") && !intentAppliedRef.current) {
+      intentAppliedRef.current = true;
+      if (phoneIntent) {
+        setSearchMethod("providers");
+        setSearchDepth("expanded");
+        setPhoneCoverage({ best: true, otherKnown: true, discover: false });
+        setFindOptions(["direct_phone", "personal_email"]);
+        setExistingInfoMode("missing");
+      } else {
+        applyMaximumSearchPreset({
+          setFindOptions,
+          setSearchMethod,
+          setSearchDepth,
+          setPhoneCoverage,
+          setFindStrongerDecisionMaker,
+          setExistingInfoMode,
+          setConfirmOpen,
+        });
+      }
+    } else if (connectedList.includes("lusha")) {
       setSearchMethod((current) => (current === "free" ? "providers" : current));
     }
-  }, [open, connectedList]);
+  }, [open, connectedList, phoneIntent]);
 
   const requestedFields = useMemo(() => {
     const fields = [];
@@ -493,8 +521,9 @@ export default function SelectiveEnrichDialog({
                   <div className="space-y-2">
                     {connectedList.map((provider) => {
                       const checked = (enabledProviders || connectedList).includes(provider);
+                      const isFullEnrich = provider === "fullenrich";
                       return (
-                        <label key={provider} className="flex cursor-pointer items-center gap-2 text-sm text-slate-700">
+                        <label key={provider} className="flex cursor-pointer items-start gap-2 text-sm text-slate-700">
                           <Checkbox
                             checked={checked}
                             onCheckedChange={(value) => {
@@ -506,8 +535,16 @@ export default function SelectiveEnrichDialog({
                                   : active.filter((item) => item !== provider);
                               });
                             }}
+                            className="mt-0.5"
                           />
-                          {PROVIDER_LABELS[provider] || provider}
+                          <span>
+                            <span className="font-medium">{PROVIDER_LABELS[provider] || provider}</span>
+                            {isFullEnrich && (
+                              <span className="mt-0.5 block text-xs leading-relaxed text-amber-800">
+                                Limited credits — only looks up a phone for named people who still have no number (after Lusha). Never emails or discovery.
+                              </span>
+                            )}
+                          </span>
                         </label>
                       );
                     })}

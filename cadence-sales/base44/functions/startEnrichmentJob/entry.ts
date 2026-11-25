@@ -1,4 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+// fullenrich phone-only limited credits
+// people-v3 spend+widen + search-improve (contact-level mobile gaps)
 import { resolveTenant } from '../../shared/tenantAuth.ts';
 import { assertProviderAccess } from '../../shared/providerAccess.ts';
 import { resolveProviders, getTargetRoles, getPreferredSeniority, PROVIDER_CAPABILITIES } from '../../shared/providerResolution.ts';

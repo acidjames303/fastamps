@@ -3,7 +3,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Phone, Smartphone, Sparkles, ArrowRight, Trash2, Loader2, Check, PhoneCall } from "lucide-react";
 import ProspectDiagnosticsDialog from "./ProspectDiagnosticsDialog";
 import AccountResearchDetail from "./AccountResearchDetail";
+import ScreeningBadge from "./ScreeningBadge";
+import PhoneCandidates from "./PhoneCandidates";
 import ProspectPersonCard from "./ProspectPersonCard";
+import { emailFlags } from "@/lib/emailDisplay";
 import { isUkMobileNumber } from "@/lib/enrichmentRun";
 
 const statusStyle = {
@@ -29,11 +32,7 @@ const callStatusLabel = { attempted: "Called", connected: "Spoken", callback: "C
 
 // Checks if the prospect only has a generic company inbox, not a personal email.
 function hasGenericEmailOnly(p) {
-  if (!p.email) return false;
-  if (p.email_type === "personal_work") return false;
-  if (p.email_type === "generic_company" || p.email_type === "role_based_work") return true;
-  if (p.generic_email && p.email === p.generic_email) return true;
-  return false;
+  return emailFlags(p).isGenericOnly;
 }
 
 function scoreTone(s) {
@@ -42,23 +41,10 @@ function scoreTone(s) {
   return "bg-slate-300 text-slate-700";
 }
 
-export default function ProspectTable({
-  prospects,
-  selected,
-  setSelected,
-  onEnrich,
-  onPush,
-  onDelete,
-  onToggleCall,
-  onFindPhone,
-  busyId,
-  researchByProspect = {},
-  listId = "",
-  onResearchUpdated,
-}) {
+export default function ProspectTable({ prospects, selected, setSelected, onEnrich, onPush, onDelete, onToggleCall, onFindPhone, busyId, researchByProspect = {}, onPhoneChange }) {
+  const [numbersOpen, setNumbersOpen] = useState(null);
   const [diagProspect, setDiagProspect] = useState(null);
   const [researchRecord, setResearchRecord] = useState(null);
-  const [researchProspect, setResearchProspect] = useState(null);
   const all = prospects.length > 0 && selected.length === prospects.length;
   const toggle = (id) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
   const toggleAll = () => setSelected(all ? [] : prospects.map((p) => p.id));
@@ -86,8 +72,8 @@ export default function ProspectTable({
   }
 
   return (
-    <div className="rounded-3xl bg-white border border-slate-200 overflow-hidden">
-      {/* Desktop table header */}
+    <div className="rounded-3xl bg-white border border-slate-200 overflow-hidden" data-cadence-build="people-v3">
+      {/* Desktop table header — all people visible; no separate Number column */}
       <div className="hidden sm:grid grid-cols-12 gap-3 px-5 py-3 bg-slate-50 text-xs uppercase tracking-widest text-slate-400">
         <span className="col-span-1 flex items-center"><Checkbox checked={all} onCheckedChange={toggleAll} /></span>
         <span className="col-span-3">Company</span>
@@ -118,21 +104,24 @@ export default function ProspectTable({
                 <p className="text-[11px] text-slate-500">
                   {contacts.length} people · {mobileCount} mobile{mobileCount === 1 ? "" : "s"} · {emailCount} email{emailCount === 1 ? "" : "s"}
                 </p>
+                <ScreeningBadge prospect={p} />
+                <button
+                  type="button"
+                  onClick={() => setNumbersOpen(numbersOpen === p.id ? null : p.id)}
+                  className="text-[10px] text-slate-500 hover:text-slate-800"
+                >
+                  {numbersOpen === p.id ? "Hide number candidates" : "Number candidates"}
+                </button>
+                {numbersOpen === p.id && (
+                  <div className="mt-1">
+                    <PhoneCandidates prospect={p} onPreferred={onPhoneChange} />
+                  </div>
+                )}
                 {p.call_status && p.call_status !== 'new' && (
-                  <span className={`inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium border ${callStatusStyle[p.call_status] || ''}`}>
+                  <span className={`inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium border mt-1 ${callStatusStyle[p.call_status] || ''}`}>
                     {callStatusLabel[p.call_status] || p.call_status}
                   </span>
                 )}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setResearchRecord(researchByProspect[p.id] || null);
-                    setResearchProspect(p);
-                  }}
-                  className="text-xs text-emerald-700 underline-offset-2 hover:underline"
-                >
-                  {researchByProspect[p.id] ? "see research" : "add research"}
-                </button>
               </div>
               <div className="col-span-5">
                 {contacts.length === 0 ? (
@@ -146,14 +135,22 @@ export default function ProspectTable({
                 )}
               </div>
               <div className="col-span-1 pt-0.5 space-y-1.5">
-                {p.fit_score ? (
+                {researchByProspect[p.id] ? (
+                  <button
+                    type="button"
+                    onClick={() => setResearchRecord(researchByProspect[p.id])}
+                    className="text-xs text-emerald-700 underline-offset-2 hover:underline"
+                  >
+                    see research
+                  </button>
+                ) : p.fit_score ? (
                   <span className={`inline-flex items-center justify-center w-9 h-6 rounded-full text-xs font-semibold ${scoreTone(p.fit_score)}`}>{p.fit_score}</span>
                 ) : null}
                 <span className={`inline-flex px-2 py-0.5 rounded-full text-xs border ${statusStyle[p.enrichment_status] || statusStyle.not_found}`}>
                   {p.enrichment_status?.replace("_", " ") || "pending"}
                 </span>
                 {hasGenericEmailOnly(p) && (
-                  <span className="block text-[10px] text-amber-600 leading-tight">
+                  <span className="block text-[10px] text-amber-600 leading-tight" title="This record only has a generic company inbox — a personal work email is still needed">
                     Generic email only
                   </span>
                 )}
@@ -222,16 +219,15 @@ export default function ProspectTable({
                    {p.provider_error && p.enrichment_status !== 'pending' && p.enrichment_status !== 'enriching' && (
                      <button onClick={() => setDiagProspect(p)} className="text-[9px] text-slate-400 leading-tight hover:text-slate-700 transition-colors">Why no email?</button>
                    )}
-                   <button
-                     type="button"
-                     onClick={() => {
-                       setResearchRecord(researchByProspect[p.id] || null);
-                       setResearchProspect(p);
-                     }}
-                     className="text-[10px] text-emerald-700 underline-offset-2 hover:underline"
-                   >
-                     {researchByProspect[p.id] ? "see research" : "research"}
-                   </button>
+                   {researchByProspect[p.id] && (
+                     <button
+                       type="button"
+                       onClick={() => setResearchRecord(researchByProspect[p.id])}
+                       className="text-[10px] text-emerald-700 underline-offset-2 hover:underline"
+                     >
+                       see research
+                     </button>
+                   )}
                  </div>
               </div>
 
@@ -240,6 +236,17 @@ export default function ProspectTable({
                   <Phone className="w-3 h-3" /> Switchboard · {p.landline}
                 </a>
               )}
+
+              <ScreeningBadge prospect={p} />
+
+              <button
+                type="button"
+                onClick={() => setNumbersOpen(numbersOpen === p.id ? null : p.id)}
+                className="text-[11px] text-slate-500 hover:text-slate-800"
+              >
+                {numbersOpen === p.id ? "Hide number candidates" : "Number candidates"}
+              </button>
+              {numbersOpen === p.id && <PhoneCandidates prospect={p} onPreferred={onPhoneChange} />}
 
               {contacts.length > 0 ? (
                 <div className="space-y-2">
@@ -301,16 +308,11 @@ export default function ProspectTable({
         <ProspectDiagnosticsDialog prospect={diagProspect} onClose={() => setDiagProspect(null)} />
       )}
 
-      {(researchRecord || researchProspect) && (
+      {researchRecord && (
         <AccountResearchDetail
           record={researchRecord}
-          prospect={researchProspect}
-          listId={listId}
-          onClose={() => { setResearchRecord(null); setResearchProspect(null); }}
-          onRecordUpdated={(next) => {
-            setResearchRecord(next);
-            onResearchUpdated?.(next);
-          }}
+          onClose={() => setResearchRecord(null)}
+          onRecordUpdated={(next) => setResearchRecord(next)}
         />
       )}
     </div>
