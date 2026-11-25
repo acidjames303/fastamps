@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
+import { base44 } from "@/api/base44Client";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Phone, Smartphone, Sparkles, ArrowRight, Trash2, Loader2, Check, PhoneCall } from "lucide-react";
+import { Phone, Smartphone, Sparkles, ArrowRight, Trash2, Loader2, Check, PhoneCall, BadgeCheck } from "lucide-react";
 import ProspectDiagnosticsDialog from "./ProspectDiagnosticsDialog";
 import AccountResearchDetail from "./AccountResearchDetail";
 import ScreeningBadge from "./ScreeningBadge";
@@ -8,6 +9,7 @@ import PhoneCandidates from "./PhoneCandidates";
 import ProspectPersonCard from "./ProspectPersonCard";
 import { emailFlags } from "@/lib/emailDisplay";
 import { isUkMobileNumber } from "@/lib/enrichmentRun";
+import { needsCallReadyConfirm } from "@/lib/accountResearchMatch";
 
 const statusStyle = {
   enriched: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -45,9 +47,53 @@ export default function ProspectTable({ prospects, selected, setSelected, onEnri
   const [numbersOpen, setNumbersOpen] = useState(null);
   const [diagProspect, setDiagProspect] = useState(null);
   const [researchRecord, setResearchRecord] = useState(null);
+  const [confirmingId, setConfirmingId] = useState("");
+  const [confirmError, setConfirmError] = useState("");
   const all = prospects.length > 0 && selected.length === prospects.length;
   const toggle = (id) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
   const toggleAll = () => setSelected(all ? [] : prospects.map((p) => p.id));
+
+  // One click: mark the best available mobile/direct as manually confirmed so
+  // the account can become call-ready without hunting Number candidates.
+  const confirmForCalling = async (p) => {
+    const contacts = Array.isArray(p.contacts) ? p.contacts : [];
+    const fromPeople = contacts.find((c) => isUkMobileNumber(c.mobile || c.phone));
+    const number = p.mobile || p.phone || fromPeople?.mobile || fromPeople?.phone || "";
+    if (!number) return;
+    setConfirmingId(p.id);
+    setConfirmError("");
+    try {
+      const at = new Date().toISOString();
+      const isMobile = isUkMobileNumber(number);
+      await base44.entities.Prospect.update(p.id, {
+        phone: number,
+        mobile: isMobile ? number : (p.mobile || undefined),
+        phone_type: isMobile ? "mobile" : (p.phone_type || "unknown"),
+        phone_status: "manually_confirmed",
+        phone_verified_at: at,
+      });
+      // Keep ContactPhone audit in sync when a matching candidate exists.
+      const candidates = await base44.entities.ContactPhone.filter({ prospect_id: p.id }, "-created_date", 50).catch(() => []);
+      const match = (Array.isArray(candidates) ? candidates : []).find((row) => {
+        const a = String(row.value || row.normalised || "").replace(/\s+/g, "");
+        const b = String(number).replace(/\s+/g, "");
+        return a && b && a === b;
+      });
+      if (match) {
+        await base44.entities.ContactPhone.update(match.id, {
+          status: "preferred",
+          decided_at: at,
+          audit: [...(Array.isArray(match.audit) ? match.audit : []), { at, by_user_id: "", action: "prefer" }],
+        });
+      }
+      await onPhoneChange?.(p.id);
+      setNumbersOpen(null);
+    } catch (e) {
+      setConfirmError(e?.message || "Could not confirm that number.");
+    } finally {
+      setConfirmingId("");
+    }
+  };
 
   // Shift-click range selection — click a row, then shift+click another to
   // select all rows in between.
@@ -105,6 +151,23 @@ export default function ProspectTable({ prospects, selected, setSelected, onEnri
                   {contacts.length} people · {mobileCount} mobile{mobileCount === 1 ? "" : "s"} · {emailCount} email{emailCount === 1 ? "" : "s"}
                 </p>
                 <ScreeningBadge prospect={p} />
+                {needsCallReadyConfirm(p) && (
+                  <button
+                    type="button"
+                    onClick={() => confirmForCalling(p)}
+                    disabled={confirmingId === p.id}
+                    className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-800 hover:bg-emerald-100 disabled:opacity-60"
+                    title="Mark the best available number as confirmed so this account can become call-ready"
+                  >
+                    {confirmingId === p.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <BadgeCheck className="h-3 w-3" />}
+                    Confirm for calling
+                  </button>
+                )}
+                {["verified", "manually_confirmed"].includes(p.phone_status) && (p.phone || p.mobile) && (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700">
+                    <BadgeCheck className="h-3 w-3" /> Call-ready number
+                  </span>
+                )}
                 <button
                   type="button"
                   onClick={() => setNumbersOpen(numbersOpen === p.id ? null : p.id)}
@@ -116,6 +179,9 @@ export default function ProspectTable({ prospects, selected, setSelected, onEnri
                   <div className="mt-1">
                     <PhoneCandidates prospect={p} onPreferred={onPhoneChange} />
                   </div>
+                )}
+                {confirmError && confirmingId === "" && numbersOpen === p.id && (
+                  <p className="text-[10px] text-rose-600">{confirmError}</p>
                 )}
                 {p.call_status && p.call_status !== 'new' && (
                   <span className={`inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium border mt-1 ${callStatusStyle[p.call_status] || ''}`}>
@@ -238,6 +304,23 @@ export default function ProspectTable({ prospects, selected, setSelected, onEnri
               )}
 
               <ScreeningBadge prospect={p} />
+
+              {needsCallReadyConfirm(p) && (
+                <button
+                  type="button"
+                  onClick={() => confirmForCalling(p)}
+                  disabled={confirmingId === p.id}
+                  className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-800"
+                >
+                  {confirmingId === p.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <BadgeCheck className="h-3 w-3" />}
+                  Confirm for calling
+                </button>
+              )}
+              {["verified", "manually_confirmed"].includes(p.phone_status) && (p.phone || p.mobile) && (
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700">
+                  <BadgeCheck className="h-3 w-3" /> Call-ready number
+                </span>
+              )}
 
               <button
                 type="button"

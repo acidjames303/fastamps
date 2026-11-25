@@ -1,9 +1,21 @@
 import React from "react";
 import {
   Building2, MapPin, Users, Loader2, Target, Briefcase,
-  ExternalLink, TrendingUp, Cpu, Newspaper, Zap, Gauge, Clock, UserPlus,
+  ExternalLink, TrendingUp, Cpu, Newspaper, Zap, Gauge, Clock, UserPlus, Search,
 } from "lucide-react";
 import DecisionMakerList from "@/components/dialer/DecisionMakerList";
+
+const EVIDENCE_TONE = {
+  published: "bg-sky-50 text-sky-700 border-sky-200",
+  customer_confirmed: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  unverified: "bg-amber-50 text-amber-700 border-amber-200",
+};
+
+const EVIDENCE_LABEL = {
+  published: "Published",
+  customer_confirmed: "Confirmed",
+  unverified: "Unverified",
+};
 
 function parseBrief(text) {
   if (!text) return null;
@@ -29,18 +41,31 @@ const splitLine = (line) => {
   return { heading: line.slice(0, idx).trim(), detail: line.slice(idx + 1).trim() };
 };
 
-// Company-first briefing panel. The Company is the primary record; its single
-// CompanyIntelligence record is the principal briefing source and is reused
-// across every associated decision-maker Contact. Research is never generated
-// here — it is produced once per company by the nightly batch. Legacy
-// Contact.ai_brief is a legacy fallback only when no intelligence exists.
-export default function BriefPanel({ company, intelligence, contacts, selectedContact, onSelectContact, onAddContact, onEditContact, loading }) {
+// Company-first briefing panel. CompanyIntelligence is the reusable cache;
+// AccountResearch from Prospecting is shown live so dig-deeper findings and
+// source URLs stay available on the call. Research is never generated here.
+export default function BriefPanel({
+  company,
+  intelligence,
+  accountResearch = null,
+  contacts,
+  selectedContact,
+  onSelectContact,
+  onAddContact,
+  onEditContact,
+  loading,
+}) {
   if (!company) return null;
 
   const brief = parseBrief(intelligence?.ai_summary || (selectedContact?.ai_brief));
   const coName = company.name;
   const coWebsite = company.website;
   const fit = typeof intelligence?.icp_fit_score === "number" ? intelligence.icp_fit_score : null;
+  const findings = Array.isArray(accountResearch?.findings)
+    ? accountResearch.findings.filter((f) => f?.label && f?.value)
+    : [];
+  const researchSummary = (accountResearch?.summary || "").trim();
+  const hasProspectingResearch = !!(researchSummary || findings.length);
 
   return (
     <div className="rounded-3xl bg-white border border-slate-200 p-7 space-y-6">
@@ -170,6 +195,56 @@ export default function BriefPanel({ company, intelligence, contacts, selectedCo
           <p className="text-sm text-slate-400">No company research yet — you can still dial.</p>
         )}
       </div>
+
+      {hasProspectingResearch && (
+        <div className="rounded-2xl bg-emerald-50/40 border border-emerald-100 p-5 space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-emerald-700">
+              <Search className="w-3.5 h-3.5" /> Prospecting research
+            </div>
+            {accountResearch?.researched_at && (
+              <span className="inline-flex items-center gap-1 text-[10px] text-slate-400">
+                <Clock className="w-3 h-3" /> {new Date(accountResearch.researched_at).toLocaleDateString()}
+              </span>
+            )}
+          </div>
+          {researchSummary ? (
+            <p className="text-sm leading-relaxed text-slate-700">{researchSummary}</p>
+          ) : null}
+          {findings.length > 0 && (
+            <ul className="space-y-2.5">
+              {findings.map((f, i) => (
+                <li key={`${f.label}-${i}`} className="text-sm text-slate-700">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-medium text-slate-900">{f.label}</span>
+                    {f.evidence && (
+                      <span className={`rounded-full border px-1.5 py-0.5 text-[10px] ${EVIDENCE_TONE[f.evidence] || EVIDENCE_TONE.unverified}`}>
+                        {EVIDENCE_LABEL[f.evidence] || f.evidence}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-slate-600 mt-0.5">{f.value}</p>
+                  {f.source_url ? (
+                    <a
+                      href={f.source_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-emerald-700 hover:underline mt-0.5"
+                    >
+                      Source <ExternalLink className="w-3 h-3" />
+                    </a>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          )}
+          {Array.isArray(accountResearch?.target_roles) && accountResearch.target_roles.length > 0 && (
+            <p className="text-xs text-slate-500">
+              Suggested roles: {accountResearch.target_roles.filter(Boolean).join(" · ")}
+            </p>
+          )}
+        </div>
+      )}
 
       <div>
         <div className="flex items-center justify-between mb-2">
