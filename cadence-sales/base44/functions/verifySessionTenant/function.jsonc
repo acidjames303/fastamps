@@ -1,0 +1,4 @@
+{
+  "name": "verifySessionTenant",
+  "entry": "entry.ts"
+}

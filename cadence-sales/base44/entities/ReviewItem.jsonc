@@ -1,0 +1,189 @@
+{
+  "name": "ReviewItem",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side."
+    },
+    "campaign_id": {
+      "type": "string"
+    },
+    "call_log_id": {
+      "type": "string",
+      "description": "CallLog under review"
+    },
+    "contact_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "prospect_id": {
+      "type": "string",
+      "description": "Prospect whose provider data is under review."
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "caller_flagged",
+        "opportunity_created",
+        "meeting_reported",
+        "outcome_notes_conflict",
+        "missing_client_details",
+        "callback_overdue",
+        "permission_dispute",
+        "phone_provider_returned",
+        "phone_conflict",
+        "phone_employment_mismatch",
+        "phone_match_unconfirmed",
+        "placeholder_name",
+        "address_as_job_title",
+        "unsourced_number",
+        "unsupported_email",
+        "employment_unconfirmed",
+        "name_without_contact_data"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "clarification_requested",
+        "corrected",
+        "report_ready",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "field_name": {
+      "type": "string",
+      "description": "Which field is under review, e.g. phone."
+    },
+    "existing_value": {
+      "type": "string",
+      "description": "The working value that stays in use while this is reviewed."
+    },
+    "existing_source": {
+      "type": "string"
+    },
+    "existing_retrieved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "new_value": {
+      "type": "string",
+      "description": "The provider-returned value under review."
+    },
+    "new_source": {
+      "type": "string"
+    },
+    "new_retrieved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "phone_type": {
+      "type": "string",
+      "description": "Deterministic UK classification of the new value."
+    },
+    "phone_confidence": {
+      "type": "number",
+      "default": 0
+    },
+    "review_reason_text": {
+      "type": "string",
+      "description": "Plain-language explanation of why this needs review."
+    },
+    "created_by_user_id": {
+      "type": "string"
+    },
+    "reviewed_by_user_id": {
+      "type": "string"
+    },
+    "review_action": {
+      "type": "string",
+      "description": "accept_org_supplied, attach_source, correct, reject, request_research, leave_unresolved"
+    },
+    "review_notes": {
+      "type": "string"
+    },
+    "original_value": {
+      "type": "string",
+      "description": "Original field value before correction"
+    },
+    "corrected_value": {
+      "type": "string",
+      "description": "Corrected value"
+    },
+    "correction_reason": {
+      "type": "string"
+    },
+    "source_url": {
+      "type": "string",
+      "description": "Evidence URL attached by the reviewer when accepting data the organisation supplied or verified."
+    },
+    "value_origin": {
+      "type": "string",
+      "enum": [
+        "organisation_supplied",
+        "provider_verified",
+        "provider_unverified"
+      ],
+      "description": "Where an accepted value came from. Manual acceptance is always organisation_supplied."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "reason"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

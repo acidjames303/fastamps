@@ -1,0 +1,127 @@
+{
+  "name": "OrganisationMembership",
+  "type": "object",
+  "description": "Authoritative security record. Writes are server-only: no client can create, change or delete a membership. All mutations go through the manageMembership backend function using the service role.",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Authenticated user this membership belongs to."
+    },
+    "organisation_id": {
+      "type": "string",
+      "description": "Organisation this membership grants access to."
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "platform_owner",
+        "organisation_admin",
+        "sales_manager",
+        "internal_bd",
+        "bdm",
+        "reporting_user"
+      ],
+      "enumColors": [
+        "purple",
+        "blue",
+        "green",
+        "yellow",
+        "pink",
+        "gray"
+      ],
+      "description": "Authoritative role. Replaces UserProfile.app_role for every security decision."
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Explicit capability grant. When empty, the role's default capability set applies."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "invited",
+        "active",
+        "disabled",
+        "expired"
+      ],
+      "enumColors": [
+        "yellow",
+        "green",
+        "red",
+        "gray"
+      ],
+      "default": "invited"
+    },
+    "created_by_user_id": {
+      "type": "string"
+    },
+    "approved_by_user_id": {
+      "type": "string"
+    },
+    "emergency_grant": {
+      "type": "boolean",
+      "default": false,
+      "description": "True for temporary containment grants that must be removed once the authoritative model is verified."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "disabled_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "version": {
+      "type": "number",
+      "default": 1
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id",
+    "organisation_id",
+    "role",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "id": "__server_only__"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "id": "__server_only__"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "id": "__server_only__"
+      }
+    }
+  }
+}

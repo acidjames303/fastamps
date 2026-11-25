@@ -1,0 +1,121 @@
+{
+  "name": "PilotReadinessEvidence",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side."
+    },
+    "pilot_programme_id": {
+      "type": "string"
+    },
+    "check_key": {
+      "type": "string",
+      "description": "Canonical readiness check key (see pilotReadiness.ts CANONICAL_CHECKS). Legacy keys are migrated at read time."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "not_tested",
+        "running",
+        "passed",
+        "failed",
+        "blocked",
+        "expired"
+      ],
+      "default": "not_tested"
+    },
+    "evidence_method": {
+      "type": "string",
+      "enum": [
+        "automated",
+        "database_verification",
+        "user_browser_confirmation",
+        "platform_owner_confirmation"
+      ],
+      "description": "How this evidence was produced. Determines whether it is acceptable for the check."
+    },
+    "test_run_id": {
+      "type": "string",
+      "description": "Unique identifier for the test run that produced this evidence."
+    },
+    "checked_by_user_id": {
+      "type": "string"
+    },
+    "checked_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "related_entity_type": {
+      "type": "string",
+      "description": "Entity type of related records, e.g. Task, CallLog, Contact."
+    },
+    "related_entity_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence_summary": {
+      "type": "string",
+      "description": "Human-readable summary of what was tested and the result. Must reference real record IDs."
+    },
+    "automated": {
+      "type": "boolean",
+      "default": false,
+      "description": "True if this check was run by an automated backend function. (Legacy field \u2014 evidence_method is now canonical.)"
+    },
+    "browser_session_required": {
+      "type": "boolean",
+      "default": false,
+      "description": "True if this check requires a live browser session to verify."
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this evidence expires and must be re-verified."
+    },
+    "failure_reason": {
+      "type": "string",
+      "description": "Required when status is failed or blocked."
+    },
+    "app_version": {
+      "type": "string",
+      "description": "Deployed app version at time of check."
+    }
+  },
+  "required": [
+    "organisation_id",
+    "check_key",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

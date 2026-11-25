@@ -1,0 +1,153 @@
+{
+  "name": "EnrichmentAttempt",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side, never from the client."
+    },
+    "target_list_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "contact_id": {
+      "type": "string"
+    },
+    "prospect_id": {
+      "type": "string"
+    },
+    "research_job_id": {
+      "type": "string",
+      "description": "ResearchJob that initiated this attempt, if any."
+    },
+    "provider": {
+      "type": "string",
+      "description": "Which provider performed the attempt: ai_web, lusha, fullenrich, apollo."
+    },
+    "enrichment_type": {
+      "type": "string",
+      "enum": [
+        "company",
+        "people_search",
+        "direct_phone",
+        "email",
+        "phone_verification"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "successful",
+        "not_found",
+        "failed",
+        "skipped"
+      ],
+      "default": "pending"
+    },
+    "provider_reference": {
+      "type": "string",
+      "description": "Opaque provider job/reference id; never a secret."
+    },
+    "source_url": {
+      "type": "string",
+      "description": "Public source URL where evidence was found, if available."
+    },
+    "confidence": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 confidence in the returned data."
+    },
+    "fields_returned": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Which fields this attempt populated."
+    },
+    "estimated_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "actual_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "attempted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this attempt's data should be considered stale."
+    },
+    "error_code": {
+      "type": "string"
+    },
+    "safe_error_message": {
+      "type": "string",
+      "description": "Sanitised, user-safe error detail; never the raw provider response or a secret."
+    },
+    "http_status": {
+      "type": "number",
+      "description": "HTTP status code returned by the provider, if applicable."
+    },
+    "error_category": {
+      "type": "string",
+      "enum": [
+        "none",
+        "auth_error",
+        "rate_limit",
+        "not_found",
+        "timeout",
+        "server_error",
+        "network_error",
+        "invalid_response",
+        "quota_exceeded",
+        "unknown"
+      ],
+      "default": "none",
+      "description": "Categorised error for retry logic and diagnostics."
+    },
+    "correlation_id": {
+      "type": "string",
+      "description": "Links this attempt to related usage events and audit records."
+    },
+    "retry_eligible": {
+      "type": "boolean",
+      "default": false,
+      "description": "True if this attempt may be retried (temporary errors only)."
+    },
+    "retry_cooldown_expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When a genuine not-found result's 7-day cooldown expires."
+    },
+    "retry_reason": {
+      "type": "string",
+      "description": "Why a retry is or is not eligible."
+    }
+  },
+  "required": [
+    "organisation_id",
+    "provider",
+    "enrichment_type"
+  ],
+  "rls": {
+    "read": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "delete": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    }
+  }
+}

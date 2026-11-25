@@ -1,0 +1,159 @@
+{
+  "name": "OrganisationSubscription",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side, never from the client."
+    },
+    "plan_id": {
+      "type": "string",
+      "description": "SubscriptionPlan this subscription is on."
+    },
+    "plan_code": {
+      "type": "string",
+      "description": "Denormalised plan code for quick filtering."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "trialing",
+        "active",
+        "past_due",
+        "grace_period",
+        "suspended",
+        "cancelled"
+      ],
+      "default": "trialing"
+    },
+    "billing_customer_id": {
+      "type": "string",
+      "description": "Stripe customer ID."
+    },
+    "billing_subscription_id": {
+      "type": "string",
+      "description": "Stripe subscription ID."
+    },
+    "billing_interval": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "annual"
+      ],
+      "default": "monthly"
+    },
+    "current_period_start": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "current_period_end": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "trial_start": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "trial_end": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "cancellation_requested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "cancel_at_period_end": {
+      "type": "boolean",
+      "default": false
+    },
+    "cancelled_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "grace_period_end": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "included_limits_snapshot": {
+      "type": "object",
+      "description": "Snapshot of plan limits at subscription time."
+    },
+    "override_limits": {
+      "type": "object",
+      "description": "Platform-approved overrides on specific limit fields."
+    },
+    "override_reason": {
+      "type": "string"
+    },
+    "override_applied_by": {
+      "type": "string"
+    },
+    "override_applied_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "override_expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_payment_status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "succeeded",
+        "failed",
+        "pending"
+      ]
+    },
+    "last_payment_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_payment_error": {
+      "type": "string",
+      "description": "Safe error message, never raw provider response."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "plan_id",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

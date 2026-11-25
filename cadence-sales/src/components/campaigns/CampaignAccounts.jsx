@@ -1,0 +1,12 @@
+import React,{useEffect,useState} from 'react';
+import {base44} from '@/api/base44Client';
+import {Button} from '@/components/ui/button';
+import CampaignAccountCard from '@/components/campaigns/CampaignAccountCard';
+import CampaignResearchControls from '@/components/campaigns/CampaignResearchControls';
+export default function CampaignAccounts({campaignId,bucket,revision=0,onChanged}) {
+  const [page,setPage]=useState({items:[]}),[search,setSearch]=useState(''),[selected,setSelected]=useState({}),[busy,setBusy]=useState(false),[error,setError]=useState('');
+  const load=async(offset=0)=>{setBusy(true);setError('');try{const {data}=await base44.functions.invoke('campaignDataReview',{action:'records',campaign_id:campaignId,bucket,search,offset});setPage(old=>({...data,items:offset?[...old.items,...data.items]:data.items}));}catch(e){setError(e.response?.data?.error || e.message);}finally{setBusy(false);}};
+  useEffect(()=>{const timer=setTimeout(()=>load(),250);return()=>clearTimeout(timer);},[campaignId,bucket,search,revision]);
+  useEffect(()=>setSelected({}),[campaignId]);
+  return <div className="border-t border-border"><div className="flex flex-wrap items-center gap-3 p-4"><input className="min-w-0 flex-1 rounded-md border border-input bg-background p-2 text-sm" aria-label="Search campaign records" placeholder="Search company, person or email" value={search} onChange={e=>setSearch(e.target.value)}/><span className="text-xs text-muted-foreground">{page.total ?? 0} records · {Object.keys(selected).length} selected</span>{page.can_enrich&&<CampaignResearchControls listId={page.list_id} prospects={Object.values(selected)} onChanged={()=>{load();onChanged?.();}}/>}</div>{error&&<p role="alert" className="p-4 text-sm text-destructive">{error}</p>}<ul>{page.items.map(p=><CampaignAccountCard key={p.id} record={p} selected={!!selected[p.id]} onSelect={()=>setSelected(old=>{const copy={...old};if(copy[p.id])delete copy[p.id];else copy[p.id]=p;return copy;})}/>)}</ul>{busy&&<p className="p-4 text-sm text-muted-foreground">Loading records…</p>}{!busy&&!page.items.length&&<p className="p-4 text-sm text-muted-foreground">No records match this group.</p>}{page.has_more&&<Button className="m-4" variant="outline" disabled={busy} onClick={()=>load(page.next_offset)}>Load more</Button>}</div>;
+}

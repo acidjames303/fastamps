@@ -1,0 +1,7 @@
+import React,{useState} from 'react';
+import {Button} from '@/components/ui/button';
+import ReviewDecisionForm from '@/components/campaigns/ReviewDecisionForm';
+export default function ReviewItemRow({item,onSave,saving,canEnrich,onEnrich}) {
+  const [open,setOpen]=useState(false);
+  return <li className="border-t border-border p-4"><div className="flex flex-wrap items-start justify-between gap-2"><div className="min-w-0 text-sm"><p className="font-semibold">{item.company} · {item.status.replace(/_/g,' ')}</p><p className="break-words">{item.person || 'No confirmed person'}{item.job_title?` · ${item.job_title}`:''}</p><p className="break-all text-xs text-muted-foreground">{item.email || 'No email'} · {item.phone || 'No telephone'}</p><p className="mt-1 text-xs text-muted-foreground">Original {item.field}: {item.original_value} · Source: {item.source || 'Not recorded'}</p>{item.evidence_url&&<a className="break-all text-xs underline" href={item.evidence_url} target="_blank" rel="noreferrer">{item.evidence_url}</a>}<p className="mt-1 text-xs">Problem: {item.review_reason}</p></div><Button size="sm" variant="outline" onClick={()=>setOpen(!open)}>{open?'Close':'Review'}</Button></div>{canEnrich&&<div className="mt-2 flex flex-wrap gap-2"><Button size="sm" variant="outline" onClick={()=>onEnrich(item,'general')}>Enrich selected fields</Button><Button size="sm" variant="outline" onClick={()=>onEnrich(item,'better')}>Find a better decision-maker</Button></div>}{open&&<ReviewDecisionForm item={item} onSave={onSave} saving={saving}/>}</li>;
+}

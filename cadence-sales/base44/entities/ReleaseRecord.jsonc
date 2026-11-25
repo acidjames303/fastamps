@@ -1,0 +1,116 @@
+{
+  "name": "ReleaseRecord",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Semantic version (e.g. 12.0.0)"
+    },
+    "release_name": {
+      "type": "string",
+      "description": "Human-readable release name."
+    },
+    "release_type": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "hotfix",
+        "rollback",
+        "test"
+      ],
+      "default": "planned"
+    },
+    "released_by_user_id": {
+      "type": "string"
+    },
+    "released_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "checkpoint_id": {
+      "type": "string",
+      "description": "Base44 sandbox checkpoint identifier."
+    },
+    "build_result": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "fail",
+        "pending"
+      ],
+      "default": "pending"
+    },
+    "migration_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "smoke_test_result": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "fail",
+        "pending",
+        "partial"
+      ],
+      "default": "pending"
+    },
+    "smoke_test_details": {
+      "type": "object",
+      "description": "Map of smoke-test step to result."
+    },
+    "rollback_status": {
+      "type": "string",
+      "enum": [
+        "not_required",
+        "prepared",
+        "executed",
+        "failed"
+      ],
+      "default": "not_required"
+    },
+    "rollback_checkpoint_id": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "in_review",
+        "released",
+        "rolled_back"
+      ],
+      "default": "draft"
+    }
+  },
+  "required": [
+    "version",
+    "release_name"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

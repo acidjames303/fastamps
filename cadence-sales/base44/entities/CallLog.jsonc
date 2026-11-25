@@ -1,0 +1,288 @@
+{
+  "name": "CallLog",
+  "type": "object",
+  "properties": {
+    "contact_id": {
+      "type": "string"
+    },
+    "contact_name": {
+      "type": "string"
+    },
+    "company": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string",
+      "description": "Reference to the Company record"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "connected",
+        "no_answer",
+        "no_pickup",
+        "no_reply",
+        "busy",
+        "voicemail",
+        "bad_number",
+        "wrong_person",
+        "callback",
+        "not_interested",
+        "interested",
+        "lead",
+        "send_info",
+        "future_potential",
+        "identify_new_contact",
+        "duplicate",
+        "not_suitable",
+        "no_sales_calls",
+        "pa_screened",
+        "customer_service_number",
+        "dnc",
+        "removed"
+      ],
+      "description": "Legacy outcome enum for backward compatibility. New records use primary_outcome."
+    },
+    "primary_outcome": {
+      "type": "string",
+      "enum": [
+        "connected_interested",
+        "connected_callback",
+        "connected_not_interested",
+        "connected_wrong_person",
+        "connected_information_requested",
+        "connected_qualified",
+        "no_answer",
+        "voicemail",
+        "busy",
+        "gatekeeper",
+        "invalid_number",
+        "do_not_call",
+        "other"
+      ],
+      "description": "Standardised outcome code from the outcome rules model."
+    },
+    "call_attempted": {
+      "type": "boolean",
+      "default": true,
+      "description": "True if a call was attempted (a CallLog record exists)."
+    },
+    "call_connected": {
+      "type": "boolean",
+      "default": false,
+      "description": "True if the call was answered by a person. Derived server-side from primary_outcome."
+    },
+    "conversation_held": {
+      "type": "boolean",
+      "default": false,
+      "description": "True only when the caller spoke with a person. Derived server-side \u2014 never set by the frontend."
+    },
+    "conversation_type": {
+      "type": "string",
+      "enum": [
+        "decision_maker",
+        "gatekeeper",
+        "wrong_person",
+        "other",
+        "none"
+      ],
+      "default": "none",
+      "description": "Who the caller spoke to. Required when conversation_held is true."
+    },
+    "classification_status": {
+      "type": "string",
+      "enum": [
+        "classified",
+        "review_required"
+      ],
+      "default": "classified",
+      "description": "Whether the classification is certain or needs manual review."
+    },
+    "outcome_notes": {
+      "type": "string",
+      "description": "Notes specific to the call outcome."
+    },
+    "next_action_type": {
+      "type": "string",
+      "enum": [
+        "new_call",
+        "callback",
+        "follow_up",
+        "revisit",
+        "research_review",
+        "data_review",
+        "opportunity_review",
+        "manual"
+      ]
+    },
+    "next_action_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the follow-up task is due."
+    },
+    "qualification_status": {
+      "type": "string",
+      "enum": [
+        "incomplete",
+        "qualifying",
+        "qualified",
+        "disqualified"
+      ]
+    },
+    "removal_reason": {
+      "type": "string",
+      "enum": [
+        "no_number",
+        "bad_data",
+        "removal_requested"
+      ],
+      "description": "Why a record was deleted from the dialer."
+    },
+    "duration_seconds": {
+      "type": "number",
+      "default": 0
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "connected_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the call was answered by a person. Set for connected outcomes only."
+    },
+    "outcome_saved_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the outcome was saved by the caller."
+    },
+    "ended_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "call_provider": {
+      "type": "string",
+      "description": "manual, yay, twilio, etc."
+    },
+    "provider_call_id": {
+      "type": "string",
+      "description": "Provider's call reference; never a secret."
+    },
+    "recording_url": {
+      "type": "string",
+      "description": "Call recording URL where legally and technically available."
+    },
+    "task_id": {
+      "type": "string",
+      "description": "Originating Task that this call completed."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "Prevents duplicate outcome processing."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Combined note text \u2014 the client note followed by the internal note."
+    },
+    "client_notes": {
+      "type": "string",
+      "description": "Client-facing note, kept separate from the internal note."
+    },
+    "internal_notes": {
+      "type": "string",
+      "description": "Internal note, never shown to the client."
+    },
+    "info_request_topic": {
+      "type": "string",
+      "description": "What the contact asked to be sent when information was requested."
+    },
+    "territory": {
+      "type": "string",
+      "description": "Territory recorded against an information request."
+    },
+    "account_manager_name": {
+      "type": "string",
+      "description": "Account manager recorded against an information request."
+    },
+    "account_manager_email": {
+      "type": "string",
+      "description": "Account manager email recorded against an information request."
+    },
+    "is_info_recall": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when this call was an information-request recall."
+    },
+    "qualification": {
+      "type": "object",
+      "description": "Qualification answers captured on a qualified outcome."
+    },
+    "campaign_id": {
+      "type": "string"
+    },
+    "assigned_user_id": {
+      "type": "string",
+      "description": "User the call was assigned to."
+    },
+    "created_by_user_id": {
+      "type": "string",
+      "description": "User who submitted the outcome."
+    },
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; set from the authenticated user."
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User who made the call."
+    }
+  },
+  "required": [
+    "outcome",
+    "organisation_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

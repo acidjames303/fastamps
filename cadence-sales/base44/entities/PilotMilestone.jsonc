@@ -1,0 +1,78 @@
+{
+  "name": "PilotMilestone",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side."
+    },
+    "pilot_programme_id": {
+      "type": "string"
+    },
+    "milestone_key": {
+      "type": "string",
+      "enum": [
+        "org_setup_completed",
+        "telephony_connected",
+        "first_test_call",
+        "first_campaign_activated",
+        "first_caller_invited",
+        "first_real_call",
+        "first_conversation",
+        "first_callback",
+        "first_callback_completed",
+        "first_qualified_opportunity",
+        "first_meeting",
+        "first_client_report",
+        "first_handoff"
+      ]
+    },
+    "achieved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "related_entity_type": {
+      "type": "string"
+    },
+    "related_entity_id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "milestone_key"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

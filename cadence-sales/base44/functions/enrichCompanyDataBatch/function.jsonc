@@ -1,0 +1,4 @@
+{
+  "name": "enrichCompanyDataBatch",
+  "entry": "entry.ts"
+}

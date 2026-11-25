@@ -1,0 +1,146 @@
+{
+  "name": "HandoffDestination",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side, never from the client."
+    },
+    "destination_type": {
+      "type": "string",
+      "enum": [
+        "csv",
+        "webhook",
+        "hubspot",
+        "manual"
+      ]
+    },
+    "name": {
+      "type": "string",
+      "description": "Friendly destination name."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "paused",
+        "disconnected"
+      ],
+      "default": "paused"
+    },
+    "webhook_url": {
+      "type": "string",
+      "description": "HTTPS endpoint URL. Validated server-side."
+    },
+    "webhook_auth_method": {
+      "type": "string",
+      "enum": [
+        "none",
+        "header",
+        "bearer",
+        "basic"
+      ],
+      "default": "none"
+    },
+    "encrypted_auth_data": {
+      "type": "string",
+      "description": "AES-GCM encrypted JSON of auth credentials. Never returned to frontend."
+    },
+    "masked_auth_identifiers": {
+      "type": "object",
+      "description": "Non-secret masked identifiers for display."
+    },
+    "header_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Custom header names (not values)."
+    },
+    "field_mapping": {
+      "type": "object",
+      "description": "JSON mapping Cadence fields to destination fields."
+    },
+    "allowed_campaign_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Campaigns allowed to use this destination. Empty = all."
+    },
+    "default_owner_mapping": {
+      "type": "string",
+      "description": "External owner ID or email to map to."
+    },
+    "test_mode": {
+      "type": "boolean",
+      "default": false,
+      "description": "When true, sends a test payload instead of real data."
+    },
+    "last_test_status": {
+      "type": "string",
+      "enum": [
+        "untested",
+        "success",
+        "failed"
+      ],
+      "default": "untested"
+    },
+    "last_test_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_test_error": {
+      "type": "string"
+    },
+    "last_success_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_failure_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "created_by_user_id": {
+      "type": "string"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "destination_type",
+    "name"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

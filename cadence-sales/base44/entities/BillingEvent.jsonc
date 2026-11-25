@@ -1,0 +1,102 @@
+{
+  "name": "BillingEvent",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side."
+    },
+    "subscription_id": {
+      "type": "string"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "checkout_completed",
+        "subscription_created",
+        "subscription_updated",
+        "subscription_cancelled",
+        "invoice_paid",
+        "invoice_payment_failed",
+        "trial_ending",
+        "trial_converted",
+        "payment_succeeded",
+        "payment_failed",
+        "manual_adjustment"
+      ]
+    },
+    "external_event_id": {
+      "type": "string",
+      "description": "Stripe event ID for idempotency."
+    },
+    "external_subscription_id": {
+      "type": "string"
+    },
+    "external_customer_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "received",
+        "processed",
+        "ignored",
+        "failed"
+      ],
+      "default": "received"
+    },
+    "safe_payload_summary": {
+      "type": "string",
+      "description": "Sanitised summary of the event; never full payload or secrets."
+    },
+    "processed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "Prevents duplicate processing of the same external event."
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Safe error message if processing failed."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "event_type"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

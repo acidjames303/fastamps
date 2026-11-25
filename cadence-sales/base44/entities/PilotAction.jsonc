@@ -1,0 +1,132 @@
+{
+  "name": "PilotAction",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side."
+    },
+    "pilot_programme_id": {
+      "type": "string",
+      "description": "PilotProgramme this action belongs to."
+    },
+    "action_type": {
+      "type": "string",
+      "enum": [
+        "onboarding",
+        "training",
+        "technical",
+        "compliance",
+        "customer_commitment",
+        "product_commitment",
+        "follow_up",
+        "other"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "owner_type": {
+      "type": "string",
+      "enum": [
+        "platform",
+        "customer",
+        "joint"
+      ]
+    },
+    "owner_user_id": {
+      "type": "string",
+      "description": "Internal user responsible, if applicable."
+    },
+    "customer_owner_name": {
+      "type": "string",
+      "description": "Customer-side owner name."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "blocked",
+        "completed",
+        "cancelled"
+      ],
+      "default": "open"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "urgent",
+        "high",
+        "normal",
+        "low"
+      ],
+      "default": "normal"
+    },
+    "due_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "linked_support_request_id": {
+      "type": "string"
+    },
+    "linked_feedback_id": {
+      "type": "string"
+    },
+    "review_notes": {
+      "type": "string",
+      "description": "Notes from weekly pilot review."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "pilot_programme_id",
+    "action_type",
+    "title",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

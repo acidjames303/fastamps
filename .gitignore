@@ -1,0 +1,4 @@
+cadence-sales/node_modules/
+cadence-sales/dist/
+cadence-sales/.env.local
+cadence-sales/.env.*

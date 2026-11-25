@@ -1,0 +1,122 @@
+{
+  "name": "TargetListCompanyFit",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side, never from the client."
+    },
+    "target_list_id": {
+      "type": "string",
+      "description": "Target List this fit score belongs to. Fit is always list-specific."
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "fit_score": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 deterministic fit score (AI may refine the reason, never override a hard exclusion)."
+    },
+    "fit_band": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low",
+        "excluded"
+      ],
+      "default": "low"
+    },
+    "fit_reason": {
+      "type": "string"
+    },
+    "positive_matches": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "negative_matches": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "exclusion_reason": {
+      "type": "string",
+      "description": "When set, fit_band is 'excluded' and AI scoring cannot override it."
+    },
+    "scoring_version": {
+      "type": "number",
+      "default": 1
+    },
+    "scored_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewed_by_user_id": {
+      "type": "string"
+    },
+    "review_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected",
+        "needs_review"
+      ],
+      "default": "pending"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "target_list_id",
+    "company_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

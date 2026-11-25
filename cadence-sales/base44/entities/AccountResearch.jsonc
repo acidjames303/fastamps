@@ -1,0 +1,119 @@
+{
+  "name": "AccountResearch",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side, never from the client."
+    },
+    "prospect_list_id": {
+      "type": "string",
+      "description": "Prospect list these findings belong to."
+    },
+    "prospect_id": {
+      "type": "string",
+      "description": "Prospect (account) that was researched."
+    },
+    "company_name": {
+      "type": "string"
+    },
+    "prompt": {
+      "type": "string",
+      "description": "The instruction the researcher was given for this account."
+    },
+    "prompt_hash": {
+      "type": "string",
+      "description": "Short deterministic key for the instruction, so re-running the same prompt updates rather than duplicates."
+    },
+    "summary": {
+      "type": "string",
+      "description": "Short account-level summary of what the research found."
+    },
+    "findings": {
+      "type": "array",
+      "description": "Sourced findings for this account.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "What the finding is, e.g. Supplier, Contract scope, Contract dates."
+          },
+          "value": {
+            "type": "string"
+          },
+          "source_url": {
+            "type": "string"
+          },
+          "source_date": {
+            "type": "string",
+            "description": "Publication or contract date as shown on the source, if visible."
+          },
+          "evidence": {
+            "type": "string",
+            "enum": [
+              "published",
+              "customer_confirmed",
+              "unverified"
+            ],
+            "default": "published",
+            "description": "Published research stays separate from anything the customer has confirmed."
+          },
+          "confidence": {
+            "type": "number",
+            "default": 0
+          }
+        }
+      }
+    },
+    "target_roles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Roles at this company worth calling, derived from the research."
+    },
+    "source_count": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "complete",
+        "failed"
+      ],
+      "default": "complete"
+    },
+    "error_summary": {
+      "type": "string"
+    },
+    "created_by_user_id": {
+      "type": "string"
+    },
+    "researched_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "prospect_list_id",
+    "prospect_id",
+    "prompt_hash"
+  ],
+  "rls": {
+    "read": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "delete": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    }
+  }
+}

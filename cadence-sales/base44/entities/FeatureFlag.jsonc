@@ -1,0 +1,120 @@
+{
+  "name": "FeatureFlag",
+  "type": "object",
+  "properties": {
+    "flag_key": {
+      "type": "string",
+      "description": "Unique feature flag key."
+    },
+    "description": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "internal",
+        "limited_rollout",
+        "general_available",
+        "retired"
+      ],
+      "default": "draft"
+    },
+    "rollout_type": {
+      "type": "string",
+      "enum": [
+        "organisation",
+        "role",
+        "percentage",
+        "allowlist",
+        "global"
+      ]
+    },
+    "allowed_organisation_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "allowed_roles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "rollout_percentage": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 percentage of approved pilot orgs."
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "owner_user_id": {
+      "type": "string",
+      "description": "Owner of this rollout."
+    },
+    "reason": {
+      "type": "string",
+      "description": "Why this flag exists."
+    },
+    "success_measure": {
+      "type": "string"
+    },
+    "rollback_condition": {
+      "type": "string"
+    },
+    "rollback_state": {
+      "type": "string",
+      "enum": [
+        "not_required",
+        "prepared",
+        "executed"
+      ],
+      "default": "not_required"
+    },
+    "linked_release_id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "flag_key",
+    "status",
+    "rollout_type"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

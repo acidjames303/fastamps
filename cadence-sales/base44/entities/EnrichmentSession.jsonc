@@ -1,0 +1,333 @@
+{
+  "name": "EnrichmentSession",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side, never from the client."
+    },
+    "created_by_user_id": {
+      "type": "string",
+      "description": "User who started this session."
+    },
+    "creator_membership_id": {
+      "type": "string",
+      "description": "Authoritative OrganisationMembership that authorised this job at creation."
+    },
+    "creator_membership_version": {
+      "type": "number",
+      "description": "Membership version at creation. The worker re-reads live membership and refuses to run below this version."
+    },
+    "required_capability": {
+      "type": "string",
+      "default": "providers",
+      "description": "Capability the creator must still hold for this job to continue."
+    },
+    "spending_limit": {
+      "type": "number",
+      "description": "Maximum paid provider calls permitted for this job. Zero means no paid providers."
+    },
+    "authorisation_status": {
+      "type": "string",
+      "enum": [
+        "authorised",
+        "revoked",
+        "expired"
+      ],
+      "enumColors": [
+        "green",
+        "red",
+        "gray"
+      ],
+      "default": "authorised",
+      "description": "Set to revoked when the worker finds the creator's access withdrawn; the job then makes no further provider calls."
+    },
+    "authorised_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "session_name": {
+      "type": "string",
+      "description": "Human-readable name, usually the prospect list name."
+    },
+    "prospect_list_id": {
+      "type": "string",
+      "description": "ProspectList this session enriches."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "queued",
+        "processing",
+        "paused",
+        "partially_completed",
+        "completed",
+        "cancelled",
+        "failed"
+      ],
+      "default": "draft",
+      "description": "Current session state. 'paused' means spending or authorisation halted processing."
+    },
+    "requested_fields": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "personal_email",
+          "alternative_email",
+          "mobile",
+          "direct_dial",
+          "company_phone",
+          "decision_maker_role",
+          "company_intelligence"
+        ]
+      },
+      "description": "Which fields the user asked to enrich."
+    },
+    "only_missing_fields": {
+      "type": "boolean",
+      "default": true,
+      "description": "If true (default), only fill empty fields. If false, check for newer info but never auto-overwrite."
+    },
+    "check_newer_info": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, re-check existing fields for newer data. Conflicts go to review, never auto-overwrite."
+    },
+    "force_refresh": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, re-runs the full search (AI research + provider waterfall) even when all requested fields are already present, to find new contacts and data."
+    },
+    "email_only": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, uses organisation memory, optional pattern inference and Apollo only. It never runs Base44 AI research or phone providers."
+    },
+    "provider_free_mode": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, never calls Apollo, Lusha or FullEnrich. Uses organisation memory, public web/AI name discovery and clearly labelled email-pattern inference. May consume Base44 Smart Actions."
+    },
+    "strict_zero_credit": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, uses only stored organisation data and deterministic email-pattern inference. No provider, AI, public-web or external fetch calls."
+    },
+    "infer_email_pattern": {
+      "type": "boolean",
+      "default": true,
+      "description": "Derive unverified same-domain email candidates from one known named employee without a provider call."
+    },
+    "skip_ai_research": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, skips all Base44 AI research (InvokeLLM) calls. Automatically true when email_only is on or batch size exceeds 10."
+    },
+    "single_best_contact": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, searches for and keeps only the single best-matched contact per company \u2014 saves provider credits by not enriching multiple people."
+    },
+    "widen_mobile_search": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, when no mobile is found for the chosen contacts, other named people at the company are checked for a mobile number."
+    },
+    "search_depth": {
+      "type": "string",
+      "enum": [
+        "standard",
+        "expanded",
+        "exhaustive"
+      ],
+      "default": "standard",
+      "description": "User-selected search depth. It never overrides the permitted search method or spending limits."
+    },
+    "find_stronger_decision_maker": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, searches for a stronger ICP-matched primary contact. Existing contact data is not silently overwritten."
+    },
+    "provider_order_snapshot": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Snapshot of provider priority order at session start."
+    },
+    "prospect_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Selected prospect IDs to enrich."
+    },
+    "items": {
+      "type": "array",
+      "description": "Per-prospect enrichment job items with status tracking.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "prospect_id": {
+            "type": "string"
+          },
+          "company_name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "processing",
+              "complete",
+              "partial",
+              "failed",
+              "cached",
+              "skipped",
+              "cancelled"
+            ]
+          },
+          "fields_found": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "fields_missing": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "fields_cached": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "provider_used": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "conflicts": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "total_records": {
+      "type": "number",
+      "default": 0
+    },
+    "queued_count": {
+      "type": "number",
+      "default": 0
+    },
+    "processing_count": {
+      "type": "number",
+      "default": 0
+    },
+    "completed_count": {
+      "type": "number",
+      "default": 0
+    },
+    "partial_count": {
+      "type": "number",
+      "default": 0
+    },
+    "failed_count": {
+      "type": "number",
+      "default": 0
+    },
+    "cached_count": {
+      "type": "number",
+      "default": 0
+    },
+    "smart_actions_estimated": {
+      "type": "number",
+      "default": 0
+    },
+    "smart_actions_consumed": {
+      "type": "number",
+      "default": 0
+    },
+    "external_provider_requests": {
+      "type": "number",
+      "default": 0
+    },
+    "provider_calls_made": {
+      "type": "number",
+      "default": 0,
+      "description": "Actual paid provider API calls made this session (for spending-control enforcement)."
+    },
+    "pattern_inferred_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Emails generated via pattern inference (no provider credit consumed)."
+    },
+    "spending_paused": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when spending controls or an authorisation check paused the session."
+    },
+    "spending_pause_reason": {
+      "type": "string",
+      "description": "Why the session was paused (e.g. spending_limit_reached, authorisation_revoked)."
+    },
+    "org_cache_hits": {
+      "type": "number",
+      "default": 0,
+      "description": "Fields satisfied from organisation data without a provider call."
+    },
+    "duplicate_requests_prevented": {
+      "type": "number",
+      "default": 0,
+      "description": "Provider requests prevented by idempotency checks."
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_activity_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "error_summary": {
+      "type": "string"
+    },
+    "correlation_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "created_by_user_id",
+    "prospect_list_id",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "delete": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    }
+  }
+}

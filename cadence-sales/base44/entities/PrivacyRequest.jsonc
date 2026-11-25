@@ -1,0 +1,148 @@
+{
+  "name": "PrivacyRequest",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side."
+    },
+    "request_type": {
+      "type": "string",
+      "enum": [
+        "access",
+        "correction",
+        "deletion",
+        "restriction",
+        "objection",
+        "portability",
+        "recording_access",
+        "other"
+      ]
+    },
+    "subject_name": {
+      "type": "string"
+    },
+    "subject_email": {
+      "type": "string"
+    },
+    "subject_phone": {
+      "type": "string"
+    },
+    "related_contact_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "related_company_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "received_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "unverified",
+        "verified",
+        "rejected"
+      ],
+      "default": "unverified"
+    },
+    "verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "verified_by_user_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "received",
+        "identity_check",
+        "in_progress",
+        "awaiting_information",
+        "completed",
+        "rejected",
+        "cancelled"
+      ],
+      "default": "received"
+    },
+    "assigned_user_id": {
+      "type": "string"
+    },
+    "due_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "rejection_reason": {
+      "type": "string"
+    },
+    "resolution_notes": {
+      "type": "string"
+    },
+    "export_reference": {
+      "type": "string",
+      "description": "Reference to a generated subject-access export file."
+    },
+    "export_expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the export download link expires."
+    },
+    "requested_by": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "request_type",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

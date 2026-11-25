@@ -1,0 +1,4 @@
+{
+  "name": "exportCampaignData",
+  "entry": "entry.ts"
+}

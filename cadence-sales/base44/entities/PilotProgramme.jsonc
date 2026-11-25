@@ -1,0 +1,232 @@
+{
+  "name": "PilotProgramme",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side."
+    },
+    "pilot_name": {
+      "type": "string",
+      "description": "Human-readable pilot name."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "proposed",
+        "preparing",
+        "onboarding",
+        "active",
+        "paused",
+        "review",
+        "completed",
+        "converted",
+        "discontinued"
+      ],
+      "default": "proposed"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "planned_end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "actual_end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "platform_owner_user_id": {
+      "type": "string",
+      "description": "Platform owner responsible for this pilot."
+    },
+    "customer_sponsor_name": {
+      "type": "string",
+      "description": "Named sponsor at the customer organisation."
+    },
+    "customer_sponsor_email": {
+      "type": "string"
+    },
+    "customer_admin_user_id": {
+      "type": "string",
+      "description": "Organisation admin user ID."
+    },
+    "expected_users": {
+      "type": "number",
+      "default": 2
+    },
+    "expected_callers": {
+      "type": "number",
+      "default": 2
+    },
+    "expected_campaigns": {
+      "type": "number",
+      "default": 1
+    },
+    "expected_monthly_calls": {
+      "type": "number",
+      "default": 500
+    },
+    "agreed_objectives": {
+      "type": "string",
+      "description": "What the pilot aims to prove or learn."
+    },
+    "success_criteria": {
+      "type": "string",
+      "description": "Measurable criteria for pilot success."
+    },
+    "usage_limits_snapshot": {
+      "type": "object",
+      "description": "Snapshot of agreed usage limits at pilot start."
+    },
+    "onboarding_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "completed"
+      ],
+      "default": "not_started"
+    },
+    "training_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "completed"
+      ],
+      "default": "not_started"
+    },
+    "technical_readiness_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "completed"
+      ],
+      "default": "not_started"
+    },
+    "compliance_readiness_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "completed"
+      ],
+      "default": "not_started"
+    },
+    "weekly_review_day": {
+      "type": "string",
+      "description": "Day of week for weekly pilot review."
+    },
+    "pilot_health": {
+      "type": "string",
+      "enum": [
+        "healthy",
+        "needs_attention",
+        "at_risk",
+        "paused",
+        "unknown"
+      ],
+      "default": "unknown"
+    },
+    "renewal_likelihood": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "unlikely",
+        "possible",
+        "likely",
+        "committed"
+      ],
+      "default": "unknown"
+    },
+    "expansion_potential": {
+      "type": "string",
+      "enum": [
+        "none",
+        "limited",
+        "moderate",
+        "strong"
+      ],
+      "default": "none"
+    },
+    "completion_summary": {
+      "type": "string"
+    },
+    "pilot_readiness_checks": {
+      "type": "object",
+      "description": "Map of readiness check key to { status, checked_at, notes }."
+    },
+    "activation_blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of blockers preventing activation."
+    },
+    "support_contact_configured": {
+      "type": "boolean",
+      "default": false
+    },
+    "privacy_contact_configured": {
+      "type": "boolean",
+      "default": false
+    },
+    "tenant_isolation_tested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "onboarding_session_scheduled_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "checkpoint_id": {
+      "type": "string",
+      "description": "Base44 sandbox checkpoint for this pilot."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "pilot_name",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

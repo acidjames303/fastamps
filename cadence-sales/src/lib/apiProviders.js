@@ -1,0 +1,90 @@
+import { Phone, Mail, PhoneCall, PhoneOutgoing, Users, Rocket, Table } from "lucide-react";
+
+// Provider config for the Settings connect cards. `connectedWhen` decides the
+// Connected badge from the loaded key map; `fields` drives the connect modal.
+export const PROVIDERS = [
+  {
+    id: "lusha",
+    name: "Lusha",
+    Icon: Phone,
+    group: "Enrichment",
+    blurb: "Reveals direct mobile numbers for decision-makers.",
+    accountUrl: "https://app.lusha.com/settings/api",
+    fields: [{ key: "LUSHA_API_KEY", label: "Lusha API key" }],
+    connectedWhen: (c) => !!c.LUSHA_API_KEY,
+  },
+  {
+    id: "fullenrich",
+    name: "FullEnrich",
+    Icon: Mail,
+    group: "Enrichment",
+    blurb: "Fallback for mobiles and emails Lusha can't resolve.",
+    accountUrl: "https://app.fullenrich.com/app/api",
+    fields: [{ key: "FULLENRICH_API_KEY", label: "FullEnrich API key" }],
+    connectedWhen: (c) => !!c.FULLENRICH_API_KEY,
+  },
+  {
+    id: "apollo",
+    name: "Apollo",
+    Icon: Users,
+    group: "Enrichment",
+    blurb: "Contact and company data enrichment.",
+    accountUrl: "https://app.apollo.io/settings/integrations",
+    fields: [{ key: "APOLLO_API_KEY", label: "Apollo API key" }],
+    connectedWhen: (c) => !!c.APOLLO_API_KEY,
+  },
+  {
+    id: "rocketreach",
+    name: "RocketReach",
+    Icon: Rocket,
+    group: "Enrichment",
+    blurb: "Additional source for direct dials and emails.",
+    accountUrl: "https://app.rocketreach.co/account",
+    fields: [{ key: "ROCKETREACH_API_KEY", label: "RocketReach API key" }],
+    connectedWhen: (c) => !!c.ROCKETREACH_API_KEY,
+  },
+  {
+    id: "googlesheets",
+    name: "Google Sheets",
+    Icon: Table,
+    group: "Data Sync",
+    blurb: "Sync call results and prospect data to Google Sheets.",
+    accountUrl: "https://console.cloud.google.com/apis/credentials",
+    fields: [{ key: "GOOGLE_SHEETS_API_KEY", label: "Google Service Account API key" }],
+    connectedWhen: (c) => !!c.GOOGLE_SHEETS_API_KEY,
+  },
+  {
+    id: "yay",
+    name: "Yay.com",
+    Icon: PhoneCall,
+    group: "Telephony",
+    blurb: "SIP credentials powering click-to-dial from the dialer.",
+    accountUrl: "https://yay.com",
+    fields: [
+      { key: "YAY_RESELLER", label: "Reseller ID" },
+      { key: "YAY_USER", label: "API user" },
+      { key: "YAY_PASSWORD", label: "API password" },
+      { key: "YAY_SIP_USER_UUID", label: "SIP user UUID" },
+    ],
+    connectedWhen: (c) => !!(c.YAY_RESELLER && c.YAY_USER && c.YAY_PASSWORD && c.YAY_SIP_USER_UUID),
+  },
+  {
+    id: "twilio",
+    name: "Twilio",
+    Icon: PhoneOutgoing,
+    group: "Telephony",
+    blurb: "Pure REST telephony — click-to-dial with no SIP or IP setup.",
+    accountUrl: "https://console.twilio.com",
+    fields: [
+      { key: "TWILIO_ACCOUNT_SID", label: "Account SID", help: "Starts with AC. Find it on the Twilio Console dashboard." },
+      { key: "TWILIO_AUTH_TOKEN", label: "Auth token", help: "Use the reveal button beside Auth Token in Twilio." },
+      { key: "TWILIO_FROM_NUMBER", label: "Twilio calling number", help: "Use E.164 format, for example +442012345678." },
+      { key: "TWILIO_API_KEY_SID", label: "API Key SID", required: false, advanced: true, help: "Starts with SK. Required only for calling directly inside the browser." },
+      { key: "TWILIO_API_KEY_SECRET", label: "API Key Secret", required: false, advanced: true, help: "Paste the secret created with the API Key SID." },
+      { key: "TWILIO_TWIML_APP_SID", label: "TwiML App SID", required: false, advanced: true, help: "Starts with AP. Required only for browser calling." },
+    ],
+    connectedWhen: (c) => !!(c.TWILIO_ACCOUNT_SID && c.TWILIO_AUTH_TOKEN && c.TWILIO_FROM_NUMBER),
+  },
+];
+
+export const ALL_KEYS = PROVIDERS.flatMap((p) => p.fields.map((f) => f.key));

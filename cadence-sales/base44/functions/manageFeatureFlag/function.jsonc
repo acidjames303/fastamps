@@ -1,0 +1,4 @@
+{
+  "name": "manageFeatureFlag",
+  "entry": "entry.ts"
+}

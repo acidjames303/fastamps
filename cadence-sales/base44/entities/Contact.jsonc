@@ -1,0 +1,345 @@
+{
+  "name": "Contact",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "company": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string",
+      "description": "Reference to the normalised Company record for this contact's employer"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "mobile": {
+      "type": "string",
+      "description": "A number deterministically classified as a UK mobile. Never a landline."
+    },
+    "direct_dial": {
+      "type": "string",
+      "description": "A direct office line for this person, not a mobile."
+    },
+    "company_phone": {
+      "type": "string",
+      "description": "Company switchboard, kept separate from the person's own number."
+    },
+    "phone_type": {
+      "type": "string",
+      "enum": [
+        "mobile",
+        "geographic",
+        "non_geographic",
+        "freephone",
+        "premium",
+        "corporate",
+        "voip",
+        "switchboard",
+        "unknown",
+        "invalid"
+      ],
+      "default": "unknown",
+      "description": "Deterministic UK classification of this contact's number."
+    },
+    "phone_status": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "provider_returned_unverified",
+        "verified",
+        "manually_confirmed",
+        "employment_mismatch",
+        "contact_match_requires_review",
+        "conflict_review",
+        "invalid",
+        "switchboard_fallback"
+      ],
+      "default": "unknown",
+      "description": "Verification state. Provider-returned data starts unverified and is never automatically 'good'."
+    },
+    "phone_source": {
+      "type": "string"
+    },
+    "phone_retrieved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "phone_verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "phone_confidence": {
+      "type": "number",
+      "default": 0
+    },
+    "phone_review_reason": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    },
+    "linkedin": {
+      "type": "string"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "employee_range": {
+      "type": "string"
+    },
+    "turnover_estimate": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "cluster": {
+      "type": "string"
+    },
+    "profile_type": {
+      "type": "string"
+    },
+    "number_status": {
+      "type": "string",
+      "enum": [
+        "untested",
+        "good",
+        "bad",
+        "wrong_person",
+        "dnc"
+      ],
+      "default": "untested"
+    },
+    "failed_attempts": {
+      "type": "number",
+      "default": 0
+    },
+    "call_count": {
+      "type": "number",
+      "default": 0
+    },
+    "last_called": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "call_status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "attempted",
+        "connected",
+        "interested",
+        "not_interested",
+        "callback"
+      ],
+      "default": "new"
+    },
+    "ai_brief": {
+      "type": "string"
+    },
+    "ai_pitch": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "campaign_id": {
+      "type": "string"
+    },
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; set from the authenticated user, never trusted from the client."
+    },
+    "owner_user_id": {
+      "type": "string"
+    },
+    "data_source": {
+      "type": "string",
+      "description": "Where the contact data originated: manual, import, lusha, fullenrich, ai_web."
+    },
+    "source_reference": {
+      "type": "string"
+    },
+    "source_url": {
+      "type": "string"
+    },
+    "source_collected_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_import_id": {
+      "type": "string"
+    },
+    "lawful_basis": {
+      "type": "string",
+      "enum": [
+        "legitimate_interest",
+        "consent",
+        "contract",
+        "legal_obligation",
+        "public_interest",
+        "vital_interest",
+        "unassigned"
+      ],
+      "default": "unassigned"
+    },
+    "lawful_basis_recorded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "lawful_basis_recorded_by": {
+      "type": "string"
+    },
+    "business_contact": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this is a business (corporate) contact."
+    },
+    "personal_contact_flag": {
+      "type": "boolean",
+      "default": false,
+      "description": "Flagged if this may be a personal/non-business contact."
+    },
+    "consent_status": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "given",
+        "refused",
+        "withdrawn",
+        "not_required"
+      ],
+      "default": "unknown"
+    },
+    "consent_recorded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "consent_source": {
+      "type": "string"
+    },
+    "marketing_status": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "permitted",
+        "review_required",
+        "suppressed",
+        "objected",
+        "expired"
+      ],
+      "default": "unknown"
+    },
+    "do_not_call": {
+      "type": "boolean",
+      "default": false
+    },
+    "do_not_call_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "do_not_call_reason": {
+      "type": "string"
+    },
+    "do_not_call_source": {
+      "type": "string"
+    },
+    "do_not_call_recorded_by": {
+      "type": "string"
+    },
+    "suppression_scope": {
+      "type": "string",
+      "enum": [
+        "none",
+        "contact",
+        "phone_number",
+        "company"
+      ],
+      "default": "none"
+    },
+    "suppression_expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_compliance_check_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "compliance_review_status": {
+      "type": "string",
+      "enum": [
+        "not_reviewed",
+        "review_required",
+        "reviewed",
+        "approved",
+        "flagged"
+      ],
+      "default": "not_reviewed"
+    },
+    "compliance_notes": {
+      "type": "string"
+    },
+    "retention_review_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "screening_status": {
+      "type": "string",
+      "enum": [
+        "not_checked",
+        "manually_checked",
+        "provider_checked",
+        "check_expired",
+        "review_required"
+      ],
+      "default": "not_checked"
+    },
+    "screened_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "screening_expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "anonymised_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "deleted_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "full_name",
+    "phone",
+    "organisation_id"
+  ],
+  "rls": {
+    "read": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "delete": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    }
+  }
+}

@@ -1,0 +1,181 @@
+{
+  "name": "ProductFeedback",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side."
+    },
+    "submitted_by_user_id": {
+      "type": "string"
+    },
+    "user_role": {
+      "type": "string",
+      "description": "Role of the user at submission time."
+    },
+    "feedback_type": {
+      "type": "string",
+      "enum": [
+        "confusion",
+        "friction",
+        "missing_capability",
+        "improvement",
+        "positive_feedback",
+        "bug",
+        "other"
+      ]
+    },
+    "page": {
+      "type": "string",
+      "description": "App route where feedback was given."
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "expected_behaviour": {
+      "type": "string"
+    },
+    "current_behaviour": {
+      "type": "string"
+    },
+    "frequency": {
+      "type": "string",
+      "enum": [
+        "once",
+        "occasionally",
+        "frequently",
+        "always"
+      ],
+      "description": "How often this occurs."
+    },
+    "impact": {
+      "type": "string",
+      "enum": [
+        "blocker",
+        "major",
+        "minor",
+        "cosmetic",
+        "positive"
+      ],
+      "description": "Workflow impact."
+    },
+    "workaround": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "reviewing",
+        "planned",
+        "not_planned",
+        "delivered",
+        "duplicate"
+      ],
+      "default": "new"
+    },
+    "product_area": {
+      "type": "string",
+      "enum": [
+        "core_calling",
+        "callbacks",
+        "notes_history",
+        "campaigns",
+        "results_reporting",
+        "meetings_handoff",
+        "team_management",
+        "onboarding",
+        "compliance",
+        "billing",
+        "performance",
+        "other"
+      ]
+    },
+    "linked_support_request_id": {
+      "type": "string"
+    },
+    "linked_release_id": {
+      "type": "string",
+      "description": "ReleaseRecord that delivered this feedback."
+    },
+    "product_decision": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "planned",
+        "not_planned",
+        "delivered",
+        "duplicate"
+      ],
+      "default": "pending"
+    },
+    "decision_reason": {
+      "type": "string"
+    },
+    "priority_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Internal prioritisation score."
+    },
+    "affected_organisations_count": {
+      "type": "number",
+      "default": 1
+    },
+    "affected_users_count": {
+      "type": "number",
+      "default": 1
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewed_by_user_id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "submitted_by_user_id",
+    "feedback_type",
+    "title",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

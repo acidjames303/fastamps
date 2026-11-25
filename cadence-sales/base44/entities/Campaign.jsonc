@@ -1,0 +1,306 @@
+{
+  "name": "Campaign",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Campaign name"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Client this campaign is delivered for"
+    },
+    "client_reference": {
+      "type": "string",
+      "description": "Client's internal reference code"
+    },
+    "owner_user_id": {
+      "type": "string"
+    },
+    "manager_user_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "assigned_user_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "ready",
+        "active",
+        "paused",
+        "completed",
+        "archived"
+      ],
+      "default": "draft"
+    },
+    "objective": {
+      "type": "string"
+    },
+    "offer": {
+      "type": "string"
+    },
+    "icp": {
+      "type": "string"
+    },
+    "target_profile": {
+      "type": "string"
+    },
+    "industry_focus": {
+      "type": "string"
+    },
+    "target_industries": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "target_company_sizes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "target_locations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "target_roles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "call_opener": {
+      "type": "string"
+    },
+    "talking_points": {
+      "type": "string"
+    },
+    "qualification_questions": {
+      "type": "string"
+    },
+    "objection_guidance": {
+      "type": "string"
+    },
+    "client_visible_summary": {
+      "type": "string"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "daily_call_target": {
+      "type": "number"
+    },
+    "total_call_target": {
+      "type": "number"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "urgent"
+      ],
+      "default": "normal"
+    },
+    "timezone": {
+      "type": "string",
+      "default": "Europe/London"
+    },
+    "calling_days": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "mon",
+          "tue",
+          "wed",
+          "thu",
+          "fri",
+          "sat",
+          "sun"
+        ]
+      }
+    },
+    "calling_hours": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "string"
+        },
+        "end": {
+          "type": "string"
+        }
+      }
+    },
+    "reporting_frequency": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "fortnightly",
+        "monthly"
+      ],
+      "default": "weekly"
+    },
+    "internal_notes": {
+      "type": "string"
+    },
+    "script": {
+      "type": "string"
+    },
+    "clusters": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "contact_count": {
+      "type": "number",
+      "default": 0
+    },
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; set from the authenticated user."
+    },
+    "client_controller_name": {
+      "type": "string",
+      "description": "Data controller/client for this campaign."
+    },
+    "campaign_purpose": {
+      "type": "string",
+      "description": "Stated purpose of the campaign for compliance."
+    },
+    "approved_target_profile": {
+      "type": "string"
+    },
+    "permitted_countries": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "United Kingdom"
+      ]
+    },
+    "lawful_basis_reference": {
+      "type": "string",
+      "description": "Reference to the LawfulBasisRecord for this campaign."
+    },
+    "suppression_policy": {
+      "type": "string",
+      "enum": [
+        "standard",
+        "strict",
+        "custom"
+      ],
+      "default": "standard"
+    },
+    "recording_policy": {
+      "type": "string",
+      "enum": [
+        "disabled",
+        "opt_in",
+        "notice",
+        "inherit_org"
+      ],
+      "default": "inherit_org"
+    },
+    "callers_may_save_email_drafts": {
+      "type": "boolean",
+      "default": false,
+      "description": "When true, assigned SDRs may save IR follow-up drafts to their own mailbox. Otherwise only admin / BDM / solo SDR can."
+    },
+    "client_privacy_url": {
+      "type": "string"
+    },
+    "compliance_owner": {
+      "type": "string",
+      "description": "User ID of the compliance owner for this campaign."
+    },
+    "compliance_status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "awaiting_review",
+        "approved",
+        "changes_required",
+        "expired",
+        "suspended"
+      ],
+      "default": "draft"
+    },
+    "compliance_approved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "compliance_approved_by": {
+      "type": "string"
+    },
+    "compliance_review_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "name",
+    "organisation_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

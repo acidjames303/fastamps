@@ -1,0 +1,151 @@
+{
+  "name": "CampaignAssignment",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side, never from the client."
+    },
+    "campaign_id": {
+      "type": "string",
+      "description": "Campaign this assignment belongs to"
+    },
+    "company_id": {
+      "type": "string",
+      "description": "Company assigned to a caller"
+    },
+    "contact_id": {
+      "type": "string",
+      "description": "Optional specific contact (contact-level assignment)"
+    },
+    "assigned_user_id": {
+      "type": "string",
+      "description": "Caller assigned to this company/contact. Empty = unassigned."
+    },
+    "assigned_by_user_id": {
+      "type": "string",
+      "description": "Manager who made the assignment"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "unassigned",
+        "assigned",
+        "in_progress",
+        "follow_up",
+        "completed",
+        "suppressed",
+        "removed"
+      ],
+      "default": "unassigned"
+    },
+    "assignment_method": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "even_distribution",
+        "round_robin",
+        "imported",
+        "reassigned"
+      ],
+      "description": "How this assignment was created"
+    },
+    "assigned_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_call_log_id": {
+      "type": "string",
+      "description": "Most recent CallLog for this assignment"
+    },
+    "next_task_id": {
+      "type": "string",
+      "description": "Next open Task for this assignment"
+    },
+    "attempt_count": {
+      "type": "number",
+      "default": 0
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "urgent"
+      ],
+      "default": "normal"
+    },
+    "lock_version": {
+      "type": "number",
+      "default": 1,
+      "description": "Optimistic concurrency version"
+    },
+    "reassignment_reason": {
+      "type": "string",
+      "description": "Reason when this assignment was reassigned"
+    },
+    "locked_by_user_id": {
+      "type": "string",
+      "description": "User currently calling this assignment"
+    },
+    "locked_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "campaign_id",
+    "company_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

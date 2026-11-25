@@ -1,0 +1,155 @@
+{
+  "name": "CallRecording",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; resolved server-side."
+    },
+    "call_log_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "contact_id": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string",
+      "description": "Telephony provider: twilio, yay, manual."
+    },
+    "provider_recording_id": {
+      "type": "string"
+    },
+    "recording_url_reference": {
+      "type": "string",
+      "description": "Opaque reference to retrieve the recording server-side. Never a public URL."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "recording",
+        "paused",
+        "stopped",
+        "unavailable",
+        "pending_deletion",
+        "deleted"
+      ],
+      "default": "none"
+    },
+    "recording_started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "recording_ended_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notice_status": {
+      "type": "string",
+      "enum": [
+        "not_shown",
+        "shown",
+        "acknowledged"
+      ],
+      "default": "not_shown"
+    },
+    "consent_status": {
+      "type": "string",
+      "enum": [
+        "not_required",
+        "given",
+        "refused",
+        "pending"
+      ],
+      "default": "not_required"
+    },
+    "consent_recorded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "consent_recorded_by": {
+      "type": "string"
+    },
+    "retention_expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this recording should be deleted per retention policy."
+    },
+    "access_level": {
+      "type": "string",
+      "enum": [
+        "restricted",
+        "admin_only",
+        "manager_plus"
+      ],
+      "default": "admin_only"
+    },
+    "deletion_status": {
+      "type": "string",
+      "enum": [
+        "not_requested",
+        "requested",
+        "pending",
+        "completed",
+        "failed"
+      ],
+      "default": "not_requested"
+    },
+    "deletion_requested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "deletion_requested_by": {
+      "type": "string"
+    },
+    "deleted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "call_log_id",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "name": "migrateCallClassification",
+  "entry": "entry.ts"
+}

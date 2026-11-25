@@ -1,0 +1,4 @@
+{
+  "name": "runSmokeTest",
+  "entry": "entry.ts"
+}

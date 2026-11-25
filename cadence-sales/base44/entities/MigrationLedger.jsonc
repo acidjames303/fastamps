@@ -1,0 +1,108 @@
+{
+  "name": "MigrationLedger",
+  "type": "object",
+  "properties": {
+    "batch_id": {
+      "type": "string",
+      "description": "Migration batch this row belongs to. Re-running the same batch never duplicates rows for the same record."
+    },
+    "run_mode": {
+      "type": "string",
+      "enum": [
+        "preview",
+        "execute",
+        "revert"
+      ],
+      "default": "preview"
+    },
+    "entity": {
+      "type": "string",
+      "description": "Entity type the row concerns, e.g. Prospect, Company, Contact, TargetListMember."
+    },
+    "source_id": {
+      "type": "string",
+      "description": "Record ID in the source organisation."
+    },
+    "source_organisation_id": {
+      "type": "string"
+    },
+    "destination_organisation_id": {
+      "type": "string"
+    },
+    "destination_id": {
+      "type": "string",
+      "description": "Record ID in the destination organisation, once created or linked."
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "moved",
+        "linked",
+        "merged",
+        "created",
+        "skipped",
+        "review_required"
+      ],
+      "description": "What the migration did, or would do."
+    },
+    "match_reason": {
+      "type": "string",
+      "description": "Why this record was matched, created, skipped or flagged: website_domain, legal_name, provider_evidence, placeholder_or_not_a_person, etc."
+    },
+    "previous_values": {
+      "type": "object",
+      "description": "Values before the migration, sufficient to reverse it."
+    },
+    "new_values": {
+      "type": "object",
+      "description": "Values written by the migration."
+    },
+    "notes": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "applied",
+        "reverted",
+        "planned"
+      ],
+      "default": "planned"
+    },
+    "created_by_user_id": {
+      "type": "string"
+    },
+    "applied_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "batch_id",
+    "entity",
+    "action",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

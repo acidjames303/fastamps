@@ -1,0 +1,4 @@
+{
+  "name": "cleanupTestData",
+  "entry": "entry.ts"
+}

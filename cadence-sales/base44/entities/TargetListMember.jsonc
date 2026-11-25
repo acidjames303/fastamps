@@ -1,0 +1,72 @@
+{
+  "name": "TargetListMember",
+  "type": "object",
+  "properties": {
+    "target_list_id": {
+      "type": "string",
+      "description": "Reference to the Campaign (target list) this membership belongs to"
+    },
+    "company_id": {
+      "type": "string",
+      "description": "Company linked to the target list. When set, all of this company's contacts are eligible decision-makers for the list."
+    },
+    "contact_id": {
+      "type": "string",
+      "description": "Optional specific contact. When set, only this contact is eligible (contact-level membership)."
+    },
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; set from the authenticated user, never trusted from the client."
+    },
+    "owner_user_id": {
+      "type": "string",
+      "description": "User who added this membership."
+    }
+  },
+  "required": [
+    "target_list_id",
+    "company_id",
+    "organisation_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "data.organisation_id": "{{user.data.organisation_id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

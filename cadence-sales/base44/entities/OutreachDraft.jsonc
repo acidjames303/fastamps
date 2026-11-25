@@ -1,0 +1,161 @@
+{
+  "name": "OutreachDraft",
+  "type": "object",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Organisation owner, scoped by RLS"
+    },
+    "owner_user_id": {
+      "type": "string",
+      "description": "Personal mailbox user, scoped by RLS"
+    },
+    "brand_key": {
+      "type": "string",
+      "default": "fastamps"
+    },
+    "recipient_to": {
+      "type": "string"
+    },
+    "recipient_cc": {
+      "type": "string"
+    },
+    "recipient_bcc": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "body_text": {
+      "type": "string"
+    },
+    "source_lead_id": {
+      "type": "string",
+      "description": "Verified owner-scoped prospect record used to generate this draft"
+    },
+    "identity_warning": {
+      "type": "string",
+      "description": "Identity conflict detected after the draft was generated; do not approve or export until recreated."
+    },
+    "research_source_url": {
+      "type": "string",
+      "description": "Human-approved evidence supporting any research claim in the message"
+    },
+    "quoted_text": {
+      "type": "string",
+      "description": "Optional editable quoted original message, kept after signature in draft export."
+    },
+    "signature_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "approved_hold"
+      ],
+      "default": "draft",
+      "description": "Content-review only. approved_hold is never eligible for automatic delivery. No send queue is implemented."
+    },
+    "approved_at": {
+      "type": "string"
+    },
+    "scheduled_at": {
+      "type": "string",
+      "description": "User-requested future time in UTC; informational until send engine is independently approved."
+    },
+    "delivery_lock": {
+      "type": "string",
+      "enum": [
+        "held",
+        "scheduled_hold"
+      ],
+      "default": "held",
+      "description": "No backend dispatch service may run from this field."
+    },
+    "schedule_timezone": {
+      "type": "string"
+    },
+    "approved_by_user_id": {
+      "type": "string"
+    },
+    "approval_hash": {
+      "type": "string",
+      "description": "SHA-256 snapshot fingerprint of exact approved content; must be rechecked before any future send queue."
+    },
+    "provider": {
+      "type": "string",
+      "enum": [
+        "gmail",
+        "outlook",
+        "none"
+      ],
+      "default": "none"
+    },
+    "campaign_id": {
+      "type": "string"
+    },
+    "contact_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organisation_id",
+    "owner_user_id",
+    "subject",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "$and": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "data.owner_user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "read": {
+      "$and": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "data.owner_user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "update": {
+      "$and": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "data.owner_user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "delete": {
+      "$and": [
+        {
+          "data.organisation_id": "{{user.data.organisation_id}}"
+        },
+        {
+          "data.owner_user_id": "{{user.id}}"
+        }
+      ]
+    }
+  }
+}
