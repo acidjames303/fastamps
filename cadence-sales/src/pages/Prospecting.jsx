@@ -810,7 +810,7 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
           )}
           <p className={`${embedded ? "text-sm" : ""} text-slate-500 ${embedded ? "" : "mt-2"}`}>
             {embedded
-              ? "Talk through the campaign, review the accounts Cadence finds, enrich them, then push them into a campaign."
+              ? "Import a company list (every Excel worksheet merges), then enrich and call — or build a brief from scratch."
               : "Talk through the campaign, review the accounts Cadence finds, enrich them, and push them into a campaign."}
           </p>
         </div>
@@ -923,9 +923,16 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
         onRunFinished={handleRunFinished}
         onOpenEnrich={openProviderEnrich}
         onBriefSaved={async () => { if (listId) await pickList(listId); }}
+        preferImport={embedded}
       />
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      {/* Under Campaigns → Find prospects the builder IS the workspace. Keep the
+          classic brief/company tools, but do not let them dominate the first screen. */}
+      <details className={`rounded-2xl border border-slate-200 bg-white ${embedded ? "" : "open"}`}>
+        <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-slate-700 sm:px-5">
+          {embedded ? "Classic brief & company tools (optional)" : "Brief, ICP and company tools"}
+        </summary>
+      <div className="grid gap-6 border-t border-slate-100 p-4 sm:p-5 lg:grid-cols-2">
         <div className="space-y-4">
           {campaignContext ? <CampaignBriefEditor campaignId={campaignContext} onSaved={data=>{setBrief(data.brief);setIcp(data.icp);}} /> : <BriefInput brief={brief} setBrief={setBrief} onStart={!listId ? startList : undefined} starting={starting} name={newListName} onNameChange={!listId ? setNewListName : undefined} />}
 
@@ -988,6 +995,7 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
           />
         </div>
       </div>
+      </details>
 
       {listId && (
         <div className="space-y-6">

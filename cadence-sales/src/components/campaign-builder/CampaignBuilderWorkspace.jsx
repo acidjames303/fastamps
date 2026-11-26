@@ -30,12 +30,17 @@ export default function CampaignBuilderWorkspace({
   onRunFinished,
   onOpenEnrich,
   onBriefSaved,
+  // Campaigns → Find prospects should land on Import — James's path — not the old four equal cards.
+  preferImport = false,
 }) {
   const { user } = useAuth();
   const scope = listId || "new";
   const [draft, setDraft] = useState(() => loadDraft(scope) || emptyDraft());
   const [method, setMethod] = useState(() => {
     if (new URLSearchParams(window.location.search).get("import") === "1") return "import";
+    // Find prospects (embedded) always opens Import → Company list so the live
+    // path matches what James uses — other methods stay one click away.
+    if (preferImport) return "import";
     return loadDraft(scope)?.method || "";
   });
   const [templates, setTemplates] = useState([]);

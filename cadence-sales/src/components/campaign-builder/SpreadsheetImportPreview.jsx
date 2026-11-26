@@ -256,9 +256,9 @@ export default function SpreadsheetImportPreview({ listId, existingProspects = [
             <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
           ) : (
             <div className="relative h-12 w-16" aria-hidden="true">
-              <span className="absolute left-1/2 top-1/2 -ml-5 -mt-6 h-12 w-9 rounded-md border-2 border-slate-200 bg-emerald-100 transition-transform duration-300 group-hover:-translate-x-6 group-hover:rotate-[-22deg]" />
-              <span className="absolute left-1/2 top-1/2 -ml-5 -mt-6 h-12 w-9 rounded-md border-2 border-slate-200 bg-sky-100 transition-transform duration-300 group-hover:-translate-y-2" />
-              <span className="absolute left-1/2 top-1/2 -ml-5 -mt-6 h-12 w-9 rounded-md border-2 border-slate-200 bg-amber-100 transition-transform duration-300 group-hover:translate-x-6 group-hover:rotate-[22deg]" />
+              <span className="absolute left-1/2 top-1/2 -ml-5 -mt-6 h-12 w-9 -translate-x-6 rotate-[-22deg] rounded-md border-2 border-slate-200 bg-emerald-100 transition-transform duration-300 group-hover:-translate-x-8" />
+              <span className="absolute left-1/2 top-1/2 -ml-5 -mt-6 h-12 w-9 -translate-y-2 rounded-md border-2 border-slate-200 bg-sky-100 transition-transform duration-300 group-hover:-translate-y-3" />
+              <span className="absolute left-1/2 top-1/2 -ml-5 -mt-6 h-12 w-9 translate-x-6 rotate-[22deg] rounded-md border-2 border-slate-200 bg-amber-100 transition-transform duration-300 group-hover:translate-x-8" />
             </div>
           )}
           <p className="text-sm font-medium text-slate-800">

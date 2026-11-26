@@ -149,3 +149,16 @@ James reported the Company list still looked unchanged (CI-003 was merge logic +
 - Checkpoints: `6b08038085787a512f9e0de8` (before) · `6b08038d6e589fe7ef45645d` (CI-015)
 - Live bundle `index-B6_qyEG-.js`
 
+---
+
+## CI-016 — 26 Nov 2026 ~10:25 (Europe/London)
+
+**Root cause of “I can’t see anything”:** Find prospects showed the old four equal Get Started cards plus the legacy brief/company form. Company list UX only appeared after an extra click, so most of the screen never changed.
+
+**Fix (visible on first paint):**
+- Campaigns → Find prospects now **opens Import → Company list by default**
+- Get Started redesigned: large “Start with the research you already have” / **Open company list** primary card
+- Legacy brief/company tools collapsed under “Classic brief & company tools (optional)”
+- Fanned worksheet icons always visible (not hover-only)
+- Checkpoints: `6b080933…` before · `6b08095a…` CI-016
+- Live bundle `index-D0ikBivf.js`

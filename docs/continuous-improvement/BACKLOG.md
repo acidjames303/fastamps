@@ -25,7 +25,8 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | CI-006 | P2 | Admin Inbox qualified leads + copyable lead summary | Published |
 | CI-007 | P2 | Results Client pack = report CSV + lead summaries | Published |
 | CI-003 | P1 | Multi-worksheet + multi-file account import merges all sheets | Done |
-| CI-015 | P2 | Visible Company list import UX (fan icons, file queue, worksheet breakdown) | This cycle |
+| CI-015 | P2 | Visible Company list import UX (fan icons, file queue, worksheet breakdown) | Done |
+| CI-016 | P1 | Find prospects opens Company list; import-primary landing; hide legacy clutter | This cycle |
 
 ## Parking lot
 
