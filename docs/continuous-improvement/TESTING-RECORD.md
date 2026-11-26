@@ -60,3 +60,16 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | Site deploy `--publish --build` | **Pass** | bundle `index-B6_qyEG-.js` (changed from `index-CIflvdVW.js`) |
 | Live strings | **Pass** | Campaigns · Find prospects · Drag and drop or · choose file · Worksheets merged · Reading every worksheet |
 | Visual preview | **Pass** | `/opt/cursor/artifacts/ci015-company-list-ux/` fanned icons (auth blocks live click-through) |
+
+## CI-020 Today→Dialer resume — 26 Nov 2026 ~12:15 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Unit: `campaign-next-action.test.mjs` | **Pass** | Includes `resume_dial` when `lastDialResume` set; callbacks still win |
+| `npm run build` (cadence-sales) | **Pass** | → `index-DyWTON_g.js` |
+| Sandbox write + checkpoint | **Pass** | before `6b081fa3…` · CI-020 `6b081fe0…` |
+| Site deploy `--publish --build` | **Pass** | cadence.smartfunction.io |
+| Live bundle strings | **Pass** | Continue at · Open Dialer · resume_dial · cadence_last_dial_ · Resume where you left off (`index-DyWTON_g.js`) |
+| Component preview screenshots | **Pass** | `/opt/cursor/artifacts/ci020-today-dialer-resume/` + `docs/audit/ci020-today-dialer-resume/` |
+| Authenticated live click-through | **Blocked** | No invitation login session in this agent environment |
+| Secrets / schema / live email | **Pass** | localStorage only; no API/schema changes |

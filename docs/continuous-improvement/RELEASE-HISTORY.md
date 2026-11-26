@@ -204,3 +204,20 @@ Phase 2 guided workflow:
 3. Unified import — removed Import CSV tab; redirects into Find prospects Import  
 
 Live bundle `index-B0J2UY2L.js`.
+
+---
+
+## CI-020 — 26 Nov 2026 ~12:15 (Europe/London)
+
+Overnight cycle. **Today → Dialer one-click resume.**
+
+**Before:** Callers returning to Cadence opened Today, then had to remember which campaign/company they were on and re-navigate Dialer manually (queue position only resumed after reopening the same list).
+
+**After:** Dialer persists a `lastDialResume` snapshot (company, list, campaign name). Today’s **what next** strip shows **Continue at {company}** with **Open Dialer** → `/dialer?list=&company=`. Callbacks still outrank resume.
+
+**Where:** Today (`/app`) → Open Dialer; Dialer saves resume whenever the active company changes.
+
+**Checks:** unit `campaign-next-action.test.mjs` pass · `npm run build` pass · live `index-DyWTON_g.js` with Continue at / Open Dialer / cadence_last_dial_  
+Checkpoints: `6b081fa3…` before · `6b081fe0…` CI-020  
+
+**Next:** CI-021 post-enrichment results + next action in place.

@@ -14,6 +14,7 @@ import { firstName, formatLastCalled } from "@/lib/today";
 import { useAuth } from "@/lib/AuthContext";
 import ContextHelp from "@/components/help/ContextHelp";
 import TodayNextStep from "@/components/today/TodayNextStep";
+import { readLastDialResume } from "@/lib/dialPosition";
 
 const CAMPAIGN_KEY = "cadence_today_campaign";
 
@@ -30,8 +31,13 @@ export default function Today() {
   const [showOpps, setShowOpps] = useState(false);
   const [resultsFilter, setResultsFilter] = useState(null);
   const [pendingIrs, setPendingIrs] = useState(0);
+  const [lastDialResume, setLastDialResume] = useState(null);
   const isAdmin = ["platform_owner", "organisation_admin"].includes(user?.app_role);
   const canProspect = ["platform_owner", "organisation_admin", "sales_manager"].includes(user?.app_role);
+
+  useEffect(() => {
+    setLastDialResume(readLastDialResume(user?.id));
+  }, [user?.id, work]);
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 30000);
@@ -171,6 +177,7 @@ export default function Today() {
         canProspect={canProspect}
         isAdmin={isAdmin}
         hasCallingWork={hasWork}
+        lastDialResume={lastDialResume}
         onStartCalling={startCalling}
         starting={starting}
       />

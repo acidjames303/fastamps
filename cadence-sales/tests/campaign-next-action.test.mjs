@@ -50,4 +50,20 @@ import { campaignNextAction, todayNextAction } from "../src/lib/campaignNextActi
   assert.match(next.href, /tab=prospect/);
 }
 
+{
+  const next = todayNextAction({
+    lastDialResume: {
+      companyId: "co1",
+      companyName: "Acme Ltd",
+      listId: "camp1",
+      campaignName: "Oxi-Tech",
+    },
+  });
+  assert.equal(next.kind, "resume");
+  assert.equal(next.id, "resume_dial");
+  assert.match(next.href, /company=co1/);
+  assert.match(next.href, /list=camp1/);
+  assert.match(next.title, /Acme Ltd/);
+}
+
 console.log("campaign-next-action.test.mjs: ok");

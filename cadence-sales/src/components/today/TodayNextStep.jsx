@@ -13,6 +13,7 @@ export default function TodayNextStep({
   canProspect = false,
   isAdmin = false,
   hasCallingWork = false,
+  lastDialResume = null,
   onStartCalling,
   starting = false,
 }) {
@@ -24,6 +25,7 @@ export default function TodayNextStep({
     canProspect,
     isAdmin,
     hasCallingWork,
+    lastDialResume,
   });
 
   const Icon = next.kind === "inbox" ? Inbox : next.kind === "prospect" ? Target : PhoneCall;

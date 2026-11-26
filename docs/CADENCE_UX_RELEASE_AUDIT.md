@@ -5,7 +5,7 @@
 **App id:** from `BASE44_APP_ID` / `VITE_BASE44_APP_ID` only  
 **Working branch:** `cursor/continuous-improvement-agent-2475`  
 **Repo HEAD at publish:** see latest commit on that branch  
-**Live bundle after CI-018:** `index-Cnv1JfxO.js`
+**Live bundle after CI-020:** `index-DyWTON_g.js`
 
 ---
 
@@ -128,6 +128,44 @@ JP confirmed CI-018 hub is visible. This cycle targets connected workflow fricti
 
 ### Next three priorities (for following runs)
 
-1. Today → Dialer continuity: show which campaign/contact was last worked with one-click resume.  
-2. After enrichment completes: surface useful results + recommended next (call / outreach) in-place.  
-3. Manager “needs attention” rollup across campaigns without leaving Campaigns.
+1. ~~Today → Dialer continuity~~ → **CI-020 done** (below).  
+2. After enrichment completes: surface useful results + recommended next (call / outreach) in-place → **CI-021 next**.  
+3. Manager “needs attention” rollup across campaigns without leaving Campaigns → **CI-022**.
+
+---
+
+## Phase 2 — CI-020 Today→Dialer resume (26 Nov 2026 ~12:15 Europe/London)
+
+Overnight timer cycle. Highest-impact remaining item from Phase 2 reassessment.
+
+### Problem → fix
+
+| Before | After | Where |
+|---|---|---|
+| Returning callers had to remember campaign + company and dig back into Dialer | Today shows **Continue at {company}** · **Open Dialer** deep-links to `/dialer?list=&company=` | Today (`/app`) |
+| Queue position only helped after already opening the same list | Dialer writes `lastDialResume` (companyId, name, listId, campaignName) on company change | Dialer |
+| Risk of resume overriding urgent work | Callbacks / overdue still outrank resume in `todayNextAction` | Today · what next |
+
+### Verification
+
+| Check | Result |
+|---|---|
+| Unit `campaign-next-action.test.mjs` | Pass (resume + priority) |
+| `npm run build` | Pass → `index-DyWTON_g.js` |
+| Live cadence.smartfunction.io | **`index-DyWTON_g.js`** contains Continue at · Open Dialer · cadence_last_dial_ |
+| Screenshots | `docs/audit/ci020-today-dialer-resume/` |
+| Authenticated E2E | Still blocked (no login session) |
+| Checkpoints | `6b081fa3…` before · `6b081fe0…` CI-020 |
+
+### How to see it live
+
+1. Open https://cadence.smartfunction.io and sign in (caller or any dialling role).  
+2. Work a company in **Dialer** (list + company).  
+3. Go to **Today**.  
+4. With no due/overdue callbacks, the strip should read **Continue at {company}** with **Open Dialer**.
+
+### Next (do not re-audit)
+
+- **CI-021** Post-enrichment results + next action in place  
+- **CI-022** Manager needs-attention rollup on Campaigns  
+- **CI-004** Research reuse across Dialer & Outreach  

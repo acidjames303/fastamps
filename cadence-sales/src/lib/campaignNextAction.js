@@ -78,6 +78,7 @@ export function todayNextAction({
   canProspect = false,
   isAdmin = false,
   hasCallingWork = false,
+  lastDialResume = null,
 } = {}) {
   if (dueNow > 0 || overdue > 0) {
     return {
@@ -88,6 +89,22 @@ export function todayNextAction({
         : `${overdue} overdue — clear these before new dialling`,
       cta: "Start calling",
       kind: "call",
+    };
+  }
+
+  if (lastDialResume?.companyId) {
+    const company = lastDialResume.companyName || "your last company";
+    const campaign = lastDialResume.campaignName ? ` · ${lastDialResume.campaignName}` : "";
+    const params = new URLSearchParams();
+    if (lastDialResume.listId) params.set("list", lastDialResume.listId);
+    params.set("company", lastDialResume.companyId);
+    return {
+      id: "resume_dial",
+      title: `Continue at ${company}`,
+      detail: `Resume where you left off${campaign}`,
+      cta: "Open Dialer",
+      kind: "resume",
+      href: `/dialer?${params.toString()}`,
     };
   }
 

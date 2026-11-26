@@ -17,7 +17,7 @@ import { useAuth } from "@/lib/AuthContext";
 import useTwilioDevice from "@/hooks/useTwilioDevice";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { fetchListCompanyIds, resolveWorkingListId } from "@/lib/targetLists";
-import { readDialPosition, saveDialPosition, clearDialPosition } from "@/lib/dialPosition";
+import { readDialPosition, saveDialPosition, clearDialPosition, saveLastDialResume } from "@/lib/dialPosition";
 import { Link } from "react-router-dom";
 import MobileCallBar from "@/components/dialer/MobileCallBar";
 import DialPad from "@/components/dialer/DialPad";
@@ -224,11 +224,20 @@ export default function Dialer() {
 
   // Remember the caller's place in this queue, so returning to the Dialer picks
   // up on the company they were on. Cleared once the queue is finished.
+  // Also keep a Today-facing "last resume" snapshot for one-click continue.
   useEffect(() => {
     if (!queueKey || !companies?.length) return;
-    if (company?.id) saveDialPosition(user?.id, queueKey, company.id);
-    else clearDialPosition(user?.id, queueKey);
-  }, [company?.id, queueKey, companies?.length, user?.id]);
+    if (company?.id) {
+      saveDialPosition(user?.id, queueKey, company.id);
+      saveLastDialResume(user?.id, {
+        companyId: company.id,
+        companyName: company.name || "",
+        listId: listId || targetList?.id || "",
+        campaignName: targetList?.name || "",
+        queueKey,
+      });
+    } else clearDialPosition(user?.id, queueKey);
+  }, [company?.id, company?.name, queueKey, companies?.length, user?.id, listId, targetList?.id, targetList?.name]);
 
   // Which queue accounts actually have a mobile on one of their contacts. This
   // is what the Mobiles-only toggle filters on, using the same deterministic UK
