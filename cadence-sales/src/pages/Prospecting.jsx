@@ -800,7 +800,7 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
           )}
           <p className={`${embedded ? "text-sm" : ""} text-slate-500 ${embedded ? "" : "mt-2"}`}>
             {embedded
-              ? "Start with pills, dictation, a written brief, or an import — then enrich and call."
+              ? "Import research, describe a campaign, continue existing work, or start from a template — then enrich and call."
               : "Talk through the campaign, review the accounts Cadence finds, enrich them, and push them into a campaign."}
           </p>
         </div>
@@ -914,6 +914,10 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
         onOpenEnrich={openProviderEnrich}
         onBriefSaved={async () => { if (listId) await pickList(listId); }}
         preferImport={false}
+        continueCampaigns={targetLists}
+        continueLists={lists}
+        listCounts={listCounts}
+        onContinueList={openListSelection}
       />
 
       {/* Builder is the main start. Keep classic tools available but out of the way. */}

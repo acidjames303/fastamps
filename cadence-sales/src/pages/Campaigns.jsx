@@ -249,7 +249,9 @@ export default function Campaigns() {
         <div>
           <h1 className="font-display text-4xl font-semibold tracking-tight text-slate-900">Campaigns</h1>
           <p className="text-slate-500 mt-2 max-w-2xl">
-            One place to create a campaign, find or import prospects, then start calling — or push the work to your team.
+            {tab === "prospect"
+              ? "Find prospects — import research, describe a campaign, continue existing work, or start from a template."
+              : "One place to create a campaign, find or import prospects, then start calling — or push the work to your team."}
           </p>
         </div>
         {tab === "campaigns" && isManager && (

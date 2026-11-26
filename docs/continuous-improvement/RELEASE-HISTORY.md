@@ -178,3 +178,17 @@ Fluent Find prospects start — less clunky, same core features.
 - Prompt research / more tools collapsed so they do not compete with starting
 
 Checkpoints: `6b0813a9…` before · `6b0813d3…` CI-017
+
+---
+
+## CI-018 — 26 Nov 2026 ~11:25 (Europe/London)
+
+Four-way Find prospects hub matching how James starts work:
+
+1. Import existing research  
+2. Describe my campaign (pills / dictate / type)  
+3. Continue an existing campaign  
+4. Start from a template  
+
+Workflow chips: Start → Companies → Review → Enrich → Call/Outreach → Results.  
+Live bundle `index-Cnv1JfxO.js`. Audit: `docs/CADENCE_UX_RELEASE_AUDIT.md`.

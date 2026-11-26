@@ -31,8 +31,12 @@ export default function CampaignBuilderWorkspace({
   onOpenEnrich,
   onBriefSaved,
   // When true and no saved method, open Import. Default false so Find prospects
-  // shows all four start options (guide / dictate / write / import).
+  // shows the four-way start hub (import / describe / continue / template).
   preferImport = false,
+  continueCampaigns = [],
+  continueLists = [],
+  listCounts = {},
+  onContinueList,
 }) {
   const { user } = useAuth();
   const scope = listId || "new";
@@ -220,7 +224,7 @@ export default function CampaignBuilderWorkspace({
             onClick={backToStart}
             className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800"
           >
-            <ArrowLeft className="h-4 w-4" /> All the ways in
+            <ArrowLeft className="h-4 w-4" /> How do you want to find prospects?
           </button>
           <ImportResearchSection
             listId={listId}
@@ -238,11 +242,21 @@ export default function CampaignBuilderWorkspace({
               onClick={backToStart}
               className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800"
             >
-              <ArrowLeft className="h-4 w-4" /> All the ways in
+              <ArrowLeft className="h-4 w-4" /> How do you want to find prospects?
               {(draft.brief || draft.icp) && <span className="text-slate-400">· your draft is kept</span>}
             </button>
           ) : (
-            <GetStartedCards onSelect={setMethod} activeMethod={method} />
+            <GetStartedCards
+              onSelect={setMethod}
+              activeMethod={method}
+              campaigns={continueCampaigns}
+              lists={continueLists}
+              listCounts={listCounts}
+              templates={templateChoices}
+              currentListId={listId}
+              onContinueList={onContinueList}
+              onLoadTemplate={loadTemplate}
+            />
           )}
 
           {method === "guided" && (

@@ -27,7 +27,8 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | CI-003 | P1 | Multi-worksheet + multi-file account import merges all sheets | Done |
 | CI-015 | P2 | Visible Company list import UX (fan icons, file queue, worksheet breakdown) | Done |
 | CI-016 | P1 | Find prospects opens Company list; import-primary landing; hide legacy clutter | Done |
-| CI-017 | P1 | Fluent Find prospects hub — equal start methods, declutter import | This cycle |
+| CI-017 | P1 | Fluent Find prospects hub — equal start methods, declutter import | Done |
+| CI-018 | P1 | Four-way Find prospects start (import/describe/continue/template) | This cycle |
 
 ## Parking lot
 
