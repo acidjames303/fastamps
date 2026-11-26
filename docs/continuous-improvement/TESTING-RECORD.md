@@ -148,4 +148,6 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | Unit: `enrichment-next-action.test.mjs` | **Pass** | `/outreach?page=campaign_studio` |
 | `npm run build` | **Pass** | → `index-Bl6OesW8.js` (pre-deploy) |
 | Secrets / send / OAuth | **Pass** | No live mailbox or send exercised |
-| Site deploy | Pending | After commit + push |
+| Site deploy `--publish --build` | **Pass** | Live `index-dbYBU5IZ.js` on cadence.smartfunction.io |
+| Live bundle strings | **Pass** | Use as target sectors · Inbox waits until you connect · Open campaign in Outreach · page=campaign_studio |
+| Authenticated Outreach click-through | **Blocked** | No login session; owner connects email tomorrow (CI-035) |

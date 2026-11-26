@@ -361,4 +361,5 @@ Live `index-1R3E4eHI.js` on cadence.smartfunction.io. Rollback SHA: `d5624f0`.
 
 Frontend-only. No OAuth, send, secrets, schema, or credit changes.
 
+Live `index-dbYBU5IZ.js` on cadence.smartfunction.io. Rollback SHA: `e103e49`.  
 **Next:** CI-025 phone candidate expansion · CI-035 owner connects email.
