@@ -272,6 +272,7 @@ export default function SelectiveEnrichDialog({
         connectedProviders,
         // The ticked providers decide both the wording and the counts.
         selectedProviders: enabledProviders ?? connectedList,
+        existingInfoMode,
       }),
     [
       prospects,
@@ -282,6 +283,7 @@ export default function SelectiveEnrichDialog({
       connectedProviders,
       enabledProviders,
       connectedList,
+      existingInfoMode,
     ],
   );
 
