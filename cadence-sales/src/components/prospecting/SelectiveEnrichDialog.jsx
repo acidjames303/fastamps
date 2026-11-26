@@ -70,6 +70,37 @@ function applyMaximumSearchPreset(setters) {
   setConfirmOpen(false);
 }
 
+// Phone runs: Lusha-first maximum — every known person, plus extras beside import mobiles.
+function applyMaximumPhonePreset(setters) {
+  const {
+    setFindOptions,
+    setSearchMethod,
+    setSearchDepth,
+    setPhoneCoverage,
+    setFindStrongerDecisionMaker,
+    setExistingInfoMode,
+    setConfirmOpen,
+  } = setters;
+  setFindOptions(["direct_phone", "personal_email"]);
+  setSearchMethod("providers");
+  setSearchDepth("exhaustive");
+  setPhoneCoverage({ best: true, otherKnown: true, discover: true });
+  setFindStrongerDecisionMaker(true);
+  setExistingInfoMode("newer");
+  setConfirmOpen(false);
+}
+
+function isMaximumPhoneConfig({ searchMethod, searchDepth, phoneCoverage, existingInfoMode }) {
+  return (
+    searchMethod === "providers"
+    && searchDepth === "exhaustive"
+    && phoneCoverage?.best
+    && phoneCoverage?.otherKnown
+    && phoneCoverage?.discover
+    && existingInfoMode === "newer"
+  );
+}
+
 const FIND_OPTIONS = [
   {
     key: "decision_maker",
@@ -146,24 +177,23 @@ export default function SelectiveEnrichDialog({
   const phoneIntent = intent === "phone";
 
   // Default to Maximum search: with unlimited Lusha, the expensive miss is
-  // under-searching (emails without mobiles), not credit spend.
+  // under-searching (emails without mobiles / skipped import numbers), not credit spend.
   const [findOptions, setFindOptions] = useState(
     phoneIntent
       ? ["direct_phone", "personal_email"]
       : ["decision_maker", "personal_email", "direct_phone", "company_information"],
   );
   const [searchMethod, setSearchMethod] = useState("providers");
-  const [searchDepth, setSearchDepth] = useState(phoneIntent ? "expanded" : "exhaustive");
+  const [searchDepth, setSearchDepth] = useState("exhaustive");
   const [phoneCoverage, setPhoneCoverage] = useState({
     best: true,
     otherKnown: true,
-    discover: !phoneIntent,
+    discover: true,
   });
   const [advancedOpen, setAdvancedOpen] = useState(false);
-  // Phone runs default to "newer" so Lusha can return a second mobile beside an
-  // import number (stored as lusha_mobile — never an overwrite).
+  // "newer" = also seek Lusha mobiles beside import numbers (never overwrite).
   const [existingInfoMode, setExistingInfoMode] = useState("newer");
-  const [findStrongerDecisionMaker, setFindStrongerDecisionMaker] = useState(intent === "better" || !phoneIntent);
+  const [findStrongerDecisionMaker, setFindStrongerDecisionMaker] = useState(true);
   const [includeAlternativeEmail, setIncludeAlternativeEmail] = useState(false);
   const [companyFields, setCompanyFields] = useState(["company_phone", "company_intelligence"]);
   const [inferEmailPattern, setInferEmailPattern] = useState(true);
@@ -199,27 +229,21 @@ export default function SelectiveEnrichDialog({
       if (connectedList.includes("fullenrich")) defaults.push("fullenrich");
       setEnabledProviders(defaults.length ? defaults : [...connectedList]);
     }
-    // With unlimited Lusha, open on Connected providers + Maximum search so
-    // every known contact is checked for a mobile, not just the lead.
+    // With unlimited Lusha, open on Maximum search (including extras beside imports).
     if (connectedList.includes("lusha") && !intentAppliedRef.current) {
       intentAppliedRef.current = true;
-      if (phoneIntent) {
-        setSearchMethod("providers");
-        setSearchDepth("expanded");
-        setPhoneCoverage({ best: true, otherKnown: true, discover: false });
-        setFindOptions(["direct_phone", "personal_email"]);
-        setExistingInfoMode("missing");
-      } else {
-        applyMaximumSearchPreset({
-          setFindOptions,
-          setSearchMethod,
-          setSearchDepth,
-          setPhoneCoverage,
-          setFindStrongerDecisionMaker,
-          setExistingInfoMode,
-          setConfirmOpen,
-        });
-      }
+      const setters = {
+        setFindOptions,
+        setSearchMethod,
+        setSearchDepth,
+        setPhoneCoverage,
+        setFindStrongerDecisionMaker,
+        setExistingInfoMode,
+        setConfirmOpen,
+      };
+      if (phoneIntent) applyMaximumPhonePreset(setters);
+      else applyMaximumSearchPreset(setters);
+      setAdvancedOpen(false);
     } else if (connectedList.includes("lusha")) {
       setSearchMethod((current) => (current === "free" ? "providers" : current));
     }
@@ -380,11 +404,19 @@ export default function SelectiveEnrichDialog({
           <div>
             <h3 className="flex items-center gap-2 font-display text-xl font-semibold text-slate-900">
               <Sparkles className="h-5 w-5 text-emerald-600" />
-              Enrich {prospects.length} record{prospects.length === 1 ? "" : "s"}
+              {phoneIntent
+                ? `Enrich phones · ${prospects.length} record${prospects.length === 1 ? "" : "s"}`
+                : `Enrich ${prospects.length} record${prospects.length === 1 ? "" : "s"}`}
             </h3>
             <p className="mt-1 text-sm text-slate-500">
-              <span className="font-medium text-slate-600">{estimate.recordsToProcess}</span> need
-              information · {estimate.cached} already contain the requested data
+              {phoneIntent
+                ? `${estimate.cached} already have a number — Maximum still seeks extras beside them via Lusha`
+                : (
+                  <>
+                    <span className="font-medium text-slate-600">{estimate.recordsToProcess}</span> need
+                    information · {estimate.cached} already contain the requested data
+                  </>
+                )}
             </p>
           </div>
           <button
@@ -398,223 +430,198 @@ export default function SelectiveEnrichDialog({
         </div>
 
         <div className="space-y-6 overflow-y-auto px-5 py-5 sm:px-6">
-          <section className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-emerald-950">Maximum search</p>
-                <p className="mt-1 text-xs leading-relaxed text-emerald-900/80">
-                  Find ICP people, personal emails and mobiles for every already-known contact —
-                  then discover more relevant people if needed. One clear full-power run.
-                </p>
+          {(() => {
+            const maxPhoneOn = isMaximumPhoneConfig({
+              searchMethod, searchDepth, phoneCoverage, existingInfoMode,
+            });
+            const maxGeneralOn =
+              searchMethod === "providers"
+              && searchDepth === "exhaustive"
+              && phoneCoverage.otherKnown
+              && phoneCoverage.discover
+              && existingInfoMode === "newer";
+            const maximumOn = phoneIntent ? maxPhoneOn : maxGeneralOn;
+            return (
+              <section className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-emerald-950">
+                      {phoneIntent ? "Maximum Lusha phone search" : "Maximum search"}
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-emerald-900/80">
+                      {phoneIntent
+                        ? "Lusha checks every named contact — including people who already have an import mobile. Extra numbers sit beside the import (never overwrite). FullEnrich only fills gaps still blank after Lusha."
+                        : "ICP people, emails and mobiles for every known contact, then discover more if needed. Extra Lusha mobiles sit beside import numbers."}
+                    </p>
+                    {maximumOn && (
+                      <ul className="mt-3 space-y-1 text-xs font-medium text-emerald-900">
+                        <li>✓ Every already-known contact</li>
+                        <li>✓ Extra mobiles beside existing import numbers</li>
+                        <li>✓ Discover more ICP people when useful</li>
+                        <li>✓ Lusha first{connectedList.includes("fullenrich") ? " · FullEnrich for remaining blanks" : ""}</li>
+                      </ul>
+                    )}
+                  </div>
+                  {!maximumOn && (
+                    <Button
+                      type="button"
+                      className="rounded-full bg-emerald-600 hover:bg-emerald-500 shrink-0"
+                      onClick={() => {
+                        const setters = {
+                          setFindOptions,
+                          setSearchMethod,
+                          setSearchDepth,
+                          setPhoneCoverage,
+                          setFindStrongerDecisionMaker,
+                          setExistingInfoMode,
+                          setConfirmOpen,
+                        };
+                        if (phoneIntent) applyMaximumPhonePreset(setters);
+                        else applyMaximumSearchPreset(setters);
+                        setAdvancedOpen(false);
+                      }}
+                    >
+                      <Search className="w-4 h-4 mr-1.5" />
+                      Use Maximum
+                    </Button>
+                  )}
+                </div>
+                {maximumOn && (
+                  <p className="mt-3 text-[11px] font-medium text-emerald-800">
+                    Ready — check the estimate below, then start.
+                  </p>
+                )}
+              </section>
+            );
+          })()}
+
+          {/* Providers stay visible — one decision that matters for Lusha vs FullEnrich. */}
+          <section className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Providers
+            </p>
+            {connectedList.length ? (
+              <div className="space-y-2">
+                {connectedList.map((provider) => {
+                  const checked = (enabledProviders || connectedList).includes(provider);
+                  const isFullEnrich = provider === "fullenrich";
+                  const isLusha = provider === "lusha";
+                  return (
+                    <label key={provider} className="flex cursor-pointer items-start gap-2 text-sm text-slate-700">
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={(value) => {
+                          setConfirmOpen(false);
+                          setSearchMethod("providers");
+                          setEnabledProviders((current) => {
+                            const active = current || [...connectedList];
+                            return value === true
+                              ? [...new Set([...active, provider])]
+                              : active.filter((item) => item !== provider);
+                          });
+                        }}
+                        className="mt-0.5"
+                      />
+                      <span>
+                        <span className="font-medium">{PROVIDER_LABELS[provider] || provider}</span>
+                        {isLusha && (
+                          <span className="mt-0.5 block text-xs leading-relaxed text-slate-500">
+                            Primary — unlimited credits · mobiles for every named contact, including extras beside imports.
+                          </span>
+                        )}
+                        {isFullEnrich && (
+                          <span className="mt-0.5 block text-xs leading-relaxed text-amber-800">
+                            Limited credits — only blanks still missing after Lusha. Never emails or discovery.
+                          </span>
+                        )}
+                      </span>
+                    </label>
+                  );
+                })}
               </div>
-              <Button
-                type="button"
-                className="rounded-full bg-emerald-600 hover:bg-emerald-500 shrink-0"
-                onClick={() =>
-                  applyMaximumSearchPreset({
-                    setFindOptions,
-                    setSearchMethod,
-                    setSearchDepth,
-                    setPhoneCoverage,
-                    setFindStrongerDecisionMaker,
-                    setExistingInfoMode,
-                    setConfirmOpen,
-                  })
-                }
-              >
-                <Search className="w-4 h-4 mr-1.5" />
-                Use Maximum search
-              </Button>
-            </div>
-            {searchDepth === "exhaustive" && phoneCoverage.otherKnown && phoneCoverage.discover && searchMethod === "providers" && (
-              <p className="mt-3 text-[11px] font-medium text-emerald-800">
-                Maximum search is selected — review the estimate below, then start.
+            ) : (
+              <p className="text-xs text-amber-700">
+                No providers connected. Connect Lusha in Settings to retrieve numbers.
               </p>
             )}
           </section>
 
-          <section>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-slate-400">
-              What do you want to find?
-            </p>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {FIND_OPTIONS.map((option) => {
-                const checked = findOptions.includes(option.key);
-                return (
-                  <label
-                    key={option.key}
-                    className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition-colors ${
-                      checked
-                        ? "border-emerald-500 bg-emerald-50"
-                        : "border-slate-200 hover:bg-slate-50"
-                    }`}
-                  >
-                    <Checkbox
-                      checked={checked}
-                      onCheckedChange={() => toggleFindOption(option.key)}
-                      className="mt-0.5"
-                    />
-                    <span>
-                      <span className="block text-sm font-semibold text-slate-900">{option.label}</span>
-                      <span className="mt-0.5 block text-xs leading-relaxed text-slate-500">
-                        {option.detail}
-                      </span>
-                    </span>
-                  </label>
-                );
-              })}
-            </div>
-
-            {findOptions.includes("personal_email") && inferEmailPattern && (
-              <div className="mt-3 flex items-start gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
-                <ShieldCheck className="mt-0.5 h-4 w-4 flex-none" />
-                <span>
-                  Known company email formats will be used first at no cost. Inferred emails remain
-                  marked unverified.
-                </span>
-              </div>
-            )}
-
-            {showFreePhoneWarning && (
-              <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3">
-                <p className="flex items-start gap-2 text-xs leading-relaxed text-amber-800">
-                  <AlertCircle className="mt-0.5 h-4 w-4 flex-none" />
-                  <span>
-                    Free inference cannot retrieve new phone numbers. Cadence will only reuse phone
-                    numbers already stored in your organisation.
-                  </span>
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <Button
-                    onClick={() => setFreePhoneAcknowledged(true)}
-                    variant="outline"
-                    className="rounded-full border-amber-300 bg-white text-amber-900 hover:bg-amber-100"
-                  >
-                    Continue with existing data only
-                  </Button>
-                  <Button
-                    onClick={() => selectMethod("providers")}
-                    disabled={!connectedList.length}
-                    className="rounded-full bg-emerald-600 hover:bg-emerald-500"
-                  >
-                    Use connected providers
-                  </Button>
-                </div>
-                {!connectedList.length && (
-                  <p className="mt-2 text-xs text-amber-700">
-                    No provider is connected yet — connect one in Settings to retrieve new numbers.
-                  </p>
-                )}
-              </div>
-            )}
-          </section>
-
-          <section>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-slate-400">
-              How should Cadence search?
-            </p>
-            <div className="space-y-2">
-              {SEARCH_METHODS.map((method) => (
-                <RadioCard
-                  key={method.key}
-                  checked={searchMethod === method.key}
-                  label={method.label}
-                  detail={method.detail}
-                  badge={method.cost}
-                  onClick={() => selectMethod(method.key)}
-                />
-              ))}
-            </div>
-            {searchMethod === "providers" && (
-              <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                  Connected providers
-                </p>
-                {connectedList.length ? (
-                  <div className="space-y-2">
-                    {connectedList.map((provider) => {
-                      const checked = (enabledProviders || connectedList).includes(provider);
-                      const isFullEnrich = provider === "fullenrich";
-                      return (
-                        <label key={provider} className="flex cursor-pointer items-start gap-2 text-sm text-slate-700">
-                          <Checkbox
-                            checked={checked}
-                            onCheckedChange={(value) => {
-                              setConfirmOpen(false);
-                              setEnabledProviders((current) => {
-                                const active = current || [...connectedList];
-                                return value === true
-                                  ? [...new Set([...active, provider])]
-                                  : active.filter((item) => item !== provider);
-                              });
-                            }}
-                            className="mt-0.5"
-                          />
-                          <span>
-                            <span className="font-medium">{PROVIDER_LABELS[provider] || provider}</span>
-                            {isFullEnrich && (
-                              <span className="mt-0.5 block text-xs leading-relaxed text-amber-800">
-                                Limited credits — only looks up a phone for named people who still have no number (after Lusha). Never emails or discovery.
-                              </span>
-                            )}
-                          </span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p className="text-xs text-amber-700">
-                    No providers are connected. Connect one in Settings to use this method.
-                  </p>
-                )}
-              </div>
-            )}
-          </section>
-
-          <section>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-slate-400">
-              Search depth
-            </p>
-            <div className="grid gap-2 sm:grid-cols-3">
-              {SEARCH_DEPTHS.map((depth) => (
-                <RadioCard
-                  key={depth.key}
-                  checked={searchDepth === depth.key}
-                  label={depth.label}
-                  detail={depth.detail}
-                  onClick={() => {
-                    setSearchDepth(depth.key);
-                    setConfirmOpen(false);
-                  }}
-                />
-              ))}
-            </div>
-            {searchDepth === "exhaustive" && (
-              <div className="mt-2 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                <AlertCircle className="mt-0.5 h-4 w-4 flex-none" />
-                Exhaustive search uses every source permitted by the selected search method and
-                spending limits. It cannot enable a provider or Smart Action by itself.
-              </div>
-            )}
-          </section>
-
-          {estimate.phoneSelected && (
+          {!phoneIntent && (
             <section>
               <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-slate-400">
-                Phone coverage
+                What do you want to find?
               </p>
-              <PhoneCoverageOptions
-                value={phoneCoverage}
-                onChange={(next) => {
-                  setPhoneCoverage(next);
-                  setConfirmOpen(false);
-                }}
-              />
-              <p className="mt-2 text-xs leading-relaxed text-slate-500">
-                Connected providers reveal details for named contacts — they do not discover every
-                employee at a company.
-              </p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {FIND_OPTIONS.map((option) => {
+                  const checked = findOptions.includes(option.key);
+                  return (
+                    <label
+                      key={option.key}
+                      className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition-colors ${
+                        checked
+                          ? "border-emerald-500 bg-emerald-50"
+                          : "border-slate-200 hover:bg-slate-50"
+                      }`}
+                    >
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={() => toggleFindOption(option.key)}
+                        className="mt-0.5"
+                      />
+                      <span>
+                        <span className="block text-sm font-semibold text-slate-900">{option.label}</span>
+                        <span className="mt-0.5 block text-xs leading-relaxed text-slate-500">
+                          {option.detail}
+                        </span>
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+              {findOptions.includes("personal_email") && inferEmailPattern && (
+                <div className="mt-3 flex items-start gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 flex-none" />
+                  <span>
+                    Known company email formats will be used first at no cost. Inferred emails remain
+                    marked unverified.
+                  </span>
+                </div>
+              )}
+              {showFreePhoneWarning && (
+                <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3">
+                  <p className="flex items-start gap-2 text-xs leading-relaxed text-amber-800">
+                    <AlertCircle className="mt-0.5 h-4 w-4 flex-none" />
+                    <span>
+                      Free inference cannot retrieve new phone numbers. Cadence will only reuse phone
+                      numbers already stored in your organisation.
+                    </span>
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button
+                      onClick={() => setFreePhoneAcknowledged(true)}
+                      variant="outline"
+                      className="rounded-full border-amber-300 bg-white text-amber-900 hover:bg-amber-100"
+                    >
+                      Continue with existing data only
+                    </Button>
+                    <Button
+                      onClick={() => selectMethod("providers")}
+                      disabled={!connectedList.length}
+                      className="rounded-full bg-emerald-600 hover:bg-emerald-500"
+                    >
+                      Use connected providers
+                    </Button>
+                  </div>
+                </div>
+              )}
             </section>
+          )}
+
+          {phoneIntent && (
+            <p className="text-xs leading-relaxed text-slate-500">
+              Looking for mobiles and emails on named contacts. Depth, discovery and “missing only”
+              live under Advanced if you need to trim the run.
+            </p>
           )}
 
           <section>
@@ -626,7 +633,7 @@ export default function SelectiveEnrichDialog({
               <span>
                 <span className="block text-sm font-semibold text-slate-900">Advanced options</span>
                 <span className="block text-xs text-slate-500">
-                  Refresh rules, stronger contact, known email patterns and company fields
+                  Search depth, phone coverage, missing-only mode, email patterns
                 </span>
               </span>
               {advancedOpen ? (
@@ -638,6 +645,59 @@ export default function SelectiveEnrichDialog({
 
             {advancedOpen && (
               <div className="mt-3 space-y-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    How should Cadence search?
+                  </p>
+                  <div className="space-y-2">
+                    {SEARCH_METHODS.map((method) => (
+                      <RadioCard
+                        key={method.key}
+                        checked={searchMethod === method.key}
+                        label={method.label}
+                        detail={method.detail}
+                        badge={method.cost}
+                        onClick={() => selectMethod(method.key)}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Search depth
+                  </p>
+                  <div className="grid gap-2 sm:grid-cols-3">
+                    {SEARCH_DEPTHS.map((depth) => (
+                      <RadioCard
+                        key={depth.key}
+                        checked={searchDepth === depth.key}
+                        label={depth.label}
+                        detail={depth.detail}
+                        onClick={() => {
+                          setSearchDepth(depth.key);
+                          setConfirmOpen(false);
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {estimate.phoneSelected && (
+                  <div>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      Phone coverage
+                    </p>
+                    <PhoneCoverageOptions
+                      value={phoneCoverage}
+                      onChange={(next) => {
+                        setPhoneCoverage(next);
+                        setConfirmOpen(false);
+                      }}
+                    />
+                  </div>
+                )}
+
                 <div>
                   <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
                     Existing information
@@ -652,7 +712,7 @@ export default function SelectiveEnrichDialog({
                     <RadioCard
                       checked={existingInfoMode === "newer"}
                       label="Also seek extra mobiles beside existing numbers"
-                      detail="Recommended when an import mobile might be wrong. Keeps the import number and stores any extra Lusha mobile beside it for review."
+                      detail="Recommended with unlimited Lusha. Keeps the import number and stores any extra Lusha mobile beside it for review."
                       onClick={() => setExistingInfoMode("newer")}
                     />
                   </div>

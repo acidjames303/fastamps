@@ -289,6 +289,19 @@ Previously Lusha phone reveal skipped anyone who already had a mobile — so add
 
 Live `index-D0LQ5sRG.js`. Rollback `cb89447`.
 
+---
+
+## CI-029 — 26 Nov 2026 ~18:50 (Europe/London)
+
+**Simplify Enrich phones UX** — same enrichment calls, less clutter.
+
+- Opens on **Maximum Lusha phone search** (every contact + extras beside imports)
+- Providers stay visible; Search depth / coverage / missing-only moved under Advanced
+- Fixed phone intent resetting to “missing only” (which blocked additive Lusha)
+
+Live `index-uH--n_dp.js`. Rollback `affeb08`.
+
+
 
 ---
 

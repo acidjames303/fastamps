@@ -40,6 +40,7 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | CI-026 | P1 | BDM Split data: even / territory / industry / dictate | Done · live `index-B7DR3dFn.js` |
 | CI-022 | P2 | Manager needs-attention rollup on Campaigns | Done · live `index--5WydKF3.js` |
 | CI-028 | P1 | Pilot phone audit: persist additive Lusha + Phone audit CSV | Done · live `index-DqF9udQx.js` |
+| CI-029 | P2 | Simplify enrich-phones UX; Maximum Lusha default + extras | Done · live `index-uH--n_dp.js` |
 
 ## Parking lot
 
