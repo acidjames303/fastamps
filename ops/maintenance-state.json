@@ -1,0 +1,41 @@
+{
+  "app": "FastAmps Connect",
+  "production_url": "https://connect.fastamps.com",
+  "updated_at": "2026-11-26T18:23:45.761Z",
+  "last_health_check": null,
+  "last_health_status": null,
+  "last_spa_asset": null,
+  "last_verified_release": {
+    "verdict": "VERIFIED",
+    "checked_at": "2026-11-26T18:23:45.761Z",
+    "git_head": "4285fcd0a959ddc7b4aac2bfae3f13ef5dd4a20b",
+    "spa_js": "assets/index-Ct1Q8Oqd.js",
+    "spa_js_sha256": "806aefac30e1b6ae"
+  },
+  "last_alerts": [],
+  "open_incidents": [],
+  "recent_fixes": [],
+  "outstanding_maintenance_tasks": [
+    "Confirm GitHub Actions secrets BASE44_APP_ID, BASE44_API_KEY, CONNECT_QA_* are set for acidjames303/fastamps",
+    "Optionally set repository variable EXPECTED_SPA_JS to pin SPA fingerprint",
+    "Optionally set HEALTH_WEBHOOK_URL for Slack/email bridge",
+    "Rotate QA cohort passwords (no Base44 password-change API from harness)",
+    "Review npm audit high findings in next weekly session"
+  ],
+  "monitoring": {
+    "production_health_check": "CONFIGURED_PENDING_CI_SECRETS",
+    "mechanism": "ops/scripts/production-health-check.mjs + GitHub Actions schedule",
+    "ai_invoked": false,
+    "local_verify_release": "VERIFIED"
+  },
+  "commercial_safeguards": {
+    "genuine_links_must_remain_draft": true,
+    "giftbit_live_auto_fulfilment": "blocked",
+    "incentive_rules_locked": true
+  },
+  "ai_usage_policy": {
+    "routine_monitoring": "zero AI calls",
+    "weekly_improvement_session": "max one small UX change when healthy",
+    "emergency": "targeted investigation only"
+  }
+}

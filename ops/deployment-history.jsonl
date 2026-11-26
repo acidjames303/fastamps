@@ -1,0 +1,2 @@
+{"at":"2026-11-26T18:21:00.000Z","verdict":"VERIFIED","note":"Initial guardian baseline — live SPA assets/index-Ct1Q8Oqd.js matched fresh local rebuild; Installer.membership_status present; genuine Links draft","spa_js":"assets/index-Ct1Q8Oqd.js","git_head_at_audit":"4285fcd0a959ddc7b4aac2bfae3f13ef5dd4a20b"}
+{"at":"2026-11-26T18:23:45.761Z","verdict":"VERIFIED","git_head":"4285fcd0a959ddc7b4aac2bfae3f13ef5dd4a20b","branch":"cursor/security-maintenance-guardian-fb1b","spa_js":"assets/index-Ct1Q8Oqd.js","spa_js_sha256":"806aefac30e1b6ae"}
