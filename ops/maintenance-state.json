@@ -1,10 +1,10 @@
 {
   "app": "FastAmps Connect",
   "production_url": "https://connect.fastamps.com",
-  "updated_at": "2026-11-26T18:23:45.761Z",
-  "last_health_check": null,
-  "last_health_status": null,
-  "last_spa_asset": null,
+  "updated_at": "2026-11-26T18:27:18Z",
+  "last_health_check": "2026-11-26T18:26:30.963Z",
+  "last_health_status": "online",
+  "last_spa_asset": "assets/index-Ct1Q8Oqd.js",
   "last_verified_release": {
     "verdict": "VERIFIED",
     "checked_at": "2026-11-26T18:23:45.761Z",
@@ -16,17 +16,20 @@
   "open_incidents": [],
   "recent_fixes": [],
   "outstanding_maintenance_tasks": [
-    "Confirm GitHub Actions secrets BASE44_APP_ID, BASE44_API_KEY, CONNECT_QA_* are set for acidjames303/fastamps",
     "Optionally set repository variable EXPECTED_SPA_JS to pin SPA fingerprint",
     "Optionally set HEALTH_WEBHOOK_URL for Slack/email bridge",
     "Rotate QA cohort passwords (no Base44 password-change API from harness)",
-    "Review npm audit high findings in next weekly session"
+    "Review npm audit high findings in next weekly session",
+    "Add CONNECT_QA_* and BASE44_API_KEY GitHub secrets for credentialed monitor checks"
   ],
   "monitoring": {
-    "production_health_check": "CONFIGURED_PENDING_CI_SECRETS",
+    "production_health_check": "ACTIVE_PUBLIC_CHECKS",
     "mechanism": "ops/scripts/production-health-check.mjs + GitHub Actions schedule",
     "ai_invoked": false,
-    "local_verify_release": "VERIFIED"
+    "security_smoke_ci": "ACTIVE_ANONYMOUS_CHECKS",
+    "credentialed_checks": "PENDING_GITHUB_SECRETS",
+    "last_ci_success_sha": "60f65c81b41481322c7b953154d3e751c503ea24",
+    "last_ci_success_at": "2026-11-26T18:27:18Z"
   },
   "commercial_safeguards": {
     "genuine_links_must_remain_draft": true,
