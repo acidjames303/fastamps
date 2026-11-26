@@ -256,6 +256,18 @@ Live `index-B7DR3dFn.js`. Rollback `71e466c`.
 
 ---
 
+## CI-022 — 26 Nov 2026 ~18:05 (Europe/London)
+
+**Manager needs-attention rollup** on Campaigns.
+
+Compact amber strip at the top of Campaigns for managers: companies / contacts / activate / no callers / info requests.  
+**Show only these** filters the list. Inline Activate / Split data / Open inbox.
+
+Live `index--5WydKF3.js`. Rollback `cd15bb7`.  
+**Next:** CI-027 Split data from Find prospects import next-steps.
+
+---
+
 ## CI-023 — 26 Nov 2026 ~17:00 (Europe/London)
 
 Zenitech pilot data readiness (two Excel files from James).

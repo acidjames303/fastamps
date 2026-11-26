@@ -13,9 +13,11 @@ import { useAuth } from "@/lib/AuthContext";
 import DeleteCampaignDialog from "@/components/campaigns/DeleteCampaignDialog";
 import RenameCampaignDialog from "@/components/campaigns/RenameCampaignDialog";
 import SplitCampaignData from "@/components/campaigns/SplitCampaignData";
+import CampaignAttentionRollup from "@/components/campaigns/CampaignAttentionRollup";
 import PushProgress from "@/components/PushProgress";
 import Prospecting from "@/pages/Prospecting";
 import CampaignNextStep from "@/components/campaigns/CampaignNextStep";
+import { buildCampaignAttentionRollup, countIrsByCampaign } from "@/lib/campaignAttention";
 
 const TABS = [
   { id: "campaigns", label: "Campaigns" },
@@ -71,6 +73,8 @@ export default function Campaigns() {
   const [statusBusy, setStatusBusy] = useState("");
   const [assignments, setAssignments] = useState([]);
   const [profiles, setProfiles] = useState([]);
+  const [irByCampaign, setIrByCampaign] = useState({});
+  const [attentionOnly, setAttentionOnly] = useState(false);
 
   const isAdmin = ["platform_owner", "organisation_admin"].includes(user?.app_role);
   const isManager = ["platform_owner", "organisation_admin", "sales_manager"].includes(user?.app_role);
@@ -124,6 +128,22 @@ export default function Campaigns() {
       .then(setAssignments)
       .catch(() => setAssignments([]));
   }, [callerFilter]);
+
+  // Admin inbox pending IRs — light signal for the Campaigns attention rollup.
+  useEffect(() => {
+    if (!isAdmin) { setIrByCampaign({}); return undefined; }
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await base44.functions.invoke("getManagerInbox", {});
+        const data = res.data || res;
+        if (!cancelled) setIrByCampaign(countIrsByCampaign(data.items || []));
+      } catch {
+        if (!cancelled) setIrByCampaign({});
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [isAdmin, lists?.length]);
 
   const clearCaller = () => {
     const next = new URLSearchParams(params);
@@ -221,14 +241,32 @@ export default function Campaigns() {
   );
   const callerName = profiles.find((p) => p.user_id === callerFilter)?.full_name || "";
 
+  const attentionRollup = useMemo(() => {
+    if (!isManager || !lists) return null;
+    return buildCampaignAttentionRollup({
+      campaigns: lists,
+      companyCounts,
+      contactCounts,
+      irByCampaign,
+      canProspect,
+      isManager,
+    });
+  }, [isManager, lists, companyCounts, contactCounts, irByCampaign, canProspect]);
+
+  const attentionIds = useMemo(
+    () => new Set(attentionRollup?.campaignIds || []),
+    [attentionRollup],
+  );
+
   const filtered = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return (lists || []).filter((l) => {
       if (callerFilter && !callerCampaignIds.has(l.id)) return false;
+      if (attentionOnly && !attentionIds.has(l.id)) return false;
       if (!q) return true;
       return (l.name || "").toLowerCase().includes(q) || (l.client_name || "").toLowerCase().includes(q);
     });
-  }, [lists, searchQuery, callerFilter, callerCampaignIds]);
+  }, [lists, searchQuery, callerFilter, callerCampaignIds, attentionOnly, attentionIds]);
 
   // Live count of contacts working inside a campaign, straight from the Contact
   // records assigned to it (never the stored tally, which can be out of date).
@@ -302,6 +340,23 @@ export default function Campaigns() {
 
       {tab === "campaigns" && (
         <>
+          {isManager && attentionRollup && (
+            <CampaignAttentionRollup
+              rollup={attentionRollup}
+              filterOn={attentionOnly}
+              onToggleFilter={() => setAttentionOnly((v) => !v)}
+              activatingId={statusBusy}
+              onActivate={(campaignId) => {
+                const camp = (lists || []).find((c) => c.id === campaignId);
+                if (camp) toggleStatus(camp);
+              }}
+              onSplit={(campaignId) => {
+                const camp = (lists || []).find((c) => c.id === campaignId);
+                if (camp) setSplitFor(camp);
+              }}
+            />
+          )}
+
           {open && (
             <div className="rounded-3xl bg-white border border-slate-200 p-6 space-y-4">
               <div>

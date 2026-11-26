@@ -109,3 +109,13 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | `npm run build` | **Pass** | → `index-B7DR3dFn.js` |
 | Site deploy `--publish --build` | **Pass** | Live strings: Split data · By territory · Dictate / describe |
 | Authenticated split on live campaign | **Blocked** | No login session |
+
+## CI-022 Manager needs-attention rollup — 26 Nov 2026 ~18:05 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Unit: `campaign-attention.test.mjs` | **Pass** | companies / contacts / activate / callers / IRs |
+| Unit: `campaign-next-action.test.mjs` | **Pass** | Regression |
+| `npm run build` | **Pass** | → `index--5WydKF3.js` |
+| Site deploy `--publish --build` | **Pass** | Live: Needs attention · Show only these · Ready to activate |
+| Authenticated Campaigns rollup | **Blocked** | No login session |
