@@ -221,3 +221,23 @@ Overnight cycle. **Today → Dialer one-click resume.**
 Checkpoints: `6b081fa3…` before · `6b081fe0…` CI-020  
 
 **Next:** CI-021 post-enrichment results + next action in place.
+
+---
+
+## CI-021 — 26 Nov 2026 ~15:00 (Europe/London)
+
+Overnight cycle. **Post-enrichment · what next.**
+
+**Before:** Enrichment complete banner only offered “Review results → /prospecting”; batch summary showed metric cards with no guided next step; toast said “Open Prospecting”.
+
+**After:** Shared `enrichmentNextAction` drives banner, batch summary and toast:
+- Numbers found → **Start calling** (+ Open Outreach)
+- Emails/contacts only → **Open Outreach**
+- Mostly failures → **Show needs attention** (filters table when already on Prospecting)
+
+**Where:** Campaigns → Find prospects (after enrichment) · header completion toast  
+
+**Checks:** unit `enrichment-next-action.test.mjs` pass · build pass · live `index-mMKAvHBw.js` with Enrichment · what next · Ready to call  
+Rollback SHA: `f590efb` · Checkpoints: `6b084a3b…` before · `6b084a76…` CI-021  
+
+**Next:** CI-022 manager needs-attention rollup on Campaigns.

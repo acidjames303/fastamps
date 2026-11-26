@@ -1017,6 +1017,8 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
       {enrichmentSession && (
         <EnrichmentSessionBanner
           session={enrichmentSession}
+          onProspectingPage
+          onFilterAttention={() => setProspectFilter("needs_attention")}
           onDismiss={() => clearEnrichmentSession(enrichmentSession.id)}
           onCancelled={() => {
             clearEnrichmentSession(enrichmentSession.id);
@@ -1175,6 +1177,8 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
               <EnrichmentBatchSummary
                 summary={batchSummary}
                 prospects={prospects}
+                listId={listId}
+                onFilterAttention={() => setProspectFilter("needs_attention")}
                 onClose={() => setBatchSummary(null)}
               />
             )}

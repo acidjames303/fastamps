@@ -7,12 +7,18 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { formatElapsed, sessionElapsedSeconds, sessionIsStalled } from "@/lib/sessionTiming";
+import { enrichmentSessionNextAction } from "@/lib/enrichmentNextAction";
 
 // Background enrichment progress banner — shows when an enrichment session is
-// running, paused, or recently completed. The Cancel action opens a warning
-// dialog; if the normal cancel fails (usually a concurrent poller update
-// conflict), a Force cancel button overrides it.
-export default function EnrichmentSessionBanner({ session, onDismiss, onCancelled }) {
+// running, paused, or recently completed. When done, surfaces a guided next
+// step (call / outreach / review) instead of a vague “look at Prospecting”.
+export default function EnrichmentSessionBanner({
+  session,
+  onDismiss,
+  onCancelled,
+  onProspectingPage = false,
+  onFilterAttention,
+}) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [cancelErr, setCancelErr] = useState("");
@@ -43,6 +49,7 @@ export default function EnrichmentSessionBanner({ session, onDismiss, onCancelle
     : 0;
 
   const isDone = ["completed", "partially_completed", "failed", "cancelled"].includes(session.status);
+  const next = isDone ? enrichmentSessionNextAction(session, { onProspectingPage }) : null;
 
   const statusColor = isRunning ? "bg-blue-50 border-blue-200" : isDone ? "bg-emerald-50 border-emerald-200" : "bg-amber-50 border-amber-200";
   const iconColor = isRunning ? "text-blue-600" : isDone ? "text-emerald-600" : "text-amber-600";
@@ -161,10 +168,50 @@ export default function EnrichmentSessionBanner({ session, onDismiss, onCancelle
               </p>
             )}
 
-            {isDone && (
-              <Link to="/prospecting" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700">
-                Review results <ArrowRight className="w-3 h-3" />
-              </Link>
+            {isDone && next && (
+              <div className="mt-3 rounded-xl border border-emerald-200/80 bg-white/70 p-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
+                  Enrichment · what next
+                </p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">{next.title}</p>
+                <p className="mt-0.5 text-xs text-slate-500">{next.detail}</p>
+                <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                  {next.href && next.cta && (
+                    <Link
+                      to={next.href}
+                      className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500"
+                    >
+                      {next.cta} <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  )}
+                  {!next.href && next.cta && next.action === "filter_attention" && (
+                    <button
+                      type="button"
+                      onClick={() => onFilterAttention?.()}
+                      className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500"
+                    >
+                      {next.cta} <ArrowRight className="w-3 h-3" />
+                    </button>
+                  )}
+                  {next.secondary?.href && (
+                    <Link
+                      to={next.secondary.href}
+                      className="inline-flex items-center rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                    >
+                      {next.secondary.cta}
+                    </Link>
+                  )}
+                  {next.secondary?.action === "filter_attention" && !next.secondary?.href && (
+                    <button
+                      type="button"
+                      onClick={() => onFilterAttention?.()}
+                      className="inline-flex items-center rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                    >
+                      {next.secondary.cta}
+                    </button>
+                  )}
+                </div>
+              </div>
             )}
 
             {/* Session cost report — shown when enrichment is done */}

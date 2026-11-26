@@ -73,3 +73,17 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | Component preview screenshots | **Pass** | `/opt/cursor/artifacts/ci020-today-dialer-resume/` + `docs/audit/ci020-today-dialer-resume/` |
 | Authenticated live click-through | **Blocked** | No invitation login session in this agent environment |
 | Secrets / schema / live email | **Pass** | localStorage only; no API/schema changes |
+
+## CI-021 post-enrichment what next — 26 Nov 2026 ~15:00 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Unit: `enrichment-next-action.test.mjs` | **Pass** | call / outreach / failures / session fallback |
+| Unit: `campaign-next-action.test.mjs` | **Pass** | Regression |
+| `npm run build` (cadence-sales) | **Pass** | → `index-mMKAvHBw.js` |
+| Sandbox write + checkpoint | **Pass** | before `6b084a3b…` · CI-021 `6b084a76…` |
+| Site deploy `--publish --build` | **Pass** | cadence.smartfunction.io |
+| Live bundle strings | **Pass** | Enrichment · what next · Ready to call · Start calling · Open Outreach (`index-mMKAvHBw.js`) |
+| Component preview screenshots | **Pass** | `/opt/cursor/artifacts/ci021-enrichment-next/` + `docs/audit/ci021-enrichment-next/` |
+| Authenticated live enrichment run | **Blocked** | No login session; would also spend provider credits |
+| Secrets / schema / live email | **Pass** | Frontend-only; no enrichment API changes |

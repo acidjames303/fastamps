@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { CheckCircle2, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useEnrichmentSession } from "@/lib/enrichmentSession";
+import { enrichmentSessionNextAction } from "@/lib/enrichmentNextAction";
 import { formatElapsed, sessionElapsedSeconds, sessionIsStalled } from "@/lib/sessionTiming";
 
 // Header enrichment indicator. It reads the app-wide enrichment tracker, so its
@@ -47,21 +48,26 @@ export default function EnrichmentProgressIndicator() {
     notifiedRef.current = true;
     const total = session.total_records || 0;
     const done = (session.completed_count || 0) + (session.cached_count || 0) + (session.partial_count || 0) + (session.failed_count || 0);
+    const next = enrichmentSessionNextAction(session);
 
-    let title = "Fresh data ready";
-    let description = `${done} of ${total} records enriched — head to Prospecting to review and push to your lists.`;
+    let title = next.title || "Fresh data ready";
+    let description = next.detail || `${done} of ${total} records enriched.`;
     let variant;
     if (current === "partially_completed") {
       const failed = session.failed_count || 0;
-      if (failed > 0) description = `${done} of ${total} records enriched. ${failed} need attention in Prospecting.`;
+      if (failed > 0 && next.id === "review_failures") {
+        description = `${done} of ${total} records enriched. ${failed} need attention.`;
+      }
     } else if (current === "failed") {
       title = "Enrichment finished with issues";
-      description = `${done} of ${total} records processed. Some records may need attention in Prospecting.`;
+      description = `${done} of ${total} records processed. Some records may need attention.`;
       variant = "destructive";
     }
 
-    // The notice carries its own way through: it opens Prospecting (or this job's
-    // list) and closes itself, so it never sits on screen with nothing to click.
+    const actionLabel = next.cta || "Review results";
+    const actionHref = next.href;
+
+    // Toast CTA follows the same next-step logic as the banner (call / review).
     const handle = toast({
       title,
       description,
@@ -71,11 +77,12 @@ export default function EnrichmentProgressIndicator() {
           type="button"
           onClick={() => {
             handle?.dismiss();
-            openTarget();
+            if (actionHref) navigate(actionHref);
+            else openTarget();
           }}
           className="shrink-0 rounded-full border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-800 transition-colors hover:bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-200"
         >
-          Open Prospecting
+          {actionLabel}
         </button>
       ),
     });

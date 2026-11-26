@@ -1,14 +1,13 @@
 # Cadence continuous improvement backlog
 
-**Updated:** 26 Nov 2026 afternoon (Europe/London)  
+**Updated:** 26 Nov 2026 evening (Europe/London)  
 Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **P3** optional
 
 ## Active
 
 | ID | Pri | Issue | Evidence | Impact | Status |
 |---|---|---|---|---|---|
-| CI-021 | P1 | Post-enrichment results + next action in place | Phase 2 reassessment | Fewer screen hops | **Next** |
-| CI-022 | P2 | Manager needs-attention rollup on Campaigns | Phase 2 reassessment | Admin oversight | Queued |
+| CI-022 | P2 | Manager needs-attention rollup on Campaigns | Phase 2 reassessment | Admin oversight | **Next** |
 | CI-004 | P1 | Research templates / dictation reuse across Dialer & Outreach | Research on Dialer improved; Outreach reuse still uneven | Duplicate research effort | Queued |
 | CI-008 | P3 | Progressive disclosure polish on dense campaign screens | UX audit | Training burden | Partially addressed by CI-014 |
 
@@ -33,6 +32,7 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | CI-018 | P1 | Four-way Find prospects start (import/describe/continue/template) | Done |
 | CI-019 | P1 | Guided next actions on Today + Campaigns; unify Import door | Done |
 | CI-020 | P1 | Today→Dialer resume: last company/campaign one-click continue | Done · live `index-DyWTON_g.js` |
+| CI-021 | P1 | Post-enrichment results + next action in place | Done · live `index-mMKAvHBw.js` |
 
 ## Parking lot
 

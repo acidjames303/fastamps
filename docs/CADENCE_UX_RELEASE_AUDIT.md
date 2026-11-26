@@ -5,7 +5,7 @@
 **App id:** from `BASE44_APP_ID` / `VITE_BASE44_APP_ID` only  
 **Working branch:** `cursor/continuous-improvement-agent-2475`  
 **Repo HEAD at publish:** see latest commit on that branch  
-**Live bundle after CI-020:** `index-DyWTON_g.js`
+**Live bundle after CI-021:** `index-mMKAvHBw.js`
 
 ---
 
@@ -166,6 +166,42 @@ Overnight timer cycle. Highest-impact remaining item from Phase 2 reassessment.
 
 ### Next (do not re-audit)
 
-- **CI-021** Post-enrichment results + next action in place  
+- ~~CI-021~~ → **done** (below)  
+- **CI-022** Manager needs-attention rollup on Campaigns  
+- **CI-004** Research reuse across Dialer & Outreach  
+
+---
+
+## Phase 2 — CI-021 post-enrichment what next (26 Nov 2026 ~15:00 Europe/London)
+
+Overnight timer cycle after CI-020.
+
+### Problem → fix
+
+| Before | After | Where |
+|---|---|---|
+| Done banner only linked “Review results” to `/prospecting` | **Enrichment · what next** with Start calling / Open Outreach / Show needs attention | EnrichmentSessionBanner |
+| Batch summary was metrics-only | Same guided strip from real phone/email/fail counts | EnrichmentBatchSummary |
+| Header toast said “Open Prospecting” | Toast CTA follows the same next-action helper | EnrichmentProgressIndicator |
+
+### Verification
+
+| Check | Result |
+|---|---|
+| Unit `enrichment-next-action.test.mjs` | Pass |
+| `npm run build` | Pass → `index-mMKAvHBw.js` |
+| Live cadence.smartfunction.io | **`index-mMKAvHBw.js`** with Enrichment · what next · Ready to call |
+| Screenshots | `docs/audit/ci021-enrichment-next/` |
+| Authenticated enrichment E2E | Blocked (no login; would spend credits) |
+| Checkpoints | `6b084a3b…` before · `6b084a76…` CI-021 |
+
+### How to see it live
+
+1. Open https://cadence.smartfunction.io → **Campaigns → Find prospects**  
+2. Run (or wait for) enrichment on a list  
+3. When complete, the banner shows **Enrichment · what next** with **Start calling** / **Open Outreach** (or needs-attention)
+
+### Next
+
 - **CI-022** Manager needs-attention rollup on Campaigns  
 - **CI-004** Research reuse across Dialer & Outreach  
