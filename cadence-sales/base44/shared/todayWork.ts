@@ -48,7 +48,7 @@ function groupLogsByContact(logs) {
 }
 
 // Build a priority-evaluated, sorted task row list for one user.
-export async function buildTodayWork(base44, { user, profile, org }) {
+export async function buildTodayWork(base44, { user, profile, org, campaignId = '' }) {
   const ctx = await loadContext(base44, org);
   const tz = orgTimezone(org);
   const now = Date.now();
@@ -58,7 +58,7 @@ export async function buildTodayWork(base44, { user, profile, org }) {
   const isMgr = ['organisation_admin', 'sales_manager', 'platform_owner'].includes(profile.app_role);
   const readOnly = profile.app_role === 'reporting_user';
 
-  const visibleTasks = ctx.tasks.filter((t) => {
+  const visibleToUser = ctx.tasks.filter((t) => {
     if (['completed', 'cancelled', 'skipped'].includes(t.status)) return false;
     if (t.company_id === '6afae4e7d0f2f6f3809b0e91' || t.contact_id === '6afae4e89382d5a14f4bcae0') return false;
     // Snoozed tasks are hidden until their time arrives.
@@ -69,6 +69,18 @@ export async function buildTodayWork(base44, { user, profile, org }) {
     }
     return true;
   });
+
+  // Today works one campaign at a time: the toggle narrows every section, the
+  // stats and the calling queue to the campaign being worked.
+  const visibleTasks = campaignId
+    ? visibleToUser.filter((t) => t.target_list_id === campaignId)
+    : visibleToUser;
+
+  // Campaigns this user has work in, for the Today toggle.
+  const campaigns = [...new Set(visibleToUser.map((t) => t.target_list_id).filter(Boolean))]
+    .map((id) => ({ id, name: ctx.byList.get(id)?.name || '' }))
+    .filter((c) => c.name)
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   // Evaluate priority for each visible task.
   const rows = [];
@@ -129,7 +141,7 @@ export async function buildTodayWork(base44, { user, profile, org }) {
   // Needs scheduling: contacts with callback/interested status, no active task.
   const taskContactIds = new Set(ctx.tasks.filter((t) => ['pending', 'in_progress'].includes(t.status) && t.contact_id).map((t) => t.contact_id));
   const needsScheduling = ctx.contacts
-    .filter((c) => ['callback', 'interested'].includes(c.call_status) && !taskContactIds.has(c.id) && c.number_status !== 'dnc')
+    .filter((c) => ['callback', 'interested'].includes(c.call_status) && !taskContactIds.has(c.id) && c.number_status !== 'dnc' && (!campaignId || c.campaign_id === campaignId))
     .map((c) => ({
       contact: c,
       company: ctx.byCompany.get(c.company_id) || null,
@@ -141,9 +153,9 @@ export async function buildTodayWork(base44, { user, profile, org }) {
   // Daily performance stats (today, org timezone).
   const todayLogs = ctx.logs.filter((l) => {
     const d = l.created_date ? new Date(l.created_date).getTime() : 0;
-    return d >= new Date(todayStart).getTime() && d < new Date(todayEnd).getTime() && l.user_id === user.id;
+    return d >= new Date(todayStart).getTime() && d < new Date(todayEnd).getTime() && l.user_id === user.id && (!campaignId || l.campaign_id === campaignId);
   });
-  const completedToday = ctx.tasks.filter((t) => t.status === 'completed' && t.completed_at && isToday(t.completed_at, tz));
+  const completedToday = ctx.tasks.filter((t) => t.status === 'completed' && t.completed_at && isToday(t.completed_at, tz) && (!campaignId || t.target_list_id === campaignId));
 
   const stats = {
     calls_completed: todayLogs.length,
@@ -199,6 +211,8 @@ export async function buildTodayWork(base44, { user, profile, org }) {
 
   return {
     sections,
+    campaigns,
+    campaign_id: campaignId,
     needs_scheduling: needsScheduling,
     stats,
     day_flow,

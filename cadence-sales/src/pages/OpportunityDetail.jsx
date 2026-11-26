@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2, Calendar, Download, CheckCircle2, XCircle, Send, AlertCircle, FileText, ClipboardCopy } from "lucide-react";
+import { ArrowLeft, Loader2, Calendar, Download, CheckCircle2, XCircle, Send, AlertCircle, FileText } from "lucide-react";
 import { downloadIcs } from "@/lib/icsGenerator";
-import { buildLeadSheetSummary } from "@/lib/leadSheetSummary";
 import QualificationPanel from "@/components/opportunities/QualificationPanel";
+import LeadSheetOffer from "@/components/leadsheet/LeadSheetOffer";
 import MeetingBookingPanel from "@/components/opportunities/MeetingBookingPanel";
 import HandoffPreviewModal from "@/components/opportunities/HandoffPreviewModal";
 
@@ -30,8 +30,6 @@ export default function OpportunityDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [opp, setOpp] = useState(null);
-  const [contact, setContact] = useState(null);
-  const [company, setCompany] = useState(null);
   const [meeting, setMeeting] = useState(null);
   const [destinations, setDestinations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,7 +37,6 @@ export default function OpportunityDetail() {
   const [reviewAction, setReviewAction] = useState("");
   const [reviewNotes, setReviewNotes] = useState("");
   const [acting, setActing] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -50,31 +47,11 @@ export default function OpportunityDetail() {
       ]);
       setOpp(opportunity);
       setDestinations((dests.data || dests).destinations || []);
-      const [c, co] = await Promise.all([
-        opportunity.primary_contact_id
-          ? base44.entities.Contact.get(opportunity.primary_contact_id).catch(() => null)
-          : null,
-        opportunity.company_id
-          ? base44.entities.Company.get(opportunity.company_id).catch(() => null)
-          : null,
-      ]);
-      setContact(c);
-      setCompany(co);
       if (opportunity.meeting_id) {
         const m = await base44.entities.Meeting.get(opportunity.meeting_id).catch(() => null);
         setMeeting(m);
       }
     } catch {} finally { setLoading(false); }
-  };
-
-  const copyLeadSummary = async () => {
-    if (!opp) return;
-    try {
-      const text = buildLeadSheetSummary({ opportunity: opp, contact, company });
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    } catch {}
   };
 
   useEffect(() => { load(); }, [id]);
@@ -136,25 +113,14 @@ export default function OpportunityDetail() {
         </div>
       )}
 
-      {/* Prefill lead summary from existing fields — paste into Word/email; never auto-sends */}
-      <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-sm font-semibold text-slate-900">Client lead summary</h2>
-          <p className="text-xs text-slate-500 mt-1">
-            Copies company, contact and qualification Cadence already has. Internal notes stay out.
-          </p>
-        </div>
-        <Button type="button" variant="outline" className="rounded-full" onClick={copyLeadSummary}>
-          {copied ? <CheckCircle2 className="w-4 h-4 mr-1 text-emerald-600" /> : <ClipboardCopy className="w-4 h-4 mr-1" />}
-          {copied ? "Copied" : "Copy lead summary"}
-        </Button>
-      </div>
-
       {/* Qualification section */}
       <div className="rounded-2xl border border-slate-200 bg-white p-5">
         <h2 className="text-sm font-semibold text-slate-900 mb-3">Qualification</h2>
         <QualificationPanel opportunity={opp} onSaved={load} />
       </div>
+
+      {/* Lead sheet drafted from this opportunity */}
+      <LeadSheetOffer opportunity={opp} />
 
       {/* Manager review section */}
       {opp.manager_review_status === "awaiting_review" && isManager && (

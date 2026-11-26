@@ -4,12 +4,12 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import DictateButton from "@/components/dialer/DictateButton";
 import {
   Plus, Phone, Users, Loader2, Play, Pause, Target, Upload,
   ArrowRight, Search, CheckCircle2, Pencil, ClipboardList,
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
-import { setActiveCampaign } from "@/lib/campaignContext";
 import DeleteCampaignDialog from "@/components/campaigns/DeleteCampaignDialog";
 import RenameCampaignDialog from "@/components/campaigns/RenameCampaignDialog";
 import PushProgress from "@/components/PushProgress";
@@ -18,24 +18,9 @@ import Import from "@/pages/Import";
 
 const TABS = [
   { id: "campaigns", label: "Campaigns" },
-  { id: "prospect", label: "Prospecting" },
-  { id: "import", label: "Import" },
+  { id: "prospect", label: "Find prospects" },
+  { id: "import", label: "Import CSV" },
 ];
-
-const TAB_HEADING = {
-  campaigns: {
-    title: "Campaigns",
-    subtitle: "Create, research, then call — context sticks as you move.",
-  },
-  prospect: {
-    title: "Prospecting",
-    subtitle: "Research accounts and enrich contacts for a campaign — same tools as always, without a second workspace.",
-  },
-  import: {
-    title: "Import",
-    subtitle: "Bring companies and contacts into a campaign from a spreadsheet.",
-  },
-};
 
 const STATUS_TONE = {
   draft: "bg-slate-100 text-slate-600",
@@ -60,6 +45,9 @@ export default function Campaigns() {
   const [params, setParams] = useSearchParams();
   const tab = TABS.some((t) => t.id === params.get("tab")) ? params.get("tab") : "campaigns";
   const wantNew = params.get("new") === "1";
+  // Arriving from a caller's account narrows the list to the campaigns pushed
+  // to that person. No campaign record is changed by this view.
+  const callerFilter = params.get("caller") || "";
 
   const [lists, setLists] = useState(null);
   const [calls, setCalls] = useState([]);
@@ -80,6 +68,8 @@ export default function Campaigns() {
   const [pushCaller, setPushCaller] = useState("");
   const [pushBusy, setPushBusy] = useState(false);
   const [statusBusy, setStatusBusy] = useState("");
+  const [assignments, setAssignments] = useState([]);
+  const [profiles, setProfiles] = useState([]);
 
   const isAdmin = ["platform_owner", "organisation_admin"].includes(user?.app_role);
   const isManager = ["platform_owner", "organisation_admin", "sales_manager"].includes(user?.app_role);
@@ -106,6 +96,7 @@ export default function Campaigns() {
       setContactCounts(countRes?.data?.counts || {});
       setCompanyCounts(countRes?.data?.companies || {});
       setProspectRowCounts(countRes?.data?.prospect_rows || {});
+      setProfiles(profiles || []);
       setCallers((profiles || []).filter((p) => p.app_role === "bdm" && p.status === "active"));
     } catch (e) {
       setError(e.message || "Could not load campaigns.");
@@ -114,6 +105,20 @@ export default function Campaigns() {
 
   useEffect(() => { load(); }, [user?.organisation_id]);
   useEffect(() => { if (wantNew) setOpen(true); }, [wantNew]);
+
+  useEffect(() => {
+    if (!callerFilter) { setAssignments([]); return; }
+    base44.entities.CampaignAssignment
+      .filter({ assigned_user_id: callerFilter }, "-created_date", 1000)
+      .then(setAssignments)
+      .catch(() => setAssignments([]));
+  }, [callerFilter]);
+
+  const clearCaller = () => {
+    const next = new URLSearchParams(params);
+    next.delete("caller");
+    setParams(next, { replace: true });
+  };
 
   const create = async () => {
     if (!form.name.trim()) return;
@@ -199,13 +204,20 @@ export default function Campaigns() {
     }
   };
 
+  const callerCampaignIds = useMemo(
+    () => new Set(assignments.map((a) => a.campaign_id).filter(Boolean)),
+    [assignments]
+  );
+  const callerName = profiles.find((p) => p.user_id === callerFilter)?.full_name || "";
+
   const filtered = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return (lists || []).filter((l) => {
+      if (callerFilter && !callerCampaignIds.has(l.id)) return false;
       if (!q) return true;
       return (l.name || "").toLowerCase().includes(q) || (l.client_name || "").toLowerCase().includes(q);
     });
-  }, [lists, searchQuery]);
+  }, [lists, searchQuery, callerFilter, callerCampaignIds]);
 
   // Live count of contacts working inside a campaign, straight from the Contact
   // records assigned to it (never the stored tally, which can be out of date).
@@ -231,23 +243,14 @@ export default function Campaigns() {
     );
   }
 
-  const heading = TAB_HEADING[tab] || TAB_HEADING.campaigns;
-
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          {tab !== "campaigns" && (
-            <button
-              type="button"
-              onClick={() => setTab("campaigns")}
-              className="text-xs font-medium text-emerald-700 hover:text-emerald-800 mb-2"
-            >
-              ← All campaigns
-            </button>
-          )}
-          <h1 className="font-display text-4xl font-semibold tracking-tight text-slate-900">{heading.title}</h1>
-          <p className="text-slate-500 mt-2 max-w-xl">{heading.subtitle}</p>
+          <h1 className="font-display text-4xl font-semibold tracking-tight text-slate-900">Campaigns</h1>
+          <p className="text-slate-500 mt-2 max-w-2xl">
+            One place to create a campaign, find or import prospects, then start calling — or push the work to your team.
+          </p>
         </div>
         {tab === "campaigns" && isManager && (
           <Button onClick={() => setOpen((v) => !v)} className="rounded-full bg-emerald-600 hover:bg-emerald-700">
@@ -256,28 +259,24 @@ export default function Campaigns() {
         )}
       </div>
 
-      {tab === "campaigns" && (
-        <div className="flex flex-wrap gap-2" role="tablist" aria-label="Campaign workspace">
-          {TABS.map((t) => {
-            if (t.id !== "campaigns" && !canProspect) return null;
-            const active = tab === t.id;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => setTab(t.id)}
-                className={`rounded-full px-4 py-2 text-sm transition-colors ${
-                  active ? "bg-slate-900 text-white" : "bg-white border border-slate-200 text-slate-600 hover:border-slate-400"
-                }`}
-              >
-                {t.label}
-              </button>
-            );
-          })}
-        </div>
-      )}
+      <div className="flex flex-wrap gap-2">
+        {TABS.map((t) => {
+          if (t.id !== "campaigns" && !canProspect) return null;
+          const active = tab === t.id;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              className={`rounded-full px-4 py-2 text-sm transition-colors ${
+                active ? "bg-slate-900 text-white" : "bg-white border border-slate-200 text-slate-600 hover:border-slate-400"
+              }`}
+            >
+              {t.label}
+            </button>
+          );
+        })}
+      </div>
 
       {message && <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3">{message}</p>}
       {error && <p className="text-sm text-rose-600">{error}</p>}
@@ -311,18 +310,28 @@ export default function Campaigns() {
                   className="rounded-xl"
                 />
               </div>
-              <Textarea
-                placeholder="What are you offering?"
-                value={form.offer}
-                onChange={(e) => setForm({ ...form, offer: e.target.value })}
-                className="rounded-xl min-h-20"
-              />
-              <Textarea
-                placeholder="Call opener — first line when they answer (optional)"
-                value={form.call_opener}
-                onChange={(e) => setForm({ ...form, call_opener: e.target.value })}
-                className="rounded-xl min-h-16"
-              />
+              <div>
+                <Textarea
+                  placeholder="What are you offering?"
+                  value={form.offer}
+                  onChange={(e) => setForm({ ...form, offer: e.target.value })}
+                  className="rounded-xl min-h-20"
+                />
+                <div className="mt-1.5">
+                  <DictateButton value={form.offer} onChange={(v) => setForm({ ...form, offer: v })} label="Dictate offer" />
+                </div>
+              </div>
+              <div>
+                <Textarea
+                  placeholder="Call opener — first line when they answer (optional)"
+                  value={form.call_opener}
+                  onChange={(e) => setForm({ ...form, call_opener: e.target.value })}
+                  className="rounded-xl min-h-16"
+                />
+                <div className="mt-1.5">
+                  <DictateButton value={form.call_opener} onChange={(v) => setForm({ ...form, call_opener: v })} label="Dictate call opener" />
+                </div>
+              </div>
               {isAdmin && (
                 <label className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 cursor-pointer">
                   <input
@@ -361,7 +370,7 @@ export default function Campaigns() {
                 {canProspect && (
                   <>
                     <Button variant="outline" className="rounded-full" onClick={() => setTab("prospect")}>
-                      <Target className="w-4 h-4 mr-2" /> Prospecting
+                      <Target className="w-4 h-4 mr-2" /> Find prospects
                     </Button>
                     <Button variant="outline" className="rounded-full" onClick={() => setTab("import")}>
                       <Upload className="w-4 h-4 mr-2" /> Import CSV
@@ -372,6 +381,22 @@ export default function Campaigns() {
             </div>
           ) : (
             <>
+              {callerFilter && (
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+                  <p className="text-sm text-emerald-900">
+                    Showing campaigns pushed to <span className="font-medium">{callerName || "this caller"}</span>
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Link to={`/team/${callerFilter}`} className="text-xs text-emerald-800 hover:underline">
+                      Open their account
+                    </Link>
+                    <Button size="sm" variant="ghost" className="rounded-full text-xs text-emerald-900" onClick={clearCaller}>
+                      Show all campaigns
+                    </Button>
+                  </div>
+                </div>
+              )}
+
               <div className="relative max-w-md">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
@@ -420,6 +445,12 @@ export default function Campaigns() {
                               : ""}
                             {c.offer ? ` · ${c.offer.slice(0, 80)}${c.offer.length > 80 ? "…" : ""}` : ""}
                           </p>
+                          {callerFilter && (
+                            <p className="text-xs text-emerald-700 mt-1">
+                              {assignments.filter((a) => a.campaign_id === c.id).length} accounts assigned to them ·{" "}
+                              {assignments.filter((a) => a.campaign_id === c.id && a.status === "completed").length} done
+                            </p>
+                          )}
                           {prospectRowsIn(c) != null && prospectRowsIn(c) !== companiesIn(c) && (
                             <p className="text-xs text-slate-400 mt-1">
                               Prospect rows are preserved separately from unique linked companies, so imported aliases and unlinked records stay visible.
@@ -442,15 +473,15 @@ export default function Campaigns() {
                           <Button
                             size="sm"
                             className="rounded-full h-9 bg-emerald-600 hover:bg-emerald-700"
-                            onClick={() => { setActiveCampaign(c); navigate(`/dialer?list=${c.id}`); }}
+                            onClick={() => navigate(`/dialer?list=${c.id}`)}
                           >
-                            <Phone className="w-4 h-4 mr-1" /> Call
+                            <Phone className="w-4 h-4 mr-1" /> Start calling
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
                             className="rounded-full h-9"
-                            onClick={() => { setActiveCampaign(c); navigate(`/contacts?campaign=${c.id}`); }}
+                            onClick={() => navigate(`/contacts?campaign=${c.id}`)}
                             title="See the contacts in this campaign"
                           >
                             <Users className="w-4 h-4 mr-1" /> Contacts
@@ -467,7 +498,7 @@ export default function Campaigns() {
                               <Users className="w-4 h-4 mr-1" /> Push to team
                             </Button>
                           )}
-                          <Link to={`/target-lists/${c.id}`} onClick={() => setActiveCampaign(c)}>
+                          <Link to={`/target-lists/${c.id}`}>
                             <Button size="sm" variant="ghost" className="rounded-full h-9">
                               Open <ArrowRight className="w-4 h-4 ml-1" />
                             </Button>
@@ -476,15 +507,13 @@ export default function Campaigns() {
                       </div>
 
                       <div className="flex flex-wrap gap-2">
-                        <Link to={`/campaign-delivery/${c.id}`} onClick={() => setActiveCampaign(c)}>
-                          <Button size="sm" variant="outline">Data quality & review</Button>
-                        </Link>
-                        <Button size="sm" variant="outline" className="rounded-full" onClick={() => { setActiveCampaign(c); navigate(`/campaigns/${c.id}/accounts`); }}>
+                        <Link to={`/campaign-delivery/${c.id}`}><Button size="sm" variant="outline">Data quality & review</Button></Link>
+                        <Button size="sm" variant="outline" className="rounded-full" onClick={() => navigate(`/campaigns/${c.id}/accounts`)}>
                           <ClipboardList className="w-3.5 h-3.5 mr-1" /> Accounts &amp; notes
                         </Button>
                         {canProspect && (
-                          <Button size="sm" variant="outline" className="rounded-full" onClick={() => { setActiveCampaign(c); navigate(`/campaigns?tab=prospect&campaign=${c.id}`); }}>
-                            <Target className="w-3.5 h-3.5 mr-1" /> Prospecting
+                          <Button size="sm" variant="outline" className="rounded-full" onClick={() => navigate(`/campaigns?tab=prospect&campaign=${c.id}`)}>
+                            <Target className="w-3.5 h-3.5 mr-1" /> Find prospects
                           </Button>
                         )}
                         {canProspect && (

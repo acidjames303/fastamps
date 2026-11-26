@@ -49,7 +49,9 @@ export default function PrivacyPolicy() {
       </LegalSection>
 
       <LegalSection title="6. Dictation">
-        <p>The notes Dictate button uses the browser’s speech-recognition capability. Cadence does not intentionally send that audio to a Cadence transcription service or charge a Smart Action for dictation. The browser or operating-system provider may process speech through its own service. Users should check their browser’s terms and avoid dictating special-category or unnecessary sensitive information.</p>
+        <p>Cadence offers two dictation modes. Server-side dictation records audio in your browser only while you are recording, then sends it over HTTPS to Cadence’s backend and on to OpenAI’s transcription service (model gpt-4o-transcribe) to convert speech to text. Cadence does not store the audio: it is held in memory only for the length of that request and discarded once the transcript is returned. The transcript appears on screen for you to edit before you insert it into a note, brief, instruction or email draft.</p>
+        <p>Browser dictation instead uses your browser’s own speech-recognition capability, in which case the browser or operating-system provider may process speech through its own service. Browser dictation consumes no Cadence transcription allowance.</p>
+        <p>Dictation is processed to help you draft your own business notes and communications, on the lawful basis that applies to the record you are writing. Do not dictate special-category data, payment card details or other unnecessary sensitive information. Server-side dictation is subject to per-user usage limits, and any transcript you insert forms part of the record you choose to save.</p>
       </LegalSection>
 
       <LegalSection title="7. Sharing and service providers">

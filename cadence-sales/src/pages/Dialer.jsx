@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import BriefPanel from "@/components/dialer/BriefPanel";
+import CallResearchPanel from "@/components/dialer/CallResearchPanel";
 import CallHistoryPanel from "@/components/dialer/CallHistoryPanel";
 import OutcomePanel from "@/components/dialer/OutcomePanel";
 import CallTimer from "@/components/dialer/CallTimer";
@@ -17,14 +18,21 @@ import useTwilioDevice from "@/hooks/useTwilioDevice";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { fetchListCompanyIds, resolveWorkingListId } from "@/lib/targetLists";
 import { readDialPosition, saveDialPosition, clearDialPosition } from "@/lib/dialPosition";
-import { setActiveCampaign, getActiveCampaign } from "@/lib/campaignContext";
 import { Link } from "react-router-dom";
 import MobileCallBar from "@/components/dialer/MobileCallBar";
 import DialPad from "@/components/dialer/DialPad";
 import QueueFilterToggle from "@/components/dialer/QueueFilterToggle";
 import { isUkMobile } from "@/lib/companyContactFilters";
 import { resolvePrimaryOutcomeCode } from "@/lib/outcomeRules";
-import { matchAccountResearch } from "@/lib/accountResearchMatch";
+import { buildLeadSheetPrefill, prefilledFieldKeys } from "@/lib/leadSheet";
+import { createLeadSheetDraft } from "@/lib/leadSheetApi";
+
+// Outcomes that mean a real lead: the lead sheet is drafted automatically.
+const LEAD_SHEET_OUTCOMES = [
+  "connected_interested",
+  "connected_qualified",
+  "connected_information_requested",
+];
 
 // Safety net: one entry per company, so duplicate rows never inflate the queue
 // count or get dialled twice.
@@ -56,7 +64,6 @@ export default function Dialer() {
   const [contacts, setContacts] = useState([]);
   const [selectedContact, setSelectedContact] = useState(null);
   const [intelligence, setIntelligence] = useState(null);
-  const [accountResearch, setAccountResearch] = useState(null);
   const [targetList, setTargetList] = useState(null);
   const [state, setState] = useState("idle"); // idle | ready | in_call
   const [loading, setLoading] = useState(false);
@@ -71,8 +78,8 @@ export default function Dialer() {
   const [agentInput, setAgentInput] = useState("");
   const [editingAgent, setEditingAgent] = useState(false);
   const [irSentNotice, setIrSentNotice] = useState("");
-  const [qualifiedNotice, setQualifiedNotice] = useState(null);
   const [dncNotice, setDncNotice] = useState("");
+  const [leadSheetNotice, setLeadSheetNotice] = useState(null);
   const [suppressedCount, setSuppressedCount] = useState(0);
   const [lastSavedLog, setLastSavedLog] = useState(null);
   const [addContactOpen, setAddContactOpen] = useState(false);
@@ -214,17 +221,6 @@ export default function Dialer() {
   };
 
   useEffect(() => { loadQueue(); }, [listId]);
-
-  // Keep sticky campaign chrome in sync with the list the dialer is working.
-  useEffect(() => {
-    if (targetList?.id) {
-      setActiveCampaign(targetList);
-      return;
-    }
-    if (listId && !getActiveCampaign()?.id) {
-      setActiveCampaign({ id: listId, name: "Campaign" });
-    }
-  }, [targetList?.id, targetList?.name, listId]);
 
   // Remember the caller's place in this queue, so returning to the Dialer picks
   // up on the company they were on. Cleared once the queue is finished.
@@ -387,15 +383,14 @@ export default function Dialer() {
     }
   };
 
-  // When the current company changes, load decision-makers, reusable
-  // CompanyIntelligence, and live Prospecting AccountResearch. Never generates research on open.
+  // When the current company changes, load its decision-makers + the single
+  // reusable CompanyIntelligence record. Never generates research on open.
   useEffect(() => {
     setState("idle");
     setCallEnded(false);
     setContacts([]);
     setSelectedContact(null);
     setIntelligence(null);
-    setAccountResearch(null);
     callStartRef.current = null;
     callEndRef.current = null;
     callProviderRef.current = "manual";
@@ -410,11 +405,9 @@ export default function Dialer() {
   const loadCompanyContext = async (co) => {
     setLoading(true);
     try {
-      const [list, ci, researchExact] = await Promise.all([
+      const [list, ci] = await Promise.all([
         base44.entities.Contact.filter({ company_id: co.id, id: { $ne: '6afae4e89382d5a14f4bcae0' } }, "-updated_date", 50).catch(() => []),
         base44.entities.CompanyIntelligence.filter({ company_id: co.id }).catch(() => []),
-        // Exact name first (cheap). Name variants (Ltd vs Limited) fall back below.
-        base44.entities.AccountResearch.filter({ company_name: co.name }, "-researched_at", 20).catch(() => []),
       ]);
       // Anyone flagged do not call has had their details removed, so they stay
       // out of the calling list entirely and can never be dialled.
@@ -432,14 +425,6 @@ export default function Dialer() {
       });
       setContacts(sorted);
       setIntelligence(ci && ci[0] ? ci[0] : null);
-
-      let research = matchAccountResearch(researchExact || [], co);
-      if (!research) {
-        const wider = await base44.entities.AccountResearch.list("-researched_at", 80).catch(() => []);
-        research = matchAccountResearch(wider || [], co);
-      }
-      setAccountResearch(research);
-
       // Auto-select the first dialable decision-maker, unless a specific contact was requested.
       const wanted = pendingContactRef.current;
       pendingContactRef.current = "";
@@ -595,12 +580,39 @@ export default function Dialer() {
         setIrSentNotice("Information request sent to the admin inbox.");
       }
 
-      const savedOpp = (res?.data || res)?.opportunity;
-      if (data.outcome === "connected_qualified" && savedOpp?.id) {
-        setQualifiedNotice({
-          id: savedOpp.id,
-          status: savedOpp.qualification_status || "qualifying",
+      // A lead outcome drafts the client-ready lead sheet: known answers filled
+      // from the call, everything else left for the caller. Idempotent per call.
+      const primaryOutcome = resolvePrimaryOutcomeCode(data.outcome);
+      if (callLogId && LEAD_SHEET_OUTCOMES.includes(primaryOutcome)) {
+        const prefill = buildLeadSheetPrefill({
+          call: {
+            ...data,
+            primary_outcome: primaryOutcome,
+            started_at: callStartRef.current ? new Date(callStartRef.current).toISOString() : "",
+            contact_name: contact.full_name || "",
+            company: company?.name || "",
+          },
+          contact,
+          company,
         });
+        createLeadSheetDraft({
+          source: "dialer",
+          call_log_id: callLogId,
+          campaign_id: listId || "",
+          contact_id: contact.id,
+          company_id: company?.id || "",
+          fields: prefill,
+          prefilled_fields: prefilledFieldKeys(prefill),
+        })
+          .then((result) => {
+            if (result?.sheet?.id) {
+              setLeadSheetNotice({
+                id: result.sheet.id,
+                organisation: prefill.organisation_name || contact.full_name || "",
+              });
+            }
+          })
+          .catch(() => {});
       }
 
       if (resolvePrimaryOutcomeCode(data.outcome) === "do_not_call") {
@@ -943,17 +955,16 @@ export default function Dialer() {
             {irSentNotice}
           </p>
         )}
-        {qualifiedNotice && (
-          <p className="text-sm text-emerald-800 bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3">
-            Qualified opportunity saved
-            {qualifiedNotice.status === "qualified" ? " — ready for manager review" : " — finish missing qualification fields if needed"}
-            .{" "}
-            <Link to={`/opportunities/${qualifiedNotice.id}`} className="font-medium underline underline-offset-2">
-              Open lead
-            </Link>
-            {" · "}
-            <Link to="/manager-inbox?tab=leads" className="font-medium underline underline-offset-2">
-              Admin inbox
+        {leadSheetNotice && (
+          <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3 flex items-start justify-between gap-2">
+            <span>
+              Lead sheet drafted{leadSheetNotice.organisation ? ` for ${leadSheetNotice.organisation}` : ""} — it is in your Lead sheets folder, ready for anything still missing.
+            </span>
+            <Link
+              to={`/lead-sheets?id=${leadSheetNotice.id}`}
+              className="shrink-0 font-medium underline underline-offset-2"
+            >
+              Open
             </Link>
           </p>
         )}
@@ -979,7 +990,6 @@ export default function Dialer() {
         <BriefPanel
           company={company}
           intelligence={intelligence}
-          accountResearch={accountResearch}
           contacts={contacts}
           selectedContact={selectedContact}
           onSelectContact={setSelectedContact}
@@ -987,6 +997,7 @@ export default function Dialer() {
           onEditContact={setEditingContact}
           loading={loading}
         />
+        <CallResearchPanel campaignId={listId} company={company} />
         <CallHistoryPanel contact={selectedContact} company={company} />
       </div>
 

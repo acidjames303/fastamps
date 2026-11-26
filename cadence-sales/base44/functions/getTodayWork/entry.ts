@@ -7,6 +7,7 @@ import { buildTodayWork } from '../../shared/todayWork.ts';
 // performance stats. No AI, no integration credits.
 export default async function (req) {
   const { base44, user, profile, org } = await resolveTenant(req);
-  const work = await buildTodayWork(base44, { user, profile, org });
+  const body = await req.json().catch(() => ({}));
+  const work = await buildTodayWork(base44, { user, profile, org, campaignId: body?.campaign_id || '' });
   return Response.json(work);
 }

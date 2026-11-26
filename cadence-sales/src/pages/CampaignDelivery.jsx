@@ -26,6 +26,7 @@ export default function CampaignDelivery() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [reassigning, setReassigning] = useState(false);
+  const [dataRevision, setDataRevision] = useState(0);
   const [reassignForm, setReassignForm] = useState({ from_user_id: "", to_user_id: "", reason: "" });
 
   const isManager = ["platform_owner", "organisation_admin", "sales_manager"].includes(user?.app_role);
@@ -39,6 +40,11 @@ export default function CampaignDelivery() {
   };
 
   useEffect(() => { load(); }, [id]);
+
+  const refreshAfterDataChange = async () => {
+    setDataRevision((value) => value + 1);
+    await load();
+  };
 
   const reassign = async () => {
     if (!reassignForm.to_user_id || !reassignForm.reason) return;
@@ -122,8 +128,8 @@ export default function CampaignDelivery() {
       </div>
 
       <CampaignBriefEditor campaignId={id} />
-      <DataReadinessPanel campaignId={id} />
-      <ReviewQueuePanel campaignId={id} onChanged={load} />
+      <DataReadinessPanel campaignId={id} revision={dataRevision} />
+      <ReviewQueuePanel campaignId={id} onChanged={refreshAfterDataChange} />
 
       {/* Caller workload */}
       <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">

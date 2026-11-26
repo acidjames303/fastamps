@@ -126,6 +126,60 @@
       "type": "string",
       "description": "Why the number needs review before use on a campaign."
     },
+    "tps_ctps_status": {
+      "type": "string",
+      "enum": [
+        "unchecked",
+        "safe",
+        "listed",
+        "unavailable"
+      ],
+      "enumColors": [
+        "gray",
+        "green",
+        "red",
+        "yellow"
+      ],
+      "default": "unchecked",
+      "description": "121 Prodata screening verdict for this account's numbers. 'listed' means at least one number is on the TPS or CTPS register."
+    },
+    "tps_ctps_results": {
+      "type": "array",
+      "description": "Per-number screening results returned by 121 Prodata.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "description": "Where the number came from, e.g. Mobile (Jane Smith) or Switchboard."
+          },
+          "result": {
+            "type": "string",
+            "enum": [
+              "safe",
+              "listed",
+              "unavailable"
+            ]
+          }
+        }
+      }
+    },
+    "tps_ctps_checked_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "tps_ctps_reference": {
+      "type": "string",
+      "description": "121 Prodata transaction reference for the last screening run."
+    },
+    "tps_ctps_valid_until": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the provider says these screening results should be refreshed."
+    },
     "email": {
       "type": "string",
       "description": "Best personal work email if found; may hold a generic email if that is all that was found."

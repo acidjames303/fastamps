@@ -20,12 +20,21 @@ export default function RunEstimatePanel({ estimate, searchMethod }) {
     recordsNeedingPhone = 0,
     companiesWithNamedContact = 0,
     companiesNeedingDiscovery = 0,
-    maxLushaLookups = 0,
-    maxOtherProviderLookups = 0,
+    providerLookups = [],
     maxSmartActions = 0,
     numbersReused = 0,
     recordsNotSearchable = 0,
   } = estimate || {};
+
+  // Name the providers that are ticked, and only those.
+  const lookupSentence = () => {
+    if (!providerLookups.length) return "Providers will only be asked for the fields you selected.";
+    const parts = providerLookups.map(
+      (row) => `${row.max} ${row.label} phone lookup${row.max === 1 ? "" : "s"}`,
+    );
+    if (parts.length === 1) return `Up to ${parts[0]} may be made.`;
+    return `Up to ${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]} may be made.`;
+  };
 
   return (
     <section className="rounded-xl border border-slate-200 bg-slate-50 p-4">
@@ -40,8 +49,9 @@ export default function RunEstimatePanel({ estimate, searchMethod }) {
             <Row label="Records requiring phone data" value={recordsNeedingPhone} />
             <Row label="Companies with a known named contact" value={companiesWithNamedContact} />
             <Row label="Companies requiring discovery" value={companiesNeedingDiscovery} />
-            <Row label="Maximum Lusha lookups" value={maxLushaLookups} />
-            <Row label="Maximum other-provider lookups" value={maxOtherProviderLookups} />
+            {providerLookups.map((row) => (
+              <Row key={row.provider} label={`Maximum ${row.label} lookups`} value={row.max} />
+            ))}
           </>
         )}
         <Row label="Maximum Smart Actions" value={maxSmartActions} />
@@ -72,9 +82,9 @@ export default function RunEstimatePanel({ estimate, searchMethod }) {
         <span>
           {searchMethod === "providers"
             ? phoneSelected
-              ? `Up to ${maxLushaLookups} Lusha phone lookup${maxLushaLookups === 1 ? "" : "s"} may be made — including other known people on each company.`
+              ? lookupSentence()
               : "Providers will only be asked for the fields you selected."
-            : "Lusha will not be called in this mode. No new phone numbers can be retrieved."}
+            : "No provider will be called in this mode. No new phone numbers can be retrieved."}
         </span>
       </div>
 

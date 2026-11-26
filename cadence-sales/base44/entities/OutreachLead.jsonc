@@ -14,6 +14,42 @@
     "import_batch_id": {
       "type": "string"
     },
+    "campaign_id": {
+      "type": "string",
+      "description": "Outreach campaign this contact was pushed into."
+    },
+    "prospect_id": {
+      "type": "string",
+      "description": "Stable Prospect id this contact came from."
+    },
+    "contact_id": {
+      "type": "string",
+      "description": "Stable Contact id this contact came from, when one exists."
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "account_research_id": {
+      "type": "string",
+      "description": "Canonical AccountResearch record reused for this contact; never a copy."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "Stable key so pushing the same contact into the same campaign never duplicates it."
+    },
+    "push_source": {
+      "type": "string",
+      "enum": [
+        "spreadsheet",
+        "prospecting",
+        "manual"
+      ],
+      "default": "spreadsheet"
+    },
+    "pushed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
     "normalised_email": {
       "type": "string"
     },
@@ -35,6 +71,19 @@
     "name_suggestion": {
       "type": "string",
       "description": "Never used as confirmed recipient identity"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Dialable number preserved from the prospect record."
+    },
+    "mobile": {
+      "type": "string"
+    },
+    "direct_dial": {
+      "type": "string"
+    },
+    "company_phone": {
+      "type": "string"
     },
     "original_company_name": {
       "type": "string"
@@ -76,11 +125,48 @@
       "type": "string",
       "format": "date-time"
     },
+    "campaign_brief": {
+      "type": "string",
+      "description": "Campaign instructions captured at push time so drafts stay grounded after edits."
+    },
     "research_fact": {
       "type": "string"
     },
     "research_source_url": {
       "type": "string"
+    },
+    "research_facts": {
+      "type": "array",
+      "description": "Published, source-linked findings reused from the canonical AccountResearch record.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "source_url": {
+            "type": "string"
+          },
+          "source_date": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "research_evidence_status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "sourced",
+        "mixed"
+      ],
+      "default": "none"
     },
     "research_review_status": {
       "type": "string"
@@ -91,6 +177,19 @@
     "research_checked_at": {
       "type": "string",
       "format": "date-time"
+    },
+    "tps_ctps_status": {
+      "type": "string",
+      "description": "Screening verdict carried from the prospect at push time."
+    },
+    "suppression_status": {
+      "type": "string",
+      "enum": [
+        "clear",
+        "suppressed",
+        "unchecked"
+      ],
+      "default": "unchecked"
     },
     "company_name": {
       "type": "string"

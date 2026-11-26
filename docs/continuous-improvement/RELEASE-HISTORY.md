@@ -119,3 +119,11 @@ James confirmed live Prospecting is **Campaigns → Find prospects → Import ex
 - Synced `campaign-builder/` into git so this path is the source of truth going forward.
 - Published live via `base44 site deploy --publish` (bundle `index-CIflvdVW.js`).
 
+---
+
+## Sync fix — 26 Nov 2026 ~09:50 (Europe/London)
+
+**Problem:** Git `cadence-sales` had drifted from the production Cadence Base44 app (`BASE44_APP_ID`) (parallel ProspectStart UI). Edits/demos hit the wrong surface.
+
+**Fix:** Re-synced `cadence-sales/src` (+ `base44/`) from the live eject of the production Cadence Base44 app. Prospecting again uses `CampaignBuilderWorkspace` / Find prospects / Company list. Guardrail rule `.cursor/rules/cadence-live-app-source.mdc` added. No second Base44 app was created.
+

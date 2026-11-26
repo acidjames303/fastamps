@@ -7,21 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import {
-  UserPlus, Loader2, Users, Building2, Phone, Inbox, RefreshCw,
+  UserPlus, Loader2, Users, Building2, Phone, Inbox, RefreshCw, ArrowRight,
 } from "lucide-react";
-import { ROLE_LABELS, LIVE_STATUS_LABEL, LIVE_STATUS_TONE, LIVE_STATUS_HINT } from "@/lib/roleLabels";
-import ManagerInboxPanel from "@/components/team/ManagerInboxPanel";
-import QualifiedOpportunitiesPanel from "@/components/team/QualifiedOpportunitiesPanel";
-
-function formatTalkMinutes(seconds) {
-  const s = Math.max(0, Math.round(Number(seconds) || 0));
-  if (s < 60) return `${s}s on calls`;
-  const m = Math.round(s / 60);
-  if (m < 60) return `${m} min on calls`;
-  const h = Math.floor(m / 60);
-  const rem = m % 60;
-  return rem ? `${h}h ${rem}m on calls` : `${h}h on calls`;
-}
+import { ROLE_LABELS, LIVE_STATUS_LABEL, LIVE_STATUS_TONE } from "@/lib/roleLabels";
 
 export default function Team() {
   const { user } = useAuth();
@@ -162,7 +150,7 @@ export default function Team() {
         <div>
           <h1 className="font-display text-3xl font-semibold text-slate-900">Team</h1>
           <p className="text-slate-500 mt-1">
-            People, live dialler status, and genuine call activity — not login time.
+            Live view of your callers. Open anyone to see their calls, campaigns and info requests.
           </p>
         </div>
         {canManage && (
@@ -188,17 +176,12 @@ export default function Team() {
       </div>
 
       {canManage && (
-        <div className="space-y-2">
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-            <LiveStat label="On a call" value={live.in_call} tone="text-emerald-700" hint={LIVE_STATUS_HINT.in_call} />
-            <LiveStat label="Logging notes" value={live.logging} tone="text-amber-700" hint={LIVE_STATUS_HINT.logging} />
-            <LiveStat label="In Cadence" value={live.idle} tone="text-sky-700" hint={LIVE_STATUS_HINT.idle} />
-            <LiveStat label="No recent activity" value={live.offline} tone="text-slate-500" hint={LIVE_STATUS_HINT.offline} />
-            <LiveStat label="IR drafts waiting" value={live.pending_irs} tone="text-violet-700" hint="Info requests callers raised that still need a draft" />
-          </div>
-          <p className="text-[11px] text-slate-400 px-1">
-            Live tiles use the dialler heartbeat (last 2 minutes). They are not hours logged in.
-          </p>
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+          <LiveStat label="On a call" value={live.in_call} tone="text-emerald-700" />
+          <LiveStat label="Logging notes" value={live.logging} tone="text-amber-700" />
+          <LiveStat label="Idle" value={live.idle} tone="text-sky-700" />
+          <LiveStat label="Offline" value={live.offline} tone="text-slate-500" />
+          <LiveStat label="IR drafts waiting" value={live.pending_irs} tone="text-violet-700" />
         </div>
       )}
 
@@ -207,9 +190,7 @@ export default function Team() {
           <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
             <div>
               <h2 className="font-semibold text-slate-900 flex items-center gap-2"><Users className="w-4 h-4" /> Live callers</h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Attempts ≠ conversations. Per-hour uses time on logged calls, not login duration. Refreshes every 15s.
-              </p>
+              <p className="text-xs text-slate-400 mt-0.5">Updates every 15 seconds while this page is open.</p>
             </div>
             {isAdmin && (
               <Link to="/manager-inbox" className="text-sm text-emerald-700 hover:underline inline-flex items-center gap-1">
@@ -228,9 +209,9 @@ export default function Team() {
                 const profile = members.find((m) => m.user_id === c.user_id);
                 return (
                   <div key={c.user_id} className="p-4 flex flex-col lg:flex-row lg:items-center gap-3">
-                    <div className="flex-1 min-w-0">
+                    <Link to={`/team/${c.user_id}`} className="flex-1 min-w-0 group">
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-medium text-slate-900">{c.name || profile?.full_name || "Caller"}</p>
+                        <p className="font-medium text-slate-900 group-hover:text-emerald-700">{c.name || profile?.full_name || "Caller"}</p>
                         <span className={`text-[11px] px-2 py-0.5 rounded-full border ${LIVE_STATUS_TONE[liveStatus]}`}>
                           {LIVE_STATUS_LABEL[liveStatus]}
                         </span>
@@ -240,30 +221,23 @@ export default function Team() {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-slate-500 mt-1 truncate" title={LIVE_STATUS_HINT[liveStatus] || ""}>
+                      <p className="text-xs text-slate-500 mt-1 truncate">
                         {c.activity_detail || c.email || "—"}
-                      </p>
-                      <p className="text-xs text-slate-600 mt-1">
-                        <span className="font-medium text-slate-800">{c.callsToday || 0}</span> attempts
                         {" · "}
-                        <span className="font-medium text-slate-800">{c.conversationsToday || 0}</span> conversations
-                        {" · "}
-                        {formatTalkMinutes(c.talk_seconds_today)}
-                        {typeof c.attempts_per_talk_hour === "number" ? (
-                          <>
-                            {" · "}
-                            <span className="font-medium text-slate-800">{c.attempts_per_talk_hour}</span>
-                            {" /hr while dialling"}
-                          </>
-                        ) : null}
+                        {c.callsToday || 0} calls today · {c.conversationsToday || 0} conversations
                       </p>
                       {c.assigned_campaign_names?.length > 0 && (
                         <p className="text-xs text-slate-400 mt-1 truncate">
                           Campaigns: {c.assigned_campaign_names.join(", ")}
                         </p>
                       )}
-                    </div>
+                    </Link>
                     <div className="flex flex-wrap items-center gap-2">
+                      <Button size="sm" variant="outline" className="rounded-full" asChild>
+                        <Link to={`/team/${c.user_id}`}>
+                          Account <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                        </Link>
+                      </Button>
                       <select
                         className="rounded-full border border-slate-200 text-xs px-3 py-1.5 bg-white"
                         value={managerIdByCaller[c.user_id] || ""}
@@ -301,13 +275,6 @@ export default function Team() {
               })}
             </div>
           )}
-        </div>
-      )}
-
-      {isAdmin && (
-        <div className="space-y-4">
-          <ManagerInboxPanel limit={5} />
-          <QualifiedOpportunitiesPanel limit={5} />
         </div>
       )}
 
@@ -363,13 +330,24 @@ export default function Team() {
         ) : (
           <div className="divide-y divide-slate-100">
             {members.map((m) => (
-              <div key={m.id} className="px-5 py-3 flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-medium text-slate-900">{m.full_name || m.email || "Member"}</p>
-                  <p className="text-xs text-slate-400">{m.email}</p>
+              <Link
+                key={m.id}
+                to={`/team/${m.user_id || m.id}`}
+                className="px-5 py-3 flex items-center justify-between gap-3 hover:bg-slate-50 transition-colors group"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-slate-900 group-hover:text-emerald-700 truncate">
+                    {m.full_name || m.email || "Member"}
+                  </p>
+                  <p className="text-xs text-slate-400 truncate">{m.email}</p>
                 </div>
-                <span className="text-xs text-slate-500">{ROLE_LABELS[m.app_role] || m.app_role}</span>
-              </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className="text-xs text-slate-500">{ROLE_LABELS[m.app_role] || m.app_role}</span>
+                  <span className="text-xs text-emerald-700 inline-flex items-center gap-1">
+                    Open account <ArrowRight className="w-3.5 h-3.5" />
+                  </span>
+                </div>
+              </Link>
             ))}
           </div>
         )}
@@ -378,9 +356,9 @@ export default function Team() {
   );
 }
 
-function LiveStat({ label, value, tone, hint }) {
+function LiveStat({ label, value, tone }) {
   return (
-    <div className="rounded-2xl bg-white border border-slate-200 p-4" title={hint || ""}>
+    <div className="rounded-2xl bg-white border border-slate-200 p-4">
       <p className={`text-2xl font-display font-semibold ${tone}`}>{value}</p>
       <p className="text-xs text-slate-400 mt-1">{label}</p>
     </div>

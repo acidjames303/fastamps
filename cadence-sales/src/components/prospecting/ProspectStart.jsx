@@ -3,9 +3,11 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  UploadCloud, Sparkles, Loader2, CircleAlert, CheckCircle2,
+  UploadCloud, Sparkles, Loader2, CircleAlert, CheckCircle2, MessageSquare, Search, ClipboardCheck,
 } from "lucide-react";
-import CsvAccountsUpload from "@/components/prospecting/CsvAccountsUpload";
+import WorkbookImport from "@/components/prospecting/WorkbookImport";
+import DictateButton from "@/components/dialer/DictateButton";
+import CampaignChat from "@/components/prospecting/CampaignChat";
 
 const IN_FLIGHT = ["queued", "researching", "discovering", "saving"];
 const MIN_ACCOUNTS = 5;
@@ -23,15 +25,25 @@ const PHASE_LABEL = {
 };
 
 const MODES = [
+  { id: "chat", label: "Talk it through", icon: MessageSquare },
   { id: "upload", label: "Upload a spreadsheet", icon: UploadCloud },
-  { id: "prompt", label: "Prompt the agent", icon: Sparkles },
+  { id: "prompt", label: "Type it in one box", icon: Sparkles },
 ];
 
-// One entry point for prospecting: drop in a spreadsheet, or describe the
-// accounts you want. Both land in a prospect list that is ready to enrich.
+const STEPS = [
+  { icon: MessageSquare, label: "Describe the campaign" },
+  { icon: Search, label: "Cadence finds the accounts" },
+  { icon: ClipboardCheck, label: "Review, enrich, push" },
+];
+
+// One entry point for prospecting: talk the campaign through, drop in a
+// spreadsheet, or describe it in a single box. All three land in a prospect
+// list that is ready to research and enrich.
 export default function ProspectStart({ listId, prospects = [], onListCreated, onImported, onRunFinished }) {
-  const [mode, setMode] = useState("upload");
+  const [mode, setMode] = useState("chat");
   const [prompt, setPrompt] = useState("");
+  const [brief, setBrief] = useState("");
+  const [icp, setIcp] = useState("");
   const [count, setCount] = useState(25);
   const [found, setFound] = useState(0);
   const [starting, setStarting] = useState(false);
@@ -41,8 +53,14 @@ export default function ProspectStart({ listId, prospects = [], onListCreated, o
   const [instruction, setInstruction] = useState(RESEARCH_EXAMPLE);
   const [research, setResearch] = useState({ done: 0, total: 0 });
 
-  const run = async () => {
-    if (!prompt.trim() || starting) return;
+  // A run starts from the conversation (written brief + ICP) or from the
+  // single-box description. Both use the same agent.
+  const runWith = async ({ brief: runBrief = "", icp: runIcp = "", research: runResearch = true } = {}) => {
+    const useBrief = runBrief.trim();
+    const useIcp = runIcp.trim() || (useBrief ? "" : prompt.trim());
+    if ((!useBrief && !useIcp) || starting) return;
+    setBrief(useBrief);
+    setIcp(useIcp);
     setStarting(true);
     setError("");
     setSaved(null);
@@ -52,8 +70,9 @@ export default function ProspectStart({ listId, prospects = [], onListCreated, o
     const target = Math.min(MAX_ACCOUNTS, Math.max(MIN_ACCOUNTS, Math.round(count) || MIN_ACCOUNTS));
     try {
       const started = await base44.functions.invoke("startProspectingRun", {
-        source_type: "icp",
-        icp: prompt.trim(),
+        source_type: useBrief ? "brief" : "icp",
+        brief: useBrief,
+        icp: useIcp,
         max_accounts: target,
         permitted_countries: ["GB"],
         auto_enrich: false,
@@ -87,7 +106,7 @@ export default function ProspectStart({ listId, prospects = [], onListCreated, o
       // instruction to each one before the list opens.
       const ids = current?.prospect_ids || [];
       const targetListId = current?.prospect_list_id;
-      const text = instruction.trim();
+      const text = runResearch ? instruction.trim() : "";
       if (text && ids.length && targetListId) {
         try {
           setResearch({ done: 0, total: ids.length });
@@ -123,14 +142,31 @@ export default function ProspectStart({ listId, prospects = [], onListCreated, o
     }
   };
 
+  const run = () => runWith({ icp: prompt });
+
   return (
     <div className="rounded-3xl bg-white border border-slate-200 p-6 space-y-5">
       <div>
         <h2 className="font-display text-2xl font-semibold text-slate-900">Start prospecting</h2>
         <p className="text-sm text-slate-500 mt-1 max-w-xl">
-          Bring your own list, or describe the accounts you want and the agent finds them. Either way you get a
-          prospect list ready to research and enrich.
+          Talk the campaign through like you would with a colleague. Cadence writes the brief as you go, then finds
+          the accounts that fit. Prefer to bring your own list? Upload a spreadsheet instead.
         </p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+        {STEPS.map((step, i) => {
+          const Icon = step.icon;
+          return (
+            <React.Fragment key={step.label}>
+              {i > 0 && <span className="text-slate-300">→</span>}
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 border border-slate-200 px-3 py-1">
+                <Icon className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="text-slate-600">{i + 1}. {step.label}</span>
+              </span>
+            </React.Fragment>
+          );
+        })}
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -155,12 +191,13 @@ export default function ProspectStart({ listId, prospects = [], onListCreated, o
       </div>
 
       {mode === "upload" ? (
-        <CsvAccountsUpload
+        <WorkbookImport
           listId={listId}
-          existingProspects={prospects}
           onListCreated={onListCreated}
           onImported={onImported}
         />
+      ) : mode === "chat" ? (
+        <CampaignChat starting={starting} onStart={(payload) => runWith(payload)} initialBrief={brief} initialIcp={icp} />
       ) : (
         <div className="space-y-4">
           <div className="space-y-1.5">
@@ -175,6 +212,7 @@ export default function ProspectStart({ listId, prospects = [], onListCreated, o
               className="rounded-xl min-h-28 text-sm"
               disabled={starting}
             />
+            <DictateButton value={prompt} onChange={setPrompt} label="Dictate who to call" />
             <p className="text-[11px] text-slate-400">
               Describe the market, size, location and the roles worth calling. The agent reads public sources, qualifies
               each account against your description and keeps the ones that fit.
@@ -193,6 +231,7 @@ export default function ProspectStart({ listId, prospects = [], onListCreated, o
               className="rounded-xl min-h-20 text-sm"
               disabled={starting}
             />
+            <DictateButton value={instruction} onChange={setInstruction} label="Dictate research instruction" />
             <p className="text-[11px] text-slate-400">
               Runs on every account the agent finds, with the source link kept beside each finding. One Smart Action per
               account — leave it blank to find accounts without research.
@@ -226,36 +265,36 @@ export default function ProspectStart({ listId, prospects = [], onListCreated, o
               {starting ? "Working…" : "Find accounts"}
             </Button>
           </div>
+        </div>
+      )}
 
-          {starting && phase && (
-            <p className="text-sm text-slate-500 inline-flex items-center gap-2">
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-600" /> {phase}
-              {found > 0 && <span className="text-slate-400">· {found} found so far</span>}
-              {research.total > 0 && (
-                <span className="text-slate-400">· {research.done} researched</span>
-              )}
-            </p>
+      {starting && phase && (
+        <p className="text-sm text-slate-500 inline-flex items-center gap-2">
+          <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-600" /> {phase}
+          {found > 0 && <span className="text-slate-400">· {found} found so far</span>}
+          {research.total > 0 && (
+            <span className="text-slate-400">· {research.done} researched</span>
           )}
+        </p>
+      )}
 
-          {error && (
-            <div className="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-              <CircleAlert className="w-4 h-4 mt-0.5 flex-none" />
-              <span>{error}</span>
-            </div>
-          )}
+      {error && (
+        <div className="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+          <CircleAlert className="w-4 h-4 mt-0.5 flex-none" />
+          <span>{error}</span>
+        </div>
+      )}
 
-          {saved && (
-            <div className="flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
-              <CheckCircle2 className="w-4 h-4 mt-0.5 flex-none" />
-              <span>
-                {saved.found
-                  ? `${saved.found} account${saved.found === 1 ? "" : "s"} saved${
-                      saved.researched ? ` and ${saved.researched} researched` : ""
-                    }. Enrich them next.`
-                  : "The agent finished but nothing fitted your description. Try naming the market, size or buying signals."}
-              </span>
-            </div>
-          )}
+      {saved && (
+        <div className="flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+          <CheckCircle2 className="w-4 h-4 mt-0.5 flex-none" />
+          <span>
+            {saved.found
+              ? `${saved.found} account${saved.found === 1 ? "" : "s"} saved${
+                  saved.researched ? ` and ${saved.researched} researched` : ""
+                }. Enrich them next.`
+              : "The agent finished but nothing fitted your description. Try naming the market, size or buying signals."}
+          </span>
         </div>
       )}
     </div>

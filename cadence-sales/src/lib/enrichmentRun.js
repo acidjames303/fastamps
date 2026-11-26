@@ -21,6 +21,14 @@ export const PROVIDER_KEY_MAP = {
 
 export const ALL_PROVIDERS = ["apollo", "lusha", "fullenrich"];
 
+// Provider names as the user sees them, so the estimate names the providers
+// that are actually ticked rather than assuming one of them.
+export const PROVIDER_LABELS = {
+  apollo: "Apollo",
+  lusha: "Lusha",
+  fullenrich: "FullEnrich",
+};
+
 // Plain-language results for a phone lookup. Used in the batch summary and the
 // per-prospect diagnostics panel so a run never reports "no information found".
 export const PHONE_RESULT_LABELS = {
@@ -133,15 +141,20 @@ export function buildRunEstimate({
   searchDepth = "standard",
   phoneCoverage = {},
   connectedProviders = {},
+  selectedProviders = null,
 }) {
   const phoneSelected = requestedFields.some((f) => PHONE_FIELDS.includes(f));
   const usesProviders = searchMethod === "providers";
-  const lushaConnected = !!connectedProviders?.[PROVIDER_KEY_MAP.lusha];
-  const otherProviderConnected = !!(
-    connectedProviders?.[PROVIDER_KEY_MAP.apollo] ||
-    connectedProviders?.[PROVIDER_KEY_MAP.fullenrich]
-  );
   const discover = !!phoneCoverage.discover;
+
+  // Only the providers the user has ticked may be called, so the estimate must
+  // name and count those — never a provider that happens to be connected.
+  const tickedProviders = Array.isArray(selectedProviders)
+    ? selectedProviders
+    : ALL_PROVIDERS.filter((provider) => !!connectedProviders?.[PROVIDER_KEY_MAP[provider]]);
+  const phoneProviders = tickedProviders.filter((provider) =>
+    (PROVIDER_CAPABILITIES[provider] || []).some((field) => PHONE_FIELDS.includes(field)),
+  );
 
   const recordsToProcess = prospects.filter(
     (p) => !requestedFields.every((field) => hasField(p, field)),
@@ -160,20 +173,22 @@ export function buildRunEstimate({
     return sum + Math.min(3, others);
   }, 0);
 
-  let maxLushaLookups = 0;
-  if (usesProviders && phoneSelected && lushaConnected) {
-    if (searchDepth === "standard") {
-      maxLushaLookups = phoneWithName.length + (discover ? phoneWithoutName.length : 0);
-    } else {
-      maxLushaLookups = phoneWithName.length + extraKnown +
-        (discover ? phoneWithoutName.length : 0);
-    }
-  }
+  const lookupBase = phoneWithName.length + (discover ? phoneWithoutName.length : 0);
+  // Lusha also checks the other known people at the company on deeper searches.
+  const lushaLookups = searchDepth === "standard" ? lookupBase : lookupBase + extraKnown;
 
-  const maxOtherProviderLookups =
-    usesProviders && phoneSelected && otherProviderConnected
-      ? phoneWithName.length + (discover ? phoneWithoutName.length : 0)
-      : 0;
+  const providerLookups = usesProviders && phoneSelected
+    ? phoneProviders.map((provider) => ({
+        provider,
+        label: PROVIDER_LABELS[provider] || provider,
+        max: provider === "lusha" ? lushaLookups : lookupBase,
+      }))
+    : [];
+
+  const maxLushaLookups = providerLookups.find((row) => row.provider === "lusha")?.max || 0;
+  const maxOtherProviderLookups = providerLookups
+    .filter((row) => row.provider !== "lusha")
+    .reduce((sum, row) => sum + row.max, 0);
 
   let maxSmartActions = 0;
   if (searchMethod === "public") maxSmartActions += recordsToProcess;
@@ -194,6 +209,7 @@ export function buildRunEstimate({
     recordsNeedingPhone: needingPhone.length,
     companiesWithNamedContact: phoneWithName.length,
     companiesNeedingDiscovery: discover ? phoneWithoutName.length : 0,
+    providerLookups,
     maxLushaLookups,
     maxOtherProviderLookups,
     maxSmartActions,

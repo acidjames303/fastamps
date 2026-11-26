@@ -1,6 +1,7 @@
 import React from "react";
 import { X, AlertCircle, CheckCircle2, Mail, Phone, Lightbulb } from "lucide-react";
 import { PHONE_RESULT_LABELS } from "@/lib/enrichmentRun";
+import { emailFlags } from "@/lib/emailDisplay";
 
 // Diagnostic dialog showing why a prospect has missing data, which providers
 // were tried, and actionable suggestions for next steps.
@@ -11,8 +12,9 @@ export default function ProspectDiagnosticsDialog({ prospect, onClose }) {
   const providerUsed = prospect.provider_used || "";
   const enrichmentStatus = prospect.enrichment_status || "pending";
 
-  const hasEmail = !!(prospect.email && prospect.email_type === "personal_work");
-  const hasGenericEmail = !!(prospect.email && (prospect.email_type === "generic_company" || prospect.email_type === "role_based_work"));
+  const flags = emailFlags(prospect);
+  const hasEmail = flags.isPersonal;
+  const hasGenericEmail = flags.isGenericOnly;
   const hasPhone = !!prospect.phone;
   const hasLandline = !!prospect.landline;
   // Precise phone outcome recorded by the enrichment run.

@@ -7,6 +7,8 @@ import { useAuth } from "@/lib/AuthContext";
 import { resolveCompanyIds } from "@/lib/company";
 import { assignCompaniesToList, fetchTargetLists } from "@/lib/targetLists";
 
+const NEW_LIST = "__new_list__";
+
 const schema = {
   type: "object",
   properties: {
@@ -35,6 +37,8 @@ export default function Import({ embedded = false }) {
   const [result, setResult] = useState(null);
   const [targetLists, setTargetLists] = useState([]);
   const [targetListId, setTargetListId] = useState("");
+  const [newListName, setNewListName] = useState("");
+  const [error, setError] = useState("");
   const { user } = useAuth();
 
   useEffect(() => { fetchTargetLists().then(setTargetLists).catch(() => {}); }, []);
@@ -42,6 +46,12 @@ export default function Import({ embedded = false }) {
   const handleFile = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (targetListId === NEW_LIST && !newListName.trim()) {
+      setError("Give your new list a name first, then choose the spreadsheet again.");
+      e.target.value = "";
+      return;
+    }
+    setError("");
     setStatus("uploading");
     setResult(null);
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
@@ -69,9 +79,26 @@ export default function Import({ embedded = false }) {
         }))
       );
     }
+    // "New list" creates the target list first, then links the companies to it.
+    let listId = targetListId;
+    let listName = targetLists.find((l) => l.id === targetListId)?.name || "";
+    if (targetListId === NEW_LIST) {
+      const created = await base44.entities.Campaign.create({
+        name: newListName.trim(),
+        status: "active",
+        contact_count: 0,
+        organisation_id: user.organisation_id,
+        owner_user_id: user.id,
+      });
+      listId = created.id;
+      listName = created.name;
+      setTargetLists((prev) => [created, ...prev]);
+      setTargetListId(created.id);
+      setNewListName("");
+    }
     let addedToList = 0;
-    if (targetListId && importedCompanyIds.length) {
-      const res = await assignCompaniesToList(targetListId, importedCompanyIds, user.organisation_id, user.id);
+    if (listId && importedCompanyIds.length) {
+      const res = await assignCompaniesToList(listId, importedCompanyIds, user.organisation_id, user.id);
       addedToList = res.added;
     }
     setResult({
@@ -80,7 +107,7 @@ export default function Import({ embedded = false }) {
       companiesReused: getCompanyId.stats.reused,
       review: getCompanyId.stats.review,
       addedToList,
-      targetListName: targetLists.find((l) => l.id === targetListId)?.name || "",
+      targetListName: listName,
     });
     setStatus("done");
   };
@@ -138,14 +165,27 @@ export default function Import({ embedded = false }) {
         <p className="text-sm text-slate-500 mt-1 mb-3">Optionally link every imported company to a target list so they're ready to dial.</p>
         <select
           value={targetListId}
-          onChange={(e) => setTargetListId(e.target.value)}
+          onChange={(e) => {
+            setTargetListId(e.target.value);
+            setError("");
+          }}
           className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 max-w-xs"
         >
           <option value="">Don't assign</option>
           {targetLists.map((l) => (
             <option key={l.id} value={l.id}>{l.name}</option>
           ))}
+          <option value={NEW_LIST}>＋ New list…</option>
         </select>
+        {targetListId === NEW_LIST && (
+          <input
+            value={newListName}
+            onChange={(e) => setNewListName(e.target.value)}
+            placeholder="Name your new list"
+            className="mt-2 block w-full max-w-xs rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
+          />
+        )}
+        {error && <p className="text-xs text-rose-600 mt-2">{error}</p>}
       </div>
 
       {!embedded && (

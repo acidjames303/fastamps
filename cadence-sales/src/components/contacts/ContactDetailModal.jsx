@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import DictateButton from "@/components/dialer/DictateButton";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Building2, MapPin, Users } from "lucide-react";
 
@@ -105,6 +106,9 @@ export default function ContactDetailModal({ contact, open, onOpenChange, onSave
             <Label className="text-xs text-slate-500">Notes</Label>
             <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })}
               className="rounded-lg border-slate-200 min-h-[80px]" />
+            <div className="mt-1.5">
+              <DictateButton value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} label="Dictate notes" />
+            </div>
           </div>
 
           {/* Status badges */}

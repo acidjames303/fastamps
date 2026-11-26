@@ -10,6 +10,7 @@ import { assignCompaniesToList, computeListMetrics, fetchListCompanyIds } from "
 import CompanyFilterBar from "@/components/targetlists/CompanyFilterBar";
 import CampaignExportButton from '@/components/campaigns/CampaignExportButton';
 import DataReadinessPanel from '@/components/campaigns/DataReadinessPanel';
+import CampaignResearchWorkspace from '@/components/campaigns/research/CampaignResearchWorkspace';
 import ReviewQueuePanel from '@/components/campaigns/ReviewQueuePanel';
 import {
   EMPTY_FILTERS, filterCompanies, filtersActive, summariseCompanyContacts,
@@ -205,6 +206,7 @@ export default function TargetListDetail() {
         </div>
       )}
 
+      <CampaignResearchWorkspace campaignId={id} />
       <DataReadinessPanel campaignId={id} />
       <ReviewQueuePanel campaignId={id} onChanged={load} />
       <div className="grid lg:grid-cols-2 gap-6">

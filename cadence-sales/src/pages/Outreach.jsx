@@ -10,17 +10,12 @@ import OutreachInbox from "@/components/email/OutreachInbox";
 import OutreachCampaignStudio from "@/components/email/OutreachCampaignStudio";
 import OutreachTemplates from "@/components/email/OutreachTemplates";
 import OutreachWorkspaces from "@/components/email/OutreachWorkspaces";
+import DictateButton from "@/components/dialer/DictateButton";
 import OutreachExports from "@/components/email/OutreachExports";
 import OutreachSchedule from "@/components/email/OutreachSchedule";
 import OutreachNav from "@/components/email/OutreachNav";
 import OutreachOverview from "@/components/email/OutreachOverview";
-
-const BRAND_OPTIONS = [
-  { key: "fastamps", title: "FastAmps" },
-  { key: "b2bsalesleads", title: "B2B Sales Leads" },
-  { key: "acidjames", title: "Acid James" },
-  { key: "other", title: "Other" },
-];
+import { BRAND_OPTIONS } from "@/lib/outreachBrands";
 const blank = (brand = "fastamps") => ({
   recipient_to: "", recipient_cc: "", recipient_bcc: "", subject: "",
   body_text: "", quoted_text: "", signature_id: "", provider: "none", brand_key: brand, status: "draft"
@@ -430,8 +425,8 @@ export default function Outreach() {
         drafts={visibleDrafts} loading={loading} mailboxConnected={!!(mailStatus?.providers?.gmail?.connected||mailStatus?.providers?.outlook?.connected)}
         onNavigate={goToPage} onCompose={newDraft}/>}
       {page === "inbox" && <OutreachInbox mailStatus={mailStatus} onConnections={()=>{setPage("mailboxes");refreshMail();}} onReply={createReplyDraft} />}
-      {page === "campaign_studio" && <OutreachCampaignStudio brand={brand} user={user} onDraftsCreated={refresh} />}
-      {page === "templates" && <OutreachTemplates user={user} brand={brand} brandOptions={brandOptions} onUseTemplate={applyTemplate}/>}
+      {page === "campaign_studio" && <OutreachCampaignStudio brand={brand} user={user} onDraftsCreated={refresh} onOpenDrafts={() => setPage("drafts")} />}
+      {page === "templates" && <OutreachTemplates user={user} brand={brand} brandOptions={brandOptions} onUseTemplate={applyTemplate} defaultSignature={signatures.find(s=>s.brand_key===brand&&s.is_default)?.signature_text||""}/>}
       {page === "exports" && <OutreachExports brand={brand} brandLabel={brandOptions.find(x=>x.key===brand)?.title||brand}/>}
       {page === "schedule" && <OutreachSchedule brand={brand} brandLabel={brandOptions.find(x=>x.key===brand)?.title||brand}/>}
       {page === "workspaces" && <OutreachWorkspaces user={user} customWorkspaces={customWorkspaces}
@@ -497,6 +492,7 @@ export default function Outreach() {
               <div className="grid sm:grid-cols-2 gap-3"><label className="block text-xs font-medium text-slate-600">CC<input type="text" className={inputClass+" mt-1"} value={draft.recipient_cc} onChange={(e)=>changeDraft("recipient_cc",e.target.value)}/></label><label className="block text-xs font-medium text-slate-600">BCC<input type="text" className={inputClass+" mt-1"} value={draft.recipient_bcc} onChange={(e)=>changeDraft("recipient_bcc",e.target.value)}/></label></div>
               <label className="block text-xs font-medium text-slate-600">Subject<input className={inputClass+" mt-1"} maxLength={220} value={draft.subject} onChange={(e)=>changeDraft("subject",e.target.value)} placeholder="Your email subject" /></label>
               <label className="block text-xs font-medium text-slate-600">Message<textarea className={inputClass+" mt-1 min-h-[240px] resize-y leading-relaxed"} value={draft.body_text} onChange={(e)=>changeDraft("body_text",e.target.value)} placeholder="Hi Sarah,\n\nAre you the right person to speak to about…"/></label>
+              <div className="mt-1"><DictateButton value={draft.body_text} onChange={(v)=>changeDraft("body_text",v)} label="Dictate email" /></div>
               {!!draft.quoted_text && <label className="block text-xs font-medium text-slate-600">Quoted original (appears after your signature)<textarea className={inputClass+" mt-1 min-h-[135px] resize-y leading-relaxed"} value={draft.quoted_text} onChange={(e)=>changeDraft("quoted_text",e.target.value)}/></label>}
               <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 space-y-2">
                 <div className="flex flex-wrap items-center gap-2">

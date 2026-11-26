@@ -45,18 +45,6 @@ export default async function (req) {
           (l) => (l.user_id === p.user_id || l.assigned_user_id === p.user_id)
             && l.started_at && new Date(l.started_at).getTime() >= todayStart.getTime()
         );
-        // Active dialling time from logged call durations — never login/session length.
-        const talkSecondsToday = todayLogs.reduce(
-          (sum, l) => sum + (typeof l.duration_seconds === 'number' && l.duration_seconds > 0 ? l.duration_seconds : 0),
-          0,
-        );
-        const talkHoursToday = talkSecondsToday / 3600;
-        const callsToday = todayLogs.length;
-        const conversationsToday = todayLogs.filter((l) => l.conversation_held === true).length;
-        // Only report attempts/hour once there is a meaningful amount of dial time.
-        const attemptsPerTalkHour = talkHoursToday >= (5 / 60)
-          ? Math.round((callsToday / talkHoursToday) * 10) / 10
-          : null;
         const pendingIrs = tasks.filter(
           (t) => t.created_by_user_id === p.user_id
             && t.task_type === 'info_request_followup'
@@ -74,10 +62,8 @@ export default async function (req) {
           status: p.status,
           daily_call_target: p.daily_call_target || 0,
           ...workload,
-          callsToday,
-          conversationsToday,
-          talk_seconds_today: talkSecondsToday,
-          attempts_per_talk_hour: attemptsPerTalkHour,
+          callsToday: todayLogs.length,
+          conversationsToday: todayLogs.filter((l) => l.conversation_held === true).length,
           pending_irs: pendingIrs,
           live_status: liveStatus,
           activity_detail: fresh ? (p.activity_detail || '') : '',

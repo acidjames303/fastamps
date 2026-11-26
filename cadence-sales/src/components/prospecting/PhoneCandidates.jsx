@@ -71,25 +71,13 @@ export default function PhoneCandidates({ prospect, onPreferred }) {
         decided_at: at,
         audit: [...(Array.isArray(row.audit) ? row.audit : []), entry],
       });
-      // Prefer always promotes the number onto the prospect. Confirm also
-      // marks call-ready when this row is already the preferred / primary
-      // number — previously Confirm only updated ContactPhone and left
-      // phone_status stuck on provider_returned_unverified.
-      const isPrimary =
-        row.status === "preferred"
-        || String(prospect.phone || "").replace(/\s+/g, "") === String(row.value || row.normalised || "").replace(/\s+/g, "")
-        || String(prospect.mobile || "").replace(/\s+/g, "") === String(row.value || row.normalised || "").replace(/\s+/g, "");
-
-      if (action === "prefer" || (action === "confirm" && isPrimary)) {
+      if (action === "prefer") {
         await base44.entities.Prospect.update(prospect.id, {
           phone: row.value,
           phone_type: PROSPECT_PHONE_TYPE[row.phone_type] || "unknown",
           phone_status: "manually_confirmed",
           phone_source: row.source,
           phone_verified_at: at,
-          ...(PROSPECT_PHONE_TYPE[row.phone_type] === "mobile" || row.phone_type === "mobile"
-            ? { mobile: row.value }
-            : {}),
         });
         await onPreferred?.(prospect.id);
       }

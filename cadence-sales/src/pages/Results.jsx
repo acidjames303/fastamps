@@ -7,17 +7,19 @@ import { getOutcomeLabel, OUTCOME_CATEGORIES, isConversation, isConnectedCall } 
 import { useAuth } from "@/lib/AuthContext";
 import ContextHelp from "@/components/help/ContextHelp";
 import CallNoteModal from "@/components/results/CallNoteModal";
+import ConversionFunnel from "@/components/insights/ConversionFunnel";
+import ActivityTrend from "@/components/insights/ActivityTrend";
+import { computeStats, buildTrend, busiestDay } from "@/lib/insightsData";
 import { countInfoRequests, clientSafeNotes, isInfoRequestLog } from "@/lib/reportMetrics";
 import { LEAD_HEADERS, loadLeadContext, buildLeadRows, areaName, toCsv } from "@/lib/resultsCsv";
-import {
-  loadRelevantOpportunities,
-  buildLeadSummariesDocument,
-  triggerTextDownload,
-} from "@/lib/resultsLeadPack";
+import LeadSheetFolder from "@/components/leadsheet/LeadSheetFolder";
+import { canReviewLeadSheet } from "@/lib/leadSheet";
+import { useNavigate } from "react-router-dom";
 
 export default function Results() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const isCallerOnly = user?.app_role === "bdm";
   const canClientReport = ["platform_owner", "organisation_admin", "sales_manager", "reporting_user"].includes(user?.app_role);
   const [calls, setCalls] = useState(null);
@@ -164,6 +166,24 @@ export default function Results() {
     };
   }, [filtered, filteredMeetings, irCounts]);
 
+  // Insights follow the same campaign and date filters as the numbers above, so
+  // the funnel and trend can never disagree with the cards.
+  const trendRange = useMemo(() => {
+    if (dateRange !== "custom") return dateRange === "today" ? "7d" : dateRange;
+    if (!customStart && !customEnd) return "30d";
+    const start = customStart ? new Date(`${customStart}T00:00:00`) : new Date(0);
+    const end = customEnd ? new Date(`${customEnd}T23:59:59`) : new Date();
+    const days = Math.max(1, Math.round((end - start) / 86400000));
+    if (days <= 7) return "7d";
+    if (days <= 30) return "30d";
+    if (days <= 90) return "90d";
+    return "all";
+  }, [dateRange, customStart, customEnd]);
+
+  const insightStats = useMemo(() => computeStats(filtered, filteredMeetings), [filtered, filteredMeetings]);
+  const trend = useMemo(() => buildTrend(filtered, trendRange), [filtered, trendRange]);
+  const busiest = useMemo(() => busiestDay(filtered), [filtered]);
+
   const displayedCalls = useMemo(() => {
     if (!activeFilter) return filtered;
     let result = activeFilter.predicate ? filtered.filter(activeFilter.predicate) : filtered;
@@ -224,37 +244,24 @@ export default function Results() {
     }
   };
 
-  const resolveReportWindow = () => {
-    let endDate = new Date();
-    let startDate = new Date(0);
-    if (dateRange === "custom") {
-      if (customStart) startDate = new Date(`${customStart}T00:00:00`);
-      if (customEnd) endDate = new Date(`${customEnd}T23:59:59`);
-    } else if (dateRange === "today") {
-      startDate = new Date();
-      startDate.setHours(0, 0, 0, 0);
-    } else if (dateRange === "7d") startDate = new Date(endDate.getTime() - 7 * 86400000);
-    else if (dateRange === "30d") startDate = new Date(endDate.getTime() - 30 * 86400000);
-    else if (dateRange === "90d") startDate = new Date(endDate.getTime() - 90 * 86400000);
-    else if (dateRange === "all") {
-      startDate = null;
-      endDate = null;
-    }
-    return { startDate, endDate };
-  };
-
-  // Activity CSV + client-safe lead summaries for the same campaign / window.
-  // Nothing is emailed — downloads only.
-  const downloadClientPack = async () => {
+  const downloadClientReport = async () => {
     setReporting(true);
     try {
-      const { startDate, endDate } = resolveReportWindow();
-      const stamp = new Date().toISOString().split("T")[0];
-      const campaign = campaigns.find((c) => c.id === filterCampaign) || null;
+      let endDate = new Date();
+      let startDate = new Date(0);
+      if (dateRange === "custom") {
+        if (customStart) startDate = new Date(`${customStart}T00:00:00`);
+        if (customEnd) endDate = new Date(`${customEnd}T23:59:59`);
+      } else if (dateRange === "today") {
+        startDate = new Date();
+        startDate.setHours(0, 0, 0, 0);
+      } else if (dateRange === "7d") startDate = new Date(endDate.getTime() - 7 * 86400000);
+      else if (dateRange === "30d") startDate = new Date(endDate.getTime() - 30 * 86400000);
+      else if (dateRange === "90d") startDate = new Date(endDate.getTime() - 90 * 86400000);
 
       const res = await base44.functions.invoke("getClientReport", {
-        start_date: (startDate || new Date(0)).toISOString(),
-        end_date: (endDate || new Date()).toISOString(),
+        start_date: startDate.toISOString(),
+        end_date: endDate.toISOString(),
         campaign_id: filterCampaign || "",
         format: "csv",
       });
@@ -262,27 +269,12 @@ export default function Results() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `client-report-${stamp}.csv`;
+      a.download = `client-report-${new Date().toISOString().split("T")[0]}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-
-      const companyIds = [...new Set((filtered || []).map((c) => c.company_id).filter(Boolean))];
-      const opportunities = await loadRelevantOpportunities({
-        campaignId: filterCampaign || "",
-        start: startDate,
-        end: endDate,
-        companyIds,
-      });
-      const doc = await buildLeadSummariesDocument(opportunities, { campaign });
-      triggerTextDownload(`lead-summaries-${stamp}.txt`, doc);
-
-      toast({
-        title: opportunities.length
-          ? `Client pack downloaded (${opportunities.length} lead summar${opportunities.length === 1 ? "y" : "ies"})`
-          : "Client report downloaded — no qualified leads in this selection",
-      });
+      toast({ title: "Client report downloaded" });
     } catch (e) {
-      toast({ title: "Could not generate client pack", variant: "destructive" });
+      toast({ title: "Could not generate report", variant: "destructive" });
     } finally {
       setReporting(false);
     }
@@ -316,18 +308,12 @@ export default function Results() {
             {exporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />} {exporting ? "Building report…" : "Export CSV"}
           </Button>
           {canClientReport && (
-            <Button onClick={downloadClientPack} disabled={reporting} className="rounded-full bg-emerald-600 hover:bg-emerald-700 h-11 px-6">
-              {reporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileText className="w-4 h-4 mr-2" />}
-              {reporting ? "Building pack…" : "Client pack"}
+            <Button onClick={downloadClientReport} disabled={reporting} className="rounded-full bg-emerald-600 hover:bg-emerald-700 h-11 px-6">
+              {reporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileText className="w-4 h-4 mr-2" />} Client report
             </Button>
           )}
         </div>
       </div>
-      {canClientReport && (
-        <p className="text-xs text-slate-400 -mt-3">
-          Client pack downloads the activity CSV plus client-safe lead summaries for qualified opportunities in this filter. Nothing is emailed.
-        </p>
-      )}
 
       {err && <p className="text-sm text-rose-600">{err}</p>}
 
@@ -438,6 +424,12 @@ export default function Results() {
         })}
       </div>
 
+      {/* Insights — conversion funnel and activity trend for the filters above */}
+      <div className="grid lg:grid-cols-2 gap-4">
+        <ConversionFunnel stats={insightStats} />
+        <ActivityTrend trend={trend} range={trendRange} busiest={busiest} />
+      </div>
+
       {/* Recent calls table */}
       <div className="rounded-2xl bg-white border border-slate-200 overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100">
@@ -493,6 +485,20 @@ export default function Results() {
             </table>
           </div>
         )}
+      </div>
+
+      {/* Lead sheets: same campaign and date filters as the report above, with
+          individual or bulk PDF/Word download for manual sending. */}
+      <div className="rounded-2xl bg-white border border-slate-200 p-5">
+        <LeadSheetFolder
+          scope={canReviewLeadSheet(user?.app_role) ? "review" : "mine"}
+          campaignId={filterCampaign}
+          from={dateRange === "custom" ? customStart : ""}
+          to={dateRange === "custom" ? customEnd : ""}
+          title="Lead sheets"
+          compact
+          onOpen={(id) => navigate(`/lead-sheets?id=${id}`)}
+        />
       </div>
 
       <CallNoteModal

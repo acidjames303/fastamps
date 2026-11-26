@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@base44/sdk": "^0.8.63",
-    "@base44/vite-plugin": "^1.0.54",
+    "@base44/vite-plugin": "^1.0.55",
     "@hello-pangea/dnd": "^17.0.0",
     "@hookform/resolvers": "^4.1.2",
     "@radix-ui/react-accordion": "^1.2.3",
@@ -52,6 +52,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
     "date-fns": "^3.6.0",
+    "docx": "^9.16.0",
     "embla-carousel-react": "^8.5.2",
     "framer-motion": "^11.16.4",
     "html2canvas": "^1.4.1",

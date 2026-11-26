@@ -21,6 +21,7 @@ import Contacts from '@/pages/Contacts';
 import Campaigns from '@/pages/Campaigns';
 import TargetListDetail from '@/pages/TargetListDetail';
 import Team from '@/pages/Team';
+import CallerAccount from '@/pages/CallerAccount';
 import Settings from '@/pages/Settings';
 import OrganisationAdmin from '@/pages/OrganisationAdmin';
 import Results from '@/pages/Results';
@@ -48,7 +49,6 @@ import TenantIsolationReport from '@/pages/TenantIsolationReport';
 import TrialExpired from '@/pages/TrialExpired';
 // Marketing landing page is intentionally retained in src/pages/Landing.jsx
 // as a dormant white-label template; the internal Cadence app does not route to it.
-import PerformanceInsights from '@/pages/PerformanceInsights';
 import IntegrationHub from '@/pages/IntegrationHub';
 import CallerProfile from '@/pages/CallerProfile';
 import PublicSupport from '@/pages/PublicSupport';
@@ -58,6 +58,7 @@ import DataProcessingTerms from '@/pages/DataProcessingTerms';
 import EmailConnectCallback from '@/pages/EmailConnectCallback';
 import ManagerInbox from '@/pages/ManagerInbox';
 import Outreach from '@/pages/Outreach';
+import LeadSheets from '@/pages/LeadSheets';
 
 const CALLER = ['platform_owner', 'organisation_admin', 'sales_manager', 'bdm', 'reporting_user'];
 const CAMPAIGN_VIEW = ['platform_owner', 'organisation_admin', 'sales_manager', 'bdm'];
@@ -139,16 +140,18 @@ const AuthenticatedApp = () => {
           <Route path="/my-profile" element={<MyProfile />} />
           <Route path="/profile" element={<CallerProfile />} />
           <Route path="/email-connect/callback" element={<EmailConnectCallback />} />
-          <Route path="/performance-insights" element={<PerformanceInsights />} />
+          <Route path="/performance-insights" element={<Navigate to="/results" replace />} />
           <Route path="/support" element={<SupportCenter />} />
           {/* Manager routes */}
           <Route path="/overview" element={<RoleGuard roles={MANAGER}><Dashboard /></RoleGuard>} />
           <Route path="/campaigns" element={<RoleGuard roles={CAMPAIGN_VIEW}><Campaigns /></RoleGuard>} />
           <Route path="/target-lists/:id" element={<RoleGuard roles={MANAGER}><TargetListDetail /></RoleGuard>} />
           <Route path="/team" element={<RoleGuard roles={MANAGER}><Team /></RoleGuard>} />
+          <Route path="/team/:userId" element={<RoleGuard roles={MANAGER}><CallerAccount /></RoleGuard>} />
           <Route path="/manager-inbox" element={<RoleGuard roles={ADMIN}><ManagerInbox /></RoleGuard>} />
           {/* Branch-only: personal Outreach for authorised sales users; production stays unchanged until QA release. */}
           <Route path="/outreach" element={<RoleGuard roles={OUTREACH_USERS}><Outreach /></RoleGuard>} />
+          <Route path="/lead-sheets" element={<RoleGuard roles={[...CALLER, 'internal_bd']}><LeadSheets /></RoleGuard>} />
           {/* Legacy campaign routes → consolidated Campaigns hub */}
           <Route path="/campaign-setup" element={<Navigate to="/campaigns?new=1" replace />} />
           <Route path="/campaign-management" element={<Navigate to="/campaigns" replace />} />

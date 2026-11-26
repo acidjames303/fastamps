@@ -12,6 +12,10 @@ function displayName(raw) {
   return s;
 }
 
+function firstName(raw) {
+  return displayName(raw).split(/\s+/)[0] || "";
+}
+
 function cleanTopic(topic) {
   let t = String(topic || "").trim().replace(/\s+/g, " ");
   if (!t) return "";
@@ -41,35 +45,66 @@ function formatNotesForDraft(notes) {
   return s;
 }
 
+/**
+ * Follow-up email after an information request.
+ *
+ * perspective "team"   — the admin writes it and thanks the client for
+ *                        speaking with the caller by name (default).
+ * perspective "caller" — written personally by the caller who made the call.
+ */
 export function buildInfoRequestEmailDraft({
   contactName,
   companyName,
   topic,
   clientNotes,
   callerName,
+  senderName,
+  offer,
+  campaignName,
   accountManagerName,
+  perspective = "team",
 }) {
   const first = (contactName || "").trim().split(/\s+/)[0] || "there";
   const topicClean = cleanTopic(topic);
   const notesClean = formatNotesForDraft(clientNotes);
-  const signer = displayName(callerName);
+  const offerClean = String(offer || "").trim().replace(/\s+/g, " ");
+  const speaker = displayName(callerName);
+  const speakerFirst = firstName(callerName);
+  const personal = perspective === "caller";
+  // Personal: the caller signs. Team: the admin signs and names the caller.
+  const signer = personal ? speaker : displayName(senderName) || speaker;
 
-  const subjectTopic = topicForSubject(topicClean);
+  const subjectTopic = topicClean
+    ? topicForSubject(topicClean)
+    : String(campaignName || "").trim() || "Following up";
   const subject = companyName ? `${companyName} — ${subjectTopic}` : subjectTopic;
 
-  const bodyLines = [
-    `Hi ${first},`,
-    "",
-    "Thank you for your time earlier — it was good to speak.",
-    "",
-  ];
+  const greeting = personal
+    ? "Thank you for taking the time to speak with me earlier."
+    : speakerFirst
+      ? `Thank you for taking the time to speak with ${speakerFirst} earlier.`
+      : "Thank you for your time earlier — it was good to speak.";
+
+  const bodyLines = [`Hi ${first},`, "", greeting, ""];
 
   if (topicClean) {
-    bodyLines.push(`You asked about ${topicClean}. I've summarised the key points below:`);
+    bodyLines.push(`You asked about ${topicClean} — I've set out the details below.`, "");
   } else {
-    bodyLines.push("As discussed, I've summarised the key points below:");
+    bodyLines.push("I'm following up on that conversation.", "");
   }
-  bodyLines.push("");
+
+  if (offerClean) {
+    bodyLines.push(
+      personal
+        ? "As I mentioned, we can help with the following:"
+        : speakerFirst
+          ? `As ${speakerFirst} mentioned, we can help with the following:`
+          : "We can help with the following:",
+      "",
+      offerClean,
+      "",
+    );
+  }
 
   if (notesClean) {
     bodyLines.push(notesClean, "");
@@ -92,7 +127,7 @@ export function buildInfoRequestEmailDraft({
     signer || "[Your name]",
   );
 
-  if (accountManagerName) {
+  if (accountManagerName && displayName(accountManagerName) !== signer) {
     bodyLines.push("", `I've also copied ${displayName(accountManagerName)} for visibility.`);
   }
 

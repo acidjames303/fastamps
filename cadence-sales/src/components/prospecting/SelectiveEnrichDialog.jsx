@@ -160,8 +160,6 @@ export default function SelectiveEnrichDialog({
     discover: !phoneIntent,
   });
   const [advancedOpen, setAdvancedOpen] = useState(false);
-  // Confirm-first UX: keep Maximum defaults; hide ~15 controls until Adjust.
-  const [adjustOpen, setAdjustOpen] = useState(false);
   const [existingInfoMode, setExistingInfoMode] = useState(phoneIntent ? "missing" : "newer");
   const [findStrongerDecisionMaker, setFindStrongerDecisionMaker] = useState(intent === "better" || !phoneIntent);
   const [includeAlternativeEmail, setIncludeAlternativeEmail] = useState(false);
@@ -187,12 +185,9 @@ export default function SelectiveEnrichDialog({
     if (!open) {
       intentAppliedRef.current = false;
       setConfirmOpen(false);
-      setAdjustOpen(false);
       return;
     }
     setErr("");
-    // Phone-intent opens Adjust so coverage stays visible; general runs stay confirm-first.
-    setAdjustOpen(phoneIntent);
     if (enabledProviders === null && connectedList.length) {
       // Lusha first. FullEnrich is optional phone-only fallback for contacts
       // still missing a number (limited credits) — never the primary/email path.
@@ -249,33 +244,24 @@ export default function SelectiveEnrichDialog({
         searchDepth,
         phoneCoverage,
         connectedProviders,
+        // The ticked providers decide both the wording and the counts.
+        selectedProviders: enabledProviders ?? connectedList,
       }),
-    [prospects, requestedFields, searchMethod, searchDepth, phoneCoverage, connectedProviders],
+    [
+      prospects,
+      requestedFields,
+      searchMethod,
+      searchDepth,
+      phoneCoverage,
+      connectedProviders,
+      enabledProviders,
+      connectedList,
+    ],
   );
 
   const validation = validateRun({ requestedFields, searchMethod, connectedList });
   const phoneInFreeMode = estimate.phoneSelected && searchMethod !== "providers";
   const showFreePhoneWarning = phoneInFreeMode && !freePhoneAcknowledged;
-  const isMaximumSearch =
-    searchMethod === "providers"
-    && searchDepth === "exhaustive"
-    && !!phoneCoverage.otherKnown
-    && !!phoneCoverage.discover
-    && FIND_OPTIONS.every((option) => findOptions.includes(option.key));
-
-  const resetToMaximum = () => {
-    applyMaximumSearchPreset({
-      setFindOptions,
-      setSearchMethod,
-      setSearchDepth,
-      setPhoneCoverage,
-      setFindStrongerDecisionMaker,
-      setExistingInfoMode,
-      setConfirmOpen,
-    });
-    setAdjustOpen(false);
-    setErr("");
-  };
 
   const toggleFindOption = (key) => {
     const next = findOptions.includes(key)
@@ -410,54 +396,40 @@ export default function SelectiveEnrichDialog({
         </div>
 
         <div className="space-y-6 overflow-y-auto px-5 py-5 sm:px-6">
-          {!adjustOpen ? (
-            <section className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 space-y-3">
-              <div>
-                <p className="text-sm font-semibold text-emerald-950">
-                  {phoneIntent ? "Find mobiles" : isMaximumSearch ? "Maximum search" : "Custom search"}
-                </p>
+          <section className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-emerald-950">Maximum search</p>
                 <p className="mt-1 text-xs leading-relaxed text-emerald-900/80">
-                  {phoneIntent
-                    ? "Looks for mobiles and personal emails on the people Cadence already knows — then confirm the paid run."
-                    : "ICP people, personal emails and mobiles for every already-known contact, then discover more if needed. One full-power run."}
+                  Find ICP people, personal emails and mobiles for every already-known contact —
+                  then discover more relevant people if needed. One clear full-power run.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {!isMaximumSearch && !phoneIntent && (
-                  <Button
-                    type="button"
-                    className="rounded-full bg-emerald-600 hover:bg-emerald-500"
-                    onClick={resetToMaximum}
-                  >
-                    <Search className="w-4 h-4 mr-1.5" />
-                    Reset to Maximum search
-                  </Button>
-                )}
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="rounded-full border-emerald-300 text-emerald-800"
-                  onClick={() => setAdjustOpen(true)}
-                >
-                  Adjust search
-                </Button>
-              </div>
-            </section>
-          ) : (
-            <>
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">Adjust search</p>
-            <div className="flex flex-wrap gap-2">
-              {!phoneIntent && (
-                <Button type="button" variant="outline" className="rounded-full border-emerald-300 text-emerald-800" onClick={resetToMaximum}>
-                  Use Maximum search
-                </Button>
-              )}
-              <Button type="button" variant="ghost" className="rounded-full text-slate-600" onClick={() => setAdjustOpen(false)}>
-                Done adjusting
+              <Button
+                type="button"
+                className="rounded-full bg-emerald-600 hover:bg-emerald-500 shrink-0"
+                onClick={() =>
+                  applyMaximumSearchPreset({
+                    setFindOptions,
+                    setSearchMethod,
+                    setSearchDepth,
+                    setPhoneCoverage,
+                    setFindStrongerDecisionMaker,
+                    setExistingInfoMode,
+                    setConfirmOpen,
+                  })
+                }
+              >
+                <Search className="w-4 h-4 mr-1.5" />
+                Use Maximum search
               </Button>
             </div>
-          </div>
+            {searchDepth === "exhaustive" && phoneCoverage.otherKnown && phoneCoverage.discover && searchMethod === "providers" && (
+              <p className="mt-3 text-[11px] font-medium text-emerald-800">
+                Maximum search is selected — review the estimate below, then start.
+              </p>
+            )}
+          </section>
 
           <section>
             <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-slate-400">
@@ -802,8 +774,6 @@ export default function SelectiveEnrichDialog({
               </div>
             )}
           </section>
-            </>
-          )}
 
           <RunEstimatePanel estimate={estimate} searchMethod={searchMethod} />
 
@@ -818,11 +788,11 @@ export default function SelectiveEnrichDialog({
             <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-4">
               <p className="text-sm font-semibold text-emerald-900">Confirm this paid run</p>
               <p className="mt-1 text-xs leading-relaxed text-emerald-800">
-                This run may make up to {estimate.maxLushaLookups} Lusha lookup
-                {estimate.maxLushaLookups === 1 ? "" : "s"}
-                {estimate.maxOtherProviderLookups > 0
-                  ? ` and up to ${estimate.maxOtherProviderLookups} other-provider lookup${estimate.maxOtherProviderLookups === 1 ? "" : "s"}`
-                  : ""}
+                {estimate.providerLookups?.length
+                  ? `This run may make up to ${estimate.providerLookups
+                      .map((row) => `${row.max} ${row.label} lookup${row.max === 1 ? "" : "s"}`)
+                      .join(" and ")}`
+                  : "This run makes no provider lookups"}
                 {estimate.maxSmartActions > 0
                   ? `, and up to ${estimate.maxSmartActions} Smart Action${estimate.maxSmartActions === 1 ? "" : "s"}`
                   : ""}
@@ -868,11 +838,7 @@ export default function SelectiveEnrichDialog({
             ) : (
               <Search className="mr-1 h-4 w-4" />
             )}
-            {starting
-              ? "Preparing enrichment session"
-              : isMaximumSearch
-                ? (confirmOpen ? "Confirm and start Maximum search" : "Start Maximum search")
-                : startButtonLabel(searchMethod)}
+            {starting ? "Preparing enrichment session" : startButtonLabel(searchMethod)}
           </Button>
         </div>
       </div>

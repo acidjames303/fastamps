@@ -6,12 +6,7 @@ import {
   AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
   AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
-
-function formatElapsed(secs) {
-  const m = Math.floor(secs / 60);
-  const s = secs % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
-}
+import { formatElapsed, sessionElapsedSeconds, sessionIsStalled } from "@/lib/sessionTiming";
 
 // Background enrichment progress banner — shows when an enrichment session is
 // running, paused, or recently completed. The Cancel action opens a warning
@@ -22,31 +17,24 @@ export default function EnrichmentSessionBanner({ session, onDismiss, onCancelle
   const [cancelling, setCancelling] = useState(false);
   const [cancelErr, setCancelErr] = useState("");
   const [forceAvailable, setForceAvailable] = useState(false);
-  const [elapsed, setElapsed] = useState(() => {
-    if (session?.started_at) {
-      return Math.max(0, Math.floor((Date.now() - new Date(session.started_at).getTime()) / 1000));
-    }
-    return 0;
-  });
+  const [elapsed, setElapsed] = useState(() => sessionElapsedSeconds(session));
 
-  const isRunning = session?.status === "processing";
+  const isQueued = session?.status === "queued";
+  const isRunning = ["queued", "processing"].includes(session?.status);
+  const isStalled = sessionIsStalled(session);
 
-  // Live elapsed timer — ticks every second while enrichment is running.
+  // Tick only while the session is genuinely running. A finished session is
+  // measured to its last recorded activity, so a run that ended weeks ago can
+  // never show a counter that keeps climbing.
   useEffect(() => {
-    if (!isRunning) return;
-    const interval = setInterval(() => setElapsed((e) => e + 1), 1000);
+    setElapsed(sessionElapsedSeconds(session));
+    if (!isRunning || isStalled) return;
+    const interval = setInterval(() => setElapsed(sessionElapsedSeconds(session)), 1000);
     return () => clearInterval(interval);
-  }, [isRunning]);
-
-  // Re-derive elapsed from session.started_at when the session changes —
-  // so the timer survives page refreshes instead of resetting to zero.
-  useEffect(() => {
-    if (session?.started_at) {
-      setElapsed(Math.max(0, Math.floor((Date.now() - new Date(session.started_at).getTime()) / 1000)));
-    } else {
-      setElapsed(0);
-    }
-  }, [session?.id, session?.started_at]);
+  }, [
+    session?.id, session?.status, session?.started_at,
+    session?.completed_at, session?.last_activity_at, isRunning, isStalled,
+  ]);
 
   if (!session) return null;
 
@@ -119,7 +107,7 @@ export default function EnrichmentSessionBanner({ session, onDismiss, onCancelle
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between gap-2">
               <p className="text-sm font-medium text-slate-900 truncate">
-                {isRunning ? "Enrichment running in background" : isDone ? "Enrichment complete" : "Enrichment paused"}
+                {isQueued ? "Preparing enrichment session" : isRunning ? "Enrichment running in background" : isDone ? "Enrichment complete" : "Enrichment paused"}
                 {session.session_name ? <span className="text-slate-400 font-normal ml-1">— {session.session_name}</span> : null}
               </p>
               <div className="flex items-center gap-2">
@@ -146,7 +134,12 @@ export default function EnrichmentSessionBanner({ session, onDismiss, onCancelle
 
             {/* Stats */}
             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
-              <span className="flex items-center gap-1 font-medium text-slate-700"><Clock className="w-3 h-3" /> {formatElapsed(elapsed)}</span>
+              <span
+                className="flex items-center gap-1 font-medium text-slate-700"
+                title={isRunning ? "Time since this enrichment started" : "How long this enrichment took"}
+              >
+                <Clock className="w-3 h-3" /> {isRunning ? formatElapsed(elapsed) : `${formatElapsed(elapsed)} run`}
+              </span>
               <span>{Math.min(session.completed_count + session.partial_count + session.failed_count + session.cached_count, session.total_records)} of {session.total_records} processed</span>
               {isRunning && session.queued_count > 0 && <span>{session.queued_count} remaining</span>}
               {session.cached_count > 0 && <span className="flex items-center gap-0.5"><Database className="w-3 h-3" /> {session.cached_count} cached</span>}
@@ -158,7 +151,13 @@ export default function EnrichmentSessionBanner({ session, onDismiss, onCancelle
 
             {isDone && session.partial_count > 0 && (
               <p className="mt-1.5 text-xs text-amber-600 flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" /> Some records need attention — partial results are available.
+                <AlertCircle className="w-3 h-3" /> {session.partial_count} records are partial: some of the requested fields weren't found. Everything found is saved — a partial record is not a provider failure.
+              </p>
+            )}
+
+            {isStalled && (
+              <p className="mt-1.5 text-xs text-amber-700 flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3" /> No progress recorded for a while — this session looks stalled. Cancel it and start a fresh run.
               </p>
             )}
 
