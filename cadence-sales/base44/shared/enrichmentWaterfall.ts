@@ -22,6 +22,7 @@ import {
 import {
   classifyUkPhone, evaluateProviderPhone, phoneDigits, isUkMobile,
 } from './ukPhone.ts';
+import { upsertContactPhoneCandidate } from './contactPhoneCandidates.ts';
 
 const FULLENRICH = 'https://app.fullenrich.com/api/v2';
 const APOLLO = 'https://api.apollo.io/api/v1';
@@ -391,6 +392,24 @@ async function lushaEnrich(
           c.lusha_mobile = decision.uk.national;
           c.lusha_phone_status = decision.status;
           c.lusha_phone_retrieved_at = now;
+          // Also mirror onto the prospect root so exports always see it.
+          if (!out.lusha_mobile) {
+            out.lusha_mobile = decision.uk.national;
+            out.lusha_phone_status = decision.status;
+            out.lusha_phone_retrieved_at = now;
+          }
+          await upsertContactPhoneCandidate(base44, org, {
+            list_id: opts.list_id,
+            prospect_id: opts.prospect_id,
+            person_name: c?.name || out.full_name || '',
+            person_title: c?.title || '',
+            value: decision.uk.national,
+            phone_type: 'mobile',
+            source: 'lusha',
+            source_column: 'lusha_reveal',
+          });
+          // Keep import provenance on the primary number.
+          if (!c.phone_source) c.phone_source = out.phone_source || 'import';
           phonesApplied++;
           phoneReviews.push({
             reason: 'phone_additional_provider_number',
@@ -872,6 +891,13 @@ export async function enrichProspectWaterfall(
     full_name: prospect.full_name || '',
     job_title: prospect.job_title || '',
     phone: prospect.phone || '',
+    mobile: prospect.mobile || '',
+    direct_dial: prospect.direct_dial || '',
+    phone_source: prospect.phone_source || '',
+    phone_status: prospect.phone_status || '',
+    lusha_mobile: prospect.lusha_mobile || '',
+    lusha_phone_status: prospect.lusha_phone_status || '',
+    lusha_phone_retrieved_at: prospect.lusha_phone_retrieved_at || '',
     email: prospect.email || '',
     linkedin: prospect.linkedin || '',
     field_provenance: { ...(prospect.field_provenance || {}) },
@@ -1756,6 +1782,18 @@ Only include REAL people with their full name (first and last). Never invent nam
         if (!sameAsPrevious && previousProtected) {
           conflicts.push({ field: 'phone', existing_value: previousPhone, new_value: bestMobile, provider: providerUsed });
           out.lusha_mobile = bestMobile;
+          out.lusha_phone_status = best.phone_status || 'provider_returned_unverified';
+          out.lusha_phone_retrieved_at = best.phone_retrieved_at || now;
+          if (!out.phone_source) out.phone_source = 'import';
+          await upsertContactPhoneCandidate(base44, org, {
+            list_id, prospect_id,
+            person_name: best.name || out.full_name || '',
+            person_title: best.title || out.job_title || '',
+            value: bestMobile,
+            phone_type: 'mobile',
+            source: best.phone_source || providerUsed || 'lusha',
+            source_column: 'provider_merge',
+          });
           await raisePhoneReview(base44, org, {
             reason: 'phone_conflict',
             prospect_id, list_id, company_name: out.company_name,

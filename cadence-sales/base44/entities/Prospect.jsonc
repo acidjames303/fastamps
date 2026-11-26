@@ -109,6 +109,18 @@
       "type": "string",
       "description": "Which provider or source supplied the dialable number."
     },
+    "lusha_mobile": {
+      "type": "string",
+      "description": "Additional UK mobile returned by Lusha when an imported/existing mobile was kept as primary. Never overwrites mobile."
+    },
+    "lusha_phone_status": {
+      "type": "string",
+      "description": "Verification state for lusha_mobile only."
+    },
+    "lusha_phone_retrieved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
     "phone_retrieved_at": {
       "type": "string",
       "format": "date-time"
@@ -304,6 +316,17 @@
           },
           "phone_review_reason": {
             "type": "string"
+          },
+          "lusha_mobile": {
+            "type": "string",
+            "description": "Extra Lusha mobile kept beside an existing import/primary mobile."
+          },
+          "lusha_phone_status": {
+            "type": "string"
+          },
+          "lusha_phone_retrieved_at": {
+            "type": "string",
+            "format": "date-time"
           },
           "lusha_id": {
             "type": "string"

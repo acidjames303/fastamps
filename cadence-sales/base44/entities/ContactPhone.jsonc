@@ -1,0 +1,107 @@
+{
+  "name": "ContactPhone",
+  "type": "object",
+  "description": "One candidate telephone number for a prospect person. Import and provider numbers sit side by side — never overwrite.",
+  "properties": {
+    "organisation_id": {
+      "type": "string",
+      "description": "Owning organisation; set server-side only."
+    },
+    "list_id": {
+      "type": "string",
+      "description": "ProspectList this number belongs to."
+    },
+    "prospect_id": {
+      "type": "string",
+      "description": "Prospect / account this number belongs to."
+    },
+    "person_key": {
+      "type": "string",
+      "description": "Stable key for the person within the prospect (usually normalised name)."
+    },
+    "person_name": {
+      "type": "string"
+    },
+    "person_title": {
+      "type": "string"
+    },
+    "value": {
+      "type": "string",
+      "description": "Display / national format number."
+    },
+    "normalised": {
+      "type": "string",
+      "description": "Digits-only / E.164-ish key for dedupe."
+    },
+    "country": {
+      "type": "string",
+      "default": "GB"
+    },
+    "phone_type": {
+      "type": "string",
+      "enum": [
+        "mobile",
+        "direct",
+        "geographic",
+        "non_geographic",
+        "switchboard",
+        "premium",
+        "unknown",
+        "invalid"
+      ],
+      "default": "unknown"
+    },
+    "source": {
+      "type": "string",
+      "description": "import, lusha, fullenrich, organisation_supplied, etc."
+    },
+    "source_column": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "candidate",
+        "preferred",
+        "confirmed",
+        "wrong"
+      ],
+      "default": "candidate"
+    },
+    "screening_status": {
+      "type": "string",
+      "enum": [
+        "not_checked",
+        "safe",
+        "listed",
+        "unavailable",
+        "not_applicable"
+      ],
+      "default": "not_checked"
+    },
+    "retrieved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "decided_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "audit": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "at": { "type": "string" },
+          "by_user_id": { "type": "string" },
+          "action": { "type": "string" }
+        }
+      }
+    }
+  },
+  "required": [
+    "organisation_id",
+    "prospect_id",
+    "value"
+  ]
+}

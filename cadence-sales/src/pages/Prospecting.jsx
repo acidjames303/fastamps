@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Sparkles, ChevronDown, Wand2, Trash2, ArrowRight, Pencil, Check, Save, Plus, Search, Send } from "lucide-react";
+import { Loader2, Sparkles, ChevronDown, Wand2, Trash2, ArrowRight, Pencil, Check, Save, Plus, Search, Send, Download } from "lucide-react";
+import { downloadProspectPhoneAuditCsv } from "@/lib/prospectPhoneAuditExport";
 import BriefInput from "@/components/prospecting/BriefInput";
 import CompanyInput from "@/components/prospecting/CompanyInput";
 import ProspectTable from "@/components/prospecting/ProspectTable";
@@ -555,7 +556,10 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
         country_code: prospect.country_code, geography_status: prospect.geography_status,
         geography_reason: prospect.geography_reason, landline: prospect.landline, contacts: prospect.contacts,
         full_name: prospect.full_name, job_title: prospect.job_title, email: prospect.email,
-        phone: prospect.phone, linkedin: prospect.linkedin, source: prospect.source,
+        phone: prospect.phone, mobile: prospect.mobile, direct_dial: prospect.direct_dial,
+        phone_source: prospect.phone_source, phone_status: prospect.phone_status,
+        lusha_mobile: prospect.lusha_mobile, lusha_phone_status: prospect.lusha_phone_status,
+        linkedin: prospect.linkedin, source: prospect.source,
         retry_cooldown_expires_at: prospect.retry_cooldown_expires_at,
         fit_score: prospect.fit_score, fit_reason: prospect.fit_reason, target_role: prospect.target_role,
       },
@@ -1088,6 +1092,19 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <CampaignExportButton listId={listId} />
+                  {prospects.length > 0 && (
+                    <Button
+                      variant="outline"
+                      className="rounded-full border-slate-300"
+                      onClick={() => downloadProspectPhoneAuditCsv(
+                        selected.length ? prospects.filter((p) => selected.includes(p.id)) : prospects,
+                        `cadence-phone-audit-${new Date().toISOString().slice(0, 10)}.csv`,
+                      )}
+                      title="Import mobile vs Lusha mobile side by side"
+                    >
+                      <Download className="w-4 h-4 mr-2" /> Phone audit CSV
+                    </Button>
+                  )}
                   {listId && (
                     <Button
                       onClick={openEnrichDialog}

@@ -7,9 +7,18 @@ export default function ProspectPersonCard({ contact }) {
   const name = contact?.name || "Unknown person";
   const title = contact?.title || "";
   const mobile = [contact?.mobile, contact?.phone].find((n) => isUkMobileNumber(n)) || "";
+  const lushaMobile = contact?.lusha_mobile && isUkMobileNumber(contact.lusha_mobile)
+    && contact.lusha_mobile.replace(/\D/g, "") !== String(mobile).replace(/\D/g, "")
+    ? contact.lusha_mobile
+    : "";
   const direct = contact?.direct_dial
     || ([contact?.phone, contact?.mobile].find((n) => n && !isUkMobileNumber(n)) || "");
   const email = contact?.email || "";
+  const sourceLabel = contact?.phone_source === "import"
+    ? "Import"
+    : contact?.phone_source === "lusha"
+      ? "Lusha"
+      : contact?.phone_source || "";
 
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2.5 space-y-1.5">
@@ -25,7 +34,7 @@ export default function ProspectPersonCard({ contact }) {
             className="flex items-center gap-1.5 text-sm font-medium text-emerald-700 hover:underline"
           >
             <Smartphone className="w-3.5 h-3.5 flex-none" />
-            <span>Mobile · {mobile}</span>
+            <span>Mobile · {mobile}{sourceLabel ? ` · ${sourceLabel}` : ""}</span>
           </a>
         ) : (
           <p className="flex items-center gap-1.5 text-xs text-amber-700">
@@ -33,6 +42,16 @@ export default function ProspectPersonCard({ contact }) {
             No mobile yet
           </p>
         )}
+
+        {lushaMobile ? (
+          <a
+            href={`tel:${lushaMobile.replace(/\s+/g, "")}`}
+            className="flex items-center gap-1.5 text-xs font-medium text-sky-700 hover:underline"
+          >
+            <Smartphone className="w-3.5 h-3.5 flex-none" />
+            <span>Lusha mobile · {lushaMobile}</span>
+          </a>
+        ) : null}
 
         {direct ? (
           <a

@@ -72,12 +72,14 @@ export default function EnrichmentBatchSummary({
   ];
 
   const exportSummary = () => {
-    const headers = ["Company", "Country", "Geography", "Company found", "Landline", "Landline found", "Decision-makers", "Email found", "Mobile found", "Mobile", "Phone lookup result", "LinkedIn found", "Provider", "Provider error", "Status", "Last attempted"];
+    const headers = ["Company", "Country", "Geography", "Company found", "Landline", "Landline found", "Decision-makers", "Email found", "Mobile found", "Import / primary mobile", "Lusha mobile", "Phone source", "Phone lookup result", "LinkedIn found", "Provider", "Provider error", "Status", "Last attempted"];
     const rows = prospects.map((p) => [
       p.company_name, p.country_code || "", p.geography_status || "",
       p.company_found ? "Yes" : "No", p.landline || "", p.landline_found ? "Yes" : "No",
       p.decision_makers_found ? "Yes" : "No", p.work_email_found ? "Yes" : "No",
-      p.mobile_found ? "Yes" : "No", p.phone || "",
+      p.mobile_found ? "Yes" : "No", p.mobile || p.phone || "",
+      p.lusha_mobile || "",
+      p.phone_source || "",
       (p.field_provenance && p.field_provenance.phone && PHONE_RESULT_LABELS[p.field_provenance.phone.lookup_result]) || "",
       p.linkedin_found ? "Yes" : "No",
       p.provider_used || "", p.provider_error || "", p.enrichment_status || "",

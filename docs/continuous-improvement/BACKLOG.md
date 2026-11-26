@@ -9,7 +9,7 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 |---|---|---|---|---|---|
 | CI-027 | P2 | Split data from Find prospects import next-steps (same panel) | James BDM workflow | Fewer hops after import | **Next** |
 | CI-024 | P2 | One-click “seed target sectors from imported industries” on import preview | Zenitech pilot | Faster lookalike ICP | Queued |
-| CI-025 | P2 | ContactPhone candidate rows visible in Prospecting table for Lusha extras | Zenitech phone preserve | Caller clarity | Queued |
+| CI-025 | P2 | ContactPhone candidate rows always expanded for multi-number people | Zenitech phone preserve | Caller clarity | Queued |
 | CI-004 | P1 | Research templates / dictation reuse across Dialer & Outreach | Research on Dialer improved; Outreach reuse still uneven | Duplicate research effort | Queued |
 | CI-008 | P3 | Progressive disclosure polish on dense campaign screens | UX audit | Training burden | Partially addressed by CI-014 |
 
@@ -39,6 +39,7 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | CI-023b | P1 | Discovery searches outside seed list + exclusions (Zenitech campaign pattern) | Done · live `index-tvN2SO3h.js` |
 | CI-026 | P1 | BDM Split data: even / territory / industry / dictate | Done · live `index-B7DR3dFn.js` |
 | CI-022 | P2 | Manager needs-attention rollup on Campaigns | Done · live `index--5WydKF3.js` |
+| CI-028 | P1 | Pilot phone audit: persist additive Lusha + Phone audit CSV | Done · live `index-DqF9udQx.js` |
 
 ## Parking lot
 

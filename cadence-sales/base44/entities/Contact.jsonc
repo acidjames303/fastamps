@@ -66,6 +66,17 @@
     "phone_source": {
       "type": "string"
     },
+    "lusha_mobile": {
+      "type": "string",
+      "description": "Additional Lusha mobile kept beside an imported/existing primary mobile."
+    },
+    "lusha_phone_status": {
+      "type": "string"
+    },
+    "lusha_phone_retrieved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
     "phone_retrieved_at": {
       "type": "string",
       "format": "date-time"

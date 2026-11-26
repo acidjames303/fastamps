@@ -268,6 +268,19 @@ Live `index--5WydKF3.js`. Rollback `cd15bb7`.
 
 ---
 
+## CI-028 — 26 Nov 2026 ~18:40 (Europe/London)
+
+**Pilot phone audit** (original Excel vs Cadence Contacts CSV).
+
+Findings: **0 import mobiles replaced**; Lusha filled empty mobiles; additive second mobiles not visible in that export (schema/export gap).
+
+Shipped: persist `lusha_mobile` on Prospect/Contact · ContactPhone candidates · Prospecting **Phone audit CSV** · person card shows Lusha mobile · re-enrich keeps import provenance.
+
+Live `index-DqF9udQx.js`. Rollback `e68284c`.  
+**Next:** CI-027 Split data from Find prospects import next-steps.
+
+---
+
 ## CI-023 — 26 Nov 2026 ~17:00 (Europe/London)
 
 Zenitech pilot data readiness (two Excel files from James).

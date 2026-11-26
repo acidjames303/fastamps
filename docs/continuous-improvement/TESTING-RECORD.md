@@ -119,3 +119,13 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | `npm run build` | **Pass** | → `index--5WydKF3.js` |
 | Site deploy `--publish --build` | **Pass** | Live: Needs attention · Show only these · Ready to activate |
 | Authenticated Campaigns rollup | **Blocked** | No login session |
+
+## CI-028 Pilot vs Cadence phone audit — 26 Nov 2026 ~18:40 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Diff original XLSX vs Cadence Contacts CSV | **Pass** | 1,079 mobiles preserved · **0 replaced** · 24 filled empty |
+| Unit: `prospect-phone-audit-export.test.mjs` | **Pass** | Import vs Lusha columns |
+| `npm run build` | **Pass** | → `index-DqF9udQx.js` |
+| Site deploy `--publish --build` | **Pass** | Live: Phone audit CSV · Lusha mobile |
+| Re-enrich with credits | **Not run** | Owner will retry; agent must not spend credits |
