@@ -87,3 +87,16 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | Component preview screenshots | **Pass** | `/opt/cursor/artifacts/ci021-enrichment-next/` + `docs/audit/ci021-enrichment-next/` |
 | Authenticated live enrichment run | **Blocked** | No login session; would also spend provider credits |
 | Secrets / schema / live email | **Pass** | Frontend-only; no enrichment API changes |
+
+## CI-023 Zenitech exclusion + pilot import — 26 Nov 2026 ~17:00 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Unit: `spreadsheet-accounts-merge.test.mjs` | **Pass** | B2B pilot column aliases |
+| Unit: `company-exclusion.test.mjs` | **Pass** | Zenitech sheet parse + filter |
+| Pilot dry-run `toAccounts` | **Pass** | 162 companies · 1,240 contacts with phones · industries mapped |
+| Zenitech exclusion parse | **Pass** | 19 unique names |
+| `npm run build` | **Pass** | → `index-Bp_nqzgH.js` |
+| Site deploy `--publish --build` | **Pass** | Live: do-not-prospect · excluded clients skipped · Industries in this file |
+| Authenticated import of James’s files | **Blocked** | No login session |
+| Live Lusha enrich on pilot | **Not run** | Would spend credits |

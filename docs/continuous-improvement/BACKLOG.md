@@ -8,6 +8,8 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | ID | Pri | Issue | Evidence | Impact | Status |
 |---|---|---|---|---|---|
 | CI-022 | P2 | Manager needs-attention rollup on Campaigns | Phase 2 reassessment | Admin oversight | **Next** |
+| CI-024 | P2 | One-click “seed target sectors from imported industries” on import preview | Zenitech pilot | Faster lookalike ICP | Queued |
+| CI-025 | P2 | ContactPhone candidate rows visible in Prospecting table for Lusha extras | Zenitech phone preserve | Caller clarity | Queued |
 | CI-004 | P1 | Research templates / dictation reuse across Dialer & Outreach | Research on Dialer improved; Outreach reuse still uneven | Duplicate research effort | Queued |
 | CI-008 | P3 | Progressive disclosure polish on dense campaign screens | UX audit | Training burden | Partially addressed by CI-014 |
 
@@ -33,6 +35,7 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | CI-019 | P1 | Guided next actions on Today + Campaigns; unify Import door | Done |
 | CI-020 | P1 | Today→Dialer resume: last company/campaign one-click continue | Done · live `index-DyWTON_g.js` |
 | CI-021 | P1 | Post-enrichment results + next action in place | Done · live `index-mMKAvHBw.js` |
+| CI-023 | P1 | Zenitech: exclusion list + pilot phone/industry import + Lusha additive phones/export | Done · live `index-Bp_nqzgH.js` |
 
 ## Parking lot
 

@@ -20,16 +20,33 @@ const FIRST_NAME_KEYS = ["firstname", "forename", "givenname"];
 const LAST_NAME_KEYS = ["lastname", "surname", "familyname"];
 const TITLE_KEYS = ["jobtitle", "jobrole", "title", "position", "role", "job"];
 const EMAIL_KEYS = ["email", "emailaddress", "workemail", "businessemail", "contactemail"];
-const PHONE_KEYS = [
-  "phone", "phonenumber", "telephone", "tel", "mobile", "mobilenumber", "directdial", "landline", "contactnumber",
+// Prefer mobile, then direct, then generic phone columns. Keys are normalised
+// (spaces/punctuation stripped), so "Mobile phone" → mobilephone.
+const MOBILE_KEYS = [
+  "mobilephone", "mobile", "mobilenumber", "mobilephonenumber", "cell", "cellphone", "handphone",
 ];
-const INDUSTRY_KEYS = ["industry", "sector", "vertical", "category", "businesssector", "sic"];
+const DIRECT_KEYS = [
+  "directphonenumber", "directphone", "directdial", "directtelephone", "directtel",
+  "contacttelephone", "contactphone", "workphone", "officephone",
+];
+const PHONE_KEYS = [
+  ...MOBILE_KEYS,
+  ...DIRECT_KEYS,
+  "phone", "phonenumber", "telephone", "tel", "landline", "contactnumber",
+];
+const INDUSTRY_KEYS = [
+  "primaryindustry", "primarysubindustry", "industry", "sector", "vertical",
+  "category", "businesssector", "sic", "subindustry",
+];
 const SIZE_KEYS = ["employeerange", "employeecount", "employees", "headcount", "companysize", "staff", "size"];
 const LOCATION_KEYS = [
-  "location", "city", "town", "county", "region", "area", "address", "address1", "addressline1", "fulladdress", "postcode", "postalcode",
+  "companycountry", "country", "location", "city", "town", "county", "region", "area",
+  "address", "address1", "addressline1", "fulladdress", "postcode", "postalcode",
 ];
 const WEBSITE_KEYS = ["website", "companywebsite", "web", "url", "domain"];
-const LINKEDIN_KEYS = ["linkedin", "linkedinurl", "linkedinprofile"];
+const LINKEDIN_KEYS = [
+  "linkedincontactprofileurl", "linkedin", "linkedinurl", "linkedinprofile", "linkedinprofileurl",
+];
 
 const COMPANY_SUFFIX = /\b(ltd|limited|plc|llp|inc|gmbh|group|holdings|partners|solutions|services|systems|associates)\b/i;
 
@@ -107,13 +124,22 @@ export function toAccounts(rows, options = {}) {
       const exists = account.contacts.some((c) => c.name.toLowerCase() === contactName.toLowerCase());
       if (!exists) {
         const email = pick(row, EMAIL_KEYS);
+        const mobile = pick(row, MOBILE_KEYS);
+        const direct = pick(row, DIRECT_KEYS);
+        // Primary dialling number prefers mobile; direct is kept beside it and
+        // never discarded just because a mobile also exists.
+        const phone = mobile || direct || pick(row, PHONE_KEYS);
         account.contacts.push({
           name: contactName,
           title: pick(row, TITLE_KEYS),
           email,
-          phone: pick(row, PHONE_KEYS),
+          phone,
+          mobile: mobile || "",
+          direct_dial: direct || "",
+          phone_source: phone ? "import" : "",
           linkedin: pick(row, LINKEDIN_KEYS),
           email_status: email ? "provider_returned" : "unknown",
+          email_source: email ? "import" : "",
         });
       }
     }

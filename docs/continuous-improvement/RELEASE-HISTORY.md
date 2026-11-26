@@ -241,3 +241,29 @@ Overnight cycle. **Post-enrichment · what next.**
 Rollback SHA: `f590efb` · Checkpoints: `6b084a3b…` before · `6b084a76…` CI-021  
 
 **Next:** CI-022 manager needs-attention rollup on Campaigns.
+
+---
+
+## CI-023 — 26 Nov 2026 ~17:00 (Europe/London)
+
+Zenitech pilot data readiness (two Excel files from James).
+
+**Files analysed**
+- `Zenitech Current Clients & Prospects` — 19 unique client names (exclusion / do-not-prospect)
+- `B2B Sales Pilot` — 1,634 contacts · 162 companies · mobiles/directs/industries
+
+**Gaps found**
+1. Exclusion ICP field existed but was not enforced on discovery/import  
+2. Company-list import ignored `Mobile phone`, `Direct Phone Number`, `Primary Industry`, LinkedIn URL, Country  
+3. Enrichment could overwrite an existing mobile with a Lusha number  
+4. Export had no separate Import mobile / Lusha mobile columns  
+
+**Shipped**
+- Exclusion file import on Structured ICP + skip on Company list import + filter in `discoverCompanies`  
+- Spreadsheet column aliases + mobile/direct preserved with `phone_source: import`  
+- Enrichment keeps existing numbers; stores additional Lusha as `lusha_mobile`  
+- Export headers **Import mobile** · **Lusha mobile**  
+- Import preview shows industry hints for lookalike ICP  
+
+Live `index-Bp_nqzgH.js`. Rollback `31895f4`.  
+**Next:** CI-022 manager needs-attention rollup.

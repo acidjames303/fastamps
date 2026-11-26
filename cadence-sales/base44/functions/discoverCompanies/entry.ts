@@ -5,8 +5,35 @@ import { CompanyResearchProvider } from '../../shared/providers.ts';
 import { checkAllowance, recordUsage } from '../../shared/costControl.ts';
 import { createJob, startJob, completeJob, recordAttempt } from '../../shared/researchJob.ts';
 
+function normaliseCompanyName(value: string) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/\b(ltd|limited|plc|llp|inc|the|group|holdings|uk|co)\b/g, ' ')
+    .replace(/[^a-z0-9]/g, '');
+}
+
+function parseExcludedCompanies(list: any): string[] {
+  try {
+    const parsed = list?.icp ? JSON.parse(list.icp) : null;
+    if (parsed && Array.isArray(parsed.excluded_companies)) {
+      return parsed.excluded_companies.map((v: any) => String(v || '').trim()).filter(Boolean);
+    }
+  } catch {
+    /* free-text ICP */
+  }
+  return [];
+}
+
+function isExcluded(name: string, excluded: string[]) {
+  const target = normaliseCompanyName(name);
+  if (!target || !excluded.length) return false;
+  const list = excluded.map(normaliseCompanyName).filter(Boolean);
+  return list.some((ex) => ex === target || (ex.length >= 4 && (target.includes(ex) || ex.includes(target))));
+}
+
 // ICP-based company discovery for a Target List. Returns a bounded list of
-// candidate companies (deduplicated against existing Companies by domain).
+// candidate companies (deduplicated against existing Companies by domain and
+// against structured ICP excluded_companies / current clients).
 // Candidates are NEVER auto-approved — the user selects which proceed to full
 // research. If discovery is limited, that is reported honestly, not fabricated.
 export default async function (req) {
@@ -31,17 +58,23 @@ export default async function (req) {
       { organisation_id: org.id }, '-created_date', 1000
     );
     const existingDomains = existing.map((c) => c.domain).filter(Boolean);
+    const excludedCompanies = parseExcludedCompanies(list);
+    const excludedNote = excludedCompanies.length
+      ? `\nDo not return these current clients / excluded companies: ${excludedCompanies.join(', ')}`
+      : '';
 
-    const icp = list.icp || [
+    const icp = (list.icp || [
       `Industries: ${(list.target_industries || []).join(', ')}`,
       `Sizes: ${(list.target_company_sizes || []).join(', ')}`,
       `Locations: ${(list.target_locations || []).join(', ')}`,
       `Roles: ${(list.target_roles || []).join(', ')}`,
-    ].join('\n');
+    ].join('\n')) + excludedNote;
 
-    const candidates = await CompanyResearchProvider.discoverCompanies(base44, {
-      icp, brief: list.offer || '', count: max, existingDomains,
+    const rawCandidates = await CompanyResearchProvider.discoverCompanies(base44, {
+      icp, brief: list.offer || '', count: max + Math.min(excludedCompanies.length, 10), existingDomains,
     });
+    const skippedExcluded = (rawCandidates || []).filter((c) => isExcluded(c.name, excludedCompanies));
+    const candidates = (rawCandidates || []).filter((c) => !isExcluded(c.name, excludedCompanies)).slice(0, max);
 
     await recordAttempt(base44, {
       organisation_id: org.id, target_list_id, research_job_id: job.id,
@@ -58,8 +91,11 @@ export default async function (req) {
     await completeJob(base44, job, { processed: 1, successful: 1, failed: 0, skipped: 0, actualCost: 1, errorSummary: '' });
     return Response.json({
       job_id: job.id, candidates,
+      skipped_excluded: skippedExcluded.map((c) => c.name),
       limited: candidates.length < max,
-      note: candidates.length < max ? `Only ${candidates.length} verifiable candidates found — discovery is limited for this ICP.` : '',
+      note: candidates.length < max
+        ? `Only ${candidates.length} verifiable candidates found — discovery is limited for this ICP.`
+        : (skippedExcluded.length ? `Skipped ${skippedExcluded.length} excluded client(s).` : ''),
     });
   } catch (e) {
     await completeJob(base44, job, { processed: 1, successful: 0, failed: 1, skipped: 0, actualCost: 0, errorSummary: e.message });

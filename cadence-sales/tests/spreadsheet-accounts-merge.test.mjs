@@ -65,4 +65,31 @@ const lists = mergeAccountLists([
 assert.equal(lists.length, 3);
 assert.equal(lists.find((a) => a.company_name === "Acme Ltd").contacts.length, 2);
 
+{
+  const pilotish = toAccounts([
+    {
+      "Company Name": "Aberdeen",
+      "Primary Industry": "Finance",
+      "Primary Sub-Industry": "Investment Banking",
+      "Last Name": "Dissanayake",
+      "First Name": "Manjula",
+      "Job Title": "Head of Data Science",
+      "Direct Phone Number": "+44 20 7123 4567",
+      "Email Address": "manjula@example.com",
+      "Mobile phone": "+44 7967 359567",
+      "LinkedIn Contact Profile URL": "https://www.linkedin.com/in/example",
+      "Company Country": "United Kingdom",
+    },
+  ]).accounts;
+  assert.equal(pilotish.length, 1);
+  assert.equal(pilotish[0].industry, "Finance");
+  assert.equal(pilotish[0].location, "United Kingdom");
+  assert.equal(pilotish[0].contacts.length, 1);
+  assert.equal(pilotish[0].contacts[0].mobile, "+44 7967 359567");
+  assert.equal(pilotish[0].contacts[0].direct_dial, "+44 20 7123 4567");
+  assert.equal(pilotish[0].contacts[0].phone, "+44 7967 359567");
+  assert.equal(pilotish[0].contacts[0].phone_source, "import");
+  assert.equal(pilotish[0].contacts[0].linkedin, "https://www.linkedin.com/in/example");
+}
+
 console.log("spreadsheet-accounts-merge.test.mjs: ok");

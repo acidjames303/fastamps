@@ -5,7 +5,7 @@
 **App id:** from `BASE44_APP_ID` / `VITE_BASE44_APP_ID` only  
 **Working branch:** `cursor/continuous-improvement-agent-2475`  
 **Repo HEAD at publish:** see latest commit on that branch  
-**Live bundle after CI-021:** `index-mMKAvHBw.js`
+**Live bundle after CI-023:** `index-Bp_nqzgH.js`
 
 ---
 
@@ -205,3 +205,30 @@ Overnight timer cycle after CI-020.
 
 - **CI-022** Manager needs-attention rollup on Campaigns  
 - **CI-004** Research reuse across Dialer & Outreach  
+
+---
+
+## Zenitech pilot capability check — CI-023 (26 Nov 2026 ~17:00 Europe/London)
+
+### What James needs
+
+| Need | Before CI-023 | After CI-023 |
+|---|---|---|
+| Exclude current Zenitech clients from prospecting | ICP had `excluded_companies` text only — **not enforced** on discovery/import | Import Excel/CSV into Excluded companies; Company list import + `discoverCompanies` skip matches |
+| Import B2B pilot (~1.6k contacts) with mobiles/directs | Import **dropped** Mobile phone, Direct Phone, Primary Industry, LinkedIn, Country | Columns mapped; contacts keep mobile + direct; `phone_source: import` |
+| Do not overwrite existing numbers on enrich | Existing unprotected mobiles could be replaced by Lusha | Existing number stays primary; Lusha stored as `lusha_mobile` |
+| Export Lusha separately | Single “Phone source” string | **Import mobile** and **Lusha mobile** export columns |
+| Find similar verticals from pilot industries | Possible only if ICP sectors typed by hand | Import preview lists industries to copy into Target sectors; discovery uses ICP + exclusions |
+
+### How to use live
+
+1. Open campaign → brief / structured ICP → **Excluded companies** → upload Zenitech clients Excel → Save  
+2. **Campaigns → Find prospects → Import** → upload B2B pilot → confirm phones/industries in column mapping → import  
+3. Copy industry hints into **Target sectors** → run company discovery / Find similar — clients stay excluded  
+4. Enrich named contacts — existing mobiles kept; Lusha extras appear as Lusha mobile on export  
+
+### Still open (not blocking this release)
+
+- One-click “add these industries to ICP” (CI-024)  
+- Show Lusha extra numbers inline in the Prospecting table (CI-025)  
+- Authenticated dry-run of James’s exact files in production (login blocked here)  

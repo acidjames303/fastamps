@@ -355,7 +355,7 @@ async function lushaEnrich(
           employerName: out?.company_name,
           returnedCompany: r.company_name,
         });
-        const existingDigits = phoneDigits(c?.phone);
+        const existingDigits = phoneDigits(c?.phone || c?.mobile);
         const alreadyPersonNumber = !!existingDigits && existingDigits !== phoneDigits(out?.landline);
         const stamp = {
           phone_type: decision.type,
@@ -384,10 +384,28 @@ async function lushaEnrich(
               employment_check: r.employment_check, returned_company: r.company_name || '',
             },
           };
+        } else if (alreadyPersonNumber && decision.promote && decision.uk.valid
+          && phoneDigits(decision.uk.national) !== existingDigits) {
+          // Imported / existing number stays primary. Lusha is kept beside it
+          // for export and review — never an overwrite.
+          c.lusha_mobile = decision.uk.national;
+          c.lusha_phone_status = decision.status;
+          c.lusha_phone_retrieved_at = now;
+          phonesApplied++;
+          phoneReviews.push({
+            reason: 'phone_additional_provider_number',
+            contact_name: c?.name || '',
+            new_value: decision.uk.national,
+            phone_type: 'mobile',
+            confidence: decision.confidence,
+            explanation: 'An existing number was kept. Lusha returned an additional mobile stored separately for export.',
+            employment_check: r.employment_check,
+            returned_company: r.company_name || '',
+          });
         } else if (!alreadyPersonNumber && decision.uk.valid && !decision.isSwitchboard && r.employment_check !== 'mismatch') {
           // A landline, or a match we could not confirm, is preserved and
           // labelled — stored as a direct line, never as a mobile.
-          c.direct_dial = decision.uk.national;
+          c.direct_dial = c.direct_dial || decision.uk.national;
           Object.assign(c, stamp);
           directApplied++;
         } else if (decision.uk.valid && r.employment_check === 'mismatch') {
@@ -1730,32 +1748,36 @@ Only include REAL people with their full name (first and last). Never invent nam
       // number. A landline never replaces a working number, and a verified or
       // manually confirmed number always stays primary.
       const bestMobile = isUkMobile(best.mobile || best.phone) ? (best.mobile || best.phone) : '';
-      const previousPhone = out.phone;
+      const previousPhone = out.phone || out.mobile;
       if (bestMobile) {
         const sameAsPrevious = phoneDigits(previousPhone) === phoneDigits(bestMobile);
-        const previousProtected = ['verified', 'manually_confirmed'].includes(out.phone_status || '')
-          && isUkMobile(previousPhone) && !sameAsPrevious;
-        if (!sameAsPrevious && previousPhone && isUkMobile(previousPhone) && !previousProtected) {
-          // Two mobiles disagree — keep the one in use and ask a human.
+        // Any existing dialling number is protected — provider values are additive.
+        const previousProtected = !!previousPhone && isUkMobile(previousPhone) && !sameAsPrevious;
+        if (!sameAsPrevious && previousProtected) {
           conflicts.push({ field: 'phone', existing_value: previousPhone, new_value: bestMobile, provider: providerUsed });
+          out.lusha_mobile = bestMobile;
           await raisePhoneReview(base44, org, {
             reason: 'phone_conflict',
             prospect_id, list_id, company_name: out.company_name,
             contact_name: best.name || '', existing_value: previousPhone,
-            existing_source: out.phone_source || '', new_value: bestMobile,
+            existing_source: out.phone_source || 'import', new_value: bestMobile,
             phone_type: 'mobile', confidence: best.phone_confidence || 0,
             new_source: best.phone_source || providerUsed,
-            explanation: `Lusha returned a different mobile to the one already held. The existing number stays primary until reviewed.`,
+            explanation: `An existing number was kept. ${providerUsed || 'Provider'} returned an additional mobile stored as Lusha/provider phone for export.`,
           });
+        } else if (!previousPhone) {
+          out.phone = bestMobile;
+          out.mobile = bestMobile;
+          out.phone_type = 'mobile';
+          out.phone_status = best.phone_status || 'provider_returned_unverified';
+          out.phone_source = best.phone_source || providerUsed;
+          out.phone_retrieved_at = best.phone_retrieved_at || now;
+          out.phone_confidence = best.phone_confidence || 0;
+          out.phone_review_reason = best.phone_review_reason || '';
+        } else if (sameAsPrevious) {
+          out.phone_source = out.phone_source || best.phone_source || providerUsed;
+          out.phone_retrieved_at = best.phone_retrieved_at || out.phone_retrieved_at || now;
         }
-        if (!previousProtected) out.phone = bestMobile;
-        out.mobile = bestMobile;
-        out.phone_type = 'mobile';
-        out.phone_status = best.phone_status || 'provider_returned_unverified';
-        out.phone_source = best.phone_source || providerUsed;
-        out.phone_retrieved_at = best.phone_retrieved_at || now;
-        out.phone_confidence = best.phone_confidence || 0;
-        out.phone_review_reason = best.phone_review_reason || '';
       } else if (best.direct_dial) {
         // A direct line is stored beside the dialling number, never as it.
         out.direct_dial = out.direct_dial || best.direct_dial;

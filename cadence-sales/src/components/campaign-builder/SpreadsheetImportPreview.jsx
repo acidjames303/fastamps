@@ -5,6 +5,7 @@ import { CheckCircle2, CircleAlert, Loader2, UploadCloud, X } from "lucide-react
 import { useAuth } from "@/lib/AuthContext";
 import { readSpreadsheet, inferColumnMapping, accountsFromSheets, mergeAccountLists } from "@/lib/spreadsheetAccounts";
 import { classifyIncomingAccounts, gapCounts } from "@/lib/importPreview";
+import { filterExcludedCompanies, industriesFromAccounts } from "@/lib/companyExclusion";
 
 const ACCEPTED = ["csv", "xlsx", "xls", "json"];
 const MAX_BYTES = 10 * 1024 * 1024;
@@ -100,12 +101,32 @@ export default function SpreadsheetImportPreview({ listId, existingProspects = [
           ),
         );
       }
-      const accounts = mergeAccountLists(perFile);
+      let accounts = mergeAccountLists(perFile);
       if (!accounts.length) {
         throw new Error("No company rows could be read from that file. Check the company column and try again.");
       }
 
+      // Honour campaign ICP excluded_companies (current clients / do-not-prospect).
+      let excludedBlocked = [];
+      if (listId) {
+        try {
+          const lists = await base44.entities.ProspectList.filter({ id: listId }, undefined, 1);
+          const list = lists?.[0];
+          let excluded = [];
+          try {
+            const parsed = list?.icp ? JSON.parse(list.icp) : null;
+            if (parsed && Array.isArray(parsed.excluded_companies)) excluded = parsed.excluded_companies;
+          } catch { /* free-text ICP */ }
+          if (excluded.length) {
+            const filtered = filterExcludedCompanies(accounts, excluded);
+            accounts = filtered.kept;
+            excludedBlocked = filtered.blocked;
+          }
+        } catch { /* preview still works if list lookup fails */ }
+      }
+
       const { fresh, duplicates, ambiguous } = classifyIncomingAccounts({ accounts, existingProspects });
+      const industryHints = industriesFromAccounts(accounts);
 
       setPreview({
         fileName: files.map((file) => file.name).join(", "),
@@ -113,6 +134,8 @@ export default function SpreadsheetImportPreview({ listId, existingProspects = [
         fresh,
         duplicates,
         ambiguous,
+        excludedBlocked,
+        industryHints,
         mapping: inferColumnMapping([...headers]),
         gaps: gapCounts(accounts),
         sheetsRead,
@@ -155,28 +178,42 @@ export default function SpreadsheetImportPreview({ listId, existingProspects = [
 
       const created = [];
       for (let i = 0; i < rows.length; i += 50) {
-        const batch = rows.slice(i, i + 50).map((account) => ({
-          list_id: targetListId,
-          company_name: account.company_name,
-          domain: account.domain || "",
-          website: account.website || "",
-          industry: account.industry || "",
-          employee_range: account.employee_range || "",
-          location: account.location || "",
-          contacts: (account.contacts || []).map((contact) => ({ ...contact, email_source: contact.email_source || "import" })),
-          full_name: account.contacts?.[0]?.name || "",
-          job_title: account.contacts?.[0]?.title || "",
-          email: account.contacts?.[0]?.email || "",
-          phone: account.contacts?.[0]?.phone || "",
-          enrichment_status: "pending",
-          fit_score: 0,
-          geography_status: "unknown",
-          pushed: false,
-          call_status: "new",
-          source: "import",
-          provider_used: "import",
-          organisation_id: user.organisation_id,
-        }));
+        const batch = rows.slice(i, i + 50).map((account) => {
+          const primary = account.contacts?.[0] || {};
+          const primaryPhone = primary.mobile || primary.phone || "";
+          return {
+            list_id: targetListId,
+            company_name: account.company_name,
+            domain: account.domain || "",
+            website: account.website || "",
+            industry: account.industry || "",
+            employee_range: account.employee_range || "",
+            location: account.location || "",
+            contacts: (account.contacts || []).map((contact) => ({
+              ...contact,
+              mobile: contact.mobile || "",
+              direct_dial: contact.direct_dial || "",
+              phone: contact.mobile || contact.phone || contact.direct_dial || "",
+              phone_source: contact.phone_source || (contact.phone || contact.mobile || contact.direct_dial ? "import" : ""),
+              email_source: contact.email_source || (contact.email ? "import" : ""),
+            })),
+            full_name: primary.name || "",
+            job_title: primary.title || "",
+            email: primary.email || "",
+            phone: primaryPhone,
+            mobile: primary.mobile || primaryPhone || "",
+            direct_dial: primary.direct_dial || "",
+            phone_source: primaryPhone ? "import" : "",
+            enrichment_status: "pending",
+            fit_score: 0,
+            geography_status: "unknown",
+            pushed: false,
+            call_status: "new",
+            source: "import",
+            provider_used: "import",
+            organisation_id: user.organisation_id,
+          };
+        });
         const result = await base44.entities.Prospect.bulkCreate(batch);
         const list = Array.isArray(result) ? result : [result];
         list.filter(Boolean).forEach((record) => created.push(record));
@@ -366,6 +403,7 @@ export default function SpreadsheetImportPreview({ listId, existingProspects = [
             <span className="font-medium text-slate-700">{preview.fileName}</span>
             {preview.duplicates.length ? ` · ${preview.duplicates.length} already in this list` : ""}
             {preview.ambiguous.length ? ` · ${preview.ambiguous.length} need a quick check` : ""}
+            {preview.excludedBlocked?.length ? ` · ${preview.excludedBlocked.length} excluded clients skipped` : ""}
           </p>
 
           {sheetStats.length > 1 && (
@@ -413,6 +451,30 @@ export default function SpreadsheetImportPreview({ listId, existingProspects = [
                   {gap.missing} missing {gap.label.toLowerCase()}
                 </span>
               ))}
+            </div>
+          )}
+
+          {preview.excludedBlocked?.length > 0 && (
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700">
+              <p className="font-semibold text-slate-800">
+                {preview.excludedBlocked.length} excluded client{preview.excludedBlocked.length === 1 ? "" : "s"} skipped
+              </p>
+              <p className="mt-1 text-slate-500">
+                {preview.excludedBlocked.slice(0, 6).map((row) => row.company_name || row.name).join(", ")}
+                {preview.excludedBlocked.length > 6 ? " and more" : ""} — from this campaign’s do-not-prospect list.
+              </p>
+            </div>
+          )}
+
+          {preview.industryHints?.length > 0 && (
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 px-3 py-2 text-xs text-emerald-900">
+              <p className="font-semibold">Industries in this file (for lookalike search)</p>
+              <p className="mt-1 text-emerald-800">
+                {preview.industryHints.map((row) => `${row.name} (${row.count})`).join(" · ")}
+              </p>
+              <p className="mt-1 text-emerald-700/80">
+                Add these to Target sectors in the campaign ICP, then find similar companies — excluded clients stay out.
+              </p>
             </div>
           )}
 
