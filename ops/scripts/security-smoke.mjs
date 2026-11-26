@@ -1,17 +1,25 @@
 #!/usr/bin/env node
 /**
  * Non-destructive security smoke checks for FastAmps Connect.
- * Requires BASE44_APP_ID. Optional admin credentials for positive/negative auth tests.
+ * Uses public CONNECT_APP_ID from the repo when CI secrets are not yet set.
+ * Credentialed checks are skipped (not failed) when QA secrets are absent.
  */
+import { CONNECT_APP_ID } from '../../launch-readiness/simulation/src/target-app.mjs';
+
 const baseUrl = (process.env.CONNECT_PRODUCTION_URL || 'https://connect.fastamps.com').replace(/\/$/, '');
-const appId = process.env.BASE44_APP_ID || process.env.VITE_BASE44_APP_ID;
-if (!appId) {
-  console.error(JSON.stringify({ ok: false, error: 'BASE44_APP_ID required' }));
-  process.exit(2);
-}
+const appId = process.env.BASE44_APP_ID || process.env.VITE_BASE44_APP_ID || process.env.CONNECT_APP_ID || CONNECT_APP_ID;
 
 const api = `${baseUrl}/api/apps/${appId}`;
-const report = { ok: false, checked_at: new Date().toISOString(), checks: [], gaps: [] };
+const report = {
+  ok: false,
+  checked_at: new Date().toISOString(),
+  app_id_source: process.env.BASE44_APP_ID
+    ? 'secret'
+    : (process.env.VITE_BASE44_APP_ID || process.env.CONNECT_APP_ID ? 'env' : 'repo_public_constant'),
+  checks: [],
+  skipped: [],
+  gaps: [],
+};
 
 async function check(name, fn) {
   try {
@@ -27,11 +35,26 @@ function authRejected(res, data) {
   const looksAuth = /auth|sign in|login|unauthor|unauthorized|forbidden|administrator/.test(msg);
   // Base44 currently returns HTTP 500 "Authentication required..." for some anonymous
   // function calls — treat as rejection only when the body clearly indicates auth failure.
-  return (
-    res.status === 401
-    || res.status === 403
-    || (res.status >= 400 && looksAuth)
-  );
+  return res.status === 401 || res.status === 403 || (res.status >= 400 && looksAuth);
+}
+
+if (!appId) {
+  await check('security_headers_homepage', async () => {
+    const res = await fetch(`${baseUrl}/`, { headers: { 'User-Agent': 'FastAmps-security-smoke/1.0' } });
+    const hsts = res.headers.get('strict-transport-security');
+    const xfo = res.headers.get('x-frame-options');
+    const xcto = res.headers.get('x-content-type-options');
+    return {
+      ok: Boolean(hsts) && /DENY|SAMEORIGIN/i.test(String(xfo || '')) && /nosniff/i.test(String(xcto || '')),
+      hsts: Boolean(hsts),
+      x_frame_options: xfo,
+      x_content_type_options: xcto,
+    };
+  });
+  report.skipped.push('api_auth_checks_require_app_id');
+  report.ok = report.checks.every((c) => c.ok);
+  console.log(JSON.stringify(report, null, 2));
+  process.exit(report.ok ? 0 : 1);
 }
 
 await check('admin_function_rejects_anonymous', async () => {
@@ -106,6 +129,8 @@ if (email && password) {
     });
     return { ok: res.status >= 400, http: res.status };
   });
+} else {
+  report.skipped.push('credentialed_admin_checks_require_CONNECT_QA_ADMIN_*_secrets');
 }
 
 if (installerEmail && installerPassword) {
@@ -128,6 +153,8 @@ if (installerEmail && installerPassword) {
     });
     return { ok: res.status === 401 || res.status === 403, http: res.status };
   });
+} else {
+  report.skipped.push('installer_privilege_check_requires_CONNECT_QA_INSTALLER_*_secrets');
 }
 
 report.gaps.push(

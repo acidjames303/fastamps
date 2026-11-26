@@ -16,6 +16,7 @@ import { createHash } from 'node:crypto';
 import { execSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { CONNECT_APP_ID } from '../../launch-readiness/simulation/src/target-app.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '../..');
@@ -128,26 +129,10 @@ if (
   result.mismatches.push('spa_content_hash_mismatch_local_vs_live');
 }
 
-const appId = process.env.BASE44_APP_ID || process.env.VITE_BASE44_APP_ID || '';
+const appId = process.env.BASE44_APP_ID || process.env.VITE_BASE44_APP_ID || process.env.CONNECT_APP_ID || CONNECT_APP_ID;
 const apiKey = process.env.BASE44_API_KEY || '';
-if (appId && apiKey) {
-  const schemaRes = await fetch(`${baseUrl}/api/apps/${appId}/entity-schemas/Installer`, {
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      Accept: 'application/json',
-      'User-Agent': 'FastAmps-verify-release/1.0',
-    },
-  });
-  const schema = await schemaRes.json().catch(() => ({}));
-  const props = schema.properties || schema.entity_schema?.properties || {};
-  result.schema = {
-    http: schemaRes.status,
-    membership_status: Boolean(props.membership_status),
-    qa_financial_lifecycle: Boolean(props.qa_financial_lifecycle),
-  };
-  if (!result.schema.membership_status) result.mismatches.push('installer_membership_schema_missing');
-
-  // Genuine Links must remain draft unless intentionally activated
+if (appId) {
+  // Public invite check does not need API key
   const inviteRes = await fetch(`${baseUrl}/api/apps/${appId}/functions/manage-incentive-programme`, {
     method: 'POST',
     headers: {
@@ -164,6 +149,23 @@ if (appId && apiKey) {
     status: invite.status || null,
   };
   if (invite.active === true) result.mismatches.push('genuine_links_active_unexpected');
+}
+if (appId && apiKey) {
+  const schemaRes = await fetch(`${baseUrl}/api/apps/${appId}/entity-schemas/Installer`, {
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      Accept: 'application/json',
+      'User-Agent': 'FastAmps-verify-release/1.0',
+    },
+  });
+  const schema = await schemaRes.json().catch(() => ({}));
+  const props = schema.properties || schema.entity_schema?.properties || {};
+  result.schema = {
+    http: schemaRes.status,
+    membership_status: Boolean(props.membership_status),
+    qa_financial_lifecycle: Boolean(props.qa_financial_lifecycle),
+  };
+  if (!result.schema.membership_status) result.mismatches.push('installer_membership_schema_missing');
 }
 
 result.ok = result.mismatches.length === 0

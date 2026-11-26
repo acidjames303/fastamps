@@ -86,10 +86,10 @@ Priority risks:
 | `ops/scripts/*` locally/CI | **Yes** |
 | Cursor Cloud Agent always-on | **No** — not relied upon |
 
-Until the first successful Actions run with secrets: status remains **CONFIGURED_PENDING_CI_SECRETS** in `ops/maintenance-state.json`.
+Public health + anonymous security checks use the repo’s public Connect app id when `BASE44_APP_ID` is unset. Credentialed admin/installer checks remain skipped until QA secrets are added.
 
-Required GitHub secrets (names only): `BASE44_APP_ID`, `BASE44_API_KEY`, `CONNECT_QA_ADMIN_EMAIL`, `CONNECT_QA_ADMIN_PASSWORD`, optional installer pair, optional `HEALTH_WEBHOOK_URL`.  
-Optional variable: `EXPECTED_SPA_JS`.
+Required for full authenticated monitoring (names only): `BASE44_API_KEY`, `CONNECT_QA_ADMIN_EMAIL`, `CONNECT_QA_ADMIN_PASSWORD`, optional installer pair, optional `HEALTH_WEBHOOK_URL`.  
+Optional: `BASE44_APP_ID` (overrides public constant), variable `EXPECTED_SPA_JS`.
 
 ---
 

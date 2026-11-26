@@ -16,13 +16,14 @@
 import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { CONNECT_APP_ID } from '../../launch-readiness/simulation/src/target-app.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const opsRoot = join(__dirname, '..');
 const statePath = join(opsRoot, 'maintenance-state.json');
 const historyPath = join(opsRoot, 'deployment-history.jsonl');
 const baseUrl = (process.env.CONNECT_PRODUCTION_URL || 'https://connect.fastamps.com').replace(/\/$/, '');
-const appId = process.env.BASE44_APP_ID || process.env.VITE_BASE44_APP_ID || '';
+const appId = process.env.BASE44_APP_ID || process.env.VITE_BASE44_APP_ID || process.env.CONNECT_APP_ID || CONNECT_APP_ID;
 const apiKey = process.env.BASE44_API_KEY || '';
 
 const started = Date.now();
