@@ -14,7 +14,6 @@ import PushToOutreachDialog from "@/components/prospecting/PushToOutreachDialog"
 import CampaignBuilderWorkspace from "@/components/campaign-builder/CampaignBuilderWorkspace";
 import AccountResearchBar from "@/components/prospecting/AccountResearchBar";
 import ResearchPromptPanel from "@/components/prospecting/ResearchPromptPanel";
-import ResearchImportPanel from "@/components/prospecting/ResearchImportPanel";
 import EnrichmentSessionBanner from "@/components/prospecting/EnrichmentSessionBanner";
 import { useEnrichmentSession, trackEnrichmentSession, clearEnrichmentSession } from "@/lib/enrichmentSession";
 import ProspectFilters, { matchesFilter } from "@/components/prospecting/ProspectFilters";
@@ -215,15 +214,6 @@ export default function Prospecting({ embedded = false, campaignId = "" }) {
       // Viewing a list is read-only; readiness and export totals come from its records.
     } catch { setProspects([]); }
     finally { setLoading(false); }
-  };
-
-  // Refresh the research shown against rows (used after importing a document).
-  const reloadResearch = async () => {
-    if (!listId) return;
-    const records = await base44.entities.AccountResearch
-      .filter({ prospect_list_id: listId }, "-researched_at", 200)
-      .catch(() => []);
-    setResearchByProspect(Object.fromEntries([...records].reverse().map((r) => [r.prospect_id, r])));
   };
 
   const openListSelection = async (value) => {
@@ -810,7 +800,7 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
           )}
           <p className={`${embedded ? "text-sm" : ""} text-slate-500 ${embedded ? "" : "mt-2"}`}>
             {embedded
-              ? "Import a company list (every Excel worksheet merges), then enrich and call — or build a brief from scratch."
+              ? "Start with pills, dictation, a written brief, or an import — then enrich and call."
               : "Talk through the campaign, review the accounts Cadence finds, enrich them, and push them into a campaign."}
           </p>
         </div>
@@ -923,14 +913,13 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
         onRunFinished={handleRunFinished}
         onOpenEnrich={openProviderEnrich}
         onBriefSaved={async () => { if (listId) await pickList(listId); }}
-        preferImport={embedded}
+        preferImport={false}
       />
 
-      {/* Under Campaigns → Find prospects the builder IS the workspace. Keep the
-          classic brief/company tools, but do not let them dominate the first screen. */}
+      {/* Builder is the main start. Keep classic tools available but out of the way. */}
       <details className={`rounded-2xl border border-slate-200 bg-white ${embedded ? "" : "open"}`}>
         <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-slate-700 sm:px-5">
-          {embedded ? "Classic brief & company tools (optional)" : "Brief, ICP and company tools"}
+          {embedded ? "More tools (brief, ICP, discover)" : "Brief, ICP and company tools"}
         </summary>
       <div className="grid gap-6 border-t border-slate-100 p-4 sm:p-5 lg:grid-cols-2">
         <div className="space-y-4">
@@ -997,18 +986,24 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
       </div>
       </details>
 
-      {listId && (
-        <div className="space-y-6">
-          <ResearchPromptPanel
-            listId={listId}
-            prospects={prospects}
-            onChanged={() => loadProspects(listId)}
-            onResearchLoaded={(records) =>
-              setResearchByProspect(Object.fromEntries([...records].reverse().map((r) => [r.prospect_id, r])))
-            }
-          />
-          <ResearchImportPanel listId={listId} prospects={prospects} onImported={reloadResearch} />
-        </div>
+      {/* One research prompt — collapsed so it does not compete with how you start.
+          Research document import lives only under Import → Attach research documents. */}
+      {listId && prospects.length > 0 && (
+        <details className="rounded-2xl border border-slate-200 bg-white">
+          <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-slate-700 sm:px-5">
+            Prompt accounts for public research
+          </summary>
+          <div className="border-t border-slate-100 p-4 sm:p-5">
+            <ResearchPromptPanel
+              listId={listId}
+              prospects={prospects}
+              onChanged={() => loadProspects(listId)}
+              onResearchLoaded={(records) =>
+                setResearchByProspect(Object.fromEntries([...records].reverse().map((r) => [r.prospect_id, r])))
+              }
+            />
+          </div>
+        </details>
       )}
 
       {campaignContext && <><DataReadinessPanel campaignId={campaignContext}/><ReviewQueuePanel campaignId={campaignContext} onChanged={()=>loadProspects(listId)}/></>}

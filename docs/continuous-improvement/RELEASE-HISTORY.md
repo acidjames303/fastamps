@@ -162,3 +162,19 @@ James reported the Company list still looked unchanged (CI-003 was merge logic +
 - Fanned worksheet icons always visible (not hover-only)
 - Checkpoints: `6b080933…` before · `6b08095a…` CI-016
 - Live bundle `index-D0ikBivf.js`
+
+---
+
+## CI-017 — 26 Nov 2026 ~11:15 (Europe/London)
+
+Fluent Find prospects start — less clunky, same core features.
+
+**Kept:** Guide me (pills) · Dictate · Write · Import existing research.
+
+**UX:**
+- Four equal start cards again (“How do you want to start?”) — no forced Import landing
+- Import is one column: company list → optional “Attach research documents” → compact next-step chips
+- Removed duplicate research upload + always-open “Prompt your accounts” stacked under the builder
+- Prompt research / more tools collapsed so they do not compete with starting
+
+Checkpoints: `6b0813a9…` before · `6b0813d3…` CI-017

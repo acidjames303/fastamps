@@ -212,8 +212,7 @@ export default function SpreadsheetImportPreview({ listId, existingProspects = [
         <div>
           <h3 className="font-display text-lg font-semibold text-slate-900">Company list</h3>
           <p className="mt-1 text-xs text-slate-500">
-            Drop CSV or Excel — every worksheet and every file merges into one list. Cadence shows what it
-            read before anything is saved.
+            CSV or Excel — every worksheet merges into one list. Preview before anything is saved.
           </p>
         </div>
         {(preview || summary || queue.length > 0) && (

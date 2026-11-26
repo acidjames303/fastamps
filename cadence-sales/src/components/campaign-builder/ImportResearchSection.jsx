@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { CircleAlert, Loader2, Mail, Phone, ShieldCheck, Sparkles } from "lucide-react";
+import { CircleAlert, FileText, Loader2, Mail, Phone, ShieldCheck, Sparkles } from "lucide-react";
 import SpreadsheetImportPreview from "@/components/campaign-builder/SpreadsheetImportPreview";
 import ResearchImportPanel from "@/components/prospecting/ResearchImportPanel";
 import ResearchPromptPanel from "@/components/prospecting/ResearchPromptPanel";
@@ -19,9 +19,8 @@ const numberCount = (prospects) => {
   return { accounts, numbers };
 };
 
-// The import door for both a brand-new campaign and one already running.
-// Nothing paid happens without an explicit approval, and every follow-up reuses
-// the enrichment, research and screening flows the rest of Cadence already has.
+// One import path: companies first, research documents second, then optional next steps.
+// Nothing paid runs without approval; existing accounts are never overwritten.
 export default function ImportResearchSection({
   listId,
   prospects = [],
@@ -31,6 +30,7 @@ export default function ImportResearchSection({
 }) {
   const [importedIds, setImportedIds] = useState([]);
   const [showResearch, setShowResearch] = useState(false);
+  const [showDocs, setShowDocs] = useState(false);
   const [screenOpen, setScreenOpen] = useState(false);
   const [screening, setScreening] = useState(false);
   const [screenResult, setScreenResult] = useState("");
@@ -40,6 +40,7 @@ export default function ImportResearchSection({
   const missingPhone = imported.filter((prospect) => !prospect.mobile && !prospect.direct_dial);
   const missingEmail = imported.filter((prospect) => !prospect.email);
   const numbers = numberCount(imported);
+  const hasAccounts = prospects.length > 0;
 
   const screen = async () => {
     if (!listId || !importedIds.length || screening) return;
@@ -66,156 +67,131 @@ export default function ImportResearchSection({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-1.5 px-0.5">
+    <div className="space-y-5">
+      <div className="space-y-1">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-          Campaigns · Find prospects
+          Import
         </p>
-        <h3 className="font-display text-2xl font-semibold text-slate-900">Import existing research</h3>
+        <h3 className="font-display text-2xl font-semibold text-slate-900">Bring in what you already have</h3>
         <p className="max-w-2xl text-sm text-slate-500">
-          Start with a company list — every Excel worksheet is merged. Research packs attach after the accounts
-          are in. Nothing already on this campaign is overwritten.
+          Add companies first. Attach research documents when you are ready. Nothing already on this campaign is overwritten.
         </p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
-        <SpreadsheetImportPreview
-          listId={listId}
-          existingProspects={prospects}
-          onListCreated={onListCreated}
-          onImported={onImported}
-          onImportedRows={setImportedIds}
-        />
+      <SpreadsheetImportPreview
+        listId={listId}
+        existingProspects={prospects}
+        onListCreated={onListCreated}
+        onImported={onImported}
+        onImportedRows={setImportedIds}
+      />
 
-        {prospects.length ? (
-          <ResearchImportPanel listId={listId} prospects={prospects} onImported={() => onImported?.(listId)} />
-        ) : (
-          <div className="rounded-2xl border border-dashed border-slate-200 bg-gradient-to-br from-slate-50 to-emerald-50/40 p-5">
-            <p className="text-sm font-semibold text-slate-900">Research pack next</p>
-            <p className="mt-1 text-xs leading-relaxed text-slate-500">
-              Add companies on the left first. Then drop PDF, Word, Markdown or text research here — each pack
-              stays filed against the accounts already in this list.
-            </p>
-          </div>
-        )}
-      </div>
+      {hasAccounts ? (
+        <div className="rounded-2xl border border-slate-200 bg-white">
+          <button
+            type="button"
+            onClick={() => setShowDocs((open) => !open)}
+            className="flex w-full items-center gap-3 px-4 py-3.5 text-left sm:px-5"
+            aria-expanded={showDocs}
+          >
+            <span className="grid h-9 w-9 flex-none place-items-center rounded-full bg-slate-100 text-slate-700">
+              <FileText className="h-4 w-4" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold text-slate-900">Attach research documents</span>
+              <span className="block text-xs text-slate-500">
+                PDF, Word, Markdown or spreadsheet — filed against accounts already in this list
+              </span>
+            </span>
+            <span className="text-xs font-medium text-emerald-700">{showDocs ? "Hide" : "Open"}</span>
+          </button>
+          {showDocs && (
+            <div className="border-t border-slate-100 p-4 sm:p-5">
+              <ResearchImportPanel listId={listId} prospects={prospects} onImported={() => onImported?.(listId)} />
+            </div>
+          )}
+        </div>
+      ) : (
+        <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500">
+          Research documents unlock after the first companies are in the list.
+        </p>
+      )}
 
       {importedIds.length > 0 && (
-        <div className="rounded-3xl border border-emerald-200 bg-emerald-50/60 p-5 space-y-3">
+        <div className="space-y-3 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4 sm:p-5">
           <div>
             <p className="text-sm font-semibold text-emerald-900">
-              {imported.length} imported account{imported.length === 1 ? "" : "s"} ready — what next?
+              {imported.length} account{imported.length === 1 ? "" : "s"} added — optional next steps
             </p>
-            <p className="mt-1 text-xs text-emerald-800">
-              Import only is fine. Anything paid shows an estimate and waits for your approval before it runs.
+            <p className="mt-0.5 text-xs text-emerald-800">
+              You can stop here and call. Paid steps show an estimate first.
             </p>
           </div>
 
-          <div className="grid gap-2 sm:grid-cols-2">
-            <div className="rounded-2xl border border-emerald-200 bg-white p-3">
-              <p className="text-sm font-semibold text-slate-900">Import only</p>
-              <p className="mt-1 text-xs text-slate-500">Keep the accounts as they are and call them from the list.</p>
-              <Button
-                variant="ghost"
-                onClick={() => setImportedIds([])}
-                className="mt-2 rounded-full text-emerald-800 hover:bg-emerald-50"
-              >
-                Done, keep as imported
-              </Button>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-3">
-              <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-900">
-                <Phone className="h-3.5 w-3.5 text-emerald-600" /> Find missing phones
-              </p>
-              <p className="mt-1 text-xs text-slate-500">
-                {missingPhone.length} account{missingPhone.length === 1 ? "" : "s"} without a mobile or direct dial.
-                Lusha and your other connected providers are only called after you approve the estimate.
-              </p>
-              <Button
-                variant="outline"
-                disabled={!missingPhone.length || !onOpenEnrich}
-                onClick={() => onOpenEnrich?.(missingPhone.map((prospect) => prospect.id), "phone")}
-                className="mt-2 rounded-full border-slate-300"
-              >
-                Review the estimate
-              </Button>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-3">
-              <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-900">
-                <Mail className="h-3.5 w-3.5 text-emerald-600" /> Enrich emails
-              </p>
-              <p className="mt-1 text-xs text-slate-500">
-                {missingEmail.length} account{missingEmail.length === 1 ? "" : "s"} without a work email. Known company
-                formats are tried first at no cost.
-              </p>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!missingPhone.length || !onOpenEnrich}
+              onClick={() => onOpenEnrich?.(missingPhone.map((prospect) => prospect.id), "phone")}
+              className="rounded-full border-slate-300 bg-white"
+            >
+              <Phone className="mr-1.5 h-3.5 w-3.5" /> Phones ({missingPhone.length})
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!missingEmail.length || !onOpenEnrich}
+              onClick={() => onOpenEnrich?.(missingEmail.map((prospect) => prospect.id), "email")}
+              className="rounded-full border-slate-300 bg-white"
+            >
+              <Mail className="mr-1.5 h-3.5 w-3.5" /> Emails ({missingEmail.length})
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowResearch((open) => !open)}
+              className="rounded-full border-slate-300 bg-white"
+            >
+              <Sparkles className="mr-1.5 h-3.5 w-3.5" /> {showResearch ? "Hide prompt" : "Prompt research"}
+            </Button>
+            {!screenOpen ? (
               <Button
                 variant="outline"
-                disabled={!missingEmail.length || !onOpenEnrich}
-                onClick={() => onOpenEnrich?.(missingEmail.map((prospect) => prospect.id), "email")}
-                className="mt-2 rounded-full border-slate-300"
+                size="sm"
+                disabled={!numbers.numbers || screening}
+                onClick={() => setScreenOpen(true)}
+                className="rounded-full border-slate-300 bg-white"
               >
-                Review the estimate
+                <ShieldCheck className="mr-1.5 h-3.5 w-3.5" /> TPS screen
               </Button>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-3">
-              <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-900">
-                <Sparkles className="h-3.5 w-3.5 text-emerald-600" /> Research these accounts
-              </p>
-              <p className="mt-1 text-xs text-slate-500">
-                Fill the gaps with public research. One Smart Action per account, with the source link kept beside each
-                finding.
-              </p>
-              <Button
-                variant="outline"
-                onClick={() => setShowResearch((current) => !current)}
-                className="mt-2 rounded-full border-slate-300"
-              >
-                {showResearch ? "Hide research" : "Write the instruction"}
-              </Button>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:col-span-2">
-              <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-900">
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> Screen for TPS / CTPS
-              </p>
-              <p className="mt-1 text-xs text-slate-500">
-                {numbers.numbers
-                  ? `${numbers.numbers} number${numbers.numbers === 1 ? "" : "s"} across ${numbers.accounts} account${numbers.accounts === 1 ? "" : "s"} will be checked with 121 Prodata. Billing is per number on your Prodata account.`
-                  : "No numbers on these accounts yet — screen after enriching."}
-              </p>
-              {!screenOpen ? (
-                <Button
-                  variant="outline"
-                  disabled={!numbers.numbers || screening}
-                  onClick={() => setScreenOpen(true)}
-                  className="mt-2 rounded-full border-slate-300"
-                >
-                  {screening ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : null} Review and approve
+            ) : (
+              <span className="inline-flex flex-wrap items-center gap-2 rounded-full border border-emerald-300 bg-white px-3 py-1.5 text-xs text-emerald-900">
+                Approve {numbers.numbers} check{numbers.numbers === 1 ? "" : "s"}?
+                <Button size="sm" onClick={screen} disabled={screening} className="h-7 rounded-full bg-emerald-600 px-3 hover:bg-emerald-500">
+                  {screening ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Approve"}
                 </Button>
-              ) : (
-                <div className="mt-2 flex flex-wrap items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 p-2.5">
-                  <p className="min-w-0 flex-1 text-xs text-emerald-900">
-                    Approve {numbers.numbers} paid screening check{numbers.numbers === 1 ? "" : "s"}?
-                  </p>
-                  <Button onClick={screen} disabled={screening} className="rounded-full bg-emerald-600 hover:bg-emerald-500">
-                    {screening ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : null} Approve
-                  </Button>
-                  <Button variant="ghost" onClick={() => setScreenOpen(false)} disabled={screening} className="rounded-full">
-                    Not now
-                  </Button>
-                </div>
-              )}
-              {screenResult && <p className="mt-2 text-xs text-emerald-800">{screenResult}</p>}
-              {screenError && (
-                <p className="mt-2 flex items-start gap-1.5 text-xs text-rose-700">
-                  <CircleAlert className="mt-0.5 h-3.5 w-3.5 flex-none" /> {screenError}
-                </p>
-              )}
-            </div>
+                <button type="button" onClick={() => setScreenOpen(false)} className="text-slate-500 hover:text-slate-800">
+                  Not now
+                </button>
+              </span>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setImportedIds([])}
+              className="rounded-full text-emerald-800"
+            >
+              Done
+            </Button>
           </div>
+
+          {screenResult && <p className="text-xs text-emerald-800">{screenResult}</p>}
+          {screenError && (
+            <p className="flex items-start gap-1.5 text-xs text-rose-700">
+              <CircleAlert className="mt-0.5 h-3.5 w-3.5 flex-none" /> {screenError}
+            </p>
+          )}
 
           {showResearch && (
             <ResearchPromptPanel

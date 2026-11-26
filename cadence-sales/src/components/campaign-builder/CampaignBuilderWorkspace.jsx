@@ -30,7 +30,8 @@ export default function CampaignBuilderWorkspace({
   onRunFinished,
   onOpenEnrich,
   onBriefSaved,
-  // Campaigns → Find prospects should land on Import — James's path — not the old four equal cards.
+  // When true and no saved method, open Import. Default false so Find prospects
+  // shows all four start options (guide / dictate / write / import).
   preferImport = false,
 }) {
   const { user } = useAuth();
@@ -38,10 +39,10 @@ export default function CampaignBuilderWorkspace({
   const [draft, setDraft] = useState(() => loadDraft(scope) || emptyDraft());
   const [method, setMethod] = useState(() => {
     if (new URLSearchParams(window.location.search).get("import") === "1") return "import";
-    // Find prospects (embedded) always opens Import → Company list so the live
-    // path matches what James uses — other methods stay one click away.
-    if (preferImport) return "import";
-    return loadDraft(scope)?.method || "";
+    const saved = loadDraft(scope)?.method || "";
+    // Restore in-progress brief flows; otherwise show the four-way start hub.
+    if (saved && saved !== "import") return saved;
+    return preferImport ? "import" : "";
   });
   const [templates, setTemplates] = useState([]);
   const [count, setCount] = useState(25);
