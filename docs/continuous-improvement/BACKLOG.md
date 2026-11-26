@@ -36,6 +36,7 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | CI-020 | P1 | Today→Dialer resume: last company/campaign one-click continue | Done · live `index-DyWTON_g.js` |
 | CI-021 | P1 | Post-enrichment results + next action in place | Done · live `index-mMKAvHBw.js` |
 | CI-023 | P1 | Zenitech: exclusion list + pilot phone/industry import + Lusha additive phones/export | Done · live `index-Bp_nqzgH.js` |
+| CI-023b | P1 | Discovery searches outside seed list + exclusions (Zenitech campaign pattern) | Done · live `index-tvN2SO3h.js` |
 
 ## Parking lot
 

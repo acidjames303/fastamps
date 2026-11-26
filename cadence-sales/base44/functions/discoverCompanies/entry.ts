@@ -58,23 +58,44 @@ export default async function (req) {
       { organisation_id: org.id }, '-created_date', 1000
     );
     const existingDomains = existing.map((c) => c.domain).filter(Boolean);
+
+    // Seed accounts already on this campaign — search outside them, do not re-find.
+    const seedProspects = await base44.asServiceRole.entities.Prospect.filter(
+      { list_id: list.id }, '-created_date', 2000
+    ).catch(() => []);
+    const seedNames = (seedProspects || [])
+      .map((p: any) => String(p.company_name || '').trim())
+      .filter(Boolean);
+    const seedDomains = (seedProspects || [])
+      .map((p: any) => String(p.domain || '').trim().toLowerCase())
+      .filter(Boolean);
+
     const excludedCompanies = parseExcludedCompanies(list);
-    const excludedNote = excludedCompanies.length
-      ? `\nDo not return these current clients / excluded companies: ${excludedCompanies.join(', ')}`
-      : '';
+    const blockNames = [...excludedCompanies, ...seedNames];
+    const blockNote = [
+      excludedCompanies.length
+        ? `Do not return these current clients / excluded companies: ${excludedCompanies.join(', ')}`
+        : '',
+      seedNames.length
+        ? `Do not return companies already on this campaign seed list (find similar accounts outside this set): ${seedNames.slice(0, 80).join(', ')}${seedNames.length > 80 ? ' …' : ''}`
+        : '',
+    ].filter(Boolean).join('\n');
 
     const icp = (list.icp || [
       `Industries: ${(list.target_industries || []).join(', ')}`,
       `Sizes: ${(list.target_company_sizes || []).join(', ')}`,
       `Locations: ${(list.target_locations || []).join(', ')}`,
       `Roles: ${(list.target_roles || []).join(', ')}`,
-    ].join('\n')) + excludedNote;
+    ].join('\n')) + (blockNote ? `\n${blockNote}` : '');
 
     const rawCandidates = await CompanyResearchProvider.discoverCompanies(base44, {
-      icp, brief: list.offer || '', count: max + Math.min(excludedCompanies.length, 10), existingDomains,
+      icp,
+      brief: list.offer || '',
+      count: max + Math.min(blockNames.length, 15),
+      existingDomains: [...new Set([...existingDomains, ...seedDomains])],
     });
-    const skippedExcluded = (rawCandidates || []).filter((c) => isExcluded(c.name, excludedCompanies));
-    const candidates = (rawCandidates || []).filter((c) => !isExcluded(c.name, excludedCompanies)).slice(0, max);
+    const skippedExcluded = (rawCandidates || []).filter((c) => isExcluded(c.name, blockNames));
+    const candidates = (rawCandidates || []).filter((c) => !isExcluded(c.name, blockNames)).slice(0, max);
 
     await recordAttempt(base44, {
       organisation_id: org.id, target_list_id, research_job_id: job.id,
@@ -95,7 +116,9 @@ export default async function (req) {
       limited: candidates.length < max,
       note: candidates.length < max
         ? `Only ${candidates.length} verifiable candidates found — discovery is limited for this ICP.`
-        : (skippedExcluded.length ? `Skipped ${skippedExcluded.length} excluded client(s).` : ''),
+        : (skippedExcluded.length
+          ? `Skipped ${skippedExcluded.length} excluded or already-seeded compan${skippedExcluded.length === 1 ? 'y' : 'ies'}.`
+          : ''),
     });
   } catch (e) {
     await completeJob(base44, job, { processed: 1, successful: 0, failed: 1, skipped: 0, actualCost: 0, errorSummary: e.message });

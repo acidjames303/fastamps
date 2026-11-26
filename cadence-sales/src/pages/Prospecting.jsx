@@ -27,6 +27,7 @@ import CampaignExportButton from '@/components/campaigns/CampaignExportButton';
 import CampaignBriefEditor from '@/components/campaigns/CampaignBriefEditor';
 import DataReadinessPanel from '@/components/campaigns/DataReadinessPanel';
 import ReviewQueuePanel from '@/components/campaigns/ReviewQueuePanel';
+import { isCompanyExcluded } from "@/lib/companyExclusion";
 
 // Simple prospecting flow: paste a brief → extract ICP → add companies → enrich
 // data → review results. Uses ProspectList + Prospect entities.
@@ -428,6 +429,17 @@ export default function Prospecting({ embedded = false, campaignId = "" }) {
       const countries = (permittedCountries && permittedCountries.length)
         ? permittedCountries.join(", ")
         : "United Kingdom";
+      // Structured ICP exclusions (current clients) + seed companies already on the campaign.
+      let excludedCompanies = [];
+      try {
+        const parsed = icp ? JSON.parse(icp) : null;
+        if (parsed && Array.isArray(parsed.excluded_companies)) excludedCompanies = parsed.excluded_companies;
+      } catch { /* free-text ICP */ }
+      const seedNames = [
+        ...companies.map((c) => c.name),
+        ...prospects.map((p) => p.company_name),
+      ].filter(Boolean);
+      const blockList = [...new Set([...excludedCompanies, ...seedNames])];
       const response = await base44.functions.invoke("runSmartAction", {
         action_type: "company_discovery",
         prompt: `You are a B2B prospecting researcher. Given this campaign brief / ideal customer profile, find up to 10 REAL companies that fit it.
@@ -440,8 +452,13 @@ ${icp || "(not provided yet — infer from the brief)"}
 
 Geographic scope: ${countries}
 
+Find similar accounts OUTSIDE the seed list — do not return companies we already hold, and do not return excluded current clients.
+
+Do not return these companies (seed data + exclusions):
+${blockList.slice(0, 120).join(", ")}${blockList.length > 120 ? " …" : ""}
+
 Return JSON: an array "companies" of objects {name, domain, website, industry, employee_range, location, why_fits, source_url}.
-Only include REAL companies you can verify exist (use Google, Companies House, the company website). Never invent companies, domains or people. source_url should be the company website or a public listing. If you cannot reliably find 10, return fewer. Do not include any company already in this list: ${(companies || []).map((c) => c.name).join(", ")}.`,
+Only include REAL companies you can verify exist (use Google, Companies House, the company website). Never invent companies, domains or people. source_url should be the company website or a public listing. If you cannot reliably find 10, return fewer.`,
         response_json_schema: {
           type: "object",
           properties: {
@@ -464,9 +481,10 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
       const found = (parsed?.companies || []).filter((c) => c.name);
       if (!found.length) { setDiscoverErr("No companies found. Try refining your brief or ICP."); }
       else {
-        const existingNames = new Set(companies.map((c) => c.name.toLowerCase()));
+        const existingNames = new Set(seedNames.map((n) => n.toLowerCase()));
         const fresh = found
           .filter((c) => !existingNames.has(c.name.toLowerCase()))
+          .filter((c) => !isCompanyExcluded(c.name, excludedCompanies))
           .map((c) => ({
             name: c.name,
             domain: c.domain || "",

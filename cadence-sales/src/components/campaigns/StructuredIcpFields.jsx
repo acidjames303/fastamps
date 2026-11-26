@@ -72,6 +72,7 @@ export default function StructuredIcpFields({ value, onChange }) {
               />
               <p className="text-xs text-muted-foreground">
                 Import current clients / do-not-prospect (Excel or CSV). Cadence will not search or add these companies.
+                Seed accounts you import into this campaign are also treated as “already have” — discovery searches outside both sets.
               </p>
               {excludeMsg && <p className="text-xs text-emerald-700">{excludeMsg}</p>}
               {excludeErr && <p className="text-xs text-rose-600">{excludeErr}</p>}
