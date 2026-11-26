@@ -3,7 +3,13 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { UploadCloud, X, CircleAlert, Loader2, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
-import { readSpreadsheet, toAccounts, guessCompanyColumn } from "@/lib/spreadsheetAccounts";
+import {
+  readSpreadsheet,
+  toAccounts,
+  guessCompanyColumn,
+  accountsFromSheets,
+  mergeAccountLists,
+} from "@/lib/spreadsheetAccounts";
 
 const ACCEPTED = ["csv", "xlsx", "xls", "json"];
 const MAX_BYTES = 10 * 1024 * 1024;
@@ -123,27 +129,22 @@ export default function CsvAccountsUpload({ listId, existingProspects = [], onLi
     return toAccounts(Array.isArray(rows) ? rows : []);
   };
 
-  // Read the workbook locally so real headers and every sheet survive.
+  // Read the workbook locally and merge every worksheet (not just the largest).
   const readAccounts = async (raw) => {
     let sheets = [];
     try {
       sheets = await readSpreadsheet(raw);
     } catch {
-      return { ...(await extractWithAI(raw)), rows: [] };
+      return { ...(await extractWithAI(raw)), rows: [], sheetsRead: 0, sheetStats: [] };
     }
-    let best = { accounts: [], headers: [], rows: [] };
-    let largest = { accounts: [], headers: [], rows: [] };
-    for (const sheet of sheets) {
-      const parsed = { ...toAccounts(sheet.rows), rows: sheet.rows };
-      if (parsed.accounts.length > best.accounts.length) best = parsed;
-      if (parsed.rows.length > largest.rows.length) largest = parsed;
-    }
-    if (best.accounts.length) return best;
+    const merged = accountsFromSheets(sheets);
+    if (merged.accounts.length) return merged;
     const ai = await extractWithAI(raw);
-    return ai.accounts.length ? { ...ai, rows: [] } : largest;
+    if (ai.accounts.length) return { ...ai, rows: [], sheetsRead: sheets.length, sheetStats: merged.sheetStats };
+    return merged;
   };
 
-  const saveAccounts = async (accounts, fileName) => {
+  const saveAccounts = async (accounts, fileName, meta = {}) => {
     let targetListId = listId;
     if (!targetListId) {
       const created = await base44.entities.ProspectList.create({
@@ -189,7 +190,13 @@ export default function CsvAccountsUpload({ listId, existingProspects = [], onLi
       );
     }
 
-    setSummary({ imported: fresh.length, skipped: accounts.length - fresh.length });
+    setSummary({
+      imported: fresh.length,
+      skipped: accounts.length - fresh.length,
+      sheetsRead: meta.sheetsRead || 0,
+      filesRead: meta.filesRead || 1,
+      sheetStats: meta.sheetStats || [],
+    });
     await onImported?.(targetListId);
   };
 
@@ -202,11 +209,17 @@ export default function CsvAccountsUpload({ listId, existingProspects = [], onLi
     setColumnPick(null);
     let currentId = null;
     try {
-      const accounts = [];
+      const perFile = [];
+      let sheetsRead = 0;
+      const sheetStats = [];
       for (const file of queue) {
         currentId = file.id;
         markFile(file.id, { status: "working", progress: 20 });
         const read = await readAccounts(file.raw);
+        sheetsRead += read.sheetsRead || 0;
+        if (Array.isArray(read.sheetStats)) {
+          sheetStats.push(...read.sheetStats.map((s) => ({ ...s, file: file.name })));
+        }
         if (!read.accounts.length && read.rows.length && read.headers.length) {
           setColumnPick({
             fileId: file.id,
@@ -214,21 +227,27 @@ export default function CsvAccountsUpload({ listId, existingProspects = [], onLi
             headers: read.headers,
             rows: read.rows,
             column: guessCompanyColumn(read.headers, read.rows),
+            sheetsRead: read.sheetsRead || 0,
+            sheetStats: read.sheetStats || [],
           });
           throw new Error(
-            `${file.name} — we read ${read.rows.length} rows but couldn't spot the company column. Choose it below.`,
+            `${file.name} — we read ${read.sheetsRead || 1} sheet${(read.sheetsRead || 1) === 1 ? "" : "s"} (${read.rows.length} rows) but couldn't spot the company column. Choose it below.`,
           );
         }
         if (!read.accounts.length) {
           throw new Error(
-            `${file.name} — no readable rows found. If your accounts sit on a second sheet, save that sheet as its own file.`,
+            `${file.name} — no readable company rows found across ${(read.sheetsRead || 0) || "any"} worksheet${(read.sheetsRead || 0) === 1 ? "" : "s"}.`,
           );
         }
-        accounts.push(...read.accounts);
+        perFile.push(read.accounts);
         markFile(file.id, { progress: 85 });
       }
 
-      await saveAccounts(accounts, queue[0].name);
+      await saveAccounts(mergeAccountLists(perFile), queue[0].name, {
+        sheetsRead,
+        filesRead: queue.length,
+        sheetStats,
+      });
       queue.forEach((f) => markFile(f.id, { status: "done", progress: 100 }));
       setFiles((prev) => prev.filter((f) => f.status !== "done"));
     } catch (e) {
@@ -251,7 +270,11 @@ export default function CsvAccountsUpload({ listId, existingProspects = [], onLi
     try {
       const { accounts } = toAccounts(columnPick.rows, { nameColumn: columnPick.column });
       if (!accounts.length) throw new Error(`“${columnPick.column}” has no values to import.`);
-      await saveAccounts(accounts, columnPick.fileName);
+      await saveAccounts(accounts, columnPick.fileName, {
+        sheetsRead: columnPick.sheetsRead || 1,
+        filesRead: 1,
+        sheetStats: columnPick.sheetStats || [],
+      });
       markFile(columnPick.fileId, { status: "done", progress: 100 });
       setFiles((prev) => prev.filter((f) => f.status !== "done"));
       setColumnPick(null);
@@ -317,7 +340,9 @@ export default function CsvAccountsUpload({ listId, existingProspects = [], onLi
           </button>{" "}
           to add accounts.
         </p>
-        <p className="text-xs text-slate-400">CSV or Excel · one row per company or contact · max 10MB</p>
+        <p className="text-xs text-slate-400">
+          CSV or Excel · every worksheet · multiple files · one row per company or contact · max 10MB
+        </p>
         <input
           ref={inputRef}
           type="file"
@@ -407,7 +432,10 @@ export default function CsvAccountsUpload({ listId, existingProspects = [], onLi
           <CheckCircle2 className="w-4 h-4 mt-0.5 flex-none" />
           <span>
             {summary.imported} account{summary.imported === 1 ? "" : "s"} added
-            {summary.skipped ? `, ${summary.skipped} already in this list` : ""}. Next: research them with AI.
+            {summary.skipped ? `, ${summary.skipped} already in this list` : ""}
+            {summary.filesRead > 1 ? ` from ${summary.filesRead} files` : ""}
+            {summary.sheetsRead > 1 ? ` across ${summary.sheetsRead} worksheets` : ""}
+            . Next: research them with AI.
           </span>
         </div>
       )}
@@ -425,8 +453,9 @@ export default function CsvAccountsUpload({ listId, existingProspects = [], onLi
           </button>
           {helpOpen && (
             <div className="absolute bottom-full left-0 z-10 mb-2 w-60 rounded-xl border border-slate-200 bg-white p-3 text-xs leading-relaxed text-slate-600 shadow-lg">
-              Export a list of target companies from your CRM or a data source, then drop it in. Columns Cadence reads: company
-              name, website, industry, size, location, plus optional contact name, job title, email and phone.
+              Export target companies from your CRM or data source, then drop one or more files in. Cadence reads every
+              worksheet in an Excel workbook and merges duplicate companies. Columns: company name, website, industry,
+              size, location, plus optional contact name, job title, email and phone.
             </div>
           )}
         </div>

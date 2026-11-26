@@ -206,3 +206,62 @@ export async function readSpreadsheet(file) {
     ),
   }));
 }
+
+/**
+ * Merge every worksheet into one account list (deduped by company/domain).
+ * Importers previously kept only the single "best" sheet and dropped the rest.
+ */
+export function accountsFromSheets(sheets, options = {}) {
+  const list = Array.isArray(sheets) ? sheets : [];
+  const allRows = [];
+  const sheetStats = [];
+  for (const sheet of list) {
+    const rows = Array.isArray(sheet?.rows) ? sheet.rows : [];
+    const parsed = toAccounts(rows, options);
+    sheetStats.push({
+      name: sheet?.name || "Sheet",
+      rows: rows.length,
+      accounts: parsed.accounts.length,
+    });
+    allRows.push(...rows);
+  }
+  const merged = toAccounts(allRows, options);
+  return {
+    ...merged,
+    rows: allRows,
+    sheetsRead: list.length,
+    sheetStats,
+  };
+}
+
+/** Merge account lists from multiple files, keeping contacts under one company. */
+export function mergeAccountLists(lists) {
+  const map = new Map();
+  for (const list of Array.isArray(lists) ? lists : []) {
+    for (const account of Array.isArray(list) ? list : []) {
+      const key = (account?.domain || account?.company_name || "").toLowerCase();
+      if (!key) continue;
+      const existing = map.get(key);
+      if (!existing) {
+        map.set(key, {
+          ...account,
+          contacts: Array.isArray(account.contacts) ? [...account.contacts] : [],
+        });
+        continue;
+      }
+      for (const field of ["website", "industry", "employee_range", "location"]) {
+        if (!existing[field] && account[field]) existing[field] = account[field];
+      }
+      const seen = new Set(
+        (existing.contacts || []).map((c) => `${c.email || ""}|${c.name || ""}|${c.phone || ""}`),
+      );
+      for (const contact of account.contacts || []) {
+        const stamp = `${contact.email || ""}|${contact.name || ""}|${contact.phone || ""}`;
+        if (seen.has(stamp)) continue;
+        existing.contacts.push(contact);
+        seen.add(stamp);
+      }
+    }
+  }
+  return [...map.values()];
+}

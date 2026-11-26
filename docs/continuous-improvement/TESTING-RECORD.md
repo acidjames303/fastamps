@@ -16,3 +16,13 @@
 ## Overnight
 
 Timer `cadence-ux-overnight` every **3 hours** — one UX reduction per cycle; low-risk frontend publish after tests.
+
+## CI cycle 8 — 26 Nov 2026 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Unit: `spreadsheet-accounts-merge.test.mjs` | **Pass** | Multi-sheet merge, contact merge, tiny-sheet not dropped |
+| Unit: prior CI tests | **Pass** | account-research-match, lead-sheet-summary, results-lead-pack |
+| `npm run build` (cadence-sales) | **Pass** | vite production build |
+| Secrets / hardcoded app id | **Pass** | No new secrets |
+| Base44 production deploy | Pending | After commit — same low-risk frontend path |

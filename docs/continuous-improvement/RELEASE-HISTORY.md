@@ -94,3 +94,15 @@ CI-003 multi-file campaign ingest, or CI-007 reporting + lead sheets together.
 
 ### Next
 CI-003 multi-file / multi-worksheet campaign ingest (largest remaining P1), or CI-004 outreach research reuse.
+
+---
+
+## CI cycle 8 — 26 Nov 2026 ~07:30 (Europe/London)
+
+**CI-003:** Spreadsheet import now merges **every worksheet** in an Excel file (and multiple uploaded files), instead of keeping only the single “best” sheet. Same Base44 Prospect/list APIs; local `xlsx` parse + existing AI extract fallback. Summary feedback shows file/sheet counts.
+
+### Data / security
+No schema, secrets, or provider API changes. Import still writes Prospects via existing `bulkCreate`.
+
+### Next
+CI-004 Outreach research reuse, or further Import.jsx / NL campaign ingest polish.
