@@ -9,6 +9,11 @@ import ContextHelp from "@/components/help/ContextHelp";
 import CallNoteModal from "@/components/results/CallNoteModal";
 import { countInfoRequests, clientSafeNotes, isInfoRequestLog } from "@/lib/reportMetrics";
 import { LEAD_HEADERS, loadLeadContext, buildLeadRows, areaName, toCsv } from "@/lib/resultsCsv";
+import {
+  loadRelevantOpportunities,
+  buildLeadSummariesDocument,
+  triggerTextDownload,
+} from "@/lib/resultsLeadPack";
 
 export default function Results() {
   const { user } = useAuth();
@@ -219,24 +224,37 @@ export default function Results() {
     }
   };
 
-  const downloadClientReport = async () => {
+  const resolveReportWindow = () => {
+    let endDate = new Date();
+    let startDate = new Date(0);
+    if (dateRange === "custom") {
+      if (customStart) startDate = new Date(`${customStart}T00:00:00`);
+      if (customEnd) endDate = new Date(`${customEnd}T23:59:59`);
+    } else if (dateRange === "today") {
+      startDate = new Date();
+      startDate.setHours(0, 0, 0, 0);
+    } else if (dateRange === "7d") startDate = new Date(endDate.getTime() - 7 * 86400000);
+    else if (dateRange === "30d") startDate = new Date(endDate.getTime() - 30 * 86400000);
+    else if (dateRange === "90d") startDate = new Date(endDate.getTime() - 90 * 86400000);
+    else if (dateRange === "all") {
+      startDate = null;
+      endDate = null;
+    }
+    return { startDate, endDate };
+  };
+
+  // Activity CSV + client-safe lead summaries for the same campaign / window.
+  // Nothing is emailed — downloads only.
+  const downloadClientPack = async () => {
     setReporting(true);
     try {
-      let endDate = new Date();
-      let startDate = new Date(0);
-      if (dateRange === "custom") {
-        if (customStart) startDate = new Date(`${customStart}T00:00:00`);
-        if (customEnd) endDate = new Date(`${customEnd}T23:59:59`);
-      } else if (dateRange === "today") {
-        startDate = new Date();
-        startDate.setHours(0, 0, 0, 0);
-      } else if (dateRange === "7d") startDate = new Date(endDate.getTime() - 7 * 86400000);
-      else if (dateRange === "30d") startDate = new Date(endDate.getTime() - 30 * 86400000);
-      else if (dateRange === "90d") startDate = new Date(endDate.getTime() - 90 * 86400000);
+      const { startDate, endDate } = resolveReportWindow();
+      const stamp = new Date().toISOString().split("T")[0];
+      const campaign = campaigns.find((c) => c.id === filterCampaign) || null;
 
       const res = await base44.functions.invoke("getClientReport", {
-        start_date: startDate.toISOString(),
-        end_date: endDate.toISOString(),
+        start_date: (startDate || new Date(0)).toISOString(),
+        end_date: (endDate || new Date()).toISOString(),
         campaign_id: filterCampaign || "",
         format: "csv",
       });
@@ -244,12 +262,27 @@ export default function Results() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `client-report-${new Date().toISOString().split("T")[0]}.csv`;
+      a.download = `client-report-${stamp}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-      toast({ title: "Client report downloaded" });
+
+      const companyIds = [...new Set((filtered || []).map((c) => c.company_id).filter(Boolean))];
+      const opportunities = await loadRelevantOpportunities({
+        campaignId: filterCampaign || "",
+        start: startDate,
+        end: endDate,
+        companyIds,
+      });
+      const doc = await buildLeadSummariesDocument(opportunities, { campaign });
+      triggerTextDownload(`lead-summaries-${stamp}.txt`, doc);
+
+      toast({
+        title: opportunities.length
+          ? `Client pack downloaded (${opportunities.length} lead summar${opportunities.length === 1 ? "y" : "ies"})`
+          : "Client report downloaded — no qualified leads in this selection",
+      });
     } catch (e) {
-      toast({ title: "Could not generate report", variant: "destructive" });
+      toast({ title: "Could not generate client pack", variant: "destructive" });
     } finally {
       setReporting(false);
     }
@@ -283,12 +316,18 @@ export default function Results() {
             {exporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />} {exporting ? "Building report…" : "Export CSV"}
           </Button>
           {canClientReport && (
-            <Button onClick={downloadClientReport} disabled={reporting} className="rounded-full bg-emerald-600 hover:bg-emerald-700 h-11 px-6">
-              {reporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileText className="w-4 h-4 mr-2" />} Client report
+            <Button onClick={downloadClientPack} disabled={reporting} className="rounded-full bg-emerald-600 hover:bg-emerald-700 h-11 px-6">
+              {reporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileText className="w-4 h-4 mr-2" />}
+              {reporting ? "Building pack…" : "Client pack"}
             </Button>
           )}
         </div>
       </div>
+      {canClientReport && (
+        <p className="text-xs text-slate-400 -mt-3">
+          Client pack downloads the activity CSV plus client-safe lead summaries for qualified opportunities in this filter. Nothing is emailed.
+        </p>
+      )}
 
       {err && <p className="text-sm text-rose-600">{err}</p>}
 

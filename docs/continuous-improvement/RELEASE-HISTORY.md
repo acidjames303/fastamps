@@ -85,3 +85,12 @@ CI-006 Admin Inbox → prefilled lead sheet, or CI-003 multi-file ingest — pic
 
 ### Next
 CI-003 multi-file campaign ingest, or CI-007 reporting + lead sheets together.
+
+---
+
+## CI cycle 7 — 26 Nov 2026 ~06:00 (Europe/London)
+
+**CI-007:** Results **Client pack** downloads the existing client activity CSV plus a `.txt` of client-safe lead summaries for qualified opportunities in the same campaign/date filter. No email send; confidential notes omitted.
+
+### Next
+CI-003 multi-file / multi-worksheet campaign ingest (largest remaining P1), or CI-004 outreach research reuse.
