@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { ROLE_LABELS, LIVE_STATUS_LABEL, LIVE_STATUS_TONE, LIVE_STATUS_HINT } from "@/lib/roleLabels";
 import ManagerInboxPanel from "@/components/team/ManagerInboxPanel";
+import QualifiedOpportunitiesPanel from "@/components/team/QualifiedOpportunitiesPanel";
 
 function formatTalkMinutes(seconds) {
   const s = Math.max(0, Math.round(Number(seconds) || 0));
@@ -303,7 +304,12 @@ export default function Team() {
         </div>
       )}
 
-      {isAdmin && <ManagerInboxPanel limit={5} />}
+      {isAdmin && (
+        <div className="space-y-4">
+          <ManagerInboxPanel limit={5} />
+          <QualifiedOpportunitiesPanel limit={5} />
+        </div>
+      )}
 
       {canInvite ? (
         <form onSubmit={invite} className="rounded-2xl bg-white border border-slate-200 p-5 space-y-4">

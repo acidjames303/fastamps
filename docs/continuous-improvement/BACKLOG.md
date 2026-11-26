@@ -9,8 +9,7 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 |---|---|---|---|---|---|
 | CI-003 | P1 | Multi-tab spreadsheet / email + NL campaign ingest incomplete vs brief | Guided builder exists; multi-worksheet + multi-file understanding uneven | Slow campaign setup | Backlog |
 | CI-004 | P1 | Research templates / dictation reuse across Dialer & Outreach | Research on Dialer improved; Outreach reuse still uneven | Duplicate research effort | Backlog |
-| CI-006 | P2 | Admin Inbox → prefilled lead sheet from qualified outcome | Lead sheet flows exist; discoverability / prefills uneven | Dropped opportunities | **Next** |
-| CI-007 | P2 | Reporting download + lead sheets together | getClientReport / Results | Client delivery friction | Backlog |
+| CI-007 | P2 | Reporting download + lead sheets together | getClientReport / Results | Client delivery friction | **Next** |
 | CI-008 | P3 | Progressive disclosure polish on dense campaign screens | UX audit | Training burden | Partially addressed by CI-014 |
 
 ## Done (this branch)
@@ -24,7 +23,8 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | CI-012 | P2 | Remove people-v3 banner | Published |
 | CI-013 | P3 | Remove dead EnrichmentCostPreview mount | Published |
 | CI-014 | P2 | Campaigns prospect/import chrome — one heading, no competing tabs | Published |
-| CI-005 | P2 | Team metrics: attempts ≠ conversations; /hr from talk time | This cycle |
+| CI-005 | P2 | Team metrics: attempts ≠ conversations; /hr from talk time | Published |
+| CI-006 | P2 | Admin Inbox qualified leads + copyable lead summary | This cycle |
 
 ## Parking lot
 

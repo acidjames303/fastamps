@@ -71,6 +71,7 @@ export default function Dialer() {
   const [agentInput, setAgentInput] = useState("");
   const [editingAgent, setEditingAgent] = useState(false);
   const [irSentNotice, setIrSentNotice] = useState("");
+  const [qualifiedNotice, setQualifiedNotice] = useState(null);
   const [dncNotice, setDncNotice] = useState("");
   const [suppressedCount, setSuppressedCount] = useState(0);
   const [lastSavedLog, setLastSavedLog] = useState(null);
@@ -594,6 +595,14 @@ export default function Dialer() {
         setIrSentNotice("Information request sent to the admin inbox.");
       }
 
+      const savedOpp = (res?.data || res)?.opportunity;
+      if (data.outcome === "connected_qualified" && savedOpp?.id) {
+        setQualifiedNotice({
+          id: savedOpp.id,
+          status: savedOpp.qualification_status || "qualifying",
+        });
+      }
+
       if (resolvePrimaryOutcomeCode(data.outcome) === "do_not_call") {
         setDncNotice(`${contact.full_name || "This contact"} was flagged do not call — their details have been removed and they can no longer be dialled.`);
         setContacts((prev) => prev.filter((c) => c.id !== contact.id));
@@ -932,6 +941,20 @@ export default function Dialer() {
         {irSentNotice && (
           <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3">
             {irSentNotice}
+          </p>
+        )}
+        {qualifiedNotice && (
+          <p className="text-sm text-emerald-800 bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3">
+            Qualified opportunity saved
+            {qualifiedNotice.status === "qualified" ? " — ready for manager review" : " — finish missing qualification fields if needed"}
+            .{" "}
+            <Link to={`/opportunities/${qualifiedNotice.id}`} className="font-medium underline underline-offset-2">
+              Open lead
+            </Link>
+            {" · "}
+            <Link to="/manager-inbox?tab=leads" className="font-medium underline underline-offset-2">
+              Admin inbox
+            </Link>
           </p>
         )}
         {dncNotice && (

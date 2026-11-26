@@ -76,3 +76,12 @@ CI-005 Team metrics clarity (calls/hour vs login duration).
 
 ### Next
 CI-006 Admin Inbox → prefilled lead sheet, or CI-003 multi-file ingest — pick highest safe impact.
+
+---
+
+## CI cycle 6 — 26 Nov 2026 ~03:00 (Europe/London)
+
+**CI-006:** Admin Inbox is now Info requests + Qualified leads. Copy lead summary prefills company/contact/qualification (no internal notes, no auto-send). Dialer shows link after Qualified save. Team page surfaces both panels.
+
+### Next
+CI-003 multi-file campaign ingest, or CI-007 reporting + lead sheets together.
