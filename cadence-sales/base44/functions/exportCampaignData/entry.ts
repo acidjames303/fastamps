@@ -14,6 +14,7 @@ export default async function(req) {
       allRecords(E.Task,{ organisation_id: org.id, target_list_id: data.campaign.id }),
     ]) : [[],[]];
     const result = buildCampaignExport(data,{calls,tasks});
-    return Response.json({ ...result, rows: undefined, filename: `${(data.campaign.name || data.lists[0]?.name || 'prospects').replace(/[^a-z0-9_-]+/gi,'-')}.csv`, organisation_id: org.id, campaign_id: data.campaign.id || '', prospect_ids: data.prospects.map(p=>p.id) });
+    const baseName = (data.campaign.name || data.lists[0]?.name || 'prospects').replace(/[^a-z0-9_-]+/gi,'-');
+    return Response.json({ ...result, rows: undefined, filename: `${baseName}-contacts.csv`, organisation_id: org.id, campaign_id: data.campaign.id || '', prospect_ids: data.prospects.map(p=>p.id) });
   } catch(error) { console.error('Campaign export failed',error.message,error.data || error.response?.data || ''); return Response.json({ error: error.message },{ status: error.status || 500 }); }
 }

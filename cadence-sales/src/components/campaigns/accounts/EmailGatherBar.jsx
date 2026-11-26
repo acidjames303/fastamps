@@ -32,7 +32,13 @@ export default function EmailGatherBar({ accounts, campaignName }) {
 
   const download = () => {
     const escape = (v) => `"${String(v || "").replace(/"/g, '""')}"`;
-    const lines = ["Email,Name,Company", ...emails.map((e) => [e.email, e.name, e.company].map(escape).join(","))];
+    const lines = [
+      "First name,Last name,Company,Email",
+      ...emails.map((e) => {
+        const parts = String(e.name || "").trim().split(/\s+/).filter(Boolean);
+        return [parts[0] || "", parts.slice(1).join(" "), e.company, e.email].map(escape).join(",");
+      }),
+    ];
     const blob = new Blob([lines.join("\n")], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
