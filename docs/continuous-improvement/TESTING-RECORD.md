@@ -25,4 +25,6 @@ Timer `cadence-ux-overnight` every **3 hours** — one UX reduction per cycle; l
 | Unit: prior CI tests | **Pass** | account-research-match, lead-sheet-summary, results-lead-pack |
 | `npm run build` (cadence-sales) | **Pass** | vite production build |
 | Secrets / hardcoded app id | **Pass** | No new secrets |
-| Base44 production deploy | Pending | After commit — same low-risk frontend path |
+| Base44 production deploy | **Pass** | `base44 deploy -y --no-build`; App URL evasive-dial-flow-go |
+| Live host HTTP 200 | **Pass** | cadence.smartfunction.io serves `index-IvPdQtHO.js` |
+| Live bundle strings | **Pass** | “every worksheet · multiple files”; sheet-count summary copy |
