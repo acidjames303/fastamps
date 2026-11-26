@@ -4,6 +4,7 @@ import { isUkMobileNumber } from "@/lib/enrichmentRun";
 import LushaBadge, { isLushaSource } from "@/components/phones/LushaBadge";
 
 // One named person from enrichment — everything visible, no collapse.
+// Uses solid surfaces (not /70 opacity) so night-mode remaps stay readable.
 export default function ProspectPersonCard({ contact }) {
   const name = contact?.name || "Unknown person";
   const title = contact?.title || "";
@@ -18,10 +19,10 @@ export default function ProspectPersonCard({ contact }) {
   const primaryIsLusha = isLushaSource(contact?.phone_source);
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2.5 space-y-1.5">
+    <div className="rounded-xl border border-slate-200 bg-slate-100 px-3 py-2.5 space-y-1.5">
       <div>
         <p className="text-sm font-semibold text-slate-900 leading-snug">{name}</p>
-        {title ? <p className="text-xs text-slate-500 mt-0.5">{title}</p> : null}
+        {title ? <p className="text-xs text-slate-600 mt-0.5">{title}</p> : null}
       </div>
 
       <div className="space-y-1">
@@ -29,7 +30,7 @@ export default function ProspectPersonCard({ contact }) {
           <a
             href={`tel:${mobile.replace(/\s+/g, "")}`}
             className={`flex items-center gap-1.5 text-sm font-medium hover:underline ${
-              primaryIsLusha ? "text-purple-800" : "text-emerald-700"
+              primaryIsLusha ? "text-purple-700" : "text-emerald-700"
             }`}
           >
             <Smartphone className={`w-3.5 h-3.5 flex-none ${primaryIsLusha ? "text-purple-700" : ""}`} />
@@ -48,7 +49,7 @@ export default function ProspectPersonCard({ contact }) {
         {lushaMobile ? (
           <a
             href={`tel:${lushaMobile.replace(/\s+/g, "")}`}
-            className="flex items-center gap-1.5 text-xs font-medium text-purple-800 hover:underline"
+            className="flex items-center gap-1.5 text-xs font-medium text-purple-700 hover:underline"
           >
             <Smartphone className="w-3.5 h-3.5 flex-none text-purple-700" />
             <span>Lusha · {lushaMobile}</span>
@@ -59,9 +60,9 @@ export default function ProspectPersonCard({ contact }) {
         {direct ? (
           <a
             href={`tel:${direct.replace(/\s+/g, "")}`}
-            className="flex items-center gap-1.5 text-xs text-slate-600 hover:underline"
+            className="flex items-center gap-1.5 text-xs text-slate-700 hover:underline"
           >
-            <Phone className="w-3.5 h-3.5 flex-none" />
+            <Phone className="w-3.5 h-3.5 flex-none text-slate-500" />
             <span>Direct · {direct}</span>
           </a>
         ) : null}
@@ -78,12 +79,12 @@ export default function ProspectPersonCard({ contact }) {
                 <BadgeCheck className="w-3.5 h-3.5 inline ml-1 text-emerald-600 align-text-bottom" />
               )}
               {contact.email_status === "inferred" && (
-                <span className="ml-1 text-amber-600 no-underline">· inferred, unverified</span>
+                <span className="ml-1 text-amber-700 no-underline">· inferred, unverified</span>
               )}
             </span>
           </a>
         ) : (
-          <p className="flex items-center gap-1.5 text-xs text-slate-400">
+          <p className="flex items-center gap-1.5 text-xs text-slate-500">
             <Mail className="w-3.5 h-3.5 flex-none" />
             No email yet
           </p>

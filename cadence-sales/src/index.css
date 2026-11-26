@@ -132,6 +132,18 @@
   .dark .bg-white\/90 { background-color: hsl(215 21% 11% / 0.9); }
   .dark .bg-white\/95 { background-color: hsl(215 21% 11% / 0.95); }
 
+  /* Opacity slate fills were left as light greys in night mode — light text
+     on those cards (prospect people cards) became unreadable. */
+  .dark .bg-slate-50\/50 { background-color: hsl(219 18% 14% / 0.5); }
+  .dark .bg-slate-50\/60 { background-color: hsl(219 18% 14% / 0.6); }
+  .dark .bg-slate-50\/70 { background-color: hsl(219 18% 14% / 0.85); }
+  .dark .bg-slate-50\/80 { background-color: hsl(219 18% 14% / 0.9); }
+  .dark .hover\:bg-slate-50\/50:hover { background-color: hsl(219 18% 16% / 0.55); }
+  .dark .hover\:bg-slate-50\/70:hover { background-color: hsl(219 18% 16% / 0.9); }
+
+  .dark .bg-purple-100 { background-color: hsl(270 35% 22%); }
+  .dark .border-purple-300 { border-color: hsl(271 50% 48%); }
+
   .dark .text-slate-900 { color: hsl(0 0% 98%); }
   .dark .text-slate-800 { color: hsl(0 0% 92%); }
   .dark .text-slate-700 { color: hsl(0 0% 88%); }
