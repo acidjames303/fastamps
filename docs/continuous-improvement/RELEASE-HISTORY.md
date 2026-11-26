@@ -67,3 +67,12 @@ Overnight timer. **CI-014:** Campaigns Prospecting/Import tabs use one clear hea
 
 ### Next
 CI-005 Team metrics clarity (calls/hour vs login duration).
+
+---
+
+## CI cycle 5 — 26 Nov 2026 ~00:00 (Europe/London)
+
+**CI-005:** Team page clarifies live heartbeat vs performance. Call rows show attempts, conversations, minutes on calls, and attempts/hour derived from `duration_seconds` (not login). Idle → “In Cadence”; Offline → “No recent activity”. Additive fields on `getTeamWorkload` only.
+
+### Next
+CI-006 Admin Inbox → prefilled lead sheet, or CI-003 multi-file ingest — pick highest safe impact.

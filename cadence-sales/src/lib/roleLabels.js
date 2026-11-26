@@ -17,8 +17,16 @@ export const isCallerRole = (role) => role === "bdm" || role === "reporting_user
 export const LIVE_STATUS_LABEL = {
   in_call: "On a call",
   logging: "Logging notes",
-  idle: "Idle",
-  offline: "Offline",
+  idle: "In Cadence",
+  offline: "No recent activity",
+};
+
+/** Short definitions so BDMs never confuse heartbeat with call performance. */
+export const LIVE_STATUS_HINT = {
+  in_call: "Currently connected on the dialer",
+  logging: "Just finished a call and saving the outcome",
+  idle: "Cadence is open — not on a call right now",
+  offline: "No heartbeat in the last 2 minutes (not the same as logged-out time)",
 };
 
 export const LIVE_STATUS_TONE = {

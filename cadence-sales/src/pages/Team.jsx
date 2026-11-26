@@ -9,8 +9,18 @@ import { Link } from "react-router-dom";
 import {
   UserPlus, Loader2, Users, Building2, Phone, Inbox, RefreshCw,
 } from "lucide-react";
-import { ROLE_LABELS, LIVE_STATUS_LABEL, LIVE_STATUS_TONE } from "@/lib/roleLabels";
+import { ROLE_LABELS, LIVE_STATUS_LABEL, LIVE_STATUS_TONE, LIVE_STATUS_HINT } from "@/lib/roleLabels";
 import ManagerInboxPanel from "@/components/team/ManagerInboxPanel";
+
+function formatTalkMinutes(seconds) {
+  const s = Math.max(0, Math.round(Number(seconds) || 0));
+  if (s < 60) return `${s}s on calls`;
+  const m = Math.round(s / 60);
+  if (m < 60) return `${m} min on calls`;
+  const h = Math.floor(m / 60);
+  const rem = m % 60;
+  return rem ? `${h}h ${rem}m on calls` : `${h}h on calls`;
+}
 
 export default function Team() {
   const { user } = useAuth();
@@ -151,7 +161,7 @@ export default function Team() {
         <div>
           <h1 className="font-display text-3xl font-semibold text-slate-900">Team</h1>
           <p className="text-slate-500 mt-1">
-            Live view of your callers, info-requests waiting for a draft, and campaign push.
+            People, live dialler status, and genuine call activity — not login time.
           </p>
         </div>
         {canManage && (
@@ -177,12 +187,17 @@ export default function Team() {
       </div>
 
       {canManage && (
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-          <LiveStat label="On a call" value={live.in_call} tone="text-emerald-700" />
-          <LiveStat label="Logging notes" value={live.logging} tone="text-amber-700" />
-          <LiveStat label="Idle" value={live.idle} tone="text-sky-700" />
-          <LiveStat label="Offline" value={live.offline} tone="text-slate-500" />
-          <LiveStat label="IR drafts waiting" value={live.pending_irs} tone="text-violet-700" />
+        <div className="space-y-2">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+            <LiveStat label="On a call" value={live.in_call} tone="text-emerald-700" hint={LIVE_STATUS_HINT.in_call} />
+            <LiveStat label="Logging notes" value={live.logging} tone="text-amber-700" hint={LIVE_STATUS_HINT.logging} />
+            <LiveStat label="In Cadence" value={live.idle} tone="text-sky-700" hint={LIVE_STATUS_HINT.idle} />
+            <LiveStat label="No recent activity" value={live.offline} tone="text-slate-500" hint={LIVE_STATUS_HINT.offline} />
+            <LiveStat label="IR drafts waiting" value={live.pending_irs} tone="text-violet-700" hint="Info requests callers raised that still need a draft" />
+          </div>
+          <p className="text-[11px] text-slate-400 px-1">
+            Live tiles use the dialler heartbeat (last 2 minutes). They are not hours logged in.
+          </p>
         </div>
       )}
 
@@ -191,7 +206,9 @@ export default function Team() {
           <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
             <div>
               <h2 className="font-semibold text-slate-900 flex items-center gap-2"><Users className="w-4 h-4" /> Live callers</h2>
-              <p className="text-xs text-slate-400 mt-0.5">Updates every 15 seconds while this page is open.</p>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Attempts ≠ conversations. Per-hour uses time on logged calls, not login duration. Refreshes every 15s.
+              </p>
             </div>
             {isAdmin && (
               <Link to="/manager-inbox" className="text-sm text-emerald-700 hover:underline inline-flex items-center gap-1">
@@ -222,10 +239,22 @@ export default function Team() {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-slate-500 mt-1 truncate">
+                      <p className="text-xs text-slate-500 mt-1 truncate" title={LIVE_STATUS_HINT[liveStatus] || ""}>
                         {c.activity_detail || c.email || "—"}
+                      </p>
+                      <p className="text-xs text-slate-600 mt-1">
+                        <span className="font-medium text-slate-800">{c.callsToday || 0}</span> attempts
                         {" · "}
-                        {c.callsToday || 0} calls today · {c.conversationsToday || 0} conversations
+                        <span className="font-medium text-slate-800">{c.conversationsToday || 0}</span> conversations
+                        {" · "}
+                        {formatTalkMinutes(c.talk_seconds_today)}
+                        {typeof c.attempts_per_talk_hour === "number" ? (
+                          <>
+                            {" · "}
+                            <span className="font-medium text-slate-800">{c.attempts_per_talk_hour}</span>
+                            {" /hr while dialling"}
+                          </>
+                        ) : null}
                       </p>
                       {c.assigned_campaign_names?.length > 0 && (
                         <p className="text-xs text-slate-400 mt-1 truncate">
@@ -343,9 +372,9 @@ export default function Team() {
   );
 }
 
-function LiveStat({ label, value, tone }) {
+function LiveStat({ label, value, tone, hint }) {
   return (
-    <div className="rounded-2xl bg-white border border-slate-200 p-4">
+    <div className="rounded-2xl bg-white border border-slate-200 p-4" title={hint || ""}>
       <p className={`text-2xl font-display font-semibold ${tone}`}>{value}</p>
       <p className="text-xs text-slate-400 mt-1">{label}</p>
     </div>
