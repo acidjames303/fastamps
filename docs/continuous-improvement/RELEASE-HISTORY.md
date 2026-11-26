@@ -244,6 +244,18 @@ Rollback SHA: `f590efb` · Checkpoints: `6b084a3b…` before · `6b084a76…` CI
 
 ---
 
+## CI-026 — 26 Nov 2026 ~17:45 (Europe/London)
+
+**BDM Split data** on Campaigns (+ Campaign setup Assign step).
+
+Modes: Even / 50-50 · By territory (UK regions) · By industry · Dictate / describe (rules + Base44 AI fallback).  
+Server `assignCampaignCompanies` extended; seed Prospects resolved to Companies when needed.  
+
+Live `index-B7DR3dFn.js`. Rollback `71e466c`.  
+**Next:** CI-022 manager needs-attention rollup.
+
+---
+
 ## CI-023 — 26 Nov 2026 ~17:00 (Europe/London)
 
 Zenitech pilot data readiness (two Excel files from James).

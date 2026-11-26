@@ -1,92 +1,80 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Check, Users } from "lucide-react";
+import { Loader2, Split } from "lucide-react";
+import SplitCampaignData from "@/components/campaigns/SplitCampaignData";
 
+// Campaign setup step 4 — open the same Split data experience used on Campaigns.
 export default function StepAssign({ campaignId, onAssigned }) {
   const [callers, setCallers] = useState([]);
-  const [selected, setSelected] = useState([]);
-  const [method, setMethod] = useState("even_distribution");
+  const [campaign, setCampaign] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [assigning, setAssigning] = useState(false);
-  const [result, setResult] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [lastResult, setLastResult] = useState(null);
 
   useEffect(() => {
     (async () => {
       try {
-        const profiles = await base44.entities.UserProfile.filter({}, "-created_date", 50);
-        const active = (profiles || []).filter((p) => p.status === "active" && p.app_role === "bdm");
+        const [profiles, camp] = await Promise.all([
+          base44.entities.UserProfile.filter({}, "-created_date", 80).catch(() => []),
+          campaignId ? base44.entities.Campaign.get(campaignId).catch(() => null) : null,
+        ]);
+        const active = (profiles || []).filter((p) =>
+          p.status === "active"
+          && ["bdm", "internal_bd", "sales_manager", "organisation_admin"].includes(p.app_role),
+        );
         setCallers(active);
-      } catch {} finally { setLoading(false); }
+        setCampaign(camp || { id: campaignId, name: "Campaign" });
+      } catch {
+        /* ignore */
+      } finally {
+        setLoading(false);
+      }
     })();
-  }, []);
+  }, [campaignId]);
 
-  const toggle = (uid) => setSelected((s) => s.includes(uid) ? s.filter((x) => x !== uid) : [...s, uid]);
-
-  const assign = async () => {
-    if (selected.length === 0) return;
-    setAssigning(true); setResult(null);
-    try {
-      const res = await base44.functions.invoke("assignCampaignCompanies", {
-        campaign_id: campaignId,
-        method,
-        user_ids: selected,
-      });
-      setResult(res.data || res);
-      onAssigned?.();
-    } catch (e) {
-      setResult({ error: e.message });
-    } finally { setAssigning(false); }
-  };
-
-  if (loading) return <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-slate-300" /></div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center py-8">
+        <Loader2 className="h-5 w-5 animate-spin text-slate-300" />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <div>
-        <p className="text-sm font-medium text-slate-700 mb-3">Select callers</p>
-        {callers.length === 0 ? (
-          <p className="text-sm text-slate-400">No active callers found. Invite team members first.</p>
-        ) : (
-          <div className="space-y-1.5">
-            {callers.map((c) => (
-              <button key={c.user_id} onClick={() => toggle(c.user_id)} className={`w-full flex items-center justify-between p-3 rounded-lg border transition text-left ${selected.includes(c.user_id) ? "border-slate-900 bg-slate-50" : "border-slate-200 hover:border-slate-400"}`}>
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-slate-400" />
-                  <span className="text-sm font-medium text-slate-900">{c.full_name || "Unknown"}</span>
-                </div>
-                {selected.includes(c.user_id) && <Check className="w-4 h-4 text-slate-900" />}
-              </button>
-            ))}
-          </div>
-        )}
+        <h3 className="font-display text-lg font-semibold text-slate-900">Split data across the team</h3>
+        <p className="mt-1 text-sm text-slate-500">
+          Share accounts evenly, by UK territory, by industry, or describe the split in plain English.
+        </p>
       </div>
 
-      <div>
-        <p className="text-sm font-medium text-slate-700 mb-3">Assignment method</p>
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { id: "manual", label: "Manual" },
-            { id: "even_distribution", label: "Even" },
-            { id: "round_robin", label: "Round robin" },
-          ].map((m) => (
-            <button key={m.id} onClick={() => setMethod(m.id)} className={`px-3 py-2 rounded-lg border text-sm transition ${method === m.id ? "border-slate-900 bg-slate-50 text-slate-900" : "border-slate-200 text-slate-500 hover:border-slate-400"}`}>
-              {m.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <Button onClick={assign} disabled={selected.length === 0 || assigning} className="w-full">
-        {assigning ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-        Assign companies to {selected.length} caller{selected.length === 1 ? "" : "s"}
+      <Button onClick={() => setOpen(true)} disabled={!callers.length} className="w-full rounded-full bg-emerald-600 hover:bg-emerald-500">
+        <Split className="mr-2 h-4 w-4" />
+        Open split data
       </Button>
 
-      {result && (
-        <div className={`text-sm p-3 rounded-lg ${result.error ? "bg-rose-50 text-rose-600" : "bg-emerald-50 text-emerald-600"}`}>
-          {result.error ? result.error : `Created ${result.created} assignment${result.created === 1 ? "" : "s"}.`}
-        </div>
+      {!callers.length && (
+        <p className="text-sm text-slate-400">No active callers found. Invite team members first.</p>
       )}
+
+      {lastResult && (
+        <p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+          Split applied — {lastResult.created || 0} new, {lastResult.updated || 0} moved.
+        </p>
+      )}
+
+      <SplitCampaignData
+        campaign={campaign}
+        callers={callers}
+        open={open}
+        onClose={() => setOpen(false)}
+        onDone={(data) => {
+          setLastResult(data);
+          onAssigned?.(data);
+        }}
+      />
     </div>
   );
 }

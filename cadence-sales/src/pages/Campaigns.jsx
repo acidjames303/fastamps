@@ -7,11 +7,12 @@ import { Textarea } from "@/components/ui/textarea";
 import DictateButton from "@/components/dialer/DictateButton";
 import {
   Plus, Users, Loader2, Play, Pause, Target, Upload,
-  ArrowRight, Search, CheckCircle2, Pencil, ClipboardList,
+  ArrowRight, Search, CheckCircle2, Pencil, ClipboardList, Split,
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import DeleteCampaignDialog from "@/components/campaigns/DeleteCampaignDialog";
 import RenameCampaignDialog from "@/components/campaigns/RenameCampaignDialog";
+import SplitCampaignData from "@/components/campaigns/SplitCampaignData";
 import PushProgress from "@/components/PushProgress";
 import Prospecting from "@/pages/Prospecting";
 import CampaignNextStep from "@/components/campaigns/CampaignNextStep";
@@ -66,6 +67,7 @@ export default function Campaigns() {
   const [pushFor, setPushFor] = useState(null);
   const [pushCaller, setPushCaller] = useState("");
   const [pushBusy, setPushBusy] = useState(false);
+  const [splitFor, setSplitFor] = useState(null);
   const [statusBusy, setStatusBusy] = useState("");
   const [assignments, setAssignments] = useState([]);
   const [profiles, setProfiles] = useState([]);
@@ -517,6 +519,18 @@ export default function Campaigns() {
                             <Users className="w-4 h-4 mr-1" /> Push to team
                           </Button>
                         )}
+                        {isManager && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="rounded-full h-9"
+                            onClick={() => setSplitFor(c)}
+                            disabled={!callers.length}
+                            title={callers.length ? "Split accounts by territory, industry, evenly, or dictate" : "Invite callers on Team first"}
+                          >
+                            <Split className="w-4 h-4 mr-1" /> Split data
+                          </Button>
+                        )}
                         <Link to={`/target-lists/${c.id}`}>
                           <Button size="sm" variant="ghost" className="rounded-full h-9">
                             Open <ArrowRight className="w-4 h-4 ml-1" />
@@ -594,6 +608,23 @@ export default function Campaigns() {
           </div>
         </div>
       )}
+
+      <SplitCampaignData
+        campaign={splitFor}
+        callers={callers}
+        open={!!splitFor}
+        onClose={() => setSplitFor(null)}
+        onDone={(data) => {
+          const parts = Object.entries(data.per_user || {}).map(([id, count]) => {
+            const name = callers.find((c) => c.user_id === id)?.full_name || "Caller";
+            return `${name} ${count}`;
+          });
+          setMessage(
+            `Split “${splitFor?.name}” — ${data.created || 0} new, ${data.updated || 0} moved${parts.length ? ` · ${parts.join(", ")}` : ""}.`,
+          );
+          load();
+        }}
+      />
 
       <RenameCampaignDialog
         campaign={renameFor}

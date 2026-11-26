@@ -100,3 +100,12 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | Site deploy `--publish --build` | **Pass** | Live: do-not-prospect · excluded clients skipped · Industries in this file |
 | Authenticated import of James’s files | **Blocked** | No login session |
 | Live Lusha enrich on pilot | **Not run** | Would spend credits |
+
+## CI-026 BDM Split data — 26 Nov 2026 ~17:45 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Unit: `split-campaign-data.test.mjs` | **Pass** | Territory / industry / even / dictate parse |
+| `npm run build` | **Pass** | → `index-B7DR3dFn.js` |
+| Site deploy `--publish --build` | **Pass** | Live strings: Split data · By territory · Dictate / describe |
+| Authenticated split on live campaign | **Blocked** | No login session |
