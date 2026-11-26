@@ -392,8 +392,12 @@ async function lushaEnrich(
           c.lusha_mobile = decision.uk.national;
           c.lusha_phone_status = decision.status;
           c.lusha_phone_retrieved_at = now;
-          // Also mirror onto the prospect root so exports always see it.
-          if (!out.lusha_mobile) {
+          // Mirror onto the prospect root only for the primary person — never
+          // stamp one sibling's Lusha number onto the whole company record.
+          const isPrimaryPerson = !out.full_name
+            || String(c?.name || '').trim().toLowerCase() === String(out.full_name || '').trim().toLowerCase()
+            || (Array.isArray(out.contacts) && out.contacts.filter((x: any) => x?.name).length <= 1);
+          if (isPrimaryPerson && !out.lusha_mobile) {
             out.lusha_mobile = decision.uk.national;
             out.lusha_phone_status = decision.status;
             out.lusha_phone_retrieved_at = now;

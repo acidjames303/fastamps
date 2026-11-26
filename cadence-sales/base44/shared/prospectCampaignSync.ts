@@ -210,8 +210,9 @@ export async function syncProspectToCampaign(base44: any, org: any, prospect: an
       phone_retrieved_at: prospect.phone_retrieved_at || new Date().toISOString(),
       mobile: isMobileNumber(person.mobile || person.phone) ? (person.mobile || person.phone) : '',
       direct_dial: person.directDial || '',
-      lusha_mobile: person.lushaMobile || prospect.lusha_mobile || '',
-      lusha_phone_status: person.lushaPhoneStatus || prospect.lusha_phone_status || '',
+      // Person-level only — never copy prospect.lusha_mobile onto every sibling.
+      lusha_mobile: person.lushaMobile || '',
+      lusha_phone_status: person.lushaPhoneStatus || '',
       company_phone: clean(company.landline) || clean(prospect.landline) || '',
       source: prospect.provider_used || 'enrichment',
       campaign_id: campaignListId || '',

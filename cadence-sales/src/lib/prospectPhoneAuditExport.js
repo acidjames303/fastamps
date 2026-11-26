@@ -51,7 +51,16 @@ export function buildProspectPhoneAuditRows(prospects = []) {
 
     for (const person of people) {
       const primary = person.mobile || "";
-      const lusha = person.lusha_mobile || prospect.lusha_mobile || "";
+      // Never copy a company-level lusha_mobile onto every sibling contact —
+      // that produced false "additive" rows sharing one number (e.g. SSE Thermal).
+      let lusha = person.lusha_mobile || "";
+      if (!lusha && prospect.lusha_mobile) {
+        const isPrimaryPerson = people.length === 1
+          || (person.name
+            && prospect.full_name
+            && String(person.name).trim().toLowerCase() === String(prospect.full_name).trim().toLowerCase());
+        if (isPrimaryPerson) lusha = prospect.lusha_mobile;
+      }
       const source = person.phone_source || "";
       // Import column: primary when provenance is import, or primary when a different Lusha sits beside it.
       let importMobile = "";
