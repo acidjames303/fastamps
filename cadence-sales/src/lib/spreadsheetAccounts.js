@@ -166,6 +166,29 @@ function gridToRows(grid) {
   });
 }
 
+// Which source column Cadence matched to each field it reads, so an import can
+// show the mapping before anything is saved.
+const MAPPING_FIELDS = [
+  ["Company name", NAME_KEYS],
+  ["Website / domain", WEBSITE_KEYS],
+  ["Industry", INDUSTRY_KEYS],
+  ["Company size", SIZE_KEYS],
+  ["Location", LOCATION_KEYS],
+  ["Contact name", CONTACT_NAME_KEYS],
+  ["Job title", TITLE_KEYS],
+  ["Email", EMAIL_KEYS],
+  ["Phone", PHONE_KEYS],
+  ["LinkedIn", LINKEDIN_KEYS],
+];
+
+export function inferColumnMapping(headers) {
+  const byKey = new Map((headers || []).map((header) => [normaliseKey(header), header]));
+  return MAPPING_FIELDS.map(([label, keys]) => ({
+    label,
+    column: keys.map((key) => byKey.get(key)).find(Boolean) || "",
+  }));
+}
+
 // Best candidate for the company-name column when auto-detection found none.
 export function guessCompanyColumn(headers, rows) {
   let best = { column: "", score: 0 };

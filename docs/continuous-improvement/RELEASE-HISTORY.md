@@ -106,3 +106,16 @@ No schema, secrets, or provider API changes. Import still writes Prospects via e
 
 ### Next
 CI-004 Outreach research reuse, or further Import.jsx / NL campaign ingest polish.
+
+---
+
+## CI cycle 8b — 26 Nov 2026 ~09:30 (Europe/London)
+
+James confirmed live Prospecting is **Campaigns → Find prospects → Import existing research → Company list** (`SpreadsheetImportPreview` in Base44 sandbox), not the git-only `CsvAccountsUpload` surface.
+
+### Changes
+- Sandbox `SpreadsheetImportPreview` merges every worksheet + multi-file via `accountsFromSheets` / `mergeAccountLists`.
+- Dropzone copy: “every worksheet · multiple files”; preview/summary show worksheet counts.
+- Synced `campaign-builder/` into git so this path is the source of truth going forward.
+- Published live via `base44 site deploy --publish` (bundle `index-CIflvdVW.js`).
+

@@ -28,3 +28,14 @@ Timer `cadence-ux-overnight` every **3 hours** — one UX reduction per cycle; l
 | Base44 production deploy | **Pass** | `base44 deploy -y --no-build`; App URL evasive-dial-flow-go |
 | Live host HTTP 200 | **Pass** | cadence.smartfunction.io serves `index-IvPdQtHO.js` |
 | Live bundle strings | **Pass** | “every worksheet · multiple files”; sheet-count summary copy |
+
+
+## CI cycle 8b — 26 Nov 2026 (Europe/London)
+
+James's live path is Campaigns → Find prospects → Import existing research → **Company list** (`SpreadsheetImportPreview`), not `CsvAccountsUpload`.
+
+| Check | Result | Notes |
+|---|---|---|
+| Sandbox edit + checkpoint | **Pass** | `CI-003: Company list merges every Excel worksheet` |
+| Site deploy `--publish` | **Pass** | bundle `index-CIflvdVW.js` |
+| Live copy on Company list | **Pass** | “every worksheet · multiple files” + Import existing research |
