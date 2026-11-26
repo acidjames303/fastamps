@@ -181,11 +181,14 @@ def convert(path: Path, dest: Path) -> int:
                 source_by_email.setdefault(line.split(":", 1)[0].strip().lower(), line)
         email_map = assign_emails(names, emails)
         people = names or [""]
+        # Mobiles/directs are listed in contact order in the legacy export — assign
+        # positionally so every number is kept on a person row (even when fewer
+        # numbers than people). Never drop a mobile because counts differ.
         for i, name in enumerate(people):
             first, last = split_name(name) if name else ("", "")
             email = email_map.get(i, "")
-            mobile = mobiles[i] if len(mobiles) == len(people) else ""
-            direct = directs[i] if len(directs) == len(people) else (directs[0] if len(directs) == 1 and len(people) == 1 else "")
+            mobile = mobiles[i] if i < len(mobiles) else ""
+            direct = directs[i] if i < len(directs) else ""
             phone = mobile or direct or switchboard
             phone_type = "Mobile" if mobile else ("Direct dial" if direct else ("Switchboard" if switchboard else ""))
             out_rows.append(

@@ -302,15 +302,60 @@ export function buildCampaignExport(data, activity = {}) {
     const board = [...new Set(boardValues)].join('\n');
     const boardSet = new Set(boardValues);
 
+    // Prospect-level mobile/direct fields may still hold newline-joined lists from
+    // older enrichment. Split them and assign any unused numbers positionally so
+    // a person's mobile is never dropped just because counts differ.
+    const accountMobiles = [prospect.mobile, prospect.phone, ...people.map((c) => c.mobile || c.phone)]
+      .flatMap((value) => String(value || '').split('\n'))
+      .map(clean)
+      .filter((n) => n && classifyUkPhone(n).isMobile && !boardSet.has(n));
+    const accountDirects = [prospect.direct_dial, ...people.map((c) => c.direct_dial)]
+      .flatMap((value) => String(value || '').split('\n'))
+      .map(clean)
+      .filter((n) => n && classifyUkPhone(n).valid && !classifyUkPhone(n).isMobile && !boardSet.has(n));
+    const usedMobiles = new Set();
+    const usedDirects = new Set();
+
     const targets = people.length ? people : [null];
-    for (const person of targets) {
+    for (let index = 0; index < targets.length; index += 1) {
+      const person = targets[index];
+      const enriched = person ? { ...person } : null;
+      if (enriched) {
+        const ownMobile = [enriched.mobile, enriched.phone].find(
+          (n) => n && classifyUkPhone(n).isMobile,
+        );
+        if (!ownMobile) {
+          const nextMobile = accountMobiles.find((n) => !usedMobiles.has(n));
+          if (nextMobile) {
+            enriched.mobile = nextMobile;
+            usedMobiles.add(nextMobile);
+          }
+        } else {
+          usedMobiles.add(ownMobile);
+        }
+        const ownDirect =
+          enriched.direct_dial &&
+          classifyUkPhone(enriched.direct_dial).valid &&
+          !classifyUkPhone(enriched.direct_dial).isMobile
+            ? enriched.direct_dial
+            : '';
+        if (!ownDirect) {
+          const nextDirect = accountDirects.find((n) => !usedDirects.has(n));
+          if (nextDirect) {
+            enriched.direct_dial = nextDirect;
+            usedDirects.add(nextDirect);
+          }
+        } else {
+          usedDirects.add(ownDirect);
+        }
+      }
       rows.push(
         rowForPerson({
           campaign,
           list,
           prospect,
           company,
-          person,
+          person: enriched,
           emailEntries,
           board,
           boardSet,
