@@ -127,3 +127,12 @@ James confirmed live Prospecting is **Campaigns → Find prospects → Import ex
 
 **Fix:** Re-synced `cadence-sales/src` (+ `base44/`) from the live eject of the production Cadence Base44 app. Prospecting again uses `CampaignBuilderWorkspace` / Find prospects / Company list. Guardrail rule `.cursor/rules/cadence-live-app-source.mdc` added. No second Base44 app was created.
 
+---
+
+## Checkpoint + UX import — 26 Nov 2026 ~09:55 (Europe/London)
+
+1. Sandbox checkpoint **before UX import** (`6b0802040fe4a123818d2637`).
+2. Re-imported CI-003 Company list UX into the production app sandbox (Find prospects path only).
+3. Sandbox checkpoint **CI-003 Company list multi-worksheet UX import** (`6b08024b0e74ae5ed82356b1`).
+4. `base44 site deploy --publish --build` — live still serves Company list · every worksheet · multiple files.
+

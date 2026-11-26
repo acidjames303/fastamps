@@ -39,3 +39,13 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | Sandbox edit + checkpoint | **Pass** | `CI-003: Company list merges every Excel worksheet` |
 | Site deploy `--publish` | **Pass** | bundle `index-CIflvdVW.js` |
 | Live copy on Company list | **Pass** | “every worksheet · multiple files” + Import existing research |
+
+## Checkpoint + UX re-import — 26 Nov 2026 ~09:55 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Pre-import checkpoint | **Pass** | `6b0802040fe4a123818d2637` — before UX import 2026-11-26 |
+| Sandbox write Company list UX | **Pass** | `spreadsheetAccounts.js`, `SpreadsheetImportPreview.jsx`, `ImportResearchSection.jsx`, `CampaignBuilderWorkspace.jsx` |
+| Post-import checkpoint | **Pass** | `6b08024b0e74ae5ed82356b1` — CI-003 Company list multi-worksheet UX import |
+| Site deploy `--publish --build` | **Pass** | evasive-dial-flow-go / cadence.smartfunction.io |
+| Live bundle strings | **Pass** | Company list · every worksheet · multiple files · Find prospects (`index-CIflvdVW.js`) |
