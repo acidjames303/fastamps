@@ -43,7 +43,7 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | CI-031 | P1 | Stop company-level Lusha bleed onto sibling contacts | Done |
 | CI-032 | P1 | Stronger Lusha match + Mobile/Lusha columns + purple tags | Done |
 | CI-033 | P2 | Night-mode prospect people cards readable | Done |
-| CI-027 | P2 | Split data from Find prospects import next-steps (same panel) | Done · pending publish |
+| CI-027 | P2 | Split data from Find prospects import next-steps (same panel) | Done · live `index-1R3E4eHI.js` |
 
 ## Parking lot
 

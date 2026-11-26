@@ -137,5 +137,5 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | Unit: `split-campaign-data.test.mjs` | **Pass** | Regression |
 | Unit: `campaign-next-action.test.mjs` | **Pass** | Regression |
 | `npm run build` | **Pass** | → `index-1R3E4eHI.js` |
-| Site deploy `--publish --build` | Pending | After push |
+| Site deploy `--build` | **Pass** | Live `index-1R3E4eHI.js` on cadence.smartfunction.io |
 | Authenticated import → Split | **Blocked** | No login session |

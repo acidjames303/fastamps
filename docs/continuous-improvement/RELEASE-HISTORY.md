@@ -339,5 +339,5 @@ After spreadsheet import, the emerald “what next?” strip now includes **Spli
 
 Frontend-only UX; reuses existing assignCampaignCompanies path. No credits, secrets, schema, or auth changes.
 
-Live bundle: `index-1R3E4eHI.js` (after publish). Rollback SHA: `d5624f0`.  
+Live `index-1R3E4eHI.js` on cadence.smartfunction.io. Rollback SHA: `d5624f0`.  
 **Next:** CI-024 seed target sectors from imported industries.
