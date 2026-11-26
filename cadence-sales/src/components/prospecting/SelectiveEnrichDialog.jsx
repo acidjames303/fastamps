@@ -160,7 +160,9 @@ export default function SelectiveEnrichDialog({
     discover: !phoneIntent,
   });
   const [advancedOpen, setAdvancedOpen] = useState(false);
-  const [existingInfoMode, setExistingInfoMode] = useState(phoneIntent ? "missing" : "newer");
+  // Phone runs default to "newer" so Lusha can return a second mobile beside an
+  // import number (stored as lusha_mobile — never an overwrite).
+  const [existingInfoMode, setExistingInfoMode] = useState("newer");
   const [findStrongerDecisionMaker, setFindStrongerDecisionMaker] = useState(intent === "better" || !phoneIntent);
   const [includeAlternativeEmail, setIncludeAlternativeEmail] = useState(false);
   const [companyFields, setCompanyFields] = useState(["company_phone", "company_intelligence"]);
@@ -644,13 +646,13 @@ export default function SelectiveEnrichDialog({
                     <RadioCard
                       checked={existingInfoMode === "missing"}
                       label="Fill missing information only"
-                      detail="Recommended. Existing information is never overwritten."
+                      detail="Skips people who already have a mobile. Existing numbers are never overwritten."
                       onClick={() => setExistingInfoMode("missing")}
                     />
                     <RadioCard
                       checked={existingInfoMode === "newer"}
-                      label="Check existing information for updates"
-                      detail="Possible conflicts are sent to review."
+                      label="Also seek extra mobiles beside existing numbers"
+                      detail="Recommended when an import mobile might be wrong. Keeps the import number and stores any extra Lusha mobile beside it for review."
                       onClick={() => setExistingInfoMode("newer")}
                     />
                   </div>

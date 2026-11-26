@@ -1405,8 +1405,17 @@ Be factual. Never invent a phone number or person's name. If you cannot find som
       if (provider === 'lusha' && lushaKey && !emailOnly) {
         // Contact-level phone gaps matter even after the company already has
         // one mobile — otherwise siblings with emails never get a phone ask.
+        // forceRefresh (per-row / selected re-enrich) also seeks an *extra*
+        // Lusha mobile beside an existing import number — never an overwrite.
         const mobileRequested = requestedFields.includes('mobile') || requestedFields.includes('direct_dial');
         const contactsMissingMobile = out.contacts.some((c: any) => isPlausiblePersonName(c?.name) && !hasDialableMobile(c));
+        // Re-enrich (forceRefresh) asks Lusha even when an import mobile exists,
+        // so a second candidate can sit beside the first — never overwrite.
+        const seekAdditiveMobiles = !!forceRefresh;
+        const needsAdditiveMobile = (c: any) =>
+          seekAdditiveMobiles
+          && hasDialableMobile(c)
+          && !String(c?.lusha_mobile || '').trim();
         const wantPhones = mobileRequested && (
           forceRefresh
           || stillMissing.some((f) => f === 'mobile' || f === 'direct_dial')
@@ -1419,6 +1428,7 @@ Be factual. Never invent a phone number or person's name. If you cannot find som
           // Prefer UK mobile when mobile was requested — a landline must not
           // silence further mobile reveals for that person.
           if (wantPhones && mobileRequested && !hasDialableMobile(c)) return true;
+          if (wantPhones && mobileRequested && needsAdditiveMobile(c)) return true;
           if (wantPhones && !mobileRequested && !hasPersonNumber(c)) return true;
           if (wantEmails && (!c.email || classifyEmail(c.email, out.domain).isGeneric)) return true;
           return false;
@@ -1426,7 +1436,7 @@ Be factual. Never invent a phone number or person's name. If you cannot find som
         // Never ask Lusha for the same person+field twice in one run.
         const unprobed = need.filter((c: any) => {
           const key = String(c.name || '').toLowerCase();
-          const needsPhone = wantPhones && !hasDialableMobile(c);
+          const needsPhone = wantPhones && (!hasDialableMobile(c) || needsAdditiveMobile(c));
           const needsEmail = wantEmails && (!c.email || classifyEmail(c.email, out.domain).isGeneric);
           if (needsPhone && !probedPhoneNames.has(key)) return true;
           if (needsEmail && !probedEmailNames.has(key)) return true;
@@ -1452,14 +1462,18 @@ Be factual. Never invent a phone number or person's name. If you cannot find som
               };
             }
           } else {
-            const askPhones = wantPhones && unprobed.some((c: any) => !hasDialableMobile(c) && !probedPhoneNames.has(String(c.name || '').toLowerCase()));
+            const askPhones = wantPhones && unprobed.some((c: any) => {
+              const key = String(c.name || '').toLowerCase();
+              if (probedPhoneNames.has(key)) return false;
+              return !hasDialableMobile(c) || needsAdditiveMobile(c);
+            });
             const askEmails = wantEmails && unprobed.some((c: any) => {
               const key = String(c.name || '').toLowerCase();
               return (!c.email || classifyEmail(c.email, out.domain).isGeneric) && !probedEmailNames.has(key);
             });
             unprobed.forEach((c: any) => {
               const key = String(c.name || '').toLowerCase();
-              if (askPhones && !hasDialableMobile(c)) probedPhoneNames.add(key);
+              if (askPhones && (!hasDialableMobile(c) || needsAdditiveMobile(c))) probedPhoneNames.add(key);
               if (askEmails && (!c.email || classifyEmail(c.email, out.domain).isGeneric)) probedEmailNames.add(key);
             });
             await beforeCharge();

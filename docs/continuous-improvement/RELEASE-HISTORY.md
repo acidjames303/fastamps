@@ -281,6 +281,17 @@ Live `index-DqF9udQx.js`. Rollback `e68284c`.
 
 ---
 
+## CI-028b — 26 Nov 2026 ~18:45 (Europe/London)
+
+**Seek extra Lusha mobiles beside existing import numbers** on re-enrich (`force_refresh` / “Also seek extra mobiles…”).
+
+Previously Lusha phone reveal skipped anyone who already had a mobile — so additive seconds never appeared (audit: 0/1088). Import numbers stay primary; extras go to `lusha_mobile`.
+
+Live `index-D0LQ5sRG.js`. Rollback `cb89447`.
+
+
+---
+
 ## CI-023 — 26 Nov 2026 ~17:00 (Europe/London)
 
 Zenitech pilot data readiness (two Excel files from James).
