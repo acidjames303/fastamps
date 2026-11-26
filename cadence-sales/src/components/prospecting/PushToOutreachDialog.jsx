@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Send, ShieldCheck, X } from "lucide-react";
+import { ArrowRight, Loader2, Send, ShieldCheck, X } from "lucide-react";
 import { brandChoices } from "@/lib/outreachBrands";
 
 const COUNT_LABELS = [
@@ -238,9 +239,18 @@ export default function PushToOutreachDialog({ open, onClose, prospectIds = [], 
         ) : null}
 
         {result && (
-          <p role="status" className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
-            {result.created} contact{result.created === 1 ? "" : "s"} pushed for review. Nothing was drafted or sent.
-          </p>
+          <div role="status" className="mt-4 space-y-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-800">
+            <p>
+              {result.created} contact{result.created === 1 ? "" : "s"} pushed for review. Nothing was drafted or sent.
+            </p>
+            <Link
+              to={`/outreach?page=campaign_studio&campaign=${encodeURIComponent(campaignId)}&brand=${encodeURIComponent(brandKey)}`}
+              onClick={onClose}
+              className="inline-flex items-center gap-1.5 font-semibold text-emerald-900 underline-offset-2 hover:underline"
+            >
+              Open campaign in Outreach <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
         )}
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
@@ -251,14 +261,16 @@ export default function PushToOutreachDialog({ open, onClose, prospectIds = [], 
             <Button variant="ghost" className="rounded-full text-slate-500" onClick={onClose}>
               {result ? "Done" : "Cancel"}
             </Button>
-            <Button
-              onClick={push}
-              disabled={!campaignId || !eligible || pushing}
-              className="rounded-full bg-emerald-600 hover:bg-emerald-700"
-            >
-              {pushing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
-              {pushing ? "Pushing…" : `Push ${eligible || ""} contact${eligible === 1 ? "" : "s"}`}
-            </Button>
+            {!result && (
+              <Button
+                onClick={push}
+                disabled={!campaignId || !eligible || pushing}
+                className="rounded-full bg-emerald-600 hover:bg-emerald-700"
+              >
+                {pushing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
+                {pushing ? "Pushing…" : `Push ${eligible || ""} contact${eligible === 1 ? "" : "s"}`}
+              </Button>
+            )}
           </div>
         </div>
       </div>

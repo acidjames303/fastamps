@@ -22,10 +22,16 @@ const STEPS = [
 
 // One campaign, one contact queue, the campaign's own research reused, then
 // evidence-led drafts held for human review. Sending is never enabled here.
-export default function OutreachCampaignStudio({ brand, user, onDraftsCreated, onOpenDrafts }) {
+export default function OutreachCampaignStudio({
+  brand,
+  user,
+  onDraftsCreated,
+  onOpenDrafts,
+  initialCampaignId = "",
+}) {
   const [stage, setStage] = useState("campaign");
   const [campaigns, setCampaigns] = useState([]);
-  const [campaignId, setCampaignId] = useState("");
+  const [campaignId, setCampaignId] = useState(initialCampaignId || "");
   const [contacts, setContacts] = useState({ leads: [], selected: [] });
   const [generated, setGenerated] = useState(null);
   const [working, setWorking] = useState(false);
@@ -43,9 +49,19 @@ export default function OutreachCampaignStudio({ brand, user, onDraftsCreated, o
     if (!user?.id) return;
     base44.entities.Campaign
       .list("-created_date", 100)
-      .then((items) => setCampaigns(items || []))
+      .then((items) => {
+        const rows = items || [];
+        setCampaigns(rows);
+        // Deep-link from Prospecting push / enrichment “Open Outreach”.
+        if (initialCampaignId && rows.some((row) => row.id === initialCampaignId)) {
+          const campaign = rows.find((row) => row.id === initialCampaignId);
+          setCampaignId(initialCampaignId);
+          setMode(campaign?.outreach_mode || "combined");
+          setStage("contacts");
+        }
+      })
       .catch(() => setCampaigns([]));
-  }, [user?.id]);
+  }, [user?.id, initialCampaignId]);
 
   const handleContactsChange = useCallback((next) => setContacts(next), []);
 

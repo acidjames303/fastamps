@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 import OutreachWorkspacePicker from "@/components/email/OutreachWorkspacePicker";
 
-const PRIMARY = [
+const PRIMARY_CONNECTED = [
   { key: "overview", label: "Overview", Icon: LayoutDashboard },
   { key: "inbox", label: "Inbox", Icon: Inbox },
   { key: "drafts", label: "Drafts", Icon: FilePenLine },
@@ -13,7 +13,14 @@ const PRIMARY = [
   { key: "templates", label: "Templates", Icon: BookOpen },
 ];
 
-const TOOLS = [
+const PRIMARY_OFFLINE = [
+  { key: "overview", label: "Overview", Icon: LayoutDashboard },
+  { key: "campaign_studio", label: "Campaigns", Icon: UsersRound },
+  { key: "drafts", label: "Drafts", Icon: FilePenLine },
+  { key: "templates", label: "Templates", Icon: BookOpen },
+];
+
+const TOOLS_BASE = [
   { key: "schedule", label: "Schedule & hold", hint: "Choose dates; sending stays disabled", Icon: CalendarClock },
   { key: "exports", label: "Download for Mac Mail", hint: "Take drafts into Apple Mail", Icon: Download },
   { key: "signatures", label: "Signatures", hint: "Your sign-off for each workspace", Icon: Signature },
@@ -21,10 +28,17 @@ const TOOLS = [
   { key: "workspaces", label: "Manage workspaces", hint: "Rename, archive or add details", Icon: Layers3 },
 ];
 
-export default function OutreachNav({ page, onNavigate, workspace }) {
+export default function OutreachNav({ page, onNavigate, workspace, mailboxConnected = false }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
-  const inTools = TOOLS.some((t) => t.key === page);
+  const primary = mailboxConnected ? PRIMARY_CONNECTED : PRIMARY_OFFLINE;
+  const tools = mailboxConnected
+    ? TOOLS_BASE
+    : [
+      { key: "inbox", label: "Inbox", hint: "Connect email tomorrow — campaigns work without it", Icon: Inbox },
+      ...TOOLS_BASE,
+    ];
+  const inTools = tools.some((t) => t.key === page);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -46,7 +60,7 @@ export default function OutreachNav({ page, onNavigate, workspace }) {
     <div className="rounded-2xl border border-slate-200 bg-white p-2.5">
       <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
         <div className="flex flex-wrap items-center gap-1">
-        {PRIMARY.map(({ key, label, Icon }) => (
+        {primary.map(({ key, label, Icon }) => (
           <button key={key} type="button" aria-current={page===key?"page":undefined} onClick={() => onNavigate(key)} className={tab(page === key)}>
             <Icon className="h-4 w-4" /> {label}
           </button>
@@ -65,7 +79,7 @@ export default function OutreachNav({ page, onNavigate, workspace }) {
           </button>
           {menuOpen && (
             <div role="menu" className="absolute left-0 z-30 mt-2 w-72 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-lg">
-              {TOOLS.map(({ key, label, hint, Icon }) => (
+              {tools.map(({ key, label, hint, Icon }) => (
                 <button
                   key={key}
                   type="button"
@@ -83,11 +97,12 @@ export default function OutreachNav({ page, onNavigate, workspace }) {
             </div>
           )}
         </div>
-
         </div>
-        <div className="flex justify-start lg:ml-auto lg:justify-end">
-          <OutreachWorkspacePicker {...workspace} />
-        </div>
+        {workspace && (
+          <div className="lg:ml-auto min-w-0">
+            <OutreachWorkspacePicker {...workspace} />
+          </div>
+        )}
       </div>
     </div>
   );

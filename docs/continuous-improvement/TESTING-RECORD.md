@@ -139,3 +139,13 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | `npm run build` | **Pass** | → `index-1R3E4eHI.js` |
 | Site deploy `--build` | **Pass** | Live `index-1R3E4eHI.js` on cadence.smartfunction.io |
 | Authenticated import → Split | **Blocked** | No login session |
+
+## CI-024 + CI-034 Outreach pre-OAuth — 26 Nov 2026 ~22:00 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Unit: `company-exclusion.test.mjs` | **Pass** | mergeTargetSectors + parseListIcp |
+| Unit: `enrichment-next-action.test.mjs` | **Pass** | `/outreach?page=campaign_studio` |
+| `npm run build` | **Pass** | → `index-Bl6OesW8.js` (pre-deploy) |
+| Secrets / send / OAuth | **Pass** | No live mailbox or send exercised |
+| Site deploy | Pending | After commit + push |

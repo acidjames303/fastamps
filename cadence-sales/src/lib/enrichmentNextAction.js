@@ -41,7 +41,7 @@ export function enrichmentNextAction({
       kind: "call",
       secondary: {
         cta: "Open Outreach",
-        href: "/outreach",
+        href: "/outreach?page=campaign_studio",
       },
     };
   }
@@ -55,7 +55,7 @@ export function enrichmentNextAction({
         ? `${emailsFound} email${emailsFound === 1 ? "" : "s"} found — draft personalised outreach`
         : `${people} contact${people === 1 ? "" : "s"} found — review, then call or email`,
       cta: "Open Outreach",
-      href: "/outreach",
+      href: "/outreach?page=campaign_studio",
       kind: "outreach",
       secondary: onProspectingPage
         ? { cta: "Show needs attention", href: null, action: "filter_attention" }

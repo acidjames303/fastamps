@@ -5,7 +5,12 @@ import { CheckCircle2, CircleAlert, Loader2, UploadCloud, X } from "lucide-react
 import { useAuth } from "@/lib/AuthContext";
 import { readSpreadsheet, inferColumnMapping, accountsFromSheets, mergeAccountLists } from "@/lib/spreadsheetAccounts";
 import { classifyIncomingAccounts, gapCounts } from "@/lib/importPreview";
-import { filterExcludedCompanies, industriesFromAccounts } from "@/lib/companyExclusion";
+import {
+  filterExcludedCompanies,
+  industriesFromAccounts,
+  mergeTargetSectors,
+  parseListIcp,
+} from "@/lib/companyExclusion";
 
 const ACCEPTED = ["csv", "xlsx", "xls", "json"];
 const MAX_BYTES = 10 * 1024 * 1024;
@@ -35,6 +40,9 @@ export default function SpreadsheetImportPreview({ listId, existingProspects = [
   const [summary, setSummary] = useState(null);
   const [helpOpen, setHelpOpen] = useState(false);
   const [queue, setQueue] = useState([]);
+  const [seedingSectors, setSeedingSectors] = useState(false);
+  const [sectorMsg, setSectorMsg] = useState("");
+  const [sectorErr, setSectorErr] = useState("");
 
   const reset = () => {
     setPreview(null);
@@ -43,6 +51,35 @@ export default function SpreadsheetImportPreview({ listId, existingProspects = [
     setIncludeAmbiguous([]);
     setQueue([]);
     setHelpOpen(false);
+    setSectorMsg("");
+    setSectorErr("");
+  };
+
+  const seedTargetSectors = async () => {
+    if (!listId || !preview?.industryHints?.length || seedingSectors) return;
+    setSeedingSectors(true);
+    setSectorErr("");
+    setSectorMsg("");
+    try {
+      const lists = await base44.entities.ProspectList.filter({ id: listId }, undefined, 1);
+      const list = lists?.[0];
+      if (!list?.id) throw new Error("Open or create this campaign list before seeding sectors.");
+      const icp = parseListIcp(list.icp);
+      const nextSectors = mergeTargetSectors(icp.target_sectors || [], preview.industryHints);
+      const added = nextSectors.length - (icp.target_sectors || []).filter(Boolean).length;
+      await base44.entities.ProspectList.update(list.id, {
+        icp: JSON.stringify({ ...icp, target_sectors: nextSectors }),
+      });
+      setSectorMsg(
+        added > 0
+          ? `Added ${added} sector${added === 1 ? "" : "s"} to Target sectors (${nextSectors.length} total). Ready for lookalike search.`
+          : `Target sectors already include these industries (${nextSectors.length} total).`,
+      );
+    } catch (e) {
+      setSectorErr(e?.response?.data?.error || e.message || "Could not update Target sectors.");
+    } finally {
+      setSeedingSectors(false);
+    }
   };
 
   const parseFiles = async (fileList) => {
@@ -467,13 +504,34 @@ export default function SpreadsheetImportPreview({ listId, existingProspects = [
           )}
 
           {preview.industryHints?.length > 0 && (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 px-3 py-2 text-xs text-emerald-900">
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 px-3 py-2 text-xs text-emerald-900 space-y-2">
               <p className="font-semibold">Industries in this file (for lookalike search)</p>
-              <p className="mt-1 text-emerald-800">
+              <p className="text-emerald-800">
                 {preview.industryHints.map((row) => `${row.name} (${row.count})`).join(" · ")}
               </p>
-              <p className="mt-1 text-emerald-700/80">
-                Add these to Target sectors in the campaign ICP, then find similar companies — excluded clients stay out.
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={!listId || seedingSectors}
+                  onClick={seedTargetSectors}
+                  className="h-8 rounded-full bg-emerald-600 px-3 text-xs hover:bg-emerald-500"
+                >
+                  {seedingSectors ? (
+                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                  ) : null}
+                  Use as target sectors
+                </Button>
+                {!listId && (
+                  <span className="text-[11px] text-emerald-800/80">
+                    Create or open the campaign list first, then seed.
+                  </span>
+                )}
+              </div>
+              {sectorMsg && <p className="text-emerald-800">{sectorMsg}</p>}
+              {sectorErr && <p className="text-rose-700">{sectorErr}</p>}
+              <p className="text-emerald-700/80">
+                One click fills Target sectors in this campaign’s ICP. Then find similar companies — excluded clients stay out.
               </p>
             </div>
           )}

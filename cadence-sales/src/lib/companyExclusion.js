@@ -83,3 +83,32 @@ export function industriesFromAccounts(accounts = [], { limit = 8 } = {}) {
     .slice(0, limit)
     .map(([name, count]) => ({ name, count }));
 }
+
+/** Merge industry hints into ICP target_sectors (case-insensitive dedupe, existing first). */
+export function mergeTargetSectors(existing = [], industryHints = []) {
+  const out = [];
+  const seen = new Set();
+  const push = (raw) => {
+    const name = String(raw || "").trim();
+    if (!name) return;
+    const key = name.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push(name);
+  };
+  for (const item of existing || []) push(item);
+  for (const hint of industryHints || []) push(hint?.name ?? hint);
+  return out;
+}
+
+/** Parse ProspectList.icp into a structured object; free-text becomes a stub object. */
+export function parseListIcp(raw) {
+  try {
+    const parsed = JSON.parse(String(raw || ""));
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) return { ...parsed };
+  } catch {
+    /* free-text */
+  }
+  const text = String(raw || "").trim();
+  return text ? { legacy_free_text: text } : {};
+}

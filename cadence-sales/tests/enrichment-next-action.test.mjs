@@ -13,7 +13,7 @@ import {
   });
   assert.equal(next.id, "start_calling");
   assert.match(next.href, /\/dialer\?list=list1/);
-  assert.equal(next.secondary.href, "/outreach");
+  assert.equal(next.secondary.href, "/outreach?page=campaign_studio");
 }
 
 {
@@ -25,7 +25,7 @@ import {
     completed: 5,
   });
   assert.equal(next.id, "outreach_ready");
-  assert.equal(next.href, "/outreach");
+  assert.equal(next.href, "/outreach?page=campaign_studio");
 }
 
 {

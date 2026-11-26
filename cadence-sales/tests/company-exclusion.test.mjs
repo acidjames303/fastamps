@@ -4,6 +4,8 @@ import {
   isCompanyExcluded,
   filterExcludedCompanies,
   industriesFromAccounts,
+  mergeTargetSectors,
+  parseListIcp,
 } from "../src/lib/companyExclusion.js";
 
 {
@@ -45,6 +47,18 @@ import {
   ]);
   assert.equal(industries[0].name, "Finance");
   assert.equal(industries[0].count, 2);
+}
+
+{
+  const merged = mergeTargetSectors(["Finance"], [
+    { name: "Finance", count: 4 },
+    { name: "Energy", count: 2 },
+    { name: "  healthcare  ", count: 1 },
+  ]);
+  assert.deepEqual(merged, ["Finance", "Energy", "healthcare"]);
+  assert.deepEqual(parseListIcp('{"target_sectors":["A"]}').target_sectors, ["A"]);
+  assert.equal(parseListIcp("plain text ICP").legacy_free_text, "plain text ICP");
+  assert.deepEqual(parseListIcp(""), {});
 }
 
 console.log("company-exclusion.test.mjs: ok");

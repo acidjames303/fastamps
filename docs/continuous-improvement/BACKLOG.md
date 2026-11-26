@@ -1,16 +1,16 @@
 # Cadence continuous improvement backlog
 
-**Updated:** 26 Nov 2026 ~21:05 (Europe/London)  
+**Updated:** 26 Nov 2026 ~22:00 (Europe/London)  
 Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **P3** optional
 
 ## Active
 
 | ID | Pri | Issue | Evidence | Impact | Status |
 |---|---|---|---|---|---|
-| CI-024 | P2 | One-click “seed target sectors from imported industries” on import preview | Zenitech pilot | Faster lookalike ICP | **Next** |
-| CI-025 | P2 | ContactPhone candidate rows always expanded for multi-number people | Zenitech phone preserve | Caller clarity | Queued |
-| CI-004 | P1 | Research templates / dictation reuse across Dialer & Outreach | Research on Dialer improved; Outreach reuse still uneven | Duplicate research effort | Queued |
+| CI-025 | P2 | ContactPhone candidate rows always expanded for multi-number people | Zenitech phone preserve | Caller clarity | **Next** |
+| CI-004 | P1 | Research templates / dictation reuse across Dialer & Outreach | Research on Dialer improved; draft editor now shows lead research (CI-034) | Duplicate research effort | Partially addressed |
 | CI-008 | P3 | Progressive disclosure polish on dense campaign screens | UX audit | Training burden | Partially addressed by CI-014 |
+| CI-035 | P1 | Connect Gmail/Outlook OAuth + verify inbox preview (owner connects tomorrow) | James | Real mailbox read | Queued · owner action |
 
 ## Done (this branch)
 
@@ -44,6 +44,8 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | CI-032 | P1 | Stronger Lusha match + Mobile/Lusha columns + purple tags | Done |
 | CI-033 | P2 | Night-mode prospect people cards readable | Done |
 | CI-027 | P2 | Split data from Find prospects import next-steps (same panel) | Done · live `index-1R3E4eHI.js` |
+| CI-024 | P2 | One-click “Use as target sectors” from import industry hints | Done |
+| CI-034 | P1 | Outreach pre-OAuth: deep-links, campaign-first nav, research on drafts, push handoff | Done |
 
 ## Parking lot
 

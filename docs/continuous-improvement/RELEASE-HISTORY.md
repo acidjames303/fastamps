@@ -341,3 +341,24 @@ Frontend-only UX; reuses existing assignCampaignCompanies path. No credits, secr
 
 Live `index-1R3E4eHI.js` on cadence.smartfunction.io. Rollback SHA: `d5624f0`.  
 **Next:** CI-024 seed target sectors from imported industries.
+
+---
+
+## CI-024 + CI-034 — 26 Nov 2026 ~22:00 (Europe/London)
+
+**Seed target sectors + Outreach working without mailbox connect.**
+
+### CI-024
+- Import preview: **Use as target sectors** merges industry hints into ProspectList ICP `target_sectors` (case-insensitive dedupe).
+
+### CI-034 (pre-email connect)
+- Outreach URL deep-links: `?page=&campaign=&brand=` for Prospecting push / enrichment “Open Outreach”.
+- Campaign studio opens the pushed campaign; enrichment next-action links to `/outreach?page=campaign_studio`.
+- Nav prioritises Campaigns/Drafts when mailbox disconnected; Inbox empty state offers campaign + Mac Mail paths.
+- Draft editor shows cited research from `OutreachLead` (`source_lead_id`).
+- Push-to-Outreach success: **Open campaign in Outreach** deep-link.
+- Copy: campaigns/drafts/Mac Mail first; connect Gmail/Outlook when ready. Sending stays off.
+
+Frontend-only. No OAuth, send, secrets, schema, or credit changes.
+
+**Next:** CI-025 phone candidate expansion · CI-035 owner connects email.
