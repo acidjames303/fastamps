@@ -1,0 +1,118 @@
+# Independent of Cursor chat — runs on GitHub Actions schedule.
+# Routine monitoring: zero AI. Failures surface as workflow failures (and optional issue).
+name: Production monitor
+
+on:
+  schedule:
+    # Every 15 minutes (GitHub schedule granularity; 5-minute polling available via external uptime if needed)
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - cursor/security-maintenance-guardian-fb1b
+      - main
+    paths:
+      - 'ops/**'
+      - '.github/workflows/production-monitor.yml'
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: production-monitor
+  cancel-in-progress: true
+
+jobs:
+  health:
+    name: Production health (zero AI)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run production health check
+        id: health
+        env:
+          CONNECT_PRODUCTION_URL: https://connect.fastamps.com
+          BASE44_APP_ID: ${{ secrets.BASE44_APP_ID }}
+          BASE44_API_KEY: ${{ secrets.BASE44_API_KEY }}
+          CONNECT_QA_ADMIN_EMAIL: ${{ secrets.CONNECT_QA_ADMIN_EMAIL }}
+          CONNECT_QA_ADMIN_PASSWORD: ${{ secrets.CONNECT_QA_ADMIN_PASSWORD }}
+          EXPECTED_SPA_JS: ${{ vars.EXPECTED_SPA_JS }}
+          HEALTH_WEBHOOK_URL: ${{ secrets.HEALTH_WEBHOOK_URL }}
+          HEALTH_ARTIFACT_DIR: ./ops
+        run: node ops/scripts/production-health-check.mjs
+
+      - name: Upload health artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: last-health-check
+          path: |
+            ops/last-health-check.json
+            ops/maintenance-state.json
+          if-no-files-found: ignore
+
+      - name: Open or update alert issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'ALERT: FastAmps Connect production health check failed';
+            const body = [
+              'Automated production monitor failed.',
+              '',
+              `- Workflow: ${context.workflow}`,
+              `- Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              `- Time (UTC): ${new Date().toISOString()}`,
+              '',
+              'Inspect the `last-health-check` artifact. Do not treat a green Git push as recovery — re-run verify-release against https://connect.fastamps.com.',
+            ].join('\n');
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'ops-alert',
+              per_page: 10,
+            });
+            const existing = issues.data.find((i) => i.title === title);
+            if (existing) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body: `Recurrence at ${new Date().toISOString()}\n\n${body}`,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['ops-alert'],
+              });
+            }
+
+  security_smoke:
+    name: Security smoke (zero AI)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Security smoke
+        env:
+          CONNECT_PRODUCTION_URL: https://connect.fastamps.com
+          BASE44_APP_ID: ${{ secrets.BASE44_APP_ID }}
+          CONNECT_QA_ADMIN_EMAIL: ${{ secrets.CONNECT_QA_ADMIN_EMAIL }}
+          CONNECT_QA_ADMIN_PASSWORD: ${{ secrets.CONNECT_QA_ADMIN_PASSWORD }}
+          CONNECT_QA_INSTALLER_EMAIL: ${{ secrets.CONNECT_QA_INSTALLER_EMAIL }}
+          CONNECT_QA_INSTALLER_PASSWORD: ${{ secrets.CONNECT_QA_INSTALLER_PASSWORD }}
+        run: node ops/scripts/security-smoke.mjs

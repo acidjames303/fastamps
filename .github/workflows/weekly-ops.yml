@@ -1,0 +1,45 @@
+# Weekly low-cost ops: release fingerprint, dependency audit, no AI.
+name: Weekly ops review
+
+on:
+  schedule:
+    - cron: '0 7 * * 1' # Monday 07:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  weekly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Unit tests
+        run: npm test
+      - name: Verify live release fingerprint
+        env:
+          CONNECT_PRODUCTION_URL: https://connect.fastamps.com
+          BASE44_APP_ID: ${{ secrets.BASE44_APP_ID }}
+          BASE44_API_KEY: ${{ secrets.BASE44_API_KEY }}
+        run: node ops/scripts/verify-release.mjs --skip-build --record
+      - name: npm audit (report only)
+        continue-on-error: true
+        run: npm audit --omit=dev --json > ops/npm-audit-weekly.json || true
+      - name: Upload weekly artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly-ops
+          path: |
+            ops/last-health-check.json
+            ops/maintenance-state.json
+            ops/deployment-history.jsonl
+            ops/npm-audit-weekly.json
+          if-no-files-found: ignore
