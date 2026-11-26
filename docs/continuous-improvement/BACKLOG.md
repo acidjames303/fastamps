@@ -1,14 +1,13 @@
 # Cadence continuous improvement backlog
 
-**Updated:** 26 Nov 2026 evening (Europe/London)  
+**Updated:** 26 Nov 2026 ~21:05 (Europe/London)  
 Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **P3** optional
 
 ## Active
 
 | ID | Pri | Issue | Evidence | Impact | Status |
 |---|---|---|---|---|---|
-| CI-027 | P2 | Split data from Find prospects import next-steps (same panel) | James BDM workflow | Fewer hops after import | **Next** |
-| CI-024 | P2 | One-click “seed target sectors from imported industries” on import preview | Zenitech pilot | Faster lookalike ICP | Queued |
+| CI-024 | P2 | One-click “seed target sectors from imported industries” on import preview | Zenitech pilot | Faster lookalike ICP | **Next** |
 | CI-025 | P2 | ContactPhone candidate rows always expanded for multi-number people | Zenitech phone preserve | Caller clarity | Queued |
 | CI-004 | P1 | Research templates / dictation reuse across Dialer & Outreach | Research on Dialer improved; Outreach reuse still uneven | Duplicate research effort | Queued |
 | CI-008 | P3 | Progressive disclosure polish on dense campaign screens | UX audit | Training burden | Partially addressed by CI-014 |
@@ -41,6 +40,10 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | CI-022 | P2 | Manager needs-attention rollup on Campaigns | Done · live `index--5WydKF3.js` |
 | CI-028 | P1 | Pilot phone audit: persist additive Lusha + Phone audit CSV | Done · live `index-DqF9udQx.js` |
 | CI-029 | P2 | Simplify enrich-phones UX; Maximum Lusha default + extras | Done · live `index-uH--n_dp.js` |
+| CI-031 | P1 | Stop company-level Lusha bleed onto sibling contacts | Done |
+| CI-032 | P1 | Stronger Lusha match + Mobile/Lusha columns + purple tags | Done |
+| CI-033 | P2 | Night-mode prospect people cards readable | Done |
+| CI-027 | P2 | Split data from Find prospects import next-steps (same panel) | Done · pending publish |
 
 ## Parking lot
 

@@ -229,6 +229,7 @@ export default function CampaignBuilderWorkspace({
           <ImportResearchSection
             listId={listId}
             prospects={prospects}
+            campaign={campaign}
             onListCreated={onListCreated}
             onImported={onImported}
             onOpenEnrich={onOpenEnrich}

@@ -328,3 +328,16 @@ Zenitech pilot data readiness (two Excel files from James).
 
 Live `index-Bp_nqzgH.js`. Rollback `31895f4`.  
 **Next:** CI-022 manager needs-attention rollup.
+
+---
+
+## CI-027 — 26 Nov 2026 ~21:05 (Europe/London)
+
+**Split data from Find prospects import next-steps** (same panel).
+
+After spreadsheet import, the emerald “what next?” strip now includes **Split data** (opens the same SplitCampaignData modal as Campaigns). Prompt research / TPS moved under **More** to cut clutter.
+
+Frontend-only UX; reuses existing assignCampaignCompanies path. No credits, secrets, schema, or auth changes.
+
+Live bundle: `index-1R3E4eHI.js` (after publish). Rollback SHA: `d5624f0`.  
+**Next:** CI-024 seed target sectors from imported industries.

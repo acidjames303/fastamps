@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { CircleAlert, FileText, Loader2, Mail, Phone, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  CircleAlert, FileText, Loader2, Mail, Phone, ShieldCheck, Sparkles, Split,
+} from "lucide-react";
 import SpreadsheetImportPreview from "@/components/campaign-builder/SpreadsheetImportPreview";
 import ResearchImportPanel from "@/components/prospecting/ResearchImportPanel";
 import ResearchPromptPanel from "@/components/prospecting/ResearchPromptPanel";
+import SplitCampaignData from "@/components/campaigns/SplitCampaignData";
 
 const numberCount = (prospects) => {
   let accounts = 0;
@@ -25,6 +28,7 @@ const numberCount = (prospects) => {
 export default function ImportResearchSection({
   listId,
   prospects = [],
+  campaign = null,
   onListCreated,
   onImported,
   onOpenEnrich,
@@ -32,16 +36,57 @@ export default function ImportResearchSection({
   const [importedIds, setImportedIds] = useState([]);
   const [showResearch, setShowResearch] = useState(false);
   const [showDocs, setShowDocs] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const [screenOpen, setScreenOpen] = useState(false);
   const [screening, setScreening] = useState(false);
   const [screenResult, setScreenResult] = useState("");
   const [screenError, setScreenError] = useState("");
+  const [splitOpen, setSplitOpen] = useState(false);
+  const [callers, setCallers] = useState([]);
+  const [resolvedCampaign, setResolvedCampaign] = useState(campaign);
 
   const imported = prospects.filter((prospect) => importedIds.includes(prospect.id));
   const missingPhone = imported.filter((prospect) => !prospect.mobile && !prospect.direct_dial);
   const missingEmail = imported.filter((prospect) => !prospect.email);
   const numbers = numberCount(imported);
   const hasAccounts = prospects.length > 0;
+
+  useEffect(() => {
+    setResolvedCampaign(campaign);
+  }, [campaign]);
+
+  // After import, resolve the campaign + active callers so Split data can open here.
+  useEffect(() => {
+    if (!importedIds.length) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        let camp = campaign;
+        if (!camp?.id && listId) {
+          const list = await base44.entities.ProspectList.get(listId).catch(() => null);
+          if (list?.campaign_id) {
+            camp = await base44.entities.Campaign.get(list.campaign_id).catch(() => ({
+              id: list.campaign_id,
+              name: list.name || "Campaign",
+            }));
+          }
+        }
+        if (!cancelled && camp?.id) setResolvedCampaign(camp);
+
+        const profiles = await base44.entities.UserProfile.filter({}, "-created_date", 80).catch(() => []);
+        if (cancelled) return;
+        setCallers(
+          (profiles || []).filter((p) =>
+            p.status === "active"
+            && ["bdm", "internal_bd", "sales_manager", "organisation_admin"].includes(p.app_role),
+          ),
+        );
+      } catch {
+        /* non-fatal — Split button stays hidden if we cannot resolve */
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [importedIds.length, listId, campaign]);
 
   const screen = async () => {
     if (!listId || !importedIds.length || screening) return;
@@ -66,6 +111,8 @@ export default function ImportResearchSection({
       setScreening(false);
     }
   };
+
+  const canSplit = !!(resolvedCampaign?.id && callers.length);
 
   return (
     <div className="space-y-5">
@@ -122,10 +169,10 @@ export default function ImportResearchSection({
         <div className="space-y-3 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4 sm:p-5">
           <div>
             <p className="text-sm font-semibold text-emerald-900">
-              {imported.length} account{imported.length === 1 ? "" : "s"} added — optional next steps
+              {imported.length} account{imported.length === 1 ? "" : "s"} added — what next?
             </p>
             <p className="mt-0.5 text-xs text-emerald-800">
-              You can stop here and call. Paid steps show an estimate first.
+              Call yourself, or split across the team. Paid enrich steps show an estimate first.
             </p>
           </div>
 
@@ -136,6 +183,16 @@ export default function ImportResearchSection({
             >
               <Phone className="mr-1.5 h-3.5 w-3.5" /> Start calling
             </Link>
+            {canSplit && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSplitOpen(true)}
+                className="rounded-full border-emerald-400 bg-white text-emerald-900 hover:bg-emerald-50"
+              >
+                <Split className="mr-1.5 h-3.5 w-3.5" /> Split data
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -155,34 +212,13 @@ export default function ImportResearchSection({
               <Mail className="mr-1.5 h-3.5 w-3.5" /> Emails ({missingEmail.length})
             </Button>
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
-              onClick={() => setShowResearch((open) => !open)}
-              className="rounded-full border-slate-300 bg-white"
+              onClick={() => setShowMore((open) => !open)}
+              className="rounded-full text-emerald-800"
             >
-              <Sparkles className="mr-1.5 h-3.5 w-3.5" /> {showResearch ? "Hide prompt" : "Prompt research"}
+              {showMore ? "Less" : "More"}
             </Button>
-            {!screenOpen ? (
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={!numbers.numbers || screening}
-                onClick={() => setScreenOpen(true)}
-                className="rounded-full border-slate-300 bg-white"
-              >
-                <ShieldCheck className="mr-1.5 h-3.5 w-3.5" /> TPS screen
-              </Button>
-            ) : (
-              <span className="inline-flex flex-wrap items-center gap-2 rounded-full border border-emerald-300 bg-white px-3 py-1.5 text-xs text-emerald-900">
-                Approve {numbers.numbers} check{numbers.numbers === 1 ? "" : "s"}?
-                <Button size="sm" onClick={screen} disabled={screening} className="h-7 rounded-full bg-emerald-600 px-3 hover:bg-emerald-500">
-                  {screening ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Approve"}
-                </Button>
-                <button type="button" onClick={() => setScreenOpen(false)} className="text-slate-500 hover:text-slate-800">
-                  Not now
-                </button>
-              </span>
-            )}
             <Button
               variant="ghost"
               size="sm"
@@ -192,6 +228,40 @@ export default function ImportResearchSection({
               Done
             </Button>
           </div>
+
+          {showMore && (
+            <div className="flex flex-wrap gap-2 border-t border-emerald-200/70 pt-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowResearch((open) => !open)}
+                className="rounded-full border-slate-300 bg-white"
+              >
+                <Sparkles className="mr-1.5 h-3.5 w-3.5" /> {showResearch ? "Hide prompt" : "Prompt research"}
+              </Button>
+              {!screenOpen ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!numbers.numbers || screening}
+                  onClick={() => setScreenOpen(true)}
+                  className="rounded-full border-slate-300 bg-white"
+                >
+                  <ShieldCheck className="mr-1.5 h-3.5 w-3.5" /> TPS screen
+                </Button>
+              ) : (
+                <span className="inline-flex flex-wrap items-center gap-2 rounded-full border border-emerald-300 bg-white px-3 py-1.5 text-xs text-emerald-900">
+                  Approve {numbers.numbers} check{numbers.numbers === 1 ? "" : "s"}?
+                  <Button size="sm" onClick={screen} disabled={screening} className="h-7 rounded-full bg-emerald-600 px-3 hover:bg-emerald-500">
+                    {screening ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Approve"}
+                  </Button>
+                  <button type="button" onClick={() => setScreenOpen(false)} className="text-slate-500 hover:text-slate-800">
+                    Not now
+                  </button>
+                </span>
+              )}
+            </div>
+          )}
 
           {screenResult && <p className="text-xs text-emerald-800">{screenResult}</p>}
           {screenError && (
@@ -209,6 +279,17 @@ export default function ImportResearchSection({
           )}
         </div>
       )}
+
+      <SplitCampaignData
+        campaign={resolvedCampaign}
+        callers={callers}
+        open={splitOpen}
+        onClose={() => setSplitOpen(false)}
+        onDone={() => {
+          setSplitOpen(false);
+          onImported?.(listId);
+        }}
+      />
     </div>
   );
 }

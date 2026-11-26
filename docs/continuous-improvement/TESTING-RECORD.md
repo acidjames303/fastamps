@@ -129,3 +129,13 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | `npm run build` | **Pass** | → `index-DqF9udQx.js` |
 | Site deploy `--publish --build` | **Pass** | Live: Phone audit CSV · Lusha mobile |
 | Re-enrich with credits | **Not run** | Owner will retry; agent must not spend credits |
+
+## CI-027 Split data on import next-steps — 26 Nov 2026 ~21:05 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Unit: `split-campaign-data.test.mjs` | **Pass** | Regression |
+| Unit: `campaign-next-action.test.mjs` | **Pass** | Regression |
+| `npm run build` | **Pass** | → `index-1R3E4eHI.js` |
+| Site deploy `--publish --build` | Pending | After push |
+| Authenticated import → Split | **Blocked** | No login session |
