@@ -111,15 +111,26 @@ ${targets.map((c) => `${c.id} | ${c.full_name} | ${c.job_title} | ${c.company} |
   };
 
   const exportCsv = () => {
-    const rows = [["Name", "Title", "Company", "Phone", "Email", "Industry", "Company size", "Location", "Turnover estimate", "Cluster", "Profile", "Number status", "Call status", "Last called", "What they do", "Notes"]];
-    contacts.forEach((c) =>
+    const rows = [["Name", "Title", "Company", "Mobile", "Lusha", "Phone source", "Direct dial", "Email", "Industry", "Company size", "Location", "Turnover estimate", "Cluster", "Profile", "Number status", "Call status", "Last called", "What they do", "Notes"]];
+    contacts.forEach((c) => {
+      const primary = c.mobile || c.phone || "";
+      const lushaExtra = c.lusha_mobile
+        && String(c.lusha_mobile).replace(/\D/g, "") !== String(primary).replace(/\D/g, "")
+        ? c.lusha_mobile
+        : "";
+      const lushaCol = lushaExtra || (c.phone_source === "lusha" ? primary : "");
       rows.push([
-        c.full_name, c.job_title, c.company, c.phone, c.email, c.industry,
+        c.full_name, c.job_title, c.company,
+        primary,
+        lushaCol,
+        c.phone_source || "",
+        c.direct_dial || "",
+        c.email, c.industry,
         c.employee_range, c.location, c.turnover_estimate, c.cluster, c.profile_type,
         c.number_status, c.call_status, c.last_called ? new Date(c.last_called).toLocaleString() : "",
         briefSummary(c.ai_brief), c.notes,
-      ])
-    );
+      ]);
+    });
     const csv = rows.map((r) => r.map((v) => `"${(v ?? "").toString().replace(/"/g, '""')}"`).join(",")).join("\n");
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
     const a = document.createElement("a");

@@ -19,7 +19,7 @@ import { buildProspectPhoneAuditRows, PHONE_AUDIT_HEADERS } from "../src/lib/pro
       ],
     },
   ]);
-  assert.equal(PHONE_AUDIT_HEADERS.includes("Lusha mobile"), true);
+  assert.equal(PHONE_AUDIT_HEADERS.includes("Lusha"), true);
   assert.equal(rows.length, 1);
   assert.equal(rows[0][3], "+44 7700 900123"); // Import mobile
   assert.equal(rows[0][5], "07700 900999"); // Lusha mobile

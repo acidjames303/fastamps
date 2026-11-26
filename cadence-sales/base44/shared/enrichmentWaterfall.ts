@@ -327,7 +327,15 @@ async function lushaEnrich(
 
   const response = await lushaSearchAndEnrich(key, {
     contacts: list.map((c: any) => ({
-      name: c.name, title: c.title, linkedin: c.linkedin, email: c.email, lusha_id: c.lusha_id || c.apollo_id || '',
+      name: c.name,
+      title: c.title,
+      linkedin: c.linkedin,
+      email: c.email,
+      lusha_id: c.lusha_id || c.apollo_id || '',
+      // Existing import/primary mobile — Lusha cannot search by phone, but we
+      // compare returns against it to confirm the match and find true extras.
+      mobile: c.mobile || c.phone || '',
+      phone: c.phone || c.mobile || '',
     })),
     company: { name: out.company_name, domain: out.email_domain || out.domain },
     reveal,
@@ -346,26 +354,36 @@ async function lushaEnrich(
     if (r.status === 'company_mismatch') continue;
 
     if (opts.wantPhones) {
-      const person = pickPersonNumber(r.phones);
+      const existingDigits = phoneDigits(c?.phone || c?.mobile);
+      const alreadyPersonNumber = !!existingDigits && existingDigits !== phoneDigits(out?.landline);
+      // When seeking an extra beside an import, skip the number we already hold.
+      const person = alreadyPersonNumber
+        ? pickPersonNumber(r.phones, { excludeDigits: existingDigits })
+        : pickPersonNumber(r.phones);
       if (person) {
+        let employment = r.employment_check;
+        if (r.import_phone_match && employment === 'unconfirmed') employment = 'confirmed';
         const decision = evaluateProviderPhone({
           rawNumber: person.number,
           providerType: person.type,
           companyLandline: out?.landline,
-          employment: r.employment_check,
+          employment,
           employerName: out?.company_name,
           returnedCompany: r.company_name,
         });
-        const existingDigits = phoneDigits(c?.phone || c?.mobile);
-        const alreadyPersonNumber = !!existingDigits && existingDigits !== phoneDigits(out?.landline);
+        // Import-phone agreement raises confidence on a newly revealed extra.
+        const confidence = r.import_phone_match
+          ? Math.max(decision.confidence, 90)
+          : decision.confidence;
         const stamp = {
           phone_type: decision.type,
           phone_status: decision.status,
           phone_source: 'lusha',
           phone_retrieved_at: now,
-          phone_confidence: decision.confidence,
+          phone_confidence: confidence,
           phone_review_reason: decision.reviewReason || '',
-          employment_check: r.employment_check,
+          employment_check: employment,
+          import_phone_match: !!r.import_phone_match,
         };
         if (decision.promote && !alreadyPersonNumber) {
           // Only a mobile for a confirmed current employer may become the
@@ -377,12 +395,13 @@ async function lushaEnrich(
           out.field_provenance = {
             ...(out.field_provenance || {}),
             phone: {
-              source_provider: 'lusha', confidence: decision.confidence, enriched_at: now,
+              source_provider: 'lusha', confidence, enriched_at: now,
               verified_at: null,
               provider_value: person.number || person.normalised || '',
               phone_type: 'mobile',
               normalised: decision.uk.e164, phone_status: decision.status,
-              employment_check: r.employment_check, returned_company: r.company_name || '',
+              employment_check: employment, returned_company: r.company_name || '',
+              import_phone_match: !!r.import_phone_match,
             },
           };
         } else if (alreadyPersonNumber && decision.promote && decision.uk.valid
@@ -390,7 +409,7 @@ async function lushaEnrich(
           // Imported / existing number stays primary. Lusha is kept beside it
           // for export and review — never an overwrite.
           c.lusha_mobile = decision.uk.national;
-          c.lusha_phone_status = decision.status;
+          c.lusha_phone_status = r.import_phone_match ? 'import_confirmed_extra' : decision.status;
           c.lusha_phone_retrieved_at = now;
           // Mirror onto the prospect root only for the primary person — never
           // stamp one sibling's Lusha number onto the whole company record.
@@ -420,12 +439,15 @@ async function lushaEnrich(
             contact_name: c?.name || '',
             new_value: decision.uk.national,
             phone_type: 'mobile',
-            confidence: decision.confidence,
-            explanation: 'An existing number was kept. Lusha returned an additional mobile stored separately for export.',
-            employment_check: r.employment_check,
+            confidence,
+            explanation: r.import_phone_match
+              ? 'Lusha matched the import mobile (identity confirmed) and returned an additional mobile stored separately for export.'
+              : 'An existing number was kept. Lusha returned an additional mobile stored separately for export.',
+            employment_check: employment,
             returned_company: r.company_name || '',
+            import_phone_match: !!r.import_phone_match,
           });
-        } else if (!alreadyPersonNumber && decision.uk.valid && !decision.isSwitchboard && r.employment_check !== 'mismatch') {
+        } else if (!alreadyPersonNumber && decision.uk.valid && !decision.isSwitchboard && employment !== 'mismatch') {
           // A landline, or a match we could not confirm, is preserved and
           // labelled — stored as a direct line, never as a mobile.
           c.direct_dial = c.direct_dial || decision.uk.national;

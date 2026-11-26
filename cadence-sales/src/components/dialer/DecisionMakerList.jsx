@@ -1,5 +1,6 @@
 import React from "react";
-import { Phone, PhoneOff, CheckCircle2, AlertCircle, Pencil } from "lucide-react";
+import { Phone, PhoneOff, CheckCircle2, AlertCircle, Pencil, Smartphone } from "lucide-react";
+import LushaBadge, { isLushaSource } from "@/components/phones/LushaBadge";
 
 // Selectable list of decision-maker Contacts under the current Company.
 // Clicking a row selects it as the person to dial. Reuses one
@@ -41,15 +42,27 @@ export default function DecisionMakerList({ contacts, selectedId, onSelect, onEd
                 </div>
                 {active && <CheckCircle2 className="w-4 h-4 text-slate-900 shrink-0" />}
               </div>
-              <div className="flex items-center gap-3 mt-1.5 text-xs">
+              <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs">
                 {c.phone ? (
-                  <span className={`inline-flex items-center gap-1 ${undialable ? "text-rose-500" : "text-slate-600"}`}>
+                  <span className={`inline-flex items-center gap-1 ${
+                    undialable ? "text-rose-500"
+                      : isLushaSource(c.phone_source) ? "text-purple-800 font-medium"
+                      : "text-slate-600"
+                  }`}>
                     {undialable ? <PhoneOff className="w-3 h-3" /> : <Phone className="w-3 h-3" />}
                     {c.phone}
+                    {isLushaSource(c.phone_source) ? <LushaBadge /> : null}
                   </span>
                 ) : (
                   <span className="text-slate-400">No number</span>
                 )}
+                {c.lusha_mobile && String(c.lusha_mobile).replace(/\D/g, "") !== String(c.phone || "").replace(/\D/g, "") ? (
+                  <span className="inline-flex items-center gap-1 text-purple-800 font-medium">
+                    <Smartphone className="w-3 h-3" />
+                    {c.lusha_mobile}
+                    <LushaBadge />
+                  </span>
+                ) : null}
                 {(c.call_count || 0) > 0 && (
                   <span className="text-amber-600">Called {c.call_count}×</span>
                 )}

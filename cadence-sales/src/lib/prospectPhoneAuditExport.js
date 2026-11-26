@@ -17,7 +17,7 @@ export const PHONE_AUDIT_HEADERS = [
   "Job title",
   "Import mobile",
   "Primary mobile",
-  "Lusha mobile",
+  "Lusha",
   "Direct dial",
   "Switchboard",
   "Phone source",

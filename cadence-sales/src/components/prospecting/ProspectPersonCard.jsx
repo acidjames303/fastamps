@@ -1,6 +1,7 @@
 import React from "react";
 import { BadgeCheck, Mail, Phone, Smartphone } from "lucide-react";
 import { isUkMobileNumber } from "@/lib/enrichmentRun";
+import LushaBadge, { isLushaSource } from "@/components/phones/LushaBadge";
 
 // One named person from enrichment — everything visible, no collapse.
 export default function ProspectPersonCard({ contact }) {
@@ -14,11 +15,7 @@ export default function ProspectPersonCard({ contact }) {
   const direct = contact?.direct_dial
     || ([contact?.phone, contact?.mobile].find((n) => n && !isUkMobileNumber(n)) || "");
   const email = contact?.email || "";
-  const sourceLabel = contact?.phone_source === "import"
-    ? "Import"
-    : contact?.phone_source === "lusha"
-      ? "Lusha"
-      : contact?.phone_source || "";
+  const primaryIsLusha = isLushaSource(contact?.phone_source);
 
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2.5 space-y-1.5">
@@ -31,10 +28,15 @@ export default function ProspectPersonCard({ contact }) {
         {mobile ? (
           <a
             href={`tel:${mobile.replace(/\s+/g, "")}`}
-            className="flex items-center gap-1.5 text-sm font-medium text-emerald-700 hover:underline"
+            className={`flex items-center gap-1.5 text-sm font-medium hover:underline ${
+              primaryIsLusha ? "text-purple-800" : "text-emerald-700"
+            }`}
           >
-            <Smartphone className="w-3.5 h-3.5 flex-none" />
-            <span>Mobile · {mobile}{sourceLabel ? ` · ${sourceLabel}` : ""}</span>
+            <Smartphone className={`w-3.5 h-3.5 flex-none ${primaryIsLusha ? "text-purple-700" : ""}`} />
+            <span>Mobile · {mobile}</span>
+            {primaryIsLusha ? <LushaBadge /> : contact?.phone_source === "import" ? (
+              <span className="text-[10px] font-medium text-slate-500">Import</span>
+            ) : null}
           </a>
         ) : (
           <p className="flex items-center gap-1.5 text-xs text-amber-700">
@@ -46,10 +48,11 @@ export default function ProspectPersonCard({ contact }) {
         {lushaMobile ? (
           <a
             href={`tel:${lushaMobile.replace(/\s+/g, "")}`}
-            className="flex items-center gap-1.5 text-xs font-medium text-sky-700 hover:underline"
+            className="flex items-center gap-1.5 text-xs font-medium text-purple-800 hover:underline"
           >
-            <Smartphone className="w-3.5 h-3.5 flex-none" />
-            <span>Lusha mobile · {lushaMobile}</span>
+            <Smartphone className="w-3.5 h-3.5 flex-none text-purple-700" />
+            <span>Lusha · {lushaMobile}</span>
+            <LushaBadge />
           </a>
         ) : null}
 

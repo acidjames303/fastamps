@@ -22,6 +22,9 @@ export interface LushaInputContact {
   linkedin?: string;
   email?: string;
   lusha_id?: string;
+  /** Existing import/primary mobile — used after reveal to confirm the match. */
+  mobile?: string;
+  phone?: string;
 }
 
 export interface LushaCompany {
@@ -90,6 +93,10 @@ export interface LushaPersonResult {
   company_domain: string;
   location: string;
   employment_check: 'confirmed' | 'mismatch' | 'unconfirmed';
+  /** True when a returned Lusha phone matches the import/primary mobile we already held. */
+  import_phone_match: boolean;
+  /** Digits of the import/primary mobile used for the match check (empty if none). */
+  known_mobile_digits: string;
 }
 
 export interface LushaCompanyContext {
@@ -235,8 +242,9 @@ function mapEmail(raw: any): LushaEmail | null {
   return { email, type: raw?.type || 'unknown', confidence: raw?.confidence || '' };
 }
 
-// Builds the `contacts[]` entries. Each entry uses the strongest identifier we
-// hold, in the documented priority order.
+// Builds the `contacts[]` entries. Lusha accepts at least one identifier
+// combination; we stack every strong identifier we hold so common names match
+// more accurately (LinkedIn + email + name/company together beats name alone).
 export function buildRequestContacts(
   list: LushaInputContact[],
   company: LushaCompany,
@@ -252,28 +260,48 @@ export function buildRequestContacts(
     const linkedin = normaliseLinkedinUrl(contact?.linkedin || '');
     const email = String(contact?.email || '').trim();
     const { firstName, lastName } = splitPersonName(contact?.name || '');
+    const hasNameCompany = !!(firstName && lastName && (companyDomain || companyName));
+    const hasEmail = !!(email && /@/.test(email));
 
     if (lushaId) entry.id = lushaId;
-    else if (linkedin) entry.linkedinUrl = linkedin;
-    else if (email && /@/.test(email)) entry.email = email;
-    else if (firstName && lastName && (companyDomain || companyName)) {
+    if (linkedin) entry.linkedinUrl = linkedin;
+    if (hasEmail) entry.email = email;
+    if (hasNameCompany) {
       entry.firstName = firstName;
       entry.lastName = lastName;
       if (companyDomain) entry.companyDomain = companyDomain;
       if (companyName) entry.companyName = companyName;
-    } else {
+    }
+
+    const hasIdentifier = !!(entry.id || entry.linkedinUrl || entry.email || (entry.firstName && entry.lastName));
+    if (!hasIdentifier) {
       missing.push(index);
       return;
     }
 
-    // Company context helps Lusha disambiguate common names even when we
-    // matched on a stronger identifier.
+    // Company context helps Lusha disambiguate even when we matched on LinkedIn/email/id.
     if (!entry.companyDomain && companyDomain) entry.companyDomain = companyDomain;
     if (!entry.companyName && companyName) entry.companyName = companyName;
     body.push(entry);
   });
 
   return { body, missing };
+}
+
+/** Digits-only form used to compare an import mobile with Lusha returns. */
+export function phoneMatchDigits(raw: string): string {
+  const e164 = normalisePhone(raw);
+  return e164.replace(/\D/g, '');
+}
+
+/** True when any returned Lusha phone matches the known import/primary mobile. */
+export function lushaPhonesMatchKnownMobile(phones: LushaPhone[], knownRaw: string): boolean {
+  const known = phoneMatchDigits(knownRaw);
+  if (!known || known.length < 10) return false;
+  return (phones || []).some((p) => {
+    const got = phoneMatchDigits(p?.normalised || p?.number || '');
+    return !!got && (got === known || got.endsWith(known) || known.endsWith(got));
+  });
 }
 
 const LEGAL_WORDS = /\b(ltd|limited|plc|llp|co|company|group|holdings|holding|uk|the|and)\b/g;
@@ -343,6 +371,8 @@ export async function lushaSearchAndEnrich(
       company_domain: '',
       location: '',
       employment_check: 'unconfirmed' as const,
+      import_phone_match: false,
+      known_mobile_digits: '',
     })),
   };
 
@@ -445,6 +475,8 @@ export async function lushaSearchAndEnrich(
         company_domain: '',
         location: '',
         employment_check: 'unconfirmed' as const,
+        import_phone_match: false,
+        known_mobile_digits: phoneMatchDigits(contact?.mobile || contact?.phone || ''),
       };
     }
 
@@ -461,13 +493,18 @@ export async function lushaSearchAndEnrich(
     // A returned domain that contradicts the one we asked about is a stronger
     // signal than a name that happens to share a word.
     const domainConflict = !!matchedDomain && !!requestedDomain && matchedDomain !== requestedDomain;
+    const knownMobile = String(contact?.mobile || contact?.phone || '').trim();
+    const known_mobile_digits = phoneMatchDigits(knownMobile);
+    const import_phone_match = lushaPhonesMatchKnownMobile(phones, knownMobile);
     // "Confirmed" needs positive evidence of the current employer; silence is
-    // never treated as confirmation.
-    const employment_check: 'confirmed' | 'mismatch' | 'unconfirmed' = !matched
+    // never treated as confirmation. An import-phone match is strong identity
+    // evidence and lifts an unconfirmed employer to confirmed.
+    let employment_check: 'confirmed' | 'mismatch' | 'unconfirmed' = !matched
       ? 'unconfirmed'
       : (wrongCompany || domainConflict) ? 'mismatch'
         : (matchedCompany || matchedDomain) ? 'confirmed'
           : 'unconfirmed';
+    if (import_phone_match && employment_check === 'unconfirmed') employment_check = 'confirmed';
 
     let status: LushaStatus;
     if (!matched) status = 'contact_not_matched';
@@ -492,6 +529,8 @@ export async function lushaSearchAndEnrich(
       company_domain: matchedDomain,
       location: String(row?.location?.name || row?.location || ''),
       employment_check,
+      import_phone_match,
+      known_mobile_digits,
     };
   });
 
@@ -524,10 +563,24 @@ export async function lushaSearchAndEnrich(
   return base;
 }
 
+function excludeKnown(phones: LushaPhone[], excludeDigits?: string): LushaPhone[] {
+  const skip = String(excludeDigits || '').replace(/\D/g, '');
+  if (!skip) return phones || [];
+  return (phones || []).filter((p) => {
+    const got = phoneMatchDigits(p?.normalised || p?.number || '');
+    return !got || (got !== skip && !got.endsWith(skip) && !skip.endsWith(got));
+  });
+}
+
 // Picks the best number for a named contact: a personal mobile first, then a
 // direct dial. A company switchboard is never treated as a person's mobile.
-export function pickPersonNumber(phones: LushaPhone[]): LushaPhone | null {
-  const usable = (phones || []).filter((p) => p && p.normalised && p.valid && !p.doNotCall);
+// Pass excludeDigits (import mobile) when seeking an *extra* Lusha number.
+export function pickPersonNumber(
+  phones: LushaPhone[],
+  opts?: { excludeDigits?: string },
+): LushaPhone | null {
+  const usable = excludeKnown(phones, opts?.excludeDigits)
+    .filter((p) => p && p.normalised && p.valid && !p.doNotCall);
   const mobile = usable.find((p) => p.isMobile);
   if (mobile) return mobile;
   const direct = usable.find((p) => p.isDirect);
@@ -536,8 +589,12 @@ export function pickPersonNumber(phones: LushaPhone[]): LushaPhone | null {
 }
 
 // Strictly mobile-only selection, for callers that must not receive a landline.
-export function pickMobileNumber(phones: LushaPhone[]): LushaPhone | null {
-  return (phones || []).find((p) => p && p.normalised && p.valid && p.isMobile && !p.doNotCall) || null;
+export function pickMobileNumber(
+  phones: LushaPhone[],
+  opts?: { excludeDigits?: string },
+): LushaPhone | null {
+  return excludeKnown(phones, opts?.excludeDigits)
+    .find((p) => p && p.normalised && p.valid && p.isMobile && !p.doNotCall) || null;
 }
 
 export function pickSwitchboardNumber(phones: LushaPhone[]): LushaPhone | null {
