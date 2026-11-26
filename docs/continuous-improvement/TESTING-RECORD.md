@@ -49,3 +49,14 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | Post-import checkpoint | **Pass** | `6b08024b0e74ae5ed82356b1` — CI-003 Company list multi-worksheet UX import |
 | Site deploy `--publish --build` | **Pass** | evasive-dial-flow-go / cadence.smartfunction.io |
 | Live bundle strings | **Pass** | Company list · every worksheet · multiple files · Find prospects (`index-CIflvdVW.js`) |
+
+## CI-015 visible Company list UX — 26 Nov 2026 ~10:05 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Pre-import checkpoint | **Pass** | `6b08038085787a512f9e0de8` |
+| Sandbox write | **Pass** | `SpreadsheetImportPreview.jsx` + `ImportResearchSection.jsx` |
+| Post checkpoint | **Pass** | `6b08038d6e589fe7ef45645d` — CI-015 visible Company list import UX |
+| Site deploy `--publish --build` | **Pass** | bundle `index-B6_qyEG-.js` (changed from `index-CIflvdVW.js`) |
+| Live strings | **Pass** | Campaigns · Find prospects · Drag and drop or · choose file · Worksheets merged · Reading every worksheet |
+| Visual preview | **Pass** | `/opt/cursor/artifacts/ci015-company-list-ux/` fanned icons (auth blocks live click-through) |

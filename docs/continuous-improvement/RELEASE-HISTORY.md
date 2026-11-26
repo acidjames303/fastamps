@@ -136,3 +136,16 @@ James confirmed live Prospecting is **Campaigns → Find prospects → Import ex
 3. Sandbox checkpoint **CI-003 Company list multi-worksheet UX import** (`6b08024b0e74ae5ed82356b1`).
 4. `base44 site deploy --publish --build` — live still serves Company list · every worksheet · multiple files.
 
+---
+
+## CI-015 — 26 Nov 2026 ~10:05 (Europe/London)
+
+James reported the Company list still looked unchanged (CI-003 was merge logic + copy). Visible polish on **Campaigns → Find prospects → Import existing research → Company list** only:
+
+- Fanned spreadsheet icons + “Drag and drop or choose file”
+- Per-file reading queue with type chips + progress
+- Stat tiles (companies / new / worksheets / files) and **Worksheets merged** breakdown
+- Clearer section eyebrow/heading; research pack card as “next” step
+- Checkpoints: `6b08038085787a512f9e0de8` (before) · `6b08038d6e589fe7ef45645d` (CI-015)
+- Live bundle `index-B6_qyEG-.js`
+

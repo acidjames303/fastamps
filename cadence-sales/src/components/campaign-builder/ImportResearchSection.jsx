@@ -67,15 +67,18 @@ export default function ImportResearchSection({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 space-y-2">
-        <h3 className="font-display text-xl font-semibold text-slate-900">Import existing research</h3>
+      <div className="space-y-1.5 px-0.5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+          Campaigns · Find prospects
+        </p>
+        <h3 className="font-display text-2xl font-semibold text-slate-900">Import existing research</h3>
         <p className="max-w-2xl text-sm text-slate-500">
-          Use a campaign you are starting or one already running. Imported records are added alongside what is already
-          there — nothing existing is overwritten, and every account keeps the document it came from.
+          Start with a company list — every Excel worksheet is merged. Research packs attach after the accounts
+          are in. Nothing already on this campaign is overwritten.
         </p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
         <SpreadsheetImportPreview
           listId={listId}
           existingProspects={prospects}
@@ -87,11 +90,11 @@ export default function ImportResearchSection({
         {prospects.length ? (
           <ResearchImportPanel listId={listId} prospects={prospects} onImported={() => onImported?.(listId)} />
         ) : (
-          <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5">
-            <p className="text-sm font-semibold text-slate-900">Research pack</p>
-            <p className="mt-1 text-xs text-slate-500">
-              Add the companies first — research is filed against the accounts already in this list. PDF, Word,
-              Markdown and text all work.
+          <div className="rounded-2xl border border-dashed border-slate-200 bg-gradient-to-br from-slate-50 to-emerald-50/40 p-5">
+            <p className="text-sm font-semibold text-slate-900">Research pack next</p>
+            <p className="mt-1 text-xs leading-relaxed text-slate-500">
+              Add companies on the left first. Then drop PDF, Word, Markdown or text research here — each pack
+              stays filed against the accounts already in this list.
             </p>
           </div>
         )}
