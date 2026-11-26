@@ -192,3 +192,15 @@ Four-way Find prospects hub matching how James starts work:
 
 Workflow chips: Start → Companies → Review → Enrich → Call/Outreach → Results.  
 Live bundle `index-Cnv1JfxO.js`. Audit: `docs/CADENCE_UX_RELEASE_AUDIT.md`.
+
+---
+
+## CI-019 — 26 Nov 2026 ~12:00 (Europe/London)
+
+Phase 2 guided workflow:
+
+1. Campaign **Recommended next** (add companies / find contacts / activate / call)  
+2. Today **what next** strip (callbacks vs build pipeline)  
+3. Unified import — removed Import CSV tab; redirects into Find prospects Import  
+
+Live bundle `index-B0J2UY2L.js`.

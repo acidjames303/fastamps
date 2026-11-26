@@ -13,6 +13,7 @@ import ScheduleDialog from "@/components/today/ScheduleDialog";
 import { firstName, formatLastCalled } from "@/lib/today";
 import { useAuth } from "@/lib/AuthContext";
 import ContextHelp from "@/components/help/ContextHelp";
+import TodayNextStep from "@/components/today/TodayNextStep";
 
 const CAMPAIGN_KEY = "cadence_today_campaign";
 
@@ -30,6 +31,7 @@ export default function Today() {
   const [resultsFilter, setResultsFilter] = useState(null);
   const [pendingIrs, setPendingIrs] = useState(0);
   const isAdmin = ["platform_owner", "organisation_admin"].includes(user?.app_role);
+  const canProspect = ["platform_owner", "organisation_admin", "sales_manager"].includes(user?.app_role);
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 30000);
@@ -161,6 +163,18 @@ export default function Today() {
         </Button>
       </div>
 
+      <TodayNextStep
+        dueNow={(sections.due_now || []).length}
+        overdue={(sections.overdue || []).length}
+        newProspects={(sections.new_prospects || []).length}
+        pendingIrs={pendingIrs}
+        canProspect={canProspect}
+        isAdmin={isAdmin}
+        hasCallingWork={hasWork}
+        onStartCalling={startCalling}
+        starting={starting}
+      />
+
       {/* Campaign toggle — work one campaign at a time */}
       {(work?.campaigns || []).length > 1 && (
         <div className="flex flex-wrap items-center gap-2">
@@ -237,7 +251,19 @@ export default function Today() {
         <div className="rounded-3xl bg-white border border-slate-200 p-12 text-center">
           <Inbox className="w-8 h-8 text-slate-300 mx-auto mb-3" />
           <h2 className="font-display text-xl font-semibold text-slate-900">You're all caught up</h2>
-          <p className="text-slate-500 mt-1">No tasks due today. Approve prospects in Prospecting to build your queue.</p>
+          <p className="text-slate-500 mt-1">
+            {canProspect
+              ? "No tasks due today — build the pipeline or continue a campaign."
+              : "No tasks due today. New work will appear here when it is pushed to you."}
+          </p>
+          {canProspect && (
+            <Link
+              to="/campaigns?tab=prospect"
+              className="mt-4 inline-flex items-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-500"
+            >
+              Find prospects <ArrowRight className="ml-1.5 h-4 w-4" />
+            </Link>
+          )}
         </div>
       )}
 

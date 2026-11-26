@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import DictateButton from "@/components/dialer/DictateButton";
 import {
-  Plus, Phone, Users, Loader2, Play, Pause, Target, Upload,
+  Plus, Users, Loader2, Play, Pause, Target, Upload,
   ArrowRight, Search, CheckCircle2, Pencil, ClipboardList,
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
@@ -14,12 +14,11 @@ import DeleteCampaignDialog from "@/components/campaigns/DeleteCampaignDialog";
 import RenameCampaignDialog from "@/components/campaigns/RenameCampaignDialog";
 import PushProgress from "@/components/PushProgress";
 import Prospecting from "@/pages/Prospecting";
-import Import from "@/pages/Import";
+import CampaignNextStep from "@/components/campaigns/CampaignNextStep";
 
 const TABS = [
   { id: "campaigns", label: "Campaigns" },
   { id: "prospect", label: "Find prospects" },
-  { id: "import", label: "Import CSV" },
 ];
 
 const STATUS_TONE = {
@@ -82,6 +81,16 @@ export default function Campaigns() {
     next.delete("new");
     setParams(next, { replace: true });
   };
+
+  // Legacy Import CSV tab → Find prospects Import (one door, not two).
+  useEffect(() => {
+    if (params.get("tab") === "import") {
+      const next = new URLSearchParams(params);
+      next.set("tab", "prospect");
+      next.set("import", "1");
+      setParams(next, { replace: true });
+    }
+  }, [params, setParams]);
 
   const load = async () => {
     try {
@@ -288,7 +297,6 @@ export default function Campaigns() {
           <Prospecting embedded />
         </div>
       )}
-      {tab === "import" && canProspect && <Import embedded />}
 
       {tab === "campaigns" && (
         <>
@@ -374,8 +382,12 @@ export default function Campaigns() {
                     <Button variant="outline" className="rounded-full" onClick={() => setTab("prospect")}>
                       <Target className="w-4 h-4 mr-2" /> Find prospects
                     </Button>
-                    <Button variant="outline" className="rounded-full" onClick={() => setTab("import")}>
-                      <Upload className="w-4 h-4 mr-2" /> Import CSV
+                    <Button
+                      variant="outline"
+                      className="rounded-full"
+                      onClick={() => navigate("/campaigns?tab=prospect&import=1")}
+                    >
+                      <Upload className="w-4 h-4 mr-2" /> Import research
                     </Button>
                   </>
                 )}
@@ -459,68 +471,64 @@ export default function Campaigns() {
                             </p>
                           )}
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                          {isManager && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="rounded-full h-9"
-                              disabled={statusBusy === c.id || ["completed", "archived"].includes(c.status)}
-                              onClick={() => toggleStatus(c)}
-                            >
-                              {statusBusy === c.id ? <Loader2 className="w-4 h-4 animate-spin" /> : isActive ? <Pause className="w-4 h-4 mr-1" /> : <Play className="w-4 h-4 mr-1" />}
-                              {isActive ? "Pause" : "Activate"}
-                            </Button>
-                          )}
-                          <Button
-                            size="sm"
-                            className="rounded-full h-9 bg-emerald-600 hover:bg-emerald-700"
-                            onClick={() => navigate(`/dialer?list=${c.id}`)}
-                          >
-                            <Phone className="w-4 h-4 mr-1" /> Start calling
-                          </Button>
+                      </div>
+
+                      <CampaignNextStep
+                        campaign={c}
+                        companies={companiesIn(c)}
+                        contacts={contactsIn(c)}
+                        canProspect={canProspect}
+                        isManager={isManager}
+                        activating={statusBusy === c.id}
+                        onActivate={toggleStatus}
+                      />
+
+                      <div className="flex flex-wrap gap-2">
+                        {isManager && (
                           <Button
                             size="sm"
                             variant="outline"
                             className="rounded-full h-9"
-                            onClick={() => navigate(`/contacts?campaign=${c.id}`)}
-                            title="See the contacts in this campaign"
+                            disabled={statusBusy === c.id || ["completed", "archived"].includes(c.status)}
+                            onClick={() => toggleStatus(c)}
                           >
-                            <Users className="w-4 h-4 mr-1" /> Contacts
+                            {statusBusy === c.id ? <Loader2 className="w-4 h-4 animate-spin" /> : isActive ? <Pause className="w-4 h-4 mr-1" /> : <Play className="w-4 h-4 mr-1" />}
+                            {isActive ? "Pause" : "Activate"}
                           </Button>
-                          {isManager && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="rounded-full h-9"
-                              onClick={() => { setPushFor(c); setPushCaller(callers[0]?.user_id || ""); }}
-                              disabled={!callers.length}
-                              title={callers.length ? "Push into an SDR account" : "Invite a caller on Team first"}
-                            >
-                              <Users className="w-4 h-4 mr-1" /> Push to team
-                            </Button>
-                          )}
-                          <Link to={`/target-lists/${c.id}`}>
-                            <Button size="sm" variant="ghost" className="rounded-full h-9">
-                              Open <ArrowRight className="w-4 h-4 ml-1" />
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-wrap gap-2">
-                        <Link to={`/campaign-delivery/${c.id}`}><Button size="sm" variant="outline">Data quality & review</Button></Link>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="rounded-full h-9"
+                          onClick={() => navigate(`/contacts?campaign=${c.id}`)}
+                          title="See the contacts in this campaign"
+                        >
+                          <Users className="w-4 h-4 mr-1" /> Contacts
+                        </Button>
+                        {isManager && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="rounded-full h-9"
+                            onClick={() => { setPushFor(c); setPushCaller(callers[0]?.user_id || ""); }}
+                            disabled={!callers.length}
+                            title={callers.length ? "Push into an SDR account" : "Invite a caller on Team first"}
+                          >
+                            <Users className="w-4 h-4 mr-1" /> Push to team
+                          </Button>
+                        )}
+                        <Link to={`/target-lists/${c.id}`}>
+                          <Button size="sm" variant="ghost" className="rounded-full h-9">
+                            Open <ArrowRight className="w-4 h-4 ml-1" />
+                          </Button>
+                        </Link>
+                        <Link to={`/campaign-delivery/${c.id}`}><Button size="sm" variant="outline" className="rounded-full">Data quality</Button></Link>
                         <Button size="sm" variant="outline" className="rounded-full" onClick={() => navigate(`/campaigns/${c.id}/accounts`)}>
                           <ClipboardList className="w-3.5 h-3.5 mr-1" /> Accounts &amp; notes
                         </Button>
                         {canProspect && (
                           <Button size="sm" variant="outline" className="rounded-full" onClick={() => navigate(`/campaigns?tab=prospect&campaign=${c.id}`)}>
                             <Target className="w-3.5 h-3.5 mr-1" /> Find prospects
-                          </Button>
-                        )}
-                        {canProspect && (
-                          <Button size="sm" variant="outline" className="rounded-full" onClick={() => setTab("import")}>
-                            <Upload className="w-3.5 h-3.5 mr-1" /> Import CSV
                           </Button>
                         )}
                         {isAdmin && (

@@ -99,3 +99,35 @@
 3. Today page CTA for `canProspect` users: “Continue finding prospects”.  
 4. Malcolm / Aileen journey walkthrough with real roles.  
 5. Large-list import + export regression at 3k+ rows.
+
+---
+
+## Phase 2 — CI-019 guided next actions (26 Nov 2026 ~12:00 Europe/London)
+
+JP confirmed CI-018 hub is visible. This cycle targets connected workflow friction, not another start-hub redesign.
+
+### Three improvements (scored & shipped)
+
+| # | Problem | Fix | Where | Impact |
+|---|---|---|---|---|
+| 1 | Campaign cards show many equal buttons — unclear what to do next | **Recommended next** from company/contact/status | Campaigns list | One primary action: Add companies → Find contacts → Activate → Start calling |
+| 2 | Today is the home screen but does not guide pipeline builders or resume callers | **Today · what next** strip | Today (`/app`) | Callers see callbacks; JP/Malcolm see Find prospects when queue empty |
+| 3 | Duplicate **Import CSV** tab vs Find prospects Import | Removed Import CSV tab; `/import` and `?tab=import` redirect to Find prospects Import | Campaigns nav | One import door |
+
+### Verification
+
+| Check | Result |
+|---|---|
+| Unit `campaign-next-action.test.mjs` | Pass |
+| `npm run build` | Pass → `index-B0J2UY2L.js` |
+| Live cadence.smartfunction.io bundle | **`index-B0J2UY2L.js`** with Today · what next · Recommended next · Build today's pipeline |
+| `Import CSV` label count in live bundle | **0** |
+| Authenticated E2E | Still blocked (no login session) — component screenshots + live string proof |
+| Screenshots | `docs/audit/ci019-guided-next/` |
+| Checkpoints | `6b081e58…` before · `6b081eb1…` CI-019 |
+
+### Next three priorities (for following runs)
+
+1. Today → Dialer continuity: show which campaign/contact was last worked with one-click resume.  
+2. After enrichment completes: surface useful results + recommended next (call / outreach) in-place.  
+3. Manager “needs attention” rollup across campaigns without leaving Campaigns.

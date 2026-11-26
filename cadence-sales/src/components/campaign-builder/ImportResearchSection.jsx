@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { CircleAlert, FileText, Loader2, Mail, Phone, ShieldCheck, Sparkles } from "lucide-react";
@@ -129,6 +130,12 @@ export default function ImportResearchSection({
           </div>
 
           <div className="flex flex-wrap gap-2">
+            <Link
+              to="/dialer"
+              className="inline-flex items-center rounded-full bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-500"
+            >
+              <Phone className="mr-1.5 h-3.5 w-3.5" /> Start calling
+            </Link>
             <Button
               variant="outline"
               size="sm"

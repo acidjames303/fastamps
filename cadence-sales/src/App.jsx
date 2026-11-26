@@ -156,7 +156,7 @@ const AuthenticatedApp = () => {
           <Route path="/campaign-setup" element={<Navigate to="/campaigns?new=1" replace />} />
           <Route path="/campaign-management" element={<Navigate to="/campaigns" replace />} />
           <Route path="/prospecting" element={<Navigate to="/campaigns?tab=prospect" replace />} />
-          <Route path="/import" element={<Navigate to="/campaigns?tab=import" replace />} />
+          <Route path="/import" element={<Navigate to="/campaigns?tab=prospect&import=1" replace />} />
           <Route path="/campaign-delivery/:id" element={<RoleGuard roles={MANAGER}><CampaignDelivery /></RoleGuard>} />
           <Route path="/campaigns/:id/accounts" element={<RoleGuard roles={CAMPAIGN_VIEW}><CampaignAccounts /></RoleGuard>} />
           <Route path="/review-queue" element={<RoleGuard roles={MANAGER}><ReviewQueue /></RoleGuard>} />
