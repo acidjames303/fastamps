@@ -489,3 +489,15 @@ Removed the full-width Enrich button from the Brief/ICP `<details>` tools column
 Frontend-only. Rollback SHA: `98a8fd0`. Live `index-D-9MX2NG.js`.
 
 **Next:** CI-035 owner connects email · CI-042 Grow panel demote Replace.
+
+---
+
+## CI-042 — 27 Nov 2026 ~21:05 (Europe/London)
+
+**Grow panel — one search decision.**
+
+Primary CTA only: **Find up to 100 similar** → after results, becomes **Find 100 more**. **Replace results** is a ghost secondary (no longer a peer green button).
+
+Frontend-only. Rollback SHA: `aef56a0`. Live `index-MvCkPw1s.js`.
+
+**Next:** CI-035 owner connects email. Stop inventing peer UX polish until friction reported.

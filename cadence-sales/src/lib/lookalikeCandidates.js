@@ -12,3 +12,11 @@ export function mergeLookalikeCandidates(existing = [], incoming = []) {
 }
 
 export const LOOKALIKE_BATCH_SIZE = 100;
+
+/** One primary search CTA; Replace is secondary only after a batch exists. */
+export function lookalikeSearchMode({ candidateCount = 0 } = {}) {
+  if (candidateCount > 0) {
+    return { primary: "find_more", secondary: "replace" };
+  }
+  return { primary: "find_first", secondary: null };
+}

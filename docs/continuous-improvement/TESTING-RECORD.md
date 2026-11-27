@@ -228,3 +228,12 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | Enrich entry points | **Pass** | details CTA removed; toolbar `openEnrichDialog` remains |
 | Secrets / credits / send | **Pass** | Frontend-only; no enrich invoke in cycle |
 | `base44 deploy -y --build` | **Pass** | Live `index-D-9MX2NG.js` · Enrich selected/all; no “Enrich N companies” in brief tools |
+
+## CI-042 Grow one search CTA — 27 Nov 2026 ~21:05 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Unit: `lookalike-candidates.test.mjs` | **Pass** | search mode find_first / find_more + replace secondary |
+| `npm run build` | **Pass** | → `index-MvCkPw1s.js` |
+| Secrets / discovery credits | **Pass** | Frontend-only; no discover invoke |
+| `base44 deploy -y --build` | **Pass** | Live `index-MvCkPw1s.js` · Find 100 more primary · Replace ghost |

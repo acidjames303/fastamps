@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { LOOKALIKE_BATCH_SIZE, mergeLookalikeCandidates } from "../src/lib/lookalikeCandidates.js";
+import {
+  LOOKALIKE_BATCH_SIZE,
+  lookalikeSearchMode,
+  mergeLookalikeCandidates,
+} from "../src/lib/lookalikeCandidates.js";
 
 describe("lookalikeCandidates", () => {
   it("defaults batch size to 100", () => {
@@ -19,5 +23,16 @@ describe("lookalikeCandidates", () => {
     assert.equal(merged.length, 3);
     assert.equal(merged[1].name, "Beta PLC");
     assert.equal(merged[2].name, "Gamma");
+  });
+
+  it("exposes one primary search CTA; Replace only after results exist", () => {
+    assert.deepEqual(lookalikeSearchMode({ candidateCount: 0 }), {
+      primary: "find_first",
+      secondary: null,
+    });
+    assert.deepEqual(lookalikeSearchMode({ candidateCount: 12 }), {
+      primary: "find_more",
+      secondary: "replace",
+    });
   });
 });

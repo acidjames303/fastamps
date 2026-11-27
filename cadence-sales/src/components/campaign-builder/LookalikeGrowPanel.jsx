@@ -12,7 +12,11 @@ import {
   parseExcludedCompanyLines,
   parseListIcp,
 } from "@/lib/companyExclusion";
-import { LOOKALIKE_BATCH_SIZE, mergeLookalikeCandidates } from "@/lib/lookalikeCandidates";
+import {
+  LOOKALIKE_BATCH_SIZE,
+  lookalikeSearchMode,
+  mergeLookalikeCandidates,
+} from "@/lib/lookalikeCandidates";
 import ResearchPromptPanel from "@/components/prospecting/ResearchPromptPanel";
 
 /**
@@ -253,41 +257,41 @@ export default function LookalikeGrowPanel({
             Add what you want, then search again for another batch on top.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {candidates.length > 0 && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => discover({ append: true })}
-              disabled={discovering}
-              className="rounded-full border-emerald-300 bg-white text-emerald-900"
-            >
-              {discovering ? (
-                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-              ) : (
-                <Search className="mr-1.5 h-4 w-4" />
+        {(() => {
+          const mode = lookalikeSearchMode({ candidateCount: candidates.length });
+          return (
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                onClick={() => discover({ append: mode.primary === "find_more" })}
+                disabled={discovering}
+                className="rounded-full bg-emerald-600 hover:bg-emerald-500"
+              >
+                {discovering ? (
+                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                ) : (
+                  <Search className="mr-1.5 h-4 w-4" />
+                )}
+                {discovering
+                  ? `Searching up to ${LOOKALIKE_BATCH_SIZE}…`
+                  : mode.primary === "find_more"
+                    ? `Find ${LOOKALIKE_BATCH_SIZE} more`
+                    : `Find up to ${LOOKALIKE_BATCH_SIZE} similar`}
+              </Button>
+              {mode.secondary === "replace" && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => discover({ append: false })}
+                  disabled={discovering}
+                  className="rounded-full text-slate-500 hover:text-slate-800"
+                >
+                  Replace results
+                </Button>
               )}
-              {discovering ? "Searching…" : `Find ${LOOKALIKE_BATCH_SIZE} more`}
-            </Button>
-          )}
-          <Button
-            type="button"
-            onClick={() => discover({ append: candidates.length === 0 })}
-            disabled={discovering}
-            className="rounded-full bg-emerald-600 hover:bg-emerald-500"
-          >
-            {discovering ? (
-              <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-            ) : (
-              <Search className="mr-1.5 h-4 w-4" />
-            )}
-            {discovering
-              ? `Searching up to ${LOOKALIKE_BATCH_SIZE}…`
-              : candidates.length
-                ? "Replace results"
-                : `Find up to ${LOOKALIKE_BATCH_SIZE} similar`}
-          </Button>
-        </div>
+            </div>
+          );
+        })()}
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
