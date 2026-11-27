@@ -438,3 +438,29 @@ Live `index-Bd6RsHtl.js` on cadence.smartfunction.io. Rollback SHA: `a4929fa`.
 **Visibility fix (same day):** production had been overwritten by an older bundle. Redeployed + mounted **Grow the list** on Find prospects whenever a list has companies (not Import-only). Live `index-C7rhMk4F.js`.  
 
 **Next:** CI-035 owner connects email.
+
+---
+
+## CI-038 — 27 Nov 2026 ~11:45 (Europe/London)
+
+**Lookalike batches of 100 + Find 100 more.**
+
+- `discoverCompanies` multi-round (~25×N) with avoid-lists; default/max 100
+- Grow panel: append merge, **Find 100 more** / Replace, auto-select new rows
+- Live `index-BXszHT55.js`. Rollback SHA: `707ef3d`.
+
+---
+
+## CI-039 — 27 Nov 2026 ~12:05 (Europe/London)
+
+**Import “what next” — one ranked CTA (parity with enrichment).**
+
+Post-import panel had up to seven peer-weight buttons; **Start calling** linked to bare `/dialer` (wrong/empty queue).
+
+- `importNextAction` ranks: fill phones → emails → split (large) → call → grow
+- Hero strip: one primary + one secondary; Phones/Emails/Split/TPS/Prompt under **More**
+- Dialer deep-link uses `/dialer?list=…` (campaign or list id) — never bare `/dialer`
+
+Frontend-only. Rollback SHA: `707ef3d`. Live `index-D1gqiQmK.js`.
+
+**Next:** CI-035 owner connects email · CI-040 Campaign card More menu.

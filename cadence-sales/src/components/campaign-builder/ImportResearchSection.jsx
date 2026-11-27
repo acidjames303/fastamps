@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import {
-  CircleAlert, FileText, Loader2, Mail, Phone, ShieldCheck, Sparkles, Split,
+  ArrowRight, CircleAlert, FileText, Loader2, Mail, Phone, ShieldCheck, Sparkles, Split,
 } from "lucide-react";
 import SpreadsheetImportPreview from "@/components/campaign-builder/SpreadsheetImportPreview";
 import ResearchImportPanel from "@/components/prospecting/ResearchImportPanel";
 import ResearchPromptPanel from "@/components/prospecting/ResearchPromptPanel";
 import SplitCampaignData from "@/components/campaigns/SplitCampaignData";
+import { importNextAction } from "@/lib/importNextAction";
 
 
 const numberCount = (prospects) => {
@@ -24,7 +25,7 @@ const numberCount = (prospects) => {
   return { accounts, numbers };
 };
 
-// One import path: companies first, research documents second, then optional next steps.
+// One import path: companies first, research documents second, then one ranked next step.
 // Nothing paid runs without approval; existing accounts are never overwritten.
 export default function ImportResearchSection({
   listId,
@@ -55,6 +56,36 @@ export default function ImportResearchSection({
   const missingEmail = imported.filter((prospect) => !prospect.email);
   const numbers = numberCount(imported);
   const hasAccounts = prospects.length > 0;
+  const canSplit = !!(resolvedCampaign?.id && callers.length);
+
+  const next = useMemo(
+    () => importNextAction({
+      importedCount: imported.length || importedIds.length,
+      missingPhone: missingPhone.length,
+      missingEmail: missingEmail.length,
+      numbersCount: numbers.numbers,
+      campaignId: resolvedCampaign?.id || "",
+      listId: listId || "",
+      canSplit,
+    }),
+    [
+      imported.length,
+      importedIds.length,
+      missingPhone.length,
+      missingEmail.length,
+      numbers.numbers,
+      resolvedCampaign?.id,
+      listId,
+      canSplit,
+    ],
+  );
+
+  const runAction = (action) => {
+    if (action === "scroll_grow") scrollToGrow();
+    else if (action === "fill_phones") onOpenEnrich?.(missingPhone.map((p) => p.id), "phone");
+    else if (action === "fill_emails") onOpenEnrich?.(missingEmail.map((p) => p.id), "email");
+    else if (action === "split") setSplitOpen(true);
+  };
 
   useEffect(() => {
     setResolvedCampaign(campaign);
@@ -117,7 +148,7 @@ export default function ImportResearchSection({
     }
   };
 
-  const canSplit = !!(resolvedCampaign?.id && callers.length);
+  const primaryBusy = (next.action === "fill_phones" || next.action === "fill_emails") && !onOpenEnrich;
 
   return (
     <div className="space-y-5">
@@ -171,79 +202,119 @@ export default function ImportResearchSection({
       )}
 
       {importedIds.length > 0 && (
-        <div className="space-y-3 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4 sm:p-5">
-          <div>
-            <p className="text-sm font-semibold text-emerald-900">
-              {imported.length} account{imported.length === 1 ? "" : "s"} added — what next?
-            </p>
-            <p className="mt-0.5 text-xs text-emerald-800">
-              Call yourself, find similar companies (with client exclusions), or split across the team.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <Link
-              to="/dialer"
-              className="inline-flex items-center rounded-full bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-500"
-            >
-              <Phone className="mr-1.5 h-3.5 w-3.5" /> Start calling
-            </Link>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={scrollToGrow}
-              className="rounded-full border-emerald-400 bg-white text-emerald-900 hover:bg-emerald-50"
-            >
-              <Sparkles className="mr-1.5 h-3.5 w-3.5" /> Find similar companies
-            </Button>
-            {canSplit && (
+        <div className="space-y-3 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50/80 to-white p-4 sm:p-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
+            Import · what next
+          </p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="font-display text-lg font-semibold text-slate-900">{next.title}</p>
+              <p className="mt-0.5 text-sm text-slate-500">{next.detail}</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              {next.href && next.cta && (
+                <Link
+                  to={next.href}
+                  className="inline-flex h-10 items-center rounded-full bg-emerald-600 px-4 text-sm font-medium text-white hover:bg-emerald-500"
+                >
+                  {next.cta}
+                  <ArrowRight className="ml-1.5 h-4 w-4" />
+                </Link>
+              )}
+              {!next.href && next.cta && next.action && (
+                <Button
+                  onClick={() => runAction(next.action)}
+                  disabled={primaryBusy}
+                  className="h-10 rounded-full bg-emerald-600 px-4 hover:bg-emerald-500"
+                >
+                  {next.cta}
+                  <ArrowRight className="ml-1.5 h-4 w-4" />
+                </Button>
+              )}
+              {next.secondary?.href && (
+                <Link
+                  to={next.secondary.href}
+                  className="inline-flex h-10 items-center rounded-full border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                >
+                  {next.secondary.cta}
+                </Link>
+              )}
+              {next.secondary?.action && !next.secondary?.href && (
+                <Button
+                  variant="outline"
+                  onClick={() => runAction(next.secondary.action)}
+                  disabled={
+                    (next.secondary.action === "fill_phones" || next.secondary.action === "fill_emails")
+                    && !onOpenEnrich
+                  }
+                  className="h-10 rounded-full border-slate-300 px-4"
+                >
+                  {next.secondary.cta}
+                </Button>
+              )}
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
-                onClick={() => setSplitOpen(true)}
-                className="rounded-full border-emerald-400 bg-white text-emerald-900 hover:bg-emerald-50"
+                onClick={() => setShowMore((open) => !open)}
+                className="rounded-full text-emerald-800"
               >
-                <Split className="mr-1.5 h-3.5 w-3.5" /> Split data
+                {showMore ? "Less" : "More"}
               </Button>
-            )}
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!missingPhone.length || !onOpenEnrich}
-              onClick={() => onOpenEnrich?.(missingPhone.map((prospect) => prospect.id), "phone")}
-              className="rounded-full border-slate-300 bg-white"
-            >
-              <Phone className="mr-1.5 h-3.5 w-3.5" /> Phones ({missingPhone.length})
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!missingEmail.length || !onOpenEnrich}
-              onClick={() => onOpenEnrich?.(missingEmail.map((prospect) => prospect.id), "email")}
-              className="rounded-full border-slate-300 bg-white"
-            >
-              <Mail className="mr-1.5 h-3.5 w-3.5" /> Emails ({missingEmail.length})
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowMore((open) => !open)}
-              className="rounded-full text-emerald-800"
-            >
-              {showMore ? "Less" : "More"}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setImportedIds([])}
-              className="rounded-full text-emerald-800"
-            >
-              Done
-            </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setImportedIds([])}
+                className="rounded-full text-emerald-800"
+              >
+                Done
+              </Button>
+            </div>
           </div>
 
           {showMore && (
             <div className="flex flex-wrap gap-2 border-t border-emerald-200/70 pt-3">
+              {next.action !== "fill_phones" && next.secondary?.action !== "fill_phones" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!missingPhone.length || !onOpenEnrich}
+                  onClick={() => onOpenEnrich?.(missingPhone.map((prospect) => prospect.id), "phone")}
+                  className="rounded-full border-slate-300 bg-white"
+                >
+                  <Phone className="mr-1.5 h-3.5 w-3.5" /> Phones ({missingPhone.length})
+                </Button>
+              )}
+              {next.action !== "fill_emails" && next.secondary?.action !== "fill_emails" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!missingEmail.length || !onOpenEnrich}
+                  onClick={() => onOpenEnrich?.(missingEmail.map((prospect) => prospect.id), "email")}
+                  className="rounded-full border-slate-300 bg-white"
+                >
+                  <Mail className="mr-1.5 h-3.5 w-3.5" /> Emails ({missingEmail.length})
+                </Button>
+              )}
+              {canSplit && next.action !== "split" && next.secondary?.action !== "split" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSplitOpen(true)}
+                  className="rounded-full border-slate-300 bg-white"
+                >
+                  <Split className="mr-1.5 h-3.5 w-3.5" /> Split data
+                </Button>
+              )}
+              {next.action !== "scroll_grow" && next.secondary?.action !== "scroll_grow" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={scrollToGrow}
+                  className="rounded-full border-slate-300 bg-white"
+                >
+                  <Sparkles className="mr-1.5 h-3.5 w-3.5" /> Find similar
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="sm"

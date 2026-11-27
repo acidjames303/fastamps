@@ -193,3 +193,20 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | Secrets / auto-send | **Pass** | Candidates never auto-added |
 | Discovery credits | **Not spent** | Unit/build only; live click would use company_discovery |
 | `base44 deploy -y --build` | **Pass** | Live strings: Grow the list · Find similar companies · Client exclusions |
+
+## CI-038 Lookalike 100-batch — 27 Nov 2026 ~11:45 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Unit: `lookalike-candidates.test.mjs` | **Pass** | merge + batch size 100 |
+| `npm run build` | **Pass** | → `index-BXszHT55.js` |
+| `base44 deploy -y --build` | **Pass** | Live Find up to 100 · multi-round discoverCompanies |
+
+## CI-039 Import what-next — 27 Nov 2026 ~12:05 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Unit: `import-next-action.test.mjs` | **Pass** | phones/emails/split/call ranking · no bare /dialer |
+| `npm run build` | **Pass** | → `index-D1gqiQmK.js` |
+| Secrets / credits / send | **Pass** | Frontend-only ranking |
+| `base44 deploy -y --build` | **Pass** | Live `index-D1gqiQmK.js` · Import · what next · no bare /dialer |

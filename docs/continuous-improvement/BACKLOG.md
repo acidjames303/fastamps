@@ -1,6 +1,6 @@
 # Cadence continuous improvement backlog
 
-**Updated:** 27 Nov 2026 ~10:00 (Europe/London)  
+**Updated:** 27 Nov 2026 ~12:05 (Europe/London)  
 Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **P3** optional
 
 ## Active
@@ -8,6 +8,7 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | ID | Pri | Issue | Evidence | Impact | Status |
 |---|---|---|---|---|---|
 | CI-035 | P1 | Connect Gmail/Outlook OAuth + verify inbox preview | James | Real mailbox read | **Next** · owner action |
+| CI-040 | P2 | Campaign card action chrome — tuck rare links into More | UX audit · peer-weight Pause/Contacts/Push/Split/Open/… | Fewer decisions on Campaigns | Ready |
 | CI-008 | P3 | Progressive disclosure polish on dense campaign screens | UX audit; generate tone/intent collapsed (CI-036) | Training burden | Parked · optional |
 
 ## Done (this branch)
@@ -49,6 +50,7 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | CI-036 | P2 | Shared ResearchBriefs + quick angles on Outreach generate | Done · live `index-2T24xyEc.js` |
 | CI-037 | P1 | Lookalike grow from seed + client exclusions on Find prospects | Done · live `index-C7rhMk4F.js` |
 | CI-038 | P1 | Lookalike batches of 100 + stable multi-round search + find more | Done · live `index-BXszHT55.js` |
+| CI-039 | P2 | Import “what next” — one ranked CTA + Dialer deep-link (not bare /dialer) | Done · live `index-D1gqiQmK.js` |
 
 ## Parking lot
 
