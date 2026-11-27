@@ -74,7 +74,8 @@ export default async function (req) {
   }
 
   const jobListId = campaign?.id || prospectList?.id || target_list_id || prospect_list_id;
-  const max = Math.min(Math.max(parseInt(count, 10) || 10, 1), 25);
+  // Default 100; LLM is batched in rounds of ~25 for stability.
+  const max = Math.min(Math.max(parseInt(count, 10) || 100, 1), 100);
   await checkAllowance(base44, org, 'company_discovery', 1);
 
   const job = await createJob(base44, {
@@ -119,28 +120,92 @@ export default async function (req) {
     ].filter((name, index, all) => all.findIndex((other) => other.toLowerCase() === name.toLowerCase()) === index);
 
     const blockNames = [...excludedCompanies, ...seedNames];
-    const blockNote = [
-      excludedCompanies.length
-        ? `Do not return these current clients / excluded companies: ${excludedCompanies.join(', ')}`
-        : '',
-      seedNames.length
-        ? `Do not return companies already on this campaign seed list (find similar accounts outside this set): ${seedNames.slice(0, 80).join(', ')}${seedNames.length > 80 ? ' …' : ''}`
-        : '',
-    ].filter(Boolean).join('\n');
-
-    const icp = `${formatIcpText(icpSource)}${blockNote ? `\n${blockNote}` : ''}`;
     const brief = String(
       prospectList?.brief || campaign?.offer || campaign?.objective || campaign?.name || '',
     ).trim();
+    const icpBase = formatIcpText(icpSource);
 
-    const rawCandidates = await CompanyResearchProvider.discoverCompanies(base44, {
-      icp,
-      brief,
-      count: max + Math.min(blockNames.length, 15),
-      existingDomains: [...new Set([...existingDomains, ...seedDomains])],
-    });
-    const skippedExcluded = (rawCandidates || []).filter((c) => isExcluded(c.name, blockNames));
-    const candidates = (rawCandidates || []).filter((c) => !isExcluded(c.name, blockNames)).slice(0, max);
+    // Stable batches: one LLM call rarely returns 100 clean names. Run rounds of
+    // ~25, always excluding seed + clients + names already collected this job.
+    const BATCH = 25;
+    const maxRounds = Math.ceil(max / BATCH) + 2;
+    const candidates: any[] = [];
+    const seenNames = new Set(blockNames.map((n) => normaliseCompanyName(n)).filter(Boolean));
+    const seenDomains = new Set(
+      [...existingDomains, ...seedDomains]
+        .map((d) => String(d || '').toLowerCase().replace(/^www\./, ''))
+        .filter(Boolean),
+    );
+    let rounds = 0;
+    let emptyStreak = 0;
+    let lastError = '';
+
+    while (candidates.length < max && rounds < maxRounds && emptyStreak < 2) {
+      rounds += 1;
+      const need = Math.min(BATCH, max - candidates.length);
+      const avoidCompanies = [
+        ...excludedCompanies,
+        ...seedNames.slice(0, 120),
+        ...candidates.map((c) => c.name),
+      ];
+      const roundIcp = [
+        icpBase,
+        excludedCompanies.length
+          ? `Do not return these current clients / excluded companies: ${excludedCompanies.join(', ')}`
+          : '',
+        `Find similar accounts OUTSIDE the seed list. Already on this campaign (${seedNames.length}): ${seedNames.slice(0, 100).join(', ')}${seedNames.length > 100 ? ' …' : ''}`,
+        candidates.length
+          ? `Already returned in this search (${candidates.length}) — do not repeat: ${candidates.map((c) => c.name).slice(0, 80).join(', ')}`
+          : '',
+      ].filter(Boolean).join('\n');
+
+      let raw: any[] = [];
+      try {
+        raw = await CompanyResearchProvider.discoverCompanies(base44, {
+          icp: roundIcp,
+          brief,
+          count: need + 5,
+          existingDomains: [...seenDomains],
+          avoidCompanies,
+        }) || [];
+      } catch (roundErr: any) {
+        lastError = roundErr?.message || 'Round failed';
+        emptyStreak += 1;
+        continue;
+      }
+
+      let addedThisRound = 0;
+      for (const row of raw) {
+        const name = String(row?.name || '').trim();
+        if (!name) continue;
+        if (isExcluded(name, blockNames)) continue;
+        const nameKey = normaliseCompanyName(name);
+        if (nameKey && seenNames.has(nameKey)) continue;
+        const domain = String(row.domain || '').toLowerCase().replace(/^www\./, '');
+        if (domain && seenDomains.has(domain)) continue;
+        if (nameKey) seenNames.add(nameKey);
+        if (domain) seenDomains.add(domain);
+        candidates.push({
+          name,
+          domain: row.domain || '',
+          website: row.website || row.source_url || '',
+          industry: row.industry || '',
+          employee_range: row.employee_range || '',
+          location: row.location || '',
+          why_fits: row.why_fits || '',
+          source_url: row.source_url || '',
+        });
+        addedThisRound += 1;
+        if (candidates.length >= max) break;
+      }
+
+      if (addedThisRound === 0) emptyStreak += 1;
+      else emptyStreak = 0;
+    }
+
+    if (!candidates.length && lastError) {
+      throw new Error(lastError);
+    }
 
     await recordAttempt(base44, {
       organisation_id: org.id,
@@ -178,13 +243,13 @@ export default async function (req) {
       candidates,
       seed_count: seedNames.length,
       excluded_count: excludedCompanies.length,
-      skipped_excluded: skippedExcluded.map((c) => c.name),
+      rounds,
+      requested: max,
+      skipped_excluded: [],
       limited: candidates.length < max,
-      note: candidates.length < max
-        ? `Only ${candidates.length} verifiable candidates found — discovery is limited for this ICP.`
-        : (skippedExcluded.length
-          ? `Skipped ${skippedExcluded.length} excluded or already-seeded compan${skippedExcluded.length === 1 ? 'y' : 'ies'}.`
-          : ''),
+      note: candidates.length >= max
+        ? `Found ${candidates.length} lookalikes in ${rounds} round${rounds === 1 ? '' : 's'}. Add them, then search again for another batch outside this list.`
+        : `Found ${candidates.length} of ${max} requested in ${rounds} round${rounds === 1 ? '' : 's'}. Add what fits, then search again for more.`,
     });
   } catch (e) {
     await completeJob(base44, job, {

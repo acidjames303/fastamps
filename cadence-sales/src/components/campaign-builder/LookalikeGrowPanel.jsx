@@ -12,6 +12,7 @@ import {
   parseExcludedCompanyLines,
   parseListIcp,
 } from "@/lib/companyExclusion";
+import { LOOKALIKE_BATCH_SIZE, mergeLookalikeCandidates } from "@/lib/lookalikeCandidates";
 import ResearchPromptPanel from "@/components/prospecting/ResearchPromptPanel";
 
 /**
@@ -118,28 +119,48 @@ export default function LookalikeGrowPanel({
     setExcludeMsg(`Target sectors updated (${nextSectors.length}). Ready to find similar companies.`);
   };
 
-  const discover = async () => {
+  const discover = async ({ append = true } = {}) => {
     if (!listId || discovering) return;
     setDiscovering(true);
     setErr("");
-    setNote("");
-    setCandidates([]);
-    setSelected(new Set());
+    setNote(append && candidates.length
+      ? `Searching for up to ${LOOKALIKE_BATCH_SIZE} more outside your ${prospects.length} companies…`
+      : `Searching for up to ${LOOKALIKE_BATCH_SIZE} lookalikes…`);
+    if (!append) {
+      setCandidates([]);
+      setSelected(new Set());
+    }
     try {
       const res = await base44.functions.invoke("discoverCompanies", {
         prospect_list_id: listId,
-        count: 12,
+        count: LOOKALIKE_BATCH_SIZE,
       });
       const data = res.data || res;
       if (data?.error) throw new Error(data.error);
-      setCandidates(data.candidates || []);
+      const incoming = data.candidates || [];
       setSeedCount(data.seed_count || prospects.length);
-      setNote(data.note || "");
-      if (!(data.candidates || []).length) {
-        setErr("No lookalikes found. Add target sectors / exclusions, then try again.");
+      setCandidates((prev) => (append ? mergeLookalikeCandidates(prev, incoming) : incoming));
+      // Auto-select newly returned rows so Add is one click for a full batch.
+      setSelected((prev) => {
+        const next = append ? new Set(prev) : new Set();
+        for (const row of incoming) {
+          const key = row.domain || row.name;
+          if (key) next.add(key);
+        }
+        return next;
+      });
+      setNote(
+        data.note
+          || (incoming.length
+            ? `Found ${incoming.length}. Add them, then search again for another ${LOOKALIKE_BATCH_SIZE} outside the list.`
+            : ""),
+      );
+      if (!incoming.length) {
+        setErr("No new lookalikes this round. Try refining target sectors, then search again.");
       }
     } catch (error) {
-      setErr(error?.response?.data?.error || error.message || "Lookalike search failed.");
+      setErr(error?.response?.data?.error || error.message || "Lookalike search failed — try again.");
+      setNote("");
     } finally {
       setDiscovering(false);
     }
@@ -151,6 +172,12 @@ export default function LookalikeGrowPanel({
     else next.add(key);
     setSelected(next);
   };
+
+  const selectAll = () => {
+    setSelected(new Set(candidates.map((c) => c.domain || c.name).filter(Boolean)));
+  };
+
+  const clearSelection = () => setSelected(new Set());
 
   const addSelected = async () => {
     if (!listId || !selected.size || !user?.organisation_id) return;
@@ -186,7 +213,7 @@ export default function LookalikeGrowPanel({
       setCandidates([]);
       setSelected(new Set());
       setNote(
-        `Added ${fresh.length} lookalike${fresh.length === 1 ? "" : "s"}. Run the same research prompt on them when ready.`,
+        `Added ${fresh.length} lookalike${fresh.length === 1 ? "" : "s"} to the list. Click “Find ${LOOKALIKE_BATCH_SIZE} more” for another batch outside these.`,
       );
       setShowResearch(true);
       await onChanged?.(listId);
@@ -222,23 +249,45 @@ export default function LookalikeGrowPanel({
             Find companies like these
           </h3>
           <p className="mt-1 max-w-2xl text-sm text-slate-500">
-            Cadence searches outside your imported seed and skips client exclusions.
-            New lookalikes stay on this list for the same research and enrich steps.
+            Each search finds up to 100 companies outside your seed and client exclusions.
+            Add what you want, then search again for another batch on top.
           </p>
         </div>
-        <Button
-          type="button"
-          onClick={discover}
-          disabled={discovering}
-          className="rounded-full bg-emerald-600 hover:bg-emerald-500"
-        >
-          {discovering ? (
-            <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-          ) : (
-            <Search className="mr-1.5 h-4 w-4" />
+        <div className="flex flex-wrap gap-2">
+          {candidates.length > 0 && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => discover({ append: true })}
+              disabled={discovering}
+              className="rounded-full border-emerald-300 bg-white text-emerald-900"
+            >
+              {discovering ? (
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+              ) : (
+                <Search className="mr-1.5 h-4 w-4" />
+              )}
+              {discovering ? "Searching…" : `Find ${LOOKALIKE_BATCH_SIZE} more`}
+            </Button>
           )}
-          {discovering ? "Searching…" : "Find similar companies"}
-        </Button>
+          <Button
+            type="button"
+            onClick={() => discover({ append: candidates.length === 0 })}
+            disabled={discovering}
+            className="rounded-full bg-emerald-600 hover:bg-emerald-500"
+          >
+            {discovering ? (
+              <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+            ) : (
+              <Search className="mr-1.5 h-4 w-4" />
+            )}
+            {discovering
+              ? `Searching up to ${LOOKALIKE_BATCH_SIZE}…`
+              : candidates.length
+                ? "Replace results"
+                : `Find up to ${LOOKALIKE_BATCH_SIZE} similar`}
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -307,19 +356,38 @@ export default function LookalikeGrowPanel({
             <span className="inline-flex items-center gap-1.5 font-medium">
               <Sparkles className="h-3.5 w-3.5" />
               {candidates.length} lookalike{candidates.length === 1 ? "" : "s"}
-              {seedCount ? ` · outside ${seedCount} seed` : ""}
+              {selected.size ? ` · ${selected.size} selected` : ""}
+              {seedCount ? ` · outside ${seedCount} on list` : ""}
               {excluded.length ? ` · skipping ${excluded.length} clients` : ""}
             </span>
-            <Button
-              type="button"
-              size="sm"
-              disabled={!selected.size || adding}
-              onClick={addSelected}
-              className="rounded-full bg-emerald-600 hover:bg-emerald-500"
-            >
-              {adding ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
-              Add {selected.size || ""} to list
-            </Button>
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={selectAll}
+                className="rounded-full px-2 py-1 text-[11px] font-medium text-emerald-800 hover:bg-emerald-50"
+              >
+                Select all
+              </button>
+              {selected.size > 0 && (
+                <button
+                  type="button"
+                  onClick={clearSelection}
+                  className="rounded-full px-2 py-1 text-[11px] text-slate-500 hover:bg-slate-50"
+                >
+                  Clear
+                </button>
+              )}
+              <Button
+                type="button"
+                size="sm"
+                disabled={!selected.size || adding}
+                onClick={addSelected}
+                className="rounded-full bg-emerald-600 hover:bg-emerald-500"
+              >
+                {adding ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
+                Add {selected.size || ""} to list
+              </Button>
+            </div>
           </div>
           {candidates.map((c) => {
             const key = c.domain || c.name;

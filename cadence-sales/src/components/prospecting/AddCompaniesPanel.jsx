@@ -41,7 +41,7 @@ export default function AddCompaniesPanel({ targetList, onAdded }) {
     if (!targetList) return;
     setDiscovering(true); setErr(""); setMsg(""); setCandidates([]);
     try {
-      const res = await base44.functions.invoke("discoverCompanies", { target_list_id: targetList.id, count: 12 });
+      const res = await base44.functions.invoke("discoverCompanies", { target_list_id: targetList.id, count: 100 });
       const data = res.data || res;
       setCandidates(data.candidates || []);
       setSelected(new Set());
