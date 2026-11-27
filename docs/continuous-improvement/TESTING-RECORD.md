@@ -168,6 +168,7 @@ James's live path is Campaigns → Find prospects → Import existing research �
 |---|---|---|
 | Unit: `outreach-research-reuse.test.mjs` | **Pass** | pickableFindings dedupe |
 | Unit: `account-research-match.test.mjs` | **Pass** | Restored helper |
-| `npm run build` | **Pass** | → `index-dWBVxLKA.js` (pre-deploy) |
+| `npm run build` | **Pass** | → `index-dWBVxLKA.js` |
 | Credits / send / secrets | **Pass** | Paid suggest still opt-in; reuse is free |
-| Site deploy | Pending | After commit |
+| `base44 deploy -y --build` | **Pass** | Live `index-dWBVxLKA.js` · From campaign / Dialer research · Insert into email |
+| Authenticated review reuse | **Blocked** | No login session |

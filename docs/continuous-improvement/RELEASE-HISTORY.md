@@ -389,4 +389,5 @@ Live `index-dI9sQ7Ah.js` on cadence.smartfunction.io. Rollback SHA: `5a652cc`.
 
 Frontend + read-only entity fetch. No schema, secrets, send, or forced research credits.
 
+Live `index-dWBVxLKA.js` on cadence.smartfunction.io. Rollback SHA: `4568930`.  
 **Next:** CI-035 owner connects email · CI-008 progressive disclosure (optional) · CI-036 saved research instruction templates.
