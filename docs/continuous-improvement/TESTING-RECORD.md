@@ -189,7 +189,7 @@ James's live path is Campaigns → Find prospects → Import existing research �
 |---|---|---|
 | Unit: `lookalike-grow.test.mjs` | **Pass** | exclusion dedupe · sector merge keeps exclusions |
 | Unit: `company-exclusion.test.mjs` | **Pass** | Regression |
-| `npm run build` | **Pass** | → `index-Ba-VDX5u.js` (pre-deploy) |
+| `npm run build` | **Pass** | → `index-Ba-VDX5u.js` / live `index-Bd6RsHtl.js` |
 | Secrets / auto-send | **Pass** | Candidates never auto-added |
 | Discovery credits | **Not spent** | Unit/build only; live click would use company_discovery |
-| Site deploy | Pending | After commit |
+| `base44 deploy -y --build` | **Pass** | Live strings: Grow the list · Find similar companies · Client exclusions |

@@ -433,4 +433,5 @@ James needs: find companies like the ones already imported (same ICP/research pa
 
 No schema/secrets/send. Discovery still uses existing company_discovery allowance when the user clicks Find similar.
 
+Live `index-Bd6RsHtl.js` on cadence.smartfunction.io. Rollback SHA: `a4929fa`.  
 **Next:** CI-035 owner connects email.
