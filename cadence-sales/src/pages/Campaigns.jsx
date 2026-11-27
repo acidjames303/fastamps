@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import DictateButton from "@/components/dialer/DictateButton";
 import {
   Plus, Users, Loader2, Play, Pause, Target, Upload,
-  ArrowRight, Search, CheckCircle2, Pencil, ClipboardList, Split,
+  ArrowRight, Search, CheckCircle2, Pencil, ClipboardList, Split, MoreHorizontal,
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import DeleteCampaignDialog from "@/components/campaigns/DeleteCampaignDialog";
@@ -18,6 +18,15 @@ import PushProgress from "@/components/PushProgress";
 import Prospecting from "@/pages/Prospecting";
 import CampaignNextStep from "@/components/campaigns/CampaignNextStep";
 import { buildCampaignAttentionRollup, countIrsByCampaign } from "@/lib/campaignAttention";
+import { campaignCardActionSlots } from "@/lib/campaignCardActions";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const TABS = [
   { id: "campaigns", label: "Campaigns" },
@@ -540,94 +549,122 @@ export default function Campaigns() {
                         onActivate={toggleStatus}
                       />
 
-                      <div className="flex flex-wrap gap-2">
-                        {isManager && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="rounded-full h-9"
-                            disabled={statusBusy === c.id || ["completed", "archived"].includes(c.status)}
-                            onClick={() => toggleStatus(c)}
-                          >
-                            {statusBusy === c.id ? <Loader2 className="w-4 h-4 animate-spin" /> : isActive ? <Pause className="w-4 h-4 mr-1" /> : <Play className="w-4 h-4 mr-1" />}
-                            {isActive ? "Pause" : "Activate"}
-                          </Button>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="rounded-full h-9"
-                          onClick={() => navigate(`/contacts?campaign=${c.id}`)}
-                          title="See the contacts in this campaign"
-                        >
-                          <Users className="w-4 h-4 mr-1" /> Contacts
-                        </Button>
-                        {isManager && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="rounded-full h-9"
-                            onClick={() => { setPushFor(c); setPushCaller(callers[0]?.user_id || ""); }}
-                            disabled={!callers.length}
-                            title={callers.length ? "Push into an SDR account" : "Invite a caller on Team first"}
-                          >
-                            <Users className="w-4 h-4 mr-1" /> Push to team
-                          </Button>
-                        )}
-                        {isManager && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="rounded-full h-9"
-                            onClick={() => setSplitFor(c)}
-                            disabled={!callers.length}
-                            title={callers.length ? "Split accounts by territory, industry, evenly, or dictate" : "Invite callers on Team first"}
-                          >
-                            <Split className="w-4 h-4 mr-1" /> Split data
-                          </Button>
-                        )}
-                        <Link to={`/target-lists/${c.id}`}>
-                          <Button size="sm" variant="ghost" className="rounded-full h-9">
-                            Open <ArrowRight className="w-4 h-4 ml-1" />
-                          </Button>
-                        </Link>
-                        <Link to={`/campaign-delivery/${c.id}`}><Button size="sm" variant="outline" className="rounded-full">Data quality</Button></Link>
-                        <Button size="sm" variant="outline" className="rounded-full" onClick={() => navigate(`/campaigns/${c.id}/accounts`)}>
-                          <ClipboardList className="w-3.5 h-3.5 mr-1" /> Accounts &amp; notes
-                        </Button>
-                        {canProspect && (
-                          <Button size="sm" variant="outline" className="rounded-full" onClick={() => navigate(`/campaigns?tab=prospect&campaign=${c.id}`)}>
-                            <Target className="w-3.5 h-3.5 mr-1" /> Find prospects
-                          </Button>
-                        )}
-                        {isAdmin && (
-                          <label className="inline-flex items-center gap-2 text-xs text-slate-600 rounded-full border border-slate-200 px-3 py-1.5 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={!!c.callers_may_save_email_drafts}
-                              onChange={async (e) => {
-                                const checked = e.target.checked;
-                                try {
-                                  await base44.entities.Campaign.update(c.id, { callers_may_save_email_drafts: checked });
-                                  setLists((prev) => (prev || []).map((x) => (x.id === c.id ? { ...x, callers_may_save_email_drafts: checked } : x)));
-                                } catch (err) {
-                                  setError(err.message || "Could not update email permission.");
-                                }
-                              }}
-                            />
-                            Callers may save email drafts
-                          </label>
-                        )}
-                        {isManager && (
-                          <button
-                            type="button"
-                            className="text-xs text-slate-400 hover:text-rose-600 ml-auto"
-                            onClick={() => setToDelete(c)}
-                          >
-                            Delete
-                          </button>
-                        )}
-                      </div>
+                      {(() => {
+                        const slots = campaignCardActionSlots({
+                          isManager,
+                          isAdmin,
+                          canProspect,
+                          status: c.status,
+                        });
+                        return (
+                          <div className="flex flex-wrap items-center gap-2">
+                            {slots.showPauseActivate && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="rounded-full h-9"
+                                disabled={statusBusy === c.id || ["completed", "archived"].includes(c.status)}
+                                onClick={() => toggleStatus(c)}
+                              >
+                                {statusBusy === c.id ? <Loader2 className="w-4 h-4 animate-spin" /> : isActive ? <Pause className="w-4 h-4 mr-1" /> : <Play className="w-4 h-4 mr-1" />}
+                                {isActive ? "Pause" : "Activate"}
+                              </Button>
+                            )}
+                            {slots.showContacts && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="rounded-full h-9"
+                                onClick={() => navigate(`/contacts?campaign=${c.id}`)}
+                                title="See the contacts in this campaign"
+                              >
+                                <Users className="w-4 h-4 mr-1" /> Contacts
+                              </Button>
+                            )}
+                            {slots.showPush && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="rounded-full h-9"
+                                onClick={() => { setPushFor(c); setPushCaller(callers[0]?.user_id || ""); }}
+                                disabled={!callers.length}
+                                title={callers.length ? "Push into an SDR account" : "Invite a caller on Team first"}
+                              >
+                                <Users className="w-4 h-4 mr-1" /> Push to team
+                              </Button>
+                            )}
+                            {slots.more.length > 0 && (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button size="sm" variant="ghost" className="rounded-full h-9 px-3">
+                                    <MoreHorizontal className="w-4 h-4 mr-1" /> More
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="start" className="w-56">
+                                  <DropdownMenuLabel className="text-xs text-slate-400">More actions</DropdownMenuLabel>
+                                  <DropdownMenuSeparator />
+                                  {slots.more.includes("split") && (
+                                    <DropdownMenuItem
+                                      disabled={!callers.length}
+                                      onSelect={() => setSplitFor(c)}
+                                    >
+                                      <Split className="w-4 h-4 mr-2" /> Split data
+                                    </DropdownMenuItem>
+                                  )}
+                                  {slots.more.includes("open") && (
+                                    <DropdownMenuItem asChild>
+                                      <Link to={`/target-lists/${c.id}`}>
+                                        <ArrowRight className="w-4 h-4 mr-2" /> Open target list
+                                      </Link>
+                                    </DropdownMenuItem>
+                                  )}
+                                  {slots.more.includes("data_quality") && (
+                                    <DropdownMenuItem asChild>
+                                      <Link to={`/campaign-delivery/${c.id}`}>Data quality</Link>
+                                    </DropdownMenuItem>
+                                  )}
+                                  {slots.more.includes("accounts_notes") && (
+                                    <DropdownMenuItem onSelect={() => navigate(`/campaigns/${c.id}/accounts`)}>
+                                      <ClipboardList className="w-4 h-4 mr-2" /> Accounts &amp; notes
+                                    </DropdownMenuItem>
+                                  )}
+                                  {slots.more.includes("find_prospects") && (
+                                    <DropdownMenuItem onSelect={() => navigate(`/campaigns?tab=prospect&campaign=${c.id}`)}>
+                                      <Target className="w-4 h-4 mr-2" /> Find prospects
+                                    </DropdownMenuItem>
+                                  )}
+                                  {slots.more.includes("email_drafts") && (
+                                    <DropdownMenuItem
+                                      onSelect={(e) => {
+                                        e.preventDefault();
+                                        const checked = !c.callers_may_save_email_drafts;
+                                        base44.entities.Campaign.update(c.id, { callers_may_save_email_drafts: checked })
+                                          .then(() => {
+                                            setLists((prev) => (prev || []).map((x) => (x.id === c.id ? { ...x, callers_may_save_email_drafts: checked } : x)));
+                                          })
+                                          .catch((err) => setError(err.message || "Could not update email permission."));
+                                      }}
+                                    >
+                                      {c.callers_may_save_email_drafts ? "✓ " : ""}Callers may save email drafts
+                                    </DropdownMenuItem>
+                                  )}
+                                  {slots.more.includes("delete") && (
+                                    <>
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem
+                                        className="text-rose-600 focus:text-rose-700"
+                                        onSelect={() => setToDelete(c)}
+                                      >
+                                        Delete campaign
+                                      </DropdownMenuItem>
+                                    </>
+                                  )}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                   );
                 })}

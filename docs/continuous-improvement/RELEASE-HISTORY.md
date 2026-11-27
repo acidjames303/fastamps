@@ -464,3 +464,16 @@ Post-import panel had up to seven peer-weight buttons; **Start calling** linked 
 Frontend-only. Rollback SHA: `707ef3d`. Live `index-D1gqiQmK.js`.
 
 **Next:** CI-035 owner connects email · CI-040 Campaign card More menu.
+
+---
+
+## CI-040 — 27 Nov 2026 ~15:05 (Europe/London)
+
+**Campaign card chrome — fewer peer-weight actions.**
+
+Face: Pause/Activate · Contacts · Push to team.  
+**More** menu: Split · Open target list · Data quality · Accounts & notes · Find prospects · admin email-drafts · Delete.
+
+Recommended next strip unchanged. Frontend-only. Rollback SHA: `50f8a69`. Live `index-D92Gva63.js`.
+
+**Next:** CI-035 owner connects email · CI-041 duplicate Enrich CTA.

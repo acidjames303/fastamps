@@ -210,3 +210,12 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | `npm run build` | **Pass** | → `index-D1gqiQmK.js` |
 | Secrets / credits / send | **Pass** | Frontend-only ranking |
 | `base44 deploy -y --build` | **Pass** | Live `index-D1gqiQmK.js` · Import · what next · no bare /dialer |
+
+## CI-040 Campaign card More — 27 Nov 2026 ~15:05 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Unit: `campaign-card-actions.test.mjs` | **Pass** | face vs More slots |
+| `npm run build` | **Pass** | → `index-D92Gva63.js` |
+| Secrets / credits / send | **Pass** | Frontend-only |
+| `base44 deploy -y --build` | **Pass** | Live `index-D92Gva63.js` · More actions · Open target list |
