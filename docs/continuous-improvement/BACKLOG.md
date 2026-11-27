@@ -46,7 +46,7 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | CI-034 | P1 | Outreach pre-OAuth: deep-links, campaign-first nav, research on drafts, push handoff | Done · live `index-dbYBU5IZ.js` |
 | CI-025 | P2 | Multi-number prospects: ContactPhone candidates always expanded | Done · live `index-dI9sQ7Ah.js` |
 | CI-004 | P1 | Reuse campaign/Dialer research in Outreach review + insert into draft | Done · live `index-dWBVxLKA.js` |
-| CI-036 | P2 | Shared ResearchBriefs + quick angles on Outreach generate | Done |
+| CI-036 | P2 | Shared ResearchBriefs + quick angles on Outreach generate | Done · live `index-2T24xyEc.js` |
 
 ## Parking lot
 

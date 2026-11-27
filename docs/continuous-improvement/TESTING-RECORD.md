@@ -178,6 +178,7 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | Check | Result | Notes |
 |---|---|---|
 | Unit: `research-brief-reuse.test.mjs` | **Pass** | presets · sort · cap |
-| `npm run build` | **Pass** | → `index-2T24xyEc.js` (pre-deploy) |
+| `npm run build` | **Pass** | → `index-2T24xyEc.js` |
 | Secrets / send / credits | **Pass** | Frontend-only brief reuse |
-| Site deploy | Pending | After commit |
+| `base44 deploy -y --build` | **Pass** | Live `index-2T24xyEc.js` · Saved research briefs · Quick angles |
+| Authenticated brief pick | **Blocked** | No login session |

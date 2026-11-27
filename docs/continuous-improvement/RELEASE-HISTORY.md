@@ -403,4 +403,5 @@ Live `index-dWBVxLKA.js` on cadence.smartfunction.io. Rollback SHA: `4568930`.
 - Tone + intent collapsed behind “Change” (fewer default decisions).
 - No second template model; no schema/credits/send changes.
 
+Live `index-2T24xyEc.js` on cadence.smartfunction.io. Rollback SHA: `a4ca1ed`.  
 **Next:** CI-035 owner connects email · remaining CI-008 polish only if dense screens still hurt.
