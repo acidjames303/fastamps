@@ -13,6 +13,7 @@ import EnrichmentBatchSummary from "@/components/prospecting/EnrichmentBatchSumm
 import SelectiveEnrichDialog from "@/components/prospecting/SelectiveEnrichDialog";
 import PushToOutreachDialog from "@/components/prospecting/PushToOutreachDialog";
 import CampaignBuilderWorkspace from "@/components/campaign-builder/CampaignBuilderWorkspace";
+import LookalikeGrowPanel from "@/components/campaign-builder/LookalikeGrowPanel";
 import AccountResearchBar from "@/components/prospecting/AccountResearchBar";
 import ResearchPromptPanel from "@/components/prospecting/ResearchPromptPanel";
 import EnrichmentSessionBanner from "@/components/prospecting/EnrichmentSessionBanner";
@@ -941,6 +942,17 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
         listCounts={listCounts}
         onContinueList={openListSelection}
       />
+
+      {/* Always visible once a list has companies — not buried under Import only. */}
+      {listId && prospects.length > 0 && (
+        <div id="lookalike-grow">
+          <LookalikeGrowPanel
+            listId={listId}
+            prospects={prospects}
+            onChanged={async (id) => { await loadProspects(id); await loadListCounts(); }}
+          />
+        </div>
+      )}
 
       {/* Builder is the main start. Keep classic tools available but out of the way. */}
       <details className={`rounded-2xl border border-slate-200 bg-white ${embedded ? "" : "open"}`}>

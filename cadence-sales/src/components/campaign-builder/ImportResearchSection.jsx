@@ -6,7 +6,6 @@ import {
   CircleAlert, FileText, Loader2, Mail, Phone, ShieldCheck, Sparkles, Split,
 } from "lucide-react";
 import SpreadsheetImportPreview from "@/components/campaign-builder/SpreadsheetImportPreview";
-import LookalikeGrowPanel from "@/components/campaign-builder/LookalikeGrowPanel";
 import ResearchImportPanel from "@/components/prospecting/ResearchImportPanel";
 import ResearchPromptPanel from "@/components/prospecting/ResearchPromptPanel";
 import SplitCampaignData from "@/components/campaigns/SplitCampaignData";
@@ -44,9 +43,12 @@ export default function ImportResearchSection({
   const [screenResult, setScreenResult] = useState("");
   const [screenError, setScreenError] = useState("");
   const [splitOpen, setSplitOpen] = useState(false);
-  const [growOpen, setGrowOpen] = useState(false);
   const [callers, setCallers] = useState([]);
   const [resolvedCampaign, setResolvedCampaign] = useState(campaign);
+
+  const scrollToGrow = () => {
+    document.getElementById("lookalike-grow")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const imported = prospects.filter((prospect) => importedIds.includes(prospect.id));
   const missingPhone = imported.filter((prospect) => !prospect.mobile && !prospect.direct_dial);
@@ -137,27 +139,6 @@ export default function ImportResearchSection({
         onImportedRows={setImportedIds}
       />
 
-      {hasAccounts && (growOpen || prospects.length >= 3) && (
-        <LookalikeGrowPanel
-          listId={listId}
-          prospects={prospects}
-          onChanged={onImported}
-        />
-      )}
-
-      {hasAccounts && !growOpen && prospects.length < 3 && (
-        <button
-          type="button"
-          onClick={() => setGrowOpen(true)}
-          className="w-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-left text-sm text-slate-600 hover:border-emerald-300 hover:bg-emerald-50/40"
-        >
-          <span className="font-semibold text-slate-800">Find companies like these</span>
-          <span className="mt-0.5 block text-xs text-slate-500">
-            Add a client exclusion list, then search for lookalikes outside your seed — same research prompt afterwards.
-          </span>
-        </button>
-      )}
-
       {hasAccounts ? (
         <div className="rounded-2xl border border-slate-200 bg-white">
           <button
@@ -210,7 +191,7 @@ export default function ImportResearchSection({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setGrowOpen(true)}
+              onClick={scrollToGrow}
               className="rounded-full border-emerald-400 bg-white text-emerald-900 hover:bg-emerald-50"
             >
               <Sparkles className="mr-1.5 h-3.5 w-3.5" /> Find similar companies
