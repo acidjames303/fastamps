@@ -391,3 +391,16 @@ Frontend + read-only entity fetch. No schema, secrets, send, or forced research 
 
 Live `index-dWBVxLKA.js` on cadence.smartfunction.io. Rollback SHA: `4568930`.  
 **Next:** CI-035 owner connects email · CI-008 progressive disclosure (optional) · CI-036 saved research instruction templates.
+
+---
+
+## CI-036 — 27 Nov 2026 ~06:10 (Europe/London)
+
+**Shared research briefs on Outreach generate.**
+
+- Outreach draft step loads the same `ResearchBrief` store as Campaign research.
+- Quick angles (lead with fact / short ask / follow-up) for empty instructions.
+- Tone + intent collapsed behind “Change” (fewer default decisions).
+- No second template model; no schema/credits/send changes.
+
+**Next:** CI-035 owner connects email · remaining CI-008 polish only if dense screens still hurt.

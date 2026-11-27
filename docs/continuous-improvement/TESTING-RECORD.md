@@ -172,3 +172,12 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | Credits / send / secrets | **Pass** | Paid suggest still opt-in; reuse is free |
 | `base44 deploy -y --build` | **Pass** | Live `index-dWBVxLKA.js` · From campaign / Dialer research · Insert into email |
 | Authenticated review reuse | **Blocked** | No login session |
+
+## CI-036 Shared research briefs on Outreach — 27 Nov 2026 ~06:10 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Unit: `research-brief-reuse.test.mjs` | **Pass** | presets · sort · cap |
+| `npm run build` | **Pass** | → `index-2T24xyEc.js` (pre-deploy) |
+| Secrets / send / credits | **Pass** | Frontend-only brief reuse |
+| Site deploy | Pending | After commit |

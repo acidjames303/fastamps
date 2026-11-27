@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Loader2, Sparkles, ShieldCheck } from "lucide-react";
 import DictateButton from "@/components/dialer/DictateButton";
+import SavedResearchBriefPills from "@/components/shared/SavedResearchBriefPills";
+import { INSTRUCTION_MAX } from "@/lib/researchBriefReuse";
 
 const TONES = ["consultative", "concise", "warm", "direct"];
 const INTENTS = [
@@ -24,6 +26,7 @@ export default function OutreachGroundedGenerate({
   const [instructions, setInstructions] = useState("");
   const [signature, setSignature] = useState(defaultSignature);
   const [allowGeneric, setAllowGeneric] = useState(false);
+  const [styleOpen, setStyleOpen] = useState(false);
 
   const batch = Math.min(selectedCount || approvedCount || 0, 10);
   const disabled = busy || batch === 0;
@@ -38,50 +41,11 @@ export default function OutreachGroundedGenerate({
         </p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <p className="text-[11px] uppercase tracking-widest text-slate-400 mb-1">Tone</p>
-          <div className="flex flex-wrap gap-1.5">
-            {TONES.map((option) => (
-              <button
-                key={option}
-                type="button"
-                aria-pressed={tone === option}
-                onClick={() => setTone(option)}
-                disabled={busy}
-                className={`rounded-full border px-3 py-1 text-xs capitalize transition-colors disabled:opacity-50 ${
-                  tone === option
-                    ? "border-emerald-300 bg-emerald-50 text-emerald-800"
-                    : "border-slate-200 text-slate-500 hover:border-slate-300"
-                }`}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div>
-          <p className="text-[11px] uppercase tracking-widest text-slate-400 mb-1">Intent</p>
-          <div className="flex flex-wrap gap-1.5">
-            {INTENTS.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                aria-pressed={intent === option.id}
-                onClick={() => setIntent(option.id)}
-                disabled={busy}
-                className={`rounded-full border px-3 py-1 text-xs transition-colors disabled:opacity-50 ${
-                  intent === option.id
-                    ? "border-emerald-300 bg-emerald-50 text-emerald-800"
-                    : "border-slate-200 text-slate-500 hover:border-slate-300"
-                }`}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <SavedResearchBriefPills
+        value={instructions}
+        onSelect={setInstructions}
+        disabled={busy}
+      />
 
       <label className="block text-xs font-medium text-slate-600">
         Campaign instructions for this batch
@@ -89,12 +53,72 @@ export default function OutreachGroundedGenerate({
           value={instructions}
           onChange={(e) => setInstructions(e.target.value)}
           rows={3}
-          maxLength={1500}
-          placeholder="What matters to this buyer, the angle to lead with, anything to avoid…"
+          maxLength={INSTRUCTION_MAX}
+          placeholder="Pick a brief or angle above, or write what matters to this buyer…"
           className={`${input} mt-1`}
         />
       </label>
       <DictateButton value={instructions} onChange={setInstructions} label="Dictate instructions" />
+
+      <div className="rounded-xl border border-slate-100 bg-slate-50/80 px-3 py-2">
+        <button
+          type="button"
+          onClick={() => setStyleOpen((open) => !open)}
+          className="flex w-full items-center justify-between gap-2 text-left text-xs font-medium text-slate-600"
+          aria-expanded={styleOpen}
+        >
+          <span>
+            Tone · {tone} · {intent === "follow_up" ? "Follow-up" : "First touch"}
+          </span>
+          <span className="text-slate-400">{styleOpen ? "Hide" : "Change"}</span>
+        </button>
+        {styleOpen && (
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <div>
+              <p className="text-[11px] uppercase tracking-widest text-slate-400 mb-1">Tone</p>
+              <div className="flex flex-wrap gap-1.5">
+                {TONES.map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    aria-pressed={tone === option}
+                    onClick={() => setTone(option)}
+                    disabled={busy}
+                    className={`rounded-full border px-3 py-1 text-xs capitalize transition-colors disabled:opacity-50 ${
+                      tone === option
+                        ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                        : "border-slate-200 text-slate-500 hover:border-slate-300"
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-[11px] uppercase tracking-widest text-slate-400 mb-1">Intent</p>
+              <div className="flex flex-wrap gap-1.5">
+                {INTENTS.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    aria-pressed={intent === option.id}
+                    onClick={() => setIntent(option.id)}
+                    disabled={busy}
+                    className={`rounded-full border px-3 py-1 text-xs transition-colors disabled:opacity-50 ${
+                      intent === option.id
+                        ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                        : "border-slate-200 text-slate-500 hover:border-slate-300"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       <label className="block text-xs font-medium text-slate-600">
         Signature

@@ -102,8 +102,8 @@ export default function ResearchInstructionCard({
             ))}
           </div>
           <p className="text-[11px] text-slate-400 inline-flex items-center gap-1">
-            <Check className="w-3 h-3 text-emerald-600" /> Reuse a brief on any campaign — its findings stay separate per
-            instruction.
+            <Check className="w-3 h-3 text-emerald-600" /> Reuse on any campaign or Outreach draft batch — findings stay
+            separate per instruction.
           </p>
         </div>
       )}
