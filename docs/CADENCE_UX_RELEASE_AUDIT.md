@@ -229,6 +229,6 @@ Overnight timer cycle after CI-020.
 
 ### Still open (not blocking this release)
 
-- One-click “add these industries to ICP” (CI-024)  
-- Show Lusha extra numbers inline in the Prospecting table (CI-025)  
+- One-click “add these industries to ICP” (CI-024) — **done**  
+- Show Lusha extra numbers inline / ContactPhone always expanded for multi-number (CI-025) — **done**  
 - Authenticated dry-run of James’s exact files in production (login blocked here)  

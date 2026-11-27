@@ -363,3 +363,15 @@ Frontend-only. No OAuth, send, secrets, schema, or credit changes.
 
 Live `index-dbYBU5IZ.js` on cadence.smartfunction.io. Rollback SHA: `e103e49`.  
 **Next:** CI-025 phone candidate expansion · CI-035 owner connects email.
+
+---
+
+## CI-025 — 27 Nov 2026 ~00:05 (Europe/London)
+
+**Multi-number ContactPhone candidates always expanded.**
+
+Prospecting table: when a company already shows ≥2 distinct numbers (import + Lusha, mobile + direct, landline + mobile, etc.), **All held numbers** opens by default with Prefer / Confirm / Wrong — no “Number candidates” click. Single-number rows keep the optional toggle. Optional Hide for dense pages.
+
+Frontend-only. Helper `prospectPhoneSignals.js` + unit tests. No credits, secrets, schema, or send.
+
+**Next:** CI-004 research templates/dictation reuse · CI-035 owner connects email.

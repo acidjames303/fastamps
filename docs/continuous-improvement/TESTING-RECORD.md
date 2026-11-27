@@ -151,3 +151,12 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | Site deploy `--publish --build` | **Pass** | Live `index-dbYBU5IZ.js` on cadence.smartfunction.io |
 | Live bundle strings | **Pass** | Use as target sectors · Inbox waits until you connect · Open campaign in Outreach · page=campaign_studio |
 | Authenticated Outreach click-through | **Blocked** | No login session; owner connects email tomorrow (CI-035) |
+
+## CI-025 Multi-number phone candidates expanded — 27 Nov 2026 ~00:05 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Unit: `prospect-phone-signals.test.mjs` | **Pass** | import+Lusha expands; single mobile does not |
+| `npm run build` | **Pass** | → `index-dI9sQ7Ah.js` (pre-deploy) |
+| Secrets / credits / send | **Pass** | Frontend-only |
+| Site deploy | Pending | After commit |

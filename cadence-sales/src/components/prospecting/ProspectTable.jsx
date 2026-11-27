@@ -8,6 +8,7 @@ import PhoneCandidates from "./PhoneCandidates";
 import ProspectPersonCard from "./ProspectPersonCard";
 import { emailFlags } from "@/lib/emailDisplay";
 import { isUkMobileNumber } from "@/lib/enrichmentRun";
+import { shouldExpandPhoneCandidates } from "@/lib/prospectPhoneSignals";
 
 const statusStyle = {
   enriched: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -86,6 +87,46 @@ export default function ProspectTable({ prospects, selected, setSelected, onEnri
         const mobileCount = contacts.filter((c) => isUkMobileNumber(c.mobile || c.phone)).length;
         const emailCount = contacts.filter((c) => c.email).length;
         const isBusy = busyId === p.id;
+        // Multi-number people (import + Lusha, mobile + direct, etc.) stay expanded —
+        // Prefer / Confirm / Wrong must be one glance, not a click away.
+        const multiNumber = shouldExpandPhoneCandidates(p);
+        const hiddenMulti = numbersOpen === `hide:${p.id}`;
+        const phoneCandidatesPanel = (
+          <div className="mt-1 space-y-1">
+            {multiNumber ? (
+              <>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[10px] font-medium uppercase tracking-wide text-slate-500">
+                    All held numbers
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setNumbersOpen(hiddenMulti ? null : `hide:${p.id}`)}
+                    className="text-[10px] text-slate-400 hover:text-slate-700"
+                  >
+                    {hiddenMulti ? "Show numbers" : "Hide"}
+                  </button>
+                </div>
+                {!hiddenMulti && (
+                  <PhoneCandidates prospect={p} onPreferred={onPhoneChange} />
+                )}
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setNumbersOpen(numbersOpen === p.id ? null : p.id)}
+                  className="text-[10px] text-slate-500 hover:text-slate-800"
+                >
+                  {numbersOpen === p.id ? "Hide number candidates" : "Number candidates"}
+                </button>
+                {numbersOpen === p.id && (
+                  <PhoneCandidates prospect={p} onPreferred={onPhoneChange} />
+                )}
+              </>
+            )}
+          </div>
+        );
         return (
           <div key={p.id} className="border-t border-slate-100">
             {/* Desktop grid row */}
@@ -105,18 +146,7 @@ export default function ProspectTable({ prospects, selected, setSelected, onEnri
                   {contacts.length} people · {mobileCount} mobile{mobileCount === 1 ? "" : "s"} · {emailCount} email{emailCount === 1 ? "" : "s"}
                 </p>
                 <ScreeningBadge prospect={p} />
-                <button
-                  type="button"
-                  onClick={() => setNumbersOpen(numbersOpen === p.id ? null : p.id)}
-                  className="text-[10px] text-slate-500 hover:text-slate-800"
-                >
-                  {numbersOpen === p.id ? "Hide number candidates" : "Number candidates"}
-                </button>
-                {numbersOpen === p.id && (
-                  <div className="mt-1">
-                    <PhoneCandidates prospect={p} onPreferred={onPhoneChange} />
-                  </div>
-                )}
+                {phoneCandidatesPanel}
                 {p.call_status && p.call_status !== 'new' && (
                   <span className={`inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium border mt-1 ${callStatusStyle[p.call_status] || ''}`}>
                     {callStatusLabel[p.call_status] || p.call_status}
@@ -239,14 +269,7 @@ export default function ProspectTable({ prospects, selected, setSelected, onEnri
 
               <ScreeningBadge prospect={p} />
 
-              <button
-                type="button"
-                onClick={() => setNumbersOpen(numbersOpen === p.id ? null : p.id)}
-                className="text-[11px] text-slate-500 hover:text-slate-800"
-              >
-                {numbersOpen === p.id ? "Hide number candidates" : "Number candidates"}
-              </button>
-              {numbersOpen === p.id && <PhoneCandidates prospect={p} onPreferred={onPhoneChange} />}
+              {phoneCandidatesPanel}
 
               {contacts.length > 0 ? (
                 <div className="space-y-2">
