@@ -573,16 +573,31 @@ export default function Outreach() {
                     Research{leadResearch.company ? ` · ${leadResearch.company}` : ""}
                   </p>
                   <p className="mt-1 leading-relaxed">{leadResearch.fact}</p>
-                  {leadResearch.sourceUrl ? (
-                    <a
-                      href={leadResearch.sourceUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-1.5 inline-block text-xs font-medium text-emerald-800 underline underline-offset-2"
+                  <div className="mt-2 flex flex-wrap items-center gap-3">
+                    {leadResearch.sourceUrl ? (
+                      <a
+                        href={leadResearch.sourceUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs font-medium text-emerald-800 underline underline-offset-2"
+                      >
+                        Source
+                      </a>
+                    ) : null}
+                    <button
+                      type="button"
+                      className="text-xs font-semibold text-emerald-900 underline underline-offset-2"
+                      onClick={() => {
+                        const snippet = leadResearch.fact.trim();
+                        const next = draft.body_text?.trim()
+                          ? `${draft.body_text.trim()}\n\n${snippet}`
+                          : snippet;
+                        changeDraft("body_text", next);
+                      }}
                     >
-                      Source
-                    </a>
-                  ) : null}
+                      Insert into email
+                    </button>
+                  </div>
                 </aside>
               ) : null}
               <div className="grid gap-3 sm:grid-cols-2">

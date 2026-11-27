@@ -1,15 +1,15 @@
 # Cadence continuous improvement backlog
 
-**Updated:** 27 Nov 2026 ~00:05 (Europe/London)  
+**Updated:** 27 Nov 2026 ~03:10 (Europe/London)  
 Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **P3** optional
 
 ## Active
 
 | ID | Pri | Issue | Evidence | Impact | Status |
 |---|---|---|---|---|---|
-| CI-004 | P1 | Research templates / dictation reuse across Dialer & Outreach | Research on Dialer improved; draft editor shows lead research (CI-034) | Duplicate research effort | **Next** |
-| CI-008 | P3 | Progressive disclosure polish on dense campaign screens | UX audit | Training burden | Partially addressed by CI-014 |
+| CI-008 | P3 | Progressive disclosure polish on dense campaign screens | UX audit | Training burden | **Next** · optional polish |
 | CI-035 | P1 | Connect Gmail/Outlook OAuth + verify inbox preview | James | Real mailbox read | Queued · owner action |
+| CI-036 | P2 | Research instruction templates shared Dialer ↔ Outreach (saved phrases) | CI-004 partial | Faster dictate reuse | Queued |
 
 ## Done (this branch)
 
@@ -46,6 +46,7 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | CI-024 | P2 | One-click “Use as target sectors” from import industry hints | Done · live `index-dbYBU5IZ.js` |
 | CI-034 | P1 | Outreach pre-OAuth: deep-links, campaign-first nav, research on drafts, push handoff | Done · live `index-dbYBU5IZ.js` |
 | CI-025 | P2 | Multi-number prospects: ContactPhone candidates always expanded | Done · live `index-dI9sQ7Ah.js` |
+| CI-004 | P1 | Reuse campaign/Dialer research in Outreach review + insert into draft | Done |
 
 ## Parking lot
 

@@ -161,3 +161,13 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | Secrets / credits / send | **Pass** | Frontend-only |
 | `base44 deploy -y --build` | **Pass** | Live `index-dI9sQ7Ah.js` · **All held numbers** |
 | Authenticated multi-number expand | **Blocked** | No login session |
+
+## CI-004 Research reuse Dialer → Outreach — 27 Nov 2026 ~03:10 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Unit: `outreach-research-reuse.test.mjs` | **Pass** | pickableFindings dedupe |
+| Unit: `account-research-match.test.mjs` | **Pass** | Restored helper |
+| `npm run build` | **Pass** | → `index-dWBVxLKA.js` (pre-deploy) |
+| Credits / send / secrets | **Pass** | Paid suggest still opt-in; reuse is free |
+| Site deploy | Pending | After commit |

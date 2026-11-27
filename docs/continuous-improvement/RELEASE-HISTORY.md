@@ -376,3 +376,17 @@ Frontend-only. Helper `prospectPhoneSignals.js` + unit tests. No credits, secret
 
 Live `index-dI9sQ7Ah.js` on cadence.smartfunction.io. Rollback SHA: `5a652cc`.  
 **Next:** CI-004 research templates/dictation reuse · CI-035 owner connects email.
+
+---
+
+## CI-004 — 27 Nov 2026 ~03:10 (Europe/London)
+
+**Reuse campaign / Dialer research in Outreach (no re-spend).**
+
+- Company review: **From campaign / Dialer research** chips from `research_facts` + linked `AccountResearch` — **Use this fact** before paid Suggest.
+- Draft editor: **Insert into email** on the research aside.
+- Restored `accountResearchMatch.js` (orphaned Dialer helper + tests after eject sync).
+
+Frontend + read-only entity fetch. No schema, secrets, send, or forced research credits.
+
+**Next:** CI-035 owner connects email · CI-008 progressive disclosure (optional) · CI-036 saved research instruction templates.

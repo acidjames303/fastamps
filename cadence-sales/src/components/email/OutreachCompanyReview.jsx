@@ -1,6 +1,7 @@
 import React,{useEffect,useRef,useState} from "react";
 import {AlertTriangle,BookOpen,CheckCircle2,ExternalLink,ShieldCheck,UserRoundCheck,X,Sparkles} from "lucide-react";
 import {base44} from "@/api/base44Client";
+import { hasReusableResearch, pickableFindings } from "@/lib/outreachResearchReuse";
 
 const input="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500";
 const label="block text-xs font-medium text-slate-700";
@@ -17,6 +18,7 @@ export default function OutreachCompanyReview({lead,onClose,onSaved}) {
   const [busy,setBusy]=useState(false);
   const [researchBusy,setResearchBusy]=useState(false);
   const [suggestions,setSuggestions]=useState(null);
+  const [campaignFindings,setCampaignFindings]=useState([]);
   const requestEpoch=useRef(0);
   const [error,setError]=useState("");
   const [notice,setNotice]=useState("");
@@ -34,6 +36,28 @@ export default function OutreachCompanyReview({lead,onClose,onSaved}) {
     });
     setFirst(lead.first_name||"");setLast(lead.last_name||"");
     setError("");setNotice("");setSuggestions(null);
+    setCampaignFindings(pickableFindings({ lead }));
+  },[lead]);
+
+  // Reuse Prospecting / Dialer AccountResearch — no new research credit.
+  useEffect(()=>{
+    let cancelled=false;
+    if(!lead){setCampaignFindings([]);return undefined;}
+    (async()=>{
+      let record=null;
+      try{
+        if(lead.account_research_id){
+          record=await base44.entities.AccountResearch.get(lead.account_research_id);
+        }else if(lead.prospect_id){
+          const rows=await base44.entities.AccountResearch.filter(
+            {prospect_id:lead.prospect_id},"-researched_at",3,
+          );
+          record=rows?.[0]||null;
+        }
+      }catch{record=null;}
+      if(!cancelled)setCampaignFindings(pickableFindings({lead,researchRecord:record}));
+    })();
+    return()=>{cancelled=true;};
   },[lead]);
 
   if(!lead)return null;
@@ -122,9 +146,39 @@ export default function OutreachCompanyReview({lead,onClose,onSaved}) {
           placeholder="Compared company number, registered name and official website; not the similarly named business." maxLength={400}/>
       </label>
       <h4 className="font-semibold flex gap-2 items-center text-sm"><BookOpen className="w-4 h-4"/> Optional source-backed research</h4>
+      {hasReusableResearch(campaignFindings) && (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-3 space-y-2">
+          <p className="text-xs font-semibold text-emerald-900">From campaign / Dialer research</p>
+          <p className="text-xs text-emerald-800/90">
+            Reuse what Prospecting already captured. Check the source, then copy into the fact below — no extra research credit.
+          </p>
+          {campaignFindings.map((fact,index)=>(
+            <div key={`${fact.label}-${index}`} className="rounded-xl border border-emerald-100 bg-white p-3 space-y-2">
+              <p className="text-[10px] uppercase tracking-wide text-slate-400">{fact.label}</p>
+              <p className="text-sm text-slate-700">{fact.fact}</p>
+              {fact.source_url ? (
+                <a href={fact.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-emerald-700 underline inline-flex items-center gap-1">
+                  <ExternalLink className="w-3 h-3"/> Check original source
+                </a>
+              ) : null}
+              <button
+                type="button"
+                onClick={()=>{update("research_fact",fact.fact);update("research_source_url",fact.source_url||"");}}
+                className="block rounded-lg border border-emerald-200 px-2 py-1 text-xs font-semibold text-emerald-900 hover:bg-emerald-50"
+              >
+                Use this fact
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
       <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-xs text-slate-600">Find possible public-company facts with Cadence's existing research provider. One credit per explicit request. Suggestions are never verified or automatically inserted.</p>
+          <p className="text-xs text-slate-600">
+            {hasReusableResearch(campaignFindings)
+              ? "Need something else? One credit runs a fresh web suggestion. Never auto-inserted."
+              : "No campaign research on this contact yet. One credit finds public-company suggestions — never auto-inserted."}
+          </p>
           <button type="button" disabled={busy||researchBusy} onClick={suggestResearch}
             className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold disabled:opacity-50">
             <Sparkles className="w-3.5 h-3.5 inline mr-1"/>{researchBusy?"Researching…":"Suggest company research"}
