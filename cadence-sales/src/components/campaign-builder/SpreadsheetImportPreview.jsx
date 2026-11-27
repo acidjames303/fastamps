@@ -531,7 +531,7 @@ export default function SpreadsheetImportPreview({ listId, existingProspects = [
               {sectorMsg && <p className="text-emerald-800">{sectorMsg}</p>}
               {sectorErr && <p className="text-rose-700">{sectorErr}</p>}
               <p className="text-emerald-700/80">
-                One click fills Target sectors in this campaign’s ICP. Then find similar companies — excluded clients stay out.
+                One click fills Target sectors. Then use Grow the list → Find similar companies — excluded clients stay out.
               </p>
             </div>
           )}

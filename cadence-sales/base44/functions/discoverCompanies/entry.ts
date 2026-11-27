@@ -31,38 +31,79 @@ function isExcluded(name: string, excluded: string[]) {
   return list.some((ex) => ex === target || (ex.length >= 4 && (target.includes(ex) || ex.includes(target))));
 }
 
-// ICP-based company discovery for a Target List. Returns a bounded list of
-// candidate companies (deduplicated against existing Companies by domain and
-// against structured ICP excluded_companies / current clients).
-// Candidates are NEVER auto-approved — the user selects which proceed to full
-// research. If discovery is limited, that is reported honestly, not fabricated.
+function formatIcpText(list: any) {
+  if (list?.icp && String(list.icp).trim()) return String(list.icp).trim();
+  return [
+    `Industries: ${(list?.target_industries || []).join(', ')}`,
+    `Sizes: ${(list?.target_company_sizes || []).join(', ')}`,
+    `Locations: ${(list?.target_locations || []).join(', ')}`,
+    `Roles: ${(list?.target_roles || []).join(', ')}`,
+  ].join('\n');
+}
+
+// ICP-based lookalike discovery. Accepts prospect_list_id (Find prospects path)
+// or target_list_id (Campaign id). Seeds and exclusions come from ProspectList;
+// candidates are NEVER auto-added.
 export default async function (req) {
   const { base44, user, org, profile } = await resolveTenant(req);
   assertProviderAccess(profile);
   const body = await req.json().catch(() => ({}));
-  const { target_list_id, count } = body || {};
-  const list = await assertListOwned(base44, org, target_list_id);
+  const { target_list_id, prospect_list_id, count } = body || {};
 
+  let campaign: any = null;
+  let prospectList: any = null;
+
+  if (prospect_list_id) {
+    prospectList = await base44.asServiceRole.entities.ProspectList.get(prospect_list_id).catch(() => null);
+    if (!prospectList || prospectList.organisation_id !== org.id) {
+      return Response.json({ error: 'Prospect list not found in your organisation.' }, { status: 404 });
+    }
+    if (prospectList.campaign_id) {
+      campaign = await base44.asServiceRole.entities.Campaign.get(prospectList.campaign_id).catch(() => null);
+    }
+  } else if (target_list_id) {
+    campaign = await assertListOwned(base44, org, target_list_id);
+    const lists = await base44.asServiceRole.entities.ProspectList.filter(
+      { campaign_id: campaign.id },
+      '-created_date',
+      5,
+    ).catch(() => []);
+    prospectList = lists?.[0] || null;
+  } else {
+    return Response.json({ error: 'prospect_list_id or target_list_id required' }, { status: 400 });
+  }
+
+  const jobListId = campaign?.id || prospectList?.id || target_list_id || prospect_list_id;
   const max = Math.min(Math.max(parseInt(count, 10) || 10, 1), 25);
   await checkAllowance(base44, org, 'company_discovery', 1);
 
   const job = await createJob(base44, {
-    organisation_id: org.id, target_list_id, requested_by_user_id: user.id,
-    job_type: 'company_discovery', total_records: 1, estimated_cost: 1,
+    organisation_id: org.id,
+    target_list_id: jobListId,
+    requested_by_user_id: user.id,
+    job_type: 'company_discovery',
+    total_records: 1,
+    estimated_cost: 1,
   });
   await startJob(base44, job);
 
   try {
-    // Existing company domains in this org (RLS-scoped via service role + org id).
     const existing = await base44.asServiceRole.entities.Company.filter(
-      { organisation_id: org.id }, '-created_date', 1000
+      { organisation_id: org.id },
+      '-created_date',
+      1000,
     );
     const existingDomains = existing.map((c) => c.domain).filter(Boolean);
 
-    // Seed accounts already on this campaign — search outside them, do not re-find.
-    const seedProspects = await base44.asServiceRole.entities.Prospect.filter(
-      { list_id: list.id }, '-created_date', 2000
-    ).catch(() => []);
+    // Seed accounts live on ProspectList — not on Campaign.id.
+    const seedListId = prospectList?.id || '';
+    const seedProspects = seedListId
+      ? await base44.asServiceRole.entities.Prospect.filter(
+          { list_id: seedListId },
+          '-created_date',
+          2000,
+        ).catch(() => [])
+      : [];
     const seedNames = (seedProspects || [])
       .map((p: any) => String(p.company_name || '').trim())
       .filter(Boolean);
@@ -70,7 +111,13 @@ export default async function (req) {
       .map((p: any) => String(p.domain || '').trim().toLowerCase())
       .filter(Boolean);
 
-    const excludedCompanies = parseExcludedCompanies(list);
+    // Structured ICP (incl. excluded_companies) is stored on ProspectList.
+    const icpSource = prospectList || campaign;
+    const excludedCompanies = [
+      ...parseExcludedCompanies(prospectList),
+      ...parseExcludedCompanies(campaign),
+    ].filter((name, index, all) => all.findIndex((other) => other.toLowerCase() === name.toLowerCase()) === index);
+
     const blockNames = [...excludedCompanies, ...seedNames];
     const blockNote = [
       excludedCompanies.length
@@ -81,16 +128,14 @@ export default async function (req) {
         : '',
     ].filter(Boolean).join('\n');
 
-    const icp = (list.icp || [
-      `Industries: ${(list.target_industries || []).join(', ')}`,
-      `Sizes: ${(list.target_company_sizes || []).join(', ')}`,
-      `Locations: ${(list.target_locations || []).join(', ')}`,
-      `Roles: ${(list.target_roles || []).join(', ')}`,
-    ].join('\n')) + (blockNote ? `\n${blockNote}` : '');
+    const icp = `${formatIcpText(icpSource)}${blockNote ? `\n${blockNote}` : ''}`;
+    const brief = String(
+      prospectList?.brief || campaign?.offer || campaign?.objective || campaign?.name || '',
+    ).trim();
 
     const rawCandidates = await CompanyResearchProvider.discoverCompanies(base44, {
       icp,
-      brief: list.offer || '',
+      brief,
       count: max + Math.min(blockNames.length, 15),
       existingDomains: [...new Set([...existingDomains, ...seedDomains])],
     });
@@ -98,20 +143,41 @@ export default async function (req) {
     const candidates = (rawCandidates || []).filter((c) => !isExcluded(c.name, blockNames)).slice(0, max);
 
     await recordAttempt(base44, {
-      organisation_id: org.id, target_list_id, research_job_id: job.id,
-      provider: 'ai_web', enrichment_type: 'company', status: candidates.length ? 'successful' : 'not_found',
-      fields_returned: candidates.map((c) => c.name), estimated_cost: 1, actual_cost: 1,
+      organisation_id: org.id,
+      target_list_id: jobListId,
+      research_job_id: job.id,
+      provider: 'ai_web',
+      enrichment_type: 'company',
+      status: candidates.length ? 'successful' : 'not_found',
+      fields_returned: candidates.map((c) => c.name),
+      estimated_cost: 1,
+      actual_cost: 1,
       source_url: (candidates[0] || {}).source_url || '',
     });
     await recordUsage(base44, {
-      organisation_id: org.id, user_id: user.id, target_list_id,
-      event_type: 'company_discovery', provider: 'ai_web', quantity: 1,
-      estimated_cost: 1, actual_cost: 1,
+      organisation_id: org.id,
+      user_id: user.id,
+      target_list_id: jobListId,
+      event_type: 'company_discovery',
+      provider: 'ai_web',
+      quantity: 1,
+      estimated_cost: 1,
+      actual_cost: 1,
     });
 
-    await completeJob(base44, job, { processed: 1, successful: 1, failed: 0, skipped: 0, actualCost: 1, errorSummary: '' });
+    await completeJob(base44, job, {
+      processed: 1,
+      successful: 1,
+      failed: 0,
+      skipped: 0,
+      actualCost: 1,
+      errorSummary: '',
+    });
     return Response.json({
-      job_id: job.id, candidates,
+      job_id: job.id,
+      candidates,
+      seed_count: seedNames.length,
+      excluded_count: excludedCompanies.length,
       skipped_excluded: skippedExcluded.map((c) => c.name),
       limited: candidates.length < max,
       note: candidates.length < max
@@ -121,7 +187,19 @@ export default async function (req) {
           : ''),
     });
   } catch (e) {
-    await completeJob(base44, job, { processed: 1, successful: 0, failed: 1, skipped: 0, actualCost: 0, errorSummary: e.message });
-    return Response.json({ error: e.message, candidates: [], limited: true, note: 'Discovery unavailable — use manual or spreadsheet entry.' }, { status: 500 });
+    await completeJob(base44, job, {
+      processed: 1,
+      successful: 0,
+      failed: 1,
+      skipped: 0,
+      actualCost: 0,
+      errorSummary: e.message,
+    });
+    return Response.json({
+      error: e.message,
+      candidates: [],
+      limited: true,
+      note: 'Discovery unavailable — use manual or spreadsheet entry.',
+    }, { status: 500 });
   }
 }

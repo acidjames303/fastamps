@@ -1,11 +1,7 @@
 # Cadence continuous improvement backlog
 
-**Updated:** 27 Nov 2026 ~09:00 (Europe/London)  
+**Updated:** 27 Nov 2026 ~10:00 (Europe/London)  
 Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **P3** optional
-
-## Overnight pause
-
-**27 Nov ~09:00:** No further safe, high-impact frontend UX without inventing work. Resume after **CI-035** (owner connects email) or a new owner-reported friction. Do not invent P3 polish solely to ship a cycle.
 
 ## Active
 
@@ -51,6 +47,7 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | CI-025 | P2 | Multi-number prospects: ContactPhone candidates always expanded | Done · live `index-dI9sQ7Ah.js` |
 | CI-004 | P1 | Reuse campaign/Dialer research in Outreach review + insert into draft | Done · live `index-dWBVxLKA.js` |
 | CI-036 | P2 | Shared ResearchBriefs + quick angles on Outreach generate | Done · live `index-2T24xyEc.js` |
+| CI-037 | P1 | Lookalike grow from seed + client exclusions on Find prospects | Done |
 
 ## Parking lot
 

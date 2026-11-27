@@ -182,3 +182,14 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | Secrets / send / credits | **Pass** | Frontend-only brief reuse |
 | `base44 deploy -y --build` | **Pass** | Live `index-2T24xyEc.js` · Saved research briefs · Quick angles |
 | Authenticated brief pick | **Blocked** | No login session |
+
+## CI-037 Lookalike grow + exclusions — 27 Nov 2026 ~10:00 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Unit: `lookalike-grow.test.mjs` | **Pass** | exclusion dedupe · sector merge keeps exclusions |
+| Unit: `company-exclusion.test.mjs` | **Pass** | Regression |
+| `npm run build` | **Pass** | → `index-Ba-VDX5u.js` (pre-deploy) |
+| Secrets / auto-send | **Pass** | Candidates never auto-added |
+| Discovery credits | **Not spent** | Unit/build only; live click would use company_discovery |
+| Site deploy | Pending | After commit |

@@ -9,11 +9,17 @@ export function normaliseCompanyName(value) {
 }
 
 export function parseExcludedCompanyLines(text = "") {
-  return String(text || "")
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .filter((line, index, all) => all.findIndex((other) => other.toLowerCase() === line.toLowerCase()) === index);
+  const seen = new Set();
+  const out = [];
+  for (const line of String(text || "").split(/\r?\n/)) {
+    const name = line.trim();
+    if (!name) continue;
+    const key = normaliseCompanyName(name) || name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(name);
+  }
+  return out;
 }
 
 // Single-column Excel/CSV of client names, or a sheet whose first column is names

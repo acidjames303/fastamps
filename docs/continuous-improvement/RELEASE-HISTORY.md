@@ -414,3 +414,23 @@ Live `index-2T24xyEc.js` on cadence.smartfunction.io. Rollback SHA: `a4ca1ed`.
 
 Live still `index-2T24xyEc.js`.  
 **Next:** CI-035 when James connects Gmail/Outlook.
+
+---
+
+## CI-037 — 27 Nov 2026 ~10:00 (Europe/London)
+
+**Lookalike grow from imported seed + client exclusions.**
+
+James needs: find companies like the ones already imported (same ICP/research path), while excluding clients the account already works with.
+
+**Already existed (partial):** exclusions on Structured ICP, `discoverCompanies` block list, Use as target sectors.
+
+**Gaps fixed:**
+- `discoverCompanies` now resolves **ProspectList** seed + ICP (was incorrectly using Campaign.id as `list_id`)
+- Accepts `prospect_list_id` for Find prospects path
+- New **Grow the list** panel on Import: import/paste exclusions, seed sectors from list, Find similar, select & add, then same research prompt
+- Post-import CTA **Find similar companies**
+
+No schema/secrets/send. Discovery still uses existing company_discovery allowance when the user clicks Find similar.
+
+**Next:** CI-035 owner connects email.
