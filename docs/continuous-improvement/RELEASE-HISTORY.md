@@ -405,3 +405,12 @@ Live `index-dWBVxLKA.js` on cadence.smartfunction.io. Rollback SHA: `4568930`.
 
 Live `index-2T24xyEc.js` on cadence.smartfunction.io. Rollback SHA: `a4ca1ed`.  
 **Next:** CI-035 owner connects email · remaining CI-008 polish only if dense screens still hurt.
+
+---
+
+## Overnight cycle — 27 Nov 2026 ~09:00 (Europe/London)
+
+**No code change.** Highest remaining item is CI-035 (owner mailbox connect). CI-008 is optional P3 and already partially addressed. Per continuous-improvement rule: stop inventing work when nothing meaningful and safe remains.
+
+Live still `index-2T24xyEc.js`.  
+**Next:** CI-035 when James connects Gmail/Outlook.

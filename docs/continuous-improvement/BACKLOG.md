@@ -1,14 +1,18 @@
 # Cadence continuous improvement backlog
 
-**Updated:** 27 Nov 2026 ~06:10 (Europe/London)  
+**Updated:** 27 Nov 2026 ~09:00 (Europe/London)  
 Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **P3** optional
+
+## Overnight pause
+
+**27 Nov ~09:00:** No further safe, high-impact frontend UX without inventing work. Resume after **CI-035** (owner connects email) or a new owner-reported friction. Do not invent P3 polish solely to ship a cycle.
 
 ## Active
 
 | ID | Pri | Issue | Evidence | Impact | Status |
 |---|---|---|---|---|---|
 | CI-035 | P1 | Connect Gmail/Outlook OAuth + verify inbox preview | James | Real mailbox read | **Next** · owner action |
-| CI-008 | P3 | Progressive disclosure polish on dense campaign screens | UX audit; generate step tone/intent now collapsed | Training burden | Partially addressed |
+| CI-008 | P3 | Progressive disclosure polish on dense campaign screens | UX audit; generate tone/intent collapsed (CI-036) | Training burden | Parked · optional |
 
 ## Done (this branch)
 
