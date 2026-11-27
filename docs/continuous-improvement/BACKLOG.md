@@ -45,7 +45,7 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | CI-027 | P2 | Split data from Find prospects import next-steps (same panel) | Done · live `index-1R3E4eHI.js` |
 | CI-024 | P2 | One-click “Use as target sectors” from import industry hints | Done · live `index-dbYBU5IZ.js` |
 | CI-034 | P1 | Outreach pre-OAuth: deep-links, campaign-first nav, research on drafts, push handoff | Done · live `index-dbYBU5IZ.js` |
-| CI-025 | P2 | Multi-number prospects: ContactPhone candidates always expanded | Done |
+| CI-025 | P2 | Multi-number prospects: ContactPhone candidates always expanded | Done · live `index-dI9sQ7Ah.js` |
 
 ## Parking lot
 

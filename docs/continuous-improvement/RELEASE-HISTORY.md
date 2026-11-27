@@ -374,4 +374,5 @@ Prospecting table: when a company already shows ≥2 distinct numbers (import + 
 
 Frontend-only. Helper `prospectPhoneSignals.js` + unit tests. No credits, secrets, schema, or send.
 
+Live `index-dI9sQ7Ah.js` on cadence.smartfunction.io. Rollback SHA: `5a652cc`.  
 **Next:** CI-004 research templates/dictation reuse · CI-035 owner connects email.

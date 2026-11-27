@@ -157,6 +157,7 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | Check | Result | Notes |
 |---|---|---|
 | Unit: `prospect-phone-signals.test.mjs` | **Pass** | import+Lusha expands; single mobile does not |
-| `npm run build` | **Pass** | → `index-dI9sQ7Ah.js` (pre-deploy) |
+| `npm run build` | **Pass** | → `index-dI9sQ7Ah.js` |
 | Secrets / credits / send | **Pass** | Frontend-only |
-| Site deploy | Pending | After commit |
+| `base44 deploy -y --build` | **Pass** | Live `index-dI9sQ7Ah.js` · **All held numbers** |
+| Authenticated multi-number expand | **Blocked** | No login session |
