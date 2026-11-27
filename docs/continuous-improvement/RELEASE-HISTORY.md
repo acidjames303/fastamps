@@ -477,3 +477,15 @@ Face: Pause/Activate · Contacts · Push to team.
 Recommended next strip unchanged. Frontend-only. Rollback SHA: `50f8a69`. Live `index-D92Gva63.js`.
 
 **Next:** CI-035 owner connects email · CI-041 duplicate Enrich CTA.
+
+---
+
+## CI-041 — 27 Nov 2026 ~18:05 (Europe/London)
+
+**One Enrich CTA on Find prospects.**
+
+Removed the full-width Enrich button from the Brief/ICP `<details>` tools column. Table toolbar Enrich (selected / all) remains the single enrichment entry point; SelectiveEnrichDialog wiring unchanged.
+
+Frontend-only. Rollback SHA: `98a8fd0`. Live `index-D-9MX2NG.js`.
+
+**Next:** CI-035 owner connects email · CI-042 Grow panel demote Replace.

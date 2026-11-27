@@ -1,6 +1,6 @@
 # Cadence continuous improvement backlog
 
-**Updated:** 27 Nov 2026 ~15:05 (Europe/London)  
+**Updated:** 27 Nov 2026 ~18:05 (Europe/London)  
 Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **P3** optional
 
 ## Active
@@ -8,7 +8,7 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | ID | Pri | Issue | Evidence | Impact | Status |
 |---|---|---|---|---|---|
 | CI-035 | P1 | Connect Gmail/Outlook OAuth + verify inbox preview | James | Real mailbox read | **Next** · owner action |
-| CI-041 | P2 | Remove duplicate Enrich CTA from Find prospects brief `<details>` (keep table Enrich) | Prospecting.jsx twin buttons | Fewer decisions | Ready |
+| CI-042 | P2 | Grow panel: one search CTA — demote Replace results under ghost/More | LookalikeGrowPanel twin search buttons | Fewer search-mode decisions | Ready |
 | CI-008 | P3 | Progressive disclosure polish on dense campaign screens | UX audit; generate tone/intent collapsed (CI-036) | Training burden | Parked · optional |
 
 ## Done (this branch)
@@ -52,6 +52,7 @@ Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **
 | CI-038 | P1 | Lookalike batches of 100 + stable multi-round search + find more | Done · live `index-BXszHT55.js` |
 | CI-039 | P2 | Import “what next” — one ranked CTA + Dialer deep-link (not bare /dialer) | Done · live `index-D1gqiQmK.js` |
 | CI-040 | P2 | Campaign card — Pause/Contacts/Push on face; rare actions in More | Done · live `index-D92Gva63.js` |
+| CI-041 | P2 | Remove duplicate Enrich from Find prospects brief `<details>` (table Enrich remains) | Done · live `index-D-9MX2NG.js` |
 
 ## Parking lot
 

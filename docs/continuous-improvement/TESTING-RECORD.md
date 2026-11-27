@@ -219,3 +219,12 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | `npm run build` | **Pass** | → `index-D92Gva63.js` |
 | Secrets / credits / send | **Pass** | Frontend-only |
 | `base44 deploy -y --build` | **Pass** | Live `index-D92Gva63.js` · More actions · Open target list |
+
+## CI-041 One Enrich CTA — 27 Nov 2026 ~18:05 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| `npm run build` | **Pass** | → `index-D-9MX2NG.js` |
+| Enrich entry points | **Pass** | details CTA removed; toolbar `openEnrichDialog` remains |
+| Secrets / credits / send | **Pass** | Frontend-only; no enrich invoke in cycle |
+| `base44 deploy -y --build` | **Pass** | Live `index-D-9MX2NG.js` · Enrich selected/all; no “Enrich N companies” in brief tools |

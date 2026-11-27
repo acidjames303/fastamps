@@ -1004,16 +1004,7 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
             discoveredCount={discoveredCount}
             listId={listId}
           />
-          {listId && (
-            <Button
-              onClick={openEnrichDialog}
-              disabled={enriching || (!prospects.length && !companies.length)}
-              className="rounded-full bg-emerald-600 hover:bg-emerald-500 w-full"
-            >
-              {enriching ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
-              {enriching ? "Enriching…" : `Enrich ${selected.length || companies.filter((c) => !prospects.some((p) => (p.company_name || "").toLowerCase() === (c.name || "").toLowerCase())).length} companies`}
-            </Button>
-          )}
+          {/* Enrich lives on the table toolbar only — avoid a second peer CTA here (CI-041). */}
           <AccountResearchBar
             listId={listId}
             prospects={prospects}
