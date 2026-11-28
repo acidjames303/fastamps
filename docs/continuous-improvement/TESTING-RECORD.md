@@ -237,3 +237,10 @@ James's live path is Campaigns → Find prospects → Import existing research �
 | `npm run build` | **Pass** | → `index-MvCkPw1s.js` |
 | Secrets / discovery credits | **Pass** | Frontend-only; no discover invoke |
 | `base44 deploy -y --build` | **Pass** | Live `index-MvCkPw1s.js` · Find 100 more primary · Replace ghost |
+
+## Overnight idle — 28 Nov 2026 ~00:00 (Europe/London)
+
+| Check | Result | Notes |
+|---|---|---|
+| Backlog scan | **Idle** | CI-035 owner · CI-008 parked · no new safe P2 |
+| Code / deploy | **Skipped** | Nothing meaningful to ship |

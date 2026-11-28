@@ -501,3 +501,12 @@ Primary CTA only: **Find up to 100 similar** → after results, becomes **Find 1
 Frontend-only. Rollback SHA: `aef56a0`. Live `index-MvCkPw1s.js`.
 
 **Next:** CI-035 owner connects email. Stop inventing peer UX polish until friction reported.
+
+---
+
+## Overnight cycle — 28 Nov 2026 ~00:00 (Europe/London)
+
+**No code change.** Active backlog is CI-035 (owner mailbox connect) and parked CI-008. Overnight clutter theme items CI-039–042 are shipped. Per continuous-improvement rule: stop inventing work when nothing meaningful and safe remains.
+
+Live still `index-MvCkPw1s.js`.  
+**Next:** CI-035 when James connects Gmail/Outlook · resume P2 only on reported friction.

@@ -1,6 +1,6 @@
 # Cadence continuous improvement backlog
 
-**Updated:** 27 Nov 2026 ~21:05 (Europe/London)  
+**Updated:** 28 Nov 2026 ~00:00 (Europe/London)  
 Classify: **P0** critical · **P1** major workflow · **P2** UX/efficiency · **P3** optional
 
 ## Active
