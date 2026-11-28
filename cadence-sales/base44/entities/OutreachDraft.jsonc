@@ -41,6 +41,52 @@
       "type": "string",
       "description": "Human-approved evidence supporting any research claim in the message"
     },
+    "research_evidence": {
+      "type": "array",
+      "description": "The exact sourced findings the draft was written from, shown beside the draft for review.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "source_url": {
+            "type": "string"
+          },
+          "source_date": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "evidence_status": {
+      "type": "string",
+      "enum": [
+        "sourced",
+        "no_evidence",
+        "unsourced_claim"
+      ],
+      "default": "no_evidence",
+      "description": "sourced means every research claim carries a cited page; unsourced_claim blocks approval."
+    },
+    "needs_review_reason": {
+      "type": "string",
+      "description": "Why a human must check this draft before it can be approved."
+    },
+    "generation_mode": {
+      "type": "string",
+      "enum": [
+        "template",
+        "research_grounded"
+      ],
+      "default": "template"
+    },
+    "campaign_id": {
+      "type": "string"
+    },
     "quoted_text": {
       "type": "string",
       "description": "Optional editable quoted original message, kept after signature in draft export."
@@ -91,9 +137,6 @@
         "none"
       ],
       "default": "none"
-    },
-    "campaign_id": {
-      "type": "string"
     },
     "contact_id": {
       "type": "string"

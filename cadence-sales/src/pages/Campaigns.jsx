@@ -4,22 +4,33 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import DictateButton from "@/components/dialer/DictateButton";
 import {
-  Plus, Phone, Users, Loader2, Play, Pause, Target, Upload,
-  ArrowRight, Search, CheckCircle2, Pencil, ClipboardList,
+  Plus, Users, Loader2, Play, Pause, Target, Upload,
+  ArrowRight, Search, CheckCircle2, Pencil, ClipboardList, Split, MoreHorizontal,
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
-import { setActiveCampaign } from "@/lib/campaignContext";
 import DeleteCampaignDialog from "@/components/campaigns/DeleteCampaignDialog";
 import RenameCampaignDialog from "@/components/campaigns/RenameCampaignDialog";
+import SplitCampaignData from "@/components/campaigns/SplitCampaignData";
+import CampaignAttentionRollup from "@/components/campaigns/CampaignAttentionRollup";
 import PushProgress from "@/components/PushProgress";
 import Prospecting from "@/pages/Prospecting";
-import Import from "@/pages/Import";
+import CampaignNextStep from "@/components/campaigns/CampaignNextStep";
+import { buildCampaignAttentionRollup, countIrsByCampaign } from "@/lib/campaignAttention";
+import { campaignCardActionSlots } from "@/lib/campaignCardActions";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const TABS = [
   { id: "campaigns", label: "Campaigns" },
   { id: "prospect", label: "Find prospects" },
-  { id: "import", label: "Import CSV" },
 ];
 
 const STATUS_TONE = {
@@ -45,6 +56,9 @@ export default function Campaigns() {
   const [params, setParams] = useSearchParams();
   const tab = TABS.some((t) => t.id === params.get("tab")) ? params.get("tab") : "campaigns";
   const wantNew = params.get("new") === "1";
+  // Arriving from a caller's account narrows the list to the campaigns pushed
+  // to that person. No campaign record is changed by this view.
+  const callerFilter = params.get("caller") || "";
 
   const [lists, setLists] = useState(null);
   const [calls, setCalls] = useState([]);
@@ -64,7 +78,12 @@ export default function Campaigns() {
   const [pushFor, setPushFor] = useState(null);
   const [pushCaller, setPushCaller] = useState("");
   const [pushBusy, setPushBusy] = useState(false);
+  const [splitFor, setSplitFor] = useState(null);
   const [statusBusy, setStatusBusy] = useState("");
+  const [assignments, setAssignments] = useState([]);
+  const [profiles, setProfiles] = useState([]);
+  const [irByCampaign, setIrByCampaign] = useState({});
+  const [attentionOnly, setAttentionOnly] = useState(false);
 
   const isAdmin = ["platform_owner", "organisation_admin"].includes(user?.app_role);
   const isManager = ["platform_owner", "organisation_admin", "sales_manager"].includes(user?.app_role);
@@ -77,6 +96,16 @@ export default function Campaigns() {
     next.delete("new");
     setParams(next, { replace: true });
   };
+
+  // Legacy Import CSV tab → Find prospects Import (one door, not two).
+  useEffect(() => {
+    if (params.get("tab") === "import") {
+      const next = new URLSearchParams(params);
+      next.set("tab", "prospect");
+      next.set("import", "1");
+      setParams(next, { replace: true });
+    }
+  }, [params, setParams]);
 
   const load = async () => {
     try {
@@ -91,6 +120,7 @@ export default function Campaigns() {
       setContactCounts(countRes?.data?.counts || {});
       setCompanyCounts(countRes?.data?.companies || {});
       setProspectRowCounts(countRes?.data?.prospect_rows || {});
+      setProfiles(profiles || []);
       setCallers((profiles || []).filter((p) => p.app_role === "bdm" && p.status === "active"));
     } catch (e) {
       setError(e.message || "Could not load campaigns.");
@@ -99,6 +129,36 @@ export default function Campaigns() {
 
   useEffect(() => { load(); }, [user?.organisation_id]);
   useEffect(() => { if (wantNew) setOpen(true); }, [wantNew]);
+
+  useEffect(() => {
+    if (!callerFilter) { setAssignments([]); return; }
+    base44.entities.CampaignAssignment
+      .filter({ assigned_user_id: callerFilter }, "-created_date", 1000)
+      .then(setAssignments)
+      .catch(() => setAssignments([]));
+  }, [callerFilter]);
+
+  // Admin inbox pending IRs — light signal for the Campaigns attention rollup.
+  useEffect(() => {
+    if (!isAdmin) { setIrByCampaign({}); return undefined; }
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await base44.functions.invoke("getManagerInbox", {});
+        const data = res.data || res;
+        if (!cancelled) setIrByCampaign(countIrsByCampaign(data.items || []));
+      } catch {
+        if (!cancelled) setIrByCampaign({});
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [isAdmin, lists?.length]);
+
+  const clearCaller = () => {
+    const next = new URLSearchParams(params);
+    next.delete("caller");
+    setParams(next, { replace: true });
+  };
 
   const create = async () => {
     if (!form.name.trim()) return;
@@ -184,13 +244,38 @@ export default function Campaigns() {
     }
   };
 
+  const callerCampaignIds = useMemo(
+    () => new Set(assignments.map((a) => a.campaign_id).filter(Boolean)),
+    [assignments]
+  );
+  const callerName = profiles.find((p) => p.user_id === callerFilter)?.full_name || "";
+
+  const attentionRollup = useMemo(() => {
+    if (!isManager || !lists) return null;
+    return buildCampaignAttentionRollup({
+      campaigns: lists,
+      companyCounts,
+      contactCounts,
+      irByCampaign,
+      canProspect,
+      isManager,
+    });
+  }, [isManager, lists, companyCounts, contactCounts, irByCampaign, canProspect]);
+
+  const attentionIds = useMemo(
+    () => new Set(attentionRollup?.campaignIds || []),
+    [attentionRollup],
+  );
+
   const filtered = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return (lists || []).filter((l) => {
+      if (callerFilter && !callerCampaignIds.has(l.id)) return false;
+      if (attentionOnly && !attentionIds.has(l.id)) return false;
       if (!q) return true;
       return (l.name || "").toLowerCase().includes(q) || (l.client_name || "").toLowerCase().includes(q);
     });
-  }, [lists, searchQuery]);
+  }, [lists, searchQuery, callerFilter, callerCampaignIds, attentionOnly, attentionIds]);
 
   // Live count of contacts working inside a campaign, straight from the Contact
   // records assigned to it (never the stored tally, which can be out of date).
@@ -221,8 +306,10 @@ export default function Campaigns() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-4xl font-semibold tracking-tight text-slate-900">Campaigns</h1>
-          <p className="text-slate-500 mt-2 max-w-xl">
-            Create, research, then call — context sticks as you move.
+          <p className="text-slate-500 mt-2 max-w-2xl">
+            {tab === "prospect"
+              ? "Find prospects — import research, describe a campaign, continue existing work, or start from a template."
+              : "One place to create a campaign, find or import prospects, then start calling — or push the work to your team."}
           </p>
         </div>
         {tab === "campaigns" && isManager && (
@@ -259,10 +346,26 @@ export default function Campaigns() {
           <Prospecting embedded />
         </div>
       )}
-      {tab === "import" && canProspect && <Import embedded />}
 
       {tab === "campaigns" && (
         <>
+          {isManager && attentionRollup && (
+            <CampaignAttentionRollup
+              rollup={attentionRollup}
+              filterOn={attentionOnly}
+              onToggleFilter={() => setAttentionOnly((v) => !v)}
+              activatingId={statusBusy}
+              onActivate={(campaignId) => {
+                const camp = (lists || []).find((c) => c.id === campaignId);
+                if (camp) toggleStatus(camp);
+              }}
+              onSplit={(campaignId) => {
+                const camp = (lists || []).find((c) => c.id === campaignId);
+                if (camp) setSplitFor(camp);
+              }}
+            />
+          )}
+
           {open && (
             <div className="rounded-3xl bg-white border border-slate-200 p-6 space-y-4">
               <div>
@@ -283,18 +386,28 @@ export default function Campaigns() {
                   className="rounded-xl"
                 />
               </div>
-              <Textarea
-                placeholder="What are you offering?"
-                value={form.offer}
-                onChange={(e) => setForm({ ...form, offer: e.target.value })}
-                className="rounded-xl min-h-20"
-              />
-              <Textarea
-                placeholder="Call opener — first line when they answer (optional)"
-                value={form.call_opener}
-                onChange={(e) => setForm({ ...form, call_opener: e.target.value })}
-                className="rounded-xl min-h-16"
-              />
+              <div>
+                <Textarea
+                  placeholder="What are you offering?"
+                  value={form.offer}
+                  onChange={(e) => setForm({ ...form, offer: e.target.value })}
+                  className="rounded-xl min-h-20"
+                />
+                <div className="mt-1.5">
+                  <DictateButton value={form.offer} onChange={(v) => setForm({ ...form, offer: v })} label="Dictate offer" />
+                </div>
+              </div>
+              <div>
+                <Textarea
+                  placeholder="Call opener — first line when they answer (optional)"
+                  value={form.call_opener}
+                  onChange={(e) => setForm({ ...form, call_opener: e.target.value })}
+                  className="rounded-xl min-h-16"
+                />
+                <div className="mt-1.5">
+                  <DictateButton value={form.call_opener} onChange={(v) => setForm({ ...form, call_opener: v })} label="Dictate call opener" />
+                </div>
+              </div>
               {isAdmin && (
                 <label className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 cursor-pointer">
                   <input
@@ -335,8 +448,12 @@ export default function Campaigns() {
                     <Button variant="outline" className="rounded-full" onClick={() => setTab("prospect")}>
                       <Target className="w-4 h-4 mr-2" /> Find prospects
                     </Button>
-                    <Button variant="outline" className="rounded-full" onClick={() => setTab("import")}>
-                      <Upload className="w-4 h-4 mr-2" /> Import CSV
+                    <Button
+                      variant="outline"
+                      className="rounded-full"
+                      onClick={() => navigate("/campaigns?tab=prospect&import=1")}
+                    >
+                      <Upload className="w-4 h-4 mr-2" /> Import research
                     </Button>
                   </>
                 )}
@@ -344,6 +461,22 @@ export default function Campaigns() {
             </div>
           ) : (
             <>
+              {callerFilter && (
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+                  <p className="text-sm text-emerald-900">
+                    Showing campaigns pushed to <span className="font-medium">{callerName || "this caller"}</span>
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Link to={`/team/${callerFilter}`} className="text-xs text-emerald-800 hover:underline">
+                      Open their account
+                    </Link>
+                    <Button size="sm" variant="ghost" className="rounded-full text-xs text-emerald-900" onClick={clearCaller}>
+                      Show all campaigns
+                    </Button>
+                  </div>
+                </div>
+              )}
+
               <div className="relative max-w-md">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
@@ -392,106 +525,146 @@ export default function Campaigns() {
                               : ""}
                             {c.offer ? ` · ${c.offer.slice(0, 80)}${c.offer.length > 80 ? "…" : ""}` : ""}
                           </p>
+                          {callerFilter && (
+                            <p className="text-xs text-emerald-700 mt-1">
+                              {assignments.filter((a) => a.campaign_id === c.id).length} accounts assigned to them ·{" "}
+                              {assignments.filter((a) => a.campaign_id === c.id && a.status === "completed").length} done
+                            </p>
+                          )}
                           {prospectRowsIn(c) != null && prospectRowsIn(c) !== companiesIn(c) && (
                             <p className="text-xs text-slate-400 mt-1">
                               Prospect rows are preserved separately from unique linked companies, so imported aliases and unlinked records stay visible.
                             </p>
                           )}
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                          {isManager && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="rounded-full h-9"
-                              disabled={statusBusy === c.id || ["completed", "archived"].includes(c.status)}
-                              onClick={() => toggleStatus(c)}
-                            >
-                              {statusBusy === c.id ? <Loader2 className="w-4 h-4 animate-spin" /> : isActive ? <Pause className="w-4 h-4 mr-1" /> : <Play className="w-4 h-4 mr-1" />}
-                              {isActive ? "Pause" : "Activate"}
-                            </Button>
-                          )}
-                          <Button
-                            size="sm"
-                            className="rounded-full h-9 bg-emerald-600 hover:bg-emerald-700"
-                            onClick={() => { setActiveCampaign(c); navigate(`/dialer?list=${c.id}`); }}
-                          >
-                            <Phone className="w-4 h-4 mr-1" /> Call
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="rounded-full h-9"
-                            onClick={() => { setActiveCampaign(c); navigate(`/contacts?campaign=${c.id}`); }}
-                            title="See the contacts in this campaign"
-                          >
-                            <Users className="w-4 h-4 mr-1" /> Contacts
-                          </Button>
-                          {isManager && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="rounded-full h-9"
-                              onClick={() => { setPushFor(c); setPushCaller(callers[0]?.user_id || ""); }}
-                              disabled={!callers.length}
-                              title={callers.length ? "Push into an SDR account" : "Invite a caller on Team first"}
-                            >
-                              <Users className="w-4 h-4 mr-1" /> Push to team
-                            </Button>
-                          )}
-                          <Link to={`/target-lists/${c.id}`} onClick={() => setActiveCampaign(c)}>
-                            <Button size="sm" variant="ghost" className="rounded-full h-9">
-                              Open <ArrowRight className="w-4 h-4 ml-1" />
-                            </Button>
-                          </Link>
-                        </div>
                       </div>
 
-                      <div className="flex flex-wrap gap-2">
-                        <Link to={`/campaign-delivery/${c.id}`} onClick={() => setActiveCampaign(c)}>
-                          <Button size="sm" variant="outline">Data quality & review</Button>
-                        </Link>
-                        <Button size="sm" variant="outline" className="rounded-full" onClick={() => { setActiveCampaign(c); navigate(`/campaigns/${c.id}/accounts`); }}>
-                          <ClipboardList className="w-3.5 h-3.5 mr-1" /> Accounts &amp; notes
-                        </Button>
-                        {canProspect && (
-                          <Button size="sm" variant="outline" className="rounded-full" onClick={() => { setActiveCampaign(c); navigate(`/campaigns?tab=prospect&campaign=${c.id}`); }}>
-                            <Target className="w-3.5 h-3.5 mr-1" /> Find prospects
-                          </Button>
-                        )}
-                        {canProspect && (
-                          <Button size="sm" variant="outline" className="rounded-full" onClick={() => setTab("import")}>
-                            <Upload className="w-3.5 h-3.5 mr-1" /> Import CSV
-                          </Button>
-                        )}
-                        {isAdmin && (
-                          <label className="inline-flex items-center gap-2 text-xs text-slate-600 rounded-full border border-slate-200 px-3 py-1.5 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={!!c.callers_may_save_email_drafts}
-                              onChange={async (e) => {
-                                const checked = e.target.checked;
-                                try {
-                                  await base44.entities.Campaign.update(c.id, { callers_may_save_email_drafts: checked });
-                                  setLists((prev) => (prev || []).map((x) => (x.id === c.id ? { ...x, callers_may_save_email_drafts: checked } : x)));
-                                } catch (err) {
-                                  setError(err.message || "Could not update email permission.");
-                                }
-                              }}
-                            />
-                            Callers may save email drafts
-                          </label>
-                        )}
-                        {isManager && (
-                          <button
-                            type="button"
-                            className="text-xs text-slate-400 hover:text-rose-600 ml-auto"
-                            onClick={() => setToDelete(c)}
-                          >
-                            Delete
-                          </button>
-                        )}
-                      </div>
+                      <CampaignNextStep
+                        campaign={c}
+                        companies={companiesIn(c)}
+                        contacts={contactsIn(c)}
+                        canProspect={canProspect}
+                        isManager={isManager}
+                        activating={statusBusy === c.id}
+                        onActivate={toggleStatus}
+                      />
+
+                      {(() => {
+                        const slots = campaignCardActionSlots({
+                          isManager,
+                          isAdmin,
+                          canProspect,
+                          status: c.status,
+                        });
+                        return (
+                          <div className="flex flex-wrap items-center gap-2">
+                            {slots.showPauseActivate && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="rounded-full h-9"
+                                disabled={statusBusy === c.id || ["completed", "archived"].includes(c.status)}
+                                onClick={() => toggleStatus(c)}
+                              >
+                                {statusBusy === c.id ? <Loader2 className="w-4 h-4 animate-spin" /> : isActive ? <Pause className="w-4 h-4 mr-1" /> : <Play className="w-4 h-4 mr-1" />}
+                                {isActive ? "Pause" : "Activate"}
+                              </Button>
+                            )}
+                            {slots.showContacts && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="rounded-full h-9"
+                                onClick={() => navigate(`/contacts?campaign=${c.id}`)}
+                                title="See the contacts in this campaign"
+                              >
+                                <Users className="w-4 h-4 mr-1" /> Contacts
+                              </Button>
+                            )}
+                            {slots.showPush && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="rounded-full h-9"
+                                onClick={() => { setPushFor(c); setPushCaller(callers[0]?.user_id || ""); }}
+                                disabled={!callers.length}
+                                title={callers.length ? "Push into an SDR account" : "Invite a caller on Team first"}
+                              >
+                                <Users className="w-4 h-4 mr-1" /> Push to team
+                              </Button>
+                            )}
+                            {slots.more.length > 0 && (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button size="sm" variant="ghost" className="rounded-full h-9 px-3">
+                                    <MoreHorizontal className="w-4 h-4 mr-1" /> More
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="start" className="w-56">
+                                  <DropdownMenuLabel className="text-xs text-slate-400">More actions</DropdownMenuLabel>
+                                  <DropdownMenuSeparator />
+                                  {slots.more.includes("split") && (
+                                    <DropdownMenuItem
+                                      disabled={!callers.length}
+                                      onSelect={() => setSplitFor(c)}
+                                    >
+                                      <Split className="w-4 h-4 mr-2" /> Split data
+                                    </DropdownMenuItem>
+                                  )}
+                                  {slots.more.includes("open") && (
+                                    <DropdownMenuItem asChild>
+                                      <Link to={`/target-lists/${c.id}`}>
+                                        <ArrowRight className="w-4 h-4 mr-2" /> Open target list
+                                      </Link>
+                                    </DropdownMenuItem>
+                                  )}
+                                  {slots.more.includes("data_quality") && (
+                                    <DropdownMenuItem asChild>
+                                      <Link to={`/campaign-delivery/${c.id}`}>Data quality</Link>
+                                    </DropdownMenuItem>
+                                  )}
+                                  {slots.more.includes("accounts_notes") && (
+                                    <DropdownMenuItem onSelect={() => navigate(`/campaigns/${c.id}/accounts`)}>
+                                      <ClipboardList className="w-4 h-4 mr-2" /> Accounts &amp; notes
+                                    </DropdownMenuItem>
+                                  )}
+                                  {slots.more.includes("find_prospects") && (
+                                    <DropdownMenuItem onSelect={() => navigate(`/campaigns?tab=prospect&campaign=${c.id}`)}>
+                                      <Target className="w-4 h-4 mr-2" /> Find prospects
+                                    </DropdownMenuItem>
+                                  )}
+                                  {slots.more.includes("email_drafts") && (
+                                    <DropdownMenuItem
+                                      onSelect={(e) => {
+                                        e.preventDefault();
+                                        const checked = !c.callers_may_save_email_drafts;
+                                        base44.entities.Campaign.update(c.id, { callers_may_save_email_drafts: checked })
+                                          .then(() => {
+                                            setLists((prev) => (prev || []).map((x) => (x.id === c.id ? { ...x, callers_may_save_email_drafts: checked } : x)));
+                                          })
+                                          .catch((err) => setError(err.message || "Could not update email permission."));
+                                      }}
+                                    >
+                                      {c.callers_may_save_email_drafts ? "✓ " : ""}Callers may save email drafts
+                                    </DropdownMenuItem>
+                                  )}
+                                  {slots.more.includes("delete") && (
+                                    <>
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem
+                                        className="text-rose-600 focus:text-rose-700"
+                                        onSelect={() => setToDelete(c)}
+                                      >
+                                        Delete campaign
+                                      </DropdownMenuItem>
+                                    </>
+                                  )}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                   );
                 })}
@@ -527,6 +700,23 @@ export default function Campaigns() {
           </div>
         </div>
       )}
+
+      <SplitCampaignData
+        campaign={splitFor}
+        callers={callers}
+        open={!!splitFor}
+        onClose={() => setSplitFor(null)}
+        onDone={(data) => {
+          const parts = Object.entries(data.per_user || {}).map(([id, count]) => {
+            const name = callers.find((c) => c.user_id === id)?.full_name || "Caller";
+            return `${name} ${count}`;
+          });
+          setMessage(
+            `Split “${splitFor?.name}” — ${data.created || 0} new, ${data.updated || 0} moved${parts.length ? ` · ${parts.join(", ")}` : ""}.`,
+          );
+          load();
+        }}
+      />
 
       <RenameCampaignDialog
         campaign={renameFor}

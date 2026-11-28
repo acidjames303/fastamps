@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Sparkles, Loader2, ChevronDown } from "lucide-react";
 import AgentSourceTabs from "@/components/prospecting/agent/AgentSourceTabs";
+import DictateButton from "@/components/dialer/DictateButton";
 import GeographySelector from "@/components/prospecting/GeographySelector";
 
 const COUNTS = [5, 10, 20, 30];
@@ -53,6 +54,11 @@ export default function AgentRunForm({ config, setConfig, lists, onStart, starti
                 : "Industry, company size, geography, target roles and buying signals…"
             }
             className="rounded-xl min-h-28 text-sm"
+          />
+          <DictateButton
+            value={needsBrief ? config.brief : config.icp}
+            onChange={(v) => setConfig({ ...config, [needsBrief ? "brief" : "icp"]: v })}
+            label={needsBrief ? "Dictate brief" : "Dictate ICP"}
           />
         </div>
       )}

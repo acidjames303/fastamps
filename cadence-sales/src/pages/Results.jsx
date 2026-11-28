@@ -7,12 +7,19 @@ import { getOutcomeLabel, OUTCOME_CATEGORIES, isConversation, isConnectedCall } 
 import { useAuth } from "@/lib/AuthContext";
 import ContextHelp from "@/components/help/ContextHelp";
 import CallNoteModal from "@/components/results/CallNoteModal";
+import ConversionFunnel from "@/components/insights/ConversionFunnel";
+import ActivityTrend from "@/components/insights/ActivityTrend";
+import { computeStats, buildTrend, busiestDay } from "@/lib/insightsData";
 import { countInfoRequests, clientSafeNotes, isInfoRequestLog } from "@/lib/reportMetrics";
 import { LEAD_HEADERS, loadLeadContext, buildLeadRows, areaName, toCsv } from "@/lib/resultsCsv";
+import LeadSheetFolder from "@/components/leadsheet/LeadSheetFolder";
+import { canReviewLeadSheet } from "@/lib/leadSheet";
+import { useNavigate } from "react-router-dom";
 
 export default function Results() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const isCallerOnly = user?.app_role === "bdm";
   const canClientReport = ["platform_owner", "organisation_admin", "sales_manager", "reporting_user"].includes(user?.app_role);
   const [calls, setCalls] = useState(null);
@@ -158,6 +165,24 @@ export default function Results() {
       irRaw: irCounts.raw,
     };
   }, [filtered, filteredMeetings, irCounts]);
+
+  // Insights follow the same campaign and date filters as the numbers above, so
+  // the funnel and trend can never disagree with the cards.
+  const trendRange = useMemo(() => {
+    if (dateRange !== "custom") return dateRange === "today" ? "7d" : dateRange;
+    if (!customStart && !customEnd) return "30d";
+    const start = customStart ? new Date(`${customStart}T00:00:00`) : new Date(0);
+    const end = customEnd ? new Date(`${customEnd}T23:59:59`) : new Date();
+    const days = Math.max(1, Math.round((end - start) / 86400000));
+    if (days <= 7) return "7d";
+    if (days <= 30) return "30d";
+    if (days <= 90) return "90d";
+    return "all";
+  }, [dateRange, customStart, customEnd]);
+
+  const insightStats = useMemo(() => computeStats(filtered, filteredMeetings), [filtered, filteredMeetings]);
+  const trend = useMemo(() => buildTrend(filtered, trendRange), [filtered, trendRange]);
+  const busiest = useMemo(() => busiestDay(filtered), [filtered]);
 
   const displayedCalls = useMemo(() => {
     if (!activeFilter) return filtered;
@@ -399,6 +424,12 @@ export default function Results() {
         })}
       </div>
 
+      {/* Insights — conversion funnel and activity trend for the filters above */}
+      <div className="grid lg:grid-cols-2 gap-4">
+        <ConversionFunnel stats={insightStats} />
+        <ActivityTrend trend={trend} range={trendRange} busiest={busiest} />
+      </div>
+
       {/* Recent calls table */}
       <div className="rounded-2xl bg-white border border-slate-200 overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100">
@@ -454,6 +485,20 @@ export default function Results() {
             </table>
           </div>
         )}
+      </div>
+
+      {/* Lead sheets: same campaign and date filters as the report above, with
+          individual or bulk PDF/Word download for manual sending. */}
+      <div className="rounded-2xl bg-white border border-slate-200 p-5">
+        <LeadSheetFolder
+          scope={canReviewLeadSheet(user?.app_role) ? "review" : "mine"}
+          campaignId={filterCampaign}
+          from={dateRange === "custom" ? customStart : ""}
+          to={dateRange === "custom" ? customEnd : ""}
+          title="Lead sheets"
+          compact
+          onOpen={(id) => navigate(`/lead-sheets?id=${id}`)}
+        />
       </div>
 
       <CallNoteModal

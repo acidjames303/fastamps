@@ -1,12 +1,20 @@
 import React from "react";
-import { Download, X, CheckCircle2, AlertTriangle, Globe, Phone, Mail, User } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Download, X, CheckCircle2, AlertTriangle, Globe, Phone, Mail, User, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PHONE_RESULT_LABELS } from "@/lib/enrichmentRun";
+import { enrichmentNextAction } from "@/lib/enrichmentNextAction";
 
 // Post-enrichment batch summary. Shows counts of companies processed, in/out
 // of geography, companies found, landlines, contacts, emails, mobiles, partial
-// results, and failed provider requests. Allows export of summary and results.
-export default function EnrichmentBatchSummary({ summary, prospects, onClose }) {
+// results, and failed provider requests — then one clear next step.
+export default function EnrichmentBatchSummary({
+  summary,
+  prospects = [],
+  listId = "",
+  onClose,
+  onFilterAttention,
+}) {
   if (!summary) return null;
 
   const {
@@ -22,8 +30,24 @@ export default function EnrichmentBatchSummary({ summary, prospects, onClose }) 
   const contactsFound = prospects.filter((p) => p.decision_makers_found).length;
   const emailsFound = prospects.filter((p) => p.work_email_found).length;
   const mobilesFound = prospects.filter((p) => p.mobile_found).length;
+  const phonesFound = prospects.filter((p) => p.phone || p.landline || p.mobile_found || p.landline_found).length;
   const partialResults = prospects.filter((p) => p.enrichment_status === "partially_enriched").length;
   const failedProviders = prospects.filter((p) => p.enrichment_status === "failed" || p.enrichment_status === "provider_unavailable").length;
+
+  const next = enrichmentNextAction({
+    listId,
+    completed: enriched || processed,
+    partial: partialResults,
+    failed: failed || failedProviders,
+    phonesFound: Math.max(phonesFound, mobilesFound + landlinesFound),
+    emailsFound,
+    contactsFound,
+    onProspectingPage: true,
+  });
+
+  const runAction = (action) => {
+    if (action === "filter_attention") onFilterAttention?.();
+  };
 
   // Precise phone outcomes, so a run never just says "no information found".
   const phoneResultCounts = Object.entries(
@@ -48,12 +72,14 @@ export default function EnrichmentBatchSummary({ summary, prospects, onClose }) 
   ];
 
   const exportSummary = () => {
-    const headers = ["Company", "Country", "Geography", "Company found", "Landline", "Landline found", "Decision-makers", "Email found", "Mobile found", "Mobile", "Phone lookup result", "LinkedIn found", "Provider", "Provider error", "Status", "Last attempted"];
+    const headers = ["Company", "Country", "Geography", "Company found", "Landline", "Landline found", "Decision-makers", "Email found", "Mobile found", "Mobile", "Lusha", "Phone source", "Phone lookup result", "LinkedIn found", "Provider", "Provider error", "Status", "Last attempted"];
     const rows = prospects.map((p) => [
       p.company_name, p.country_code || "", p.geography_status || "",
       p.company_found ? "Yes" : "No", p.landline || "", p.landline_found ? "Yes" : "No",
       p.decision_makers_found ? "Yes" : "No", p.work_email_found ? "Yes" : "No",
-      p.mobile_found ? "Yes" : "No", p.phone || "",
+      p.mobile_found ? "Yes" : "No", p.mobile || p.phone || "",
+      p.lusha_mobile || "",
+      p.phone_source || "",
       (p.field_provenance && p.field_provenance.phone && PHONE_RESULT_LABELS[p.field_provenance.phone.lookup_result]) || "",
       p.linkedin_found ? "Yes" : "No",
       p.provider_used || "", p.provider_error || "", p.enrichment_status || "",
@@ -118,6 +144,55 @@ export default function EnrichmentBatchSummary({ summary, prospects, onClose }) 
           {skipped_cooldown > 0 && <p>{skipped_cooldown} prospect(s) skipped due to 7-day not-found cooldown.</p>}
         </div>
       )}
+
+      <div className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50/80 to-white p-4">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
+          Enrichment · what next
+        </p>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="font-display text-lg font-semibold text-slate-900">{next.title}</p>
+            <p className="mt-0.5 text-sm text-slate-500">{next.detail}</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {next.href && next.cta && (
+              <Link
+                to={next.href}
+                className="inline-flex h-10 items-center rounded-full bg-emerald-600 px-4 text-sm font-medium text-white hover:bg-emerald-500"
+              >
+                {next.cta}
+                <ArrowRight className="ml-1.5 h-4 w-4" />
+              </Link>
+            )}
+            {!next.href && next.cta && next.action && (
+              <Button
+                onClick={() => runAction(next.action)}
+                className="rounded-full bg-emerald-600 hover:bg-emerald-500 h-10 px-4"
+              >
+                {next.cta}
+                <ArrowRight className="ml-1.5 h-4 w-4" />
+              </Button>
+            )}
+            {next.secondary?.href && (
+              <Link
+                to={next.secondary.href}
+                className="inline-flex h-10 items-center rounded-full border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                {next.secondary.cta}
+              </Link>
+            )}
+            {next.secondary?.action && !next.secondary?.href && (
+              <Button
+                variant="outline"
+                onClick={() => runAction(next.secondary.action)}
+                className="rounded-full border-slate-300 h-10 px-4"
+              >
+                {next.secondary.cta}
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

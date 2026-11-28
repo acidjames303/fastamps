@@ -8,6 +8,7 @@ const ACTIONS = {
   icp_extraction: { feature: FEATURES.research, event_type: 'ai_action' },
   contact_organisation: { feature: FEATURES.ai_summaries, event_type: 'ai_action' },
   company_discovery: { feature: FEATURES.research, event_type: 'ai_action', use_web_search: true },
+  campaign_chat: { feature: FEATURES.research, event_type: 'ai_action' },
 };
 
 export default async function (req) {

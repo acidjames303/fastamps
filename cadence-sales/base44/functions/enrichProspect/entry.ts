@@ -56,6 +56,12 @@ export default async function (req) {
       full_name: existing?.full_name || '',
       job_title: existing?.job_title || '',
       phone: existing?.phone || '',
+      mobile: existing?.mobile || '',
+      direct_dial: existing?.direct_dial || '',
+      phone_source: existing?.phone_source || '',
+      phone_status: existing?.phone_status || '',
+      lusha_mobile: existing?.lusha_mobile || '',
+      lusha_phone_status: existing?.lusha_phone_status || '',
       email: existing?.email || '',
       linkedin: existing?.linkedin || '',
     };

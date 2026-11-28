@@ -21,6 +21,14 @@ export const PROVIDER_KEY_MAP = {
 
 export const ALL_PROVIDERS = ["apollo", "lusha", "fullenrich"];
 
+// Provider names as the user sees them, so the estimate names the providers
+// that are actually ticked rather than assuming one of them.
+export const PROVIDER_LABELS = {
+  apollo: "Apollo",
+  lusha: "Lusha",
+  fullenrich: "FullEnrich",
+};
+
 // Plain-language results for a phone lookup. Used in the batch summary and the
 // per-prospect diagnostics panel so a run never reports "no information found".
 export const PHONE_RESULT_LABELS = {
@@ -126,6 +134,26 @@ export function supportedFieldsFor(providers) {
  * Builds the run estimate shown before starting.
  * `discover` means the run will also research additional ICP contacts first.
  */
+function namedContactsOf(prospect) {
+  const rows = Array.isArray(prospect?.contacts)
+    ? prospect.contacts.filter((c) => String(c?.name || "").trim())
+    : [];
+  if (rows.length) return rows;
+  if (String(prospect?.full_name || "").trim()) {
+    return [{
+      name: prospect.full_name,
+      mobile: prospect.mobile || prospect.phone || "",
+      lusha_mobile: prospect.lusha_mobile || "",
+      phone: prospect.phone || "",
+    }];
+  }
+  return [];
+}
+
+function contactHasMobile(contact) {
+  return !!(contact?.mobile || (contact?.phone && isUkMobileNumber(contact.phone)));
+}
+
 export function buildRunEstimate({
   prospects = [],
   requestedFields = [],
@@ -133,15 +161,24 @@ export function buildRunEstimate({
   searchDepth = "standard",
   phoneCoverage = {},
   connectedProviders = {},
+  selectedProviders = null,
+  // "newer" = also ask Lusha beside existing import mobiles (Maximum phone search).
+  existingInfoMode = "missing",
 }) {
   const phoneSelected = requestedFields.some((f) => PHONE_FIELDS.includes(f));
   const usesProviders = searchMethod === "providers";
-  const lushaConnected = !!connectedProviders?.[PROVIDER_KEY_MAP.lusha];
-  const otherProviderConnected = !!(
-    connectedProviders?.[PROVIDER_KEY_MAP.apollo] ||
-    connectedProviders?.[PROVIDER_KEY_MAP.fullenrich]
-  );
   const discover = !!phoneCoverage.discover;
+  const otherKnown = phoneCoverage.otherKnown !== false;
+  const seekAdditive = existingInfoMode === "newer";
+
+  // Only the providers the user has ticked may be called, so the estimate must
+  // name and count those — never a provider that happens to be connected.
+  const tickedProviders = Array.isArray(selectedProviders)
+    ? selectedProviders
+    : ALL_PROVIDERS.filter((provider) => !!connectedProviders?.[PROVIDER_KEY_MAP[provider]]);
+  const phoneProviders = tickedProviders.filter((provider) =>
+    (PROVIDER_CAPABILITIES[provider] || []).some((field) => PHONE_FIELDS.includes(field)),
+  );
 
   const recordsToProcess = prospects.filter(
     (p) => !requestedFields.every((field) => hasField(p, field)),
@@ -154,30 +191,60 @@ export function buildRunEstimate({
   const phoneWithoutName = needingPhone.filter((p) => !hasNamedContact(p));
   const numbersReused = phoneSelected ? prospects.length - needingPhone.length : prospects.length;
 
-  // Extra already-known people we may reveal, beyond the single best contact.
-  const extraKnown = needingPhone.reduce((sum, p) => {
-    const others = Math.max(0, (p.contacts?.length || 0) - 1);
-    return sum + Math.min(3, others);
-  }, 0);
-
-  let maxLushaLookups = 0;
-  if (usesProviders && phoneSelected && lushaConnected) {
-    if (searchDepth === "standard") {
-      maxLushaLookups = phoneWithName.length + (discover ? phoneWithoutName.length : 0);
-    } else {
-      maxLushaLookups = phoneWithName.length + extraKnown +
-        (discover ? phoneWithoutName.length : 0);
+  // Contact-level counts — Cadence stores one prospect per company, but the
+  // pilot sheet has many people per company. Estimates must not stop at 162.
+  let namedContacts = 0;
+  let contactsMissingMobile = 0;
+  let contactsWithMobileNoLushaExtra = 0;
+  for (const prospect of prospects) {
+    const people = namedContactsOf(prospect);
+    namedContacts += people.length;
+    for (const person of people) {
+      if (!contactHasMobile(person)) contactsMissingMobile += 1;
+      else if (!String(person.lusha_mobile || "").trim()) contactsWithMobileNoLushaExtra += 1;
     }
   }
 
-  const maxOtherProviderLookups =
-    usesProviders && phoneSelected && otherProviderConnected
-      ? phoneWithName.length + (discover ? phoneWithoutName.length : 0)
-      : 0;
+  // Missing-only: companies still without a usable phone (+ other known people
+  // on those companies when depth widens). Maximum / newer: every named contact
+  // Lusha may still usefully check (missing mobile, or import mobile with no extra yet).
+  let lushaLookups = 0;
+  if (phoneSelected && usesProviders) {
+    if (seekAdditive) {
+      lushaLookups = contactsMissingMobile + contactsWithMobileNoLushaExtra;
+      // Standard depth still focuses on the best contact per company unless otherKnown.
+      if (searchDepth === "standard" && !otherKnown) {
+        lushaLookups = prospects.filter((p) => hasNamedContact(p)).length;
+      }
+    } else {
+      const extraKnown = needingPhone.reduce((sum, p) => {
+        const others = Math.max(0, (namedContactsOf(p).length || 0) - 1);
+        return sum + (otherKnown || searchDepth !== "standard" ? others : 0);
+      }, 0);
+      const lookupBase = phoneWithName.length + (discover ? phoneWithoutName.length : 0);
+      lushaLookups = searchDepth === "standard" && !otherKnown ? lookupBase : lookupBase + extraKnown;
+    }
+  }
+
+  const lookupBaseMissingOnly = phoneWithName.length + (discover ? phoneWithoutName.length : 0);
+
+  const providerLookups = usesProviders && phoneSelected
+    ? phoneProviders.map((provider) => ({
+        provider,
+        label: PROVIDER_LABELS[provider] || provider,
+        // FullEnrich stays gap-fill only (companies/people still blank).
+        max: provider === "lusha" ? lushaLookups : lookupBaseMissingOnly,
+      }))
+    : [];
+
+  const maxLushaLookups = providerLookups.find((row) => row.provider === "lusha")?.max || 0;
+  const maxOtherProviderLookups = providerLookups
+    .filter((row) => row.provider !== "lusha")
+    .reduce((sum, row) => sum + row.max, 0);
 
   let maxSmartActions = 0;
   if (searchMethod === "public") maxSmartActions += recordsToProcess;
-  if (discover) maxSmartActions += needingPhone.length;
+  if (discover) maxSmartActions += seekAdditive ? prospects.filter((p) => !hasNamedContact(p)).length : needingPhone.length;
 
   // Records that cannot be searched for a number in this mode at all.
   let recordsNotSearchable = 0;
@@ -194,6 +261,11 @@ export function buildRunEstimate({
     recordsNeedingPhone: needingPhone.length,
     companiesWithNamedContact: phoneWithName.length,
     companiesNeedingDiscovery: discover ? phoneWithoutName.length : 0,
+    namedContacts,
+    contactsMissingMobile,
+    contactsSeekingExtraMobile: seekAdditive ? contactsWithMobileNoLushaExtra : 0,
+    seekAdditive,
+    providerLookups,
     maxLushaLookups,
     maxOtherProviderLookups,
     maxSmartActions,

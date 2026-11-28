@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { CheckCircle2, XCircle, ChevronRight, Loader2 } from "lucide-react";
-import CampaignAccounts from '@/components/campaigns/CampaignAccounts';
 
 // Readiness numbers are counted server-side from the campaign's own records.
-// Clicking a number reveals the exact companies behind it, so a total can always
-// be traced to records rather than trusted.
+// Every number opens the campaign's account table — the same records, filtered,
+// exported and enriched there — so the totals are traced in one list, not a copy.
 export default function DataReadinessPanel({ campaignId, revision = 0 }) {
+  const navigate = useNavigate();
   const [buckets, setBuckets] = useState([]);
   const [labels, setLabels] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [open, setOpen] = useState(null);
 
   const load = async () => {
     setLoading(true); setError("");
@@ -41,7 +41,7 @@ export default function DataReadinessPanel({ campaignId, revision = 0 }) {
   const notReady = find("not_ready_to_call");
   const total = find("target_companies").count;
   const confirmed = find("named_contacts_confirmed").count;
-  const active = open ? find(open) : null;
+  const accountsHref = `/campaigns/${campaignId}/accounts`;
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
@@ -57,8 +57,9 @@ export default function DataReadinessPanel({ campaignId, revision = 0 }) {
         {buckets.map((b) => (
           <button
             key={b.key}
-            onClick={() => setOpen(open === b.key ? null : b.key)}
-            className={`text-left p-4 transition ${open === b.key ? "bg-slate-50" : "bg-white hover:bg-slate-50"}`}
+            onClick={() => navigate(accountsHref)}
+            title={`Open these ${b.count} companies in the account table`}
+            className="text-left p-4 bg-white transition hover:bg-slate-50"
           >
             <div className="flex items-center justify-between">
               <span className="text-xl font-semibold text-slate-900">{b.count}</span>
@@ -71,7 +72,11 @@ export default function DataReadinessPanel({ campaignId, revision = 0 }) {
         ))}
       </div>
 
-      <CampaignAccounts campaignId={campaignId} bucket={open || 'target_companies'} revision={revision} onChanged={load} />
+      <div className="px-5 py-3 border-t border-slate-100">
+        <Link to={accountsHref} className="text-xs font-medium text-emerald-700 hover:text-emerald-800">
+          Open the account table — filters, export, enrichment and push →
+        </Link>
+      </div>
     </div>
   );
 }

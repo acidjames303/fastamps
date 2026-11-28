@@ -10,9 +10,9 @@ const OPTIONS = [
   },
   {
     key: "otherKnown",
-    label: "Also find mobiles for other already-known contacts",
+    label: "Every already-known contact (not just the lead)",
     detail:
-      "Keep asking Lusha for a UK mobile on every named person who still lacks one — especially people who already have an email. Does not stop after the first mobile.",
+      "Ask Lusha for a UK mobile on each named person. With “extra mobiles” on, people who already have an import number are checked too — extras sit beside the import, never overwrite it.",
   },
   {
     key: "discover",

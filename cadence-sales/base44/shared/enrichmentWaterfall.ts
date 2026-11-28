@@ -22,6 +22,7 @@ import {
 import {
   classifyUkPhone, evaluateProviderPhone, phoneDigits, isUkMobile,
 } from './ukPhone.ts';
+import { upsertContactPhoneCandidate } from './contactPhoneCandidates.ts';
 
 const FULLENRICH = 'https://app.fullenrich.com/api/v2';
 const APOLLO = 'https://api.apollo.io/api/v1';
@@ -326,7 +327,15 @@ async function lushaEnrich(
 
   const response = await lushaSearchAndEnrich(key, {
     contacts: list.map((c: any) => ({
-      name: c.name, title: c.title, linkedin: c.linkedin, email: c.email, lusha_id: c.lusha_id || c.apollo_id || '',
+      name: c.name,
+      title: c.title,
+      linkedin: c.linkedin,
+      email: c.email,
+      lusha_id: c.lusha_id || c.apollo_id || '',
+      // Existing import/primary mobile — Lusha cannot search by phone, but we
+      // compare returns against it to confirm the match and find true extras.
+      mobile: c.mobile || c.phone || '',
+      phone: c.phone || c.mobile || '',
     })),
     company: { name: out.company_name, domain: out.email_domain || out.domain },
     reveal,
@@ -345,26 +354,36 @@ async function lushaEnrich(
     if (r.status === 'company_mismatch') continue;
 
     if (opts.wantPhones) {
-      const person = pickPersonNumber(r.phones);
+      const existingDigits = phoneDigits(c?.phone || c?.mobile);
+      const alreadyPersonNumber = !!existingDigits && existingDigits !== phoneDigits(out?.landline);
+      // When seeking an extra beside an import, skip the number we already hold.
+      const person = alreadyPersonNumber
+        ? pickPersonNumber(r.phones, { excludeDigits: existingDigits })
+        : pickPersonNumber(r.phones);
       if (person) {
+        let employment = r.employment_check;
+        if (r.import_phone_match && employment === 'unconfirmed') employment = 'confirmed';
         const decision = evaluateProviderPhone({
           rawNumber: person.number,
           providerType: person.type,
           companyLandline: out?.landline,
-          employment: r.employment_check,
+          employment,
           employerName: out?.company_name,
           returnedCompany: r.company_name,
         });
-        const existingDigits = phoneDigits(c?.phone);
-        const alreadyPersonNumber = !!existingDigits && existingDigits !== phoneDigits(out?.landline);
+        // Import-phone agreement raises confidence on a newly revealed extra.
+        const confidence = r.import_phone_match
+          ? Math.max(decision.confidence, 90)
+          : decision.confidence;
         const stamp = {
           phone_type: decision.type,
           phone_status: decision.status,
           phone_source: 'lusha',
           phone_retrieved_at: now,
-          phone_confidence: decision.confidence,
+          phone_confidence: confidence,
           phone_review_reason: decision.reviewReason || '',
-          employment_check: r.employment_check,
+          employment_check: employment,
+          import_phone_match: !!r.import_phone_match,
         };
         if (decision.promote && !alreadyPersonNumber) {
           // Only a mobile for a confirmed current employer may become the
@@ -376,18 +395,62 @@ async function lushaEnrich(
           out.field_provenance = {
             ...(out.field_provenance || {}),
             phone: {
-              source_provider: 'lusha', confidence: decision.confidence, enriched_at: now,
+              source_provider: 'lusha', confidence, enriched_at: now,
               verified_at: null,
               provider_value: person.number || person.normalised || '',
               phone_type: 'mobile',
               normalised: decision.uk.e164, phone_status: decision.status,
-              employment_check: r.employment_check, returned_company: r.company_name || '',
+              employment_check: employment, returned_company: r.company_name || '',
+              import_phone_match: !!r.import_phone_match,
             },
           };
-        } else if (!alreadyPersonNumber && decision.uk.valid && !decision.isSwitchboard && r.employment_check !== 'mismatch') {
+        } else if (alreadyPersonNumber && decision.promote && decision.uk.valid
+          && phoneDigits(decision.uk.national) !== existingDigits) {
+          // Imported / existing number stays primary. Lusha is kept beside it
+          // for export and review — never an overwrite.
+          c.lusha_mobile = decision.uk.national;
+          c.lusha_phone_status = r.import_phone_match ? 'import_confirmed_extra' : decision.status;
+          c.lusha_phone_retrieved_at = now;
+          // Mirror onto the prospect root only for the primary person — never
+          // stamp one sibling's Lusha number onto the whole company record.
+          const isPrimaryPerson = !out.full_name
+            || String(c?.name || '').trim().toLowerCase() === String(out.full_name || '').trim().toLowerCase()
+            || (Array.isArray(out.contacts) && out.contacts.filter((x: any) => x?.name).length <= 1);
+          if (isPrimaryPerson && !out.lusha_mobile) {
+            out.lusha_mobile = decision.uk.national;
+            out.lusha_phone_status = decision.status;
+            out.lusha_phone_retrieved_at = now;
+          }
+          await upsertContactPhoneCandidate(base44, org, {
+            list_id: opts.list_id,
+            prospect_id: opts.prospect_id,
+            person_name: c?.name || out.full_name || '',
+            person_title: c?.title || '',
+            value: decision.uk.national,
+            phone_type: 'mobile',
+            source: 'lusha',
+            source_column: 'lusha_reveal',
+          });
+          // Keep import provenance on the primary number.
+          if (!c.phone_source) c.phone_source = out.phone_source || 'import';
+          phonesApplied++;
+          phoneReviews.push({
+            reason: 'phone_additional_provider_number',
+            contact_name: c?.name || '',
+            new_value: decision.uk.national,
+            phone_type: 'mobile',
+            confidence,
+            explanation: r.import_phone_match
+              ? 'Lusha matched the import mobile (identity confirmed) and returned an additional mobile stored separately for export.'
+              : 'An existing number was kept. Lusha returned an additional mobile stored separately for export.',
+            employment_check: employment,
+            returned_company: r.company_name || '',
+            import_phone_match: !!r.import_phone_match,
+          });
+        } else if (!alreadyPersonNumber && decision.uk.valid && !decision.isSwitchboard && employment !== 'mismatch') {
           // A landline, or a match we could not confirm, is preserved and
           // labelled — stored as a direct line, never as a mobile.
-          c.direct_dial = decision.uk.national;
+          c.direct_dial = c.direct_dial || decision.uk.national;
           Object.assign(c, stamp);
           directApplied++;
         } else if (decision.uk.valid && r.employment_check === 'mismatch') {
@@ -854,6 +917,13 @@ export async function enrichProspectWaterfall(
     full_name: prospect.full_name || '',
     job_title: prospect.job_title || '',
     phone: prospect.phone || '',
+    mobile: prospect.mobile || '',
+    direct_dial: prospect.direct_dial || '',
+    phone_source: prospect.phone_source || '',
+    phone_status: prospect.phone_status || '',
+    lusha_mobile: prospect.lusha_mobile || '',
+    lusha_phone_status: prospect.lusha_phone_status || '',
+    lusha_phone_retrieved_at: prospect.lusha_phone_retrieved_at || '',
     email: prospect.email || '',
     linkedin: prospect.linkedin || '',
     field_provenance: { ...(prospect.field_provenance || {}) },
@@ -1361,8 +1431,17 @@ Be factual. Never invent a phone number or person's name. If you cannot find som
       if (provider === 'lusha' && lushaKey && !emailOnly) {
         // Contact-level phone gaps matter even after the company already has
         // one mobile — otherwise siblings with emails never get a phone ask.
+        // forceRefresh (per-row / selected re-enrich) also seeks an *extra*
+        // Lusha mobile beside an existing import number — never an overwrite.
         const mobileRequested = requestedFields.includes('mobile') || requestedFields.includes('direct_dial');
         const contactsMissingMobile = out.contacts.some((c: any) => isPlausiblePersonName(c?.name) && !hasDialableMobile(c));
+        // Re-enrich (forceRefresh) asks Lusha even when an import mobile exists,
+        // so a second candidate can sit beside the first — never overwrite.
+        const seekAdditiveMobiles = !!forceRefresh;
+        const needsAdditiveMobile = (c: any) =>
+          seekAdditiveMobiles
+          && hasDialableMobile(c)
+          && !String(c?.lusha_mobile || '').trim();
         const wantPhones = mobileRequested && (
           forceRefresh
           || stillMissing.some((f) => f === 'mobile' || f === 'direct_dial')
@@ -1375,6 +1454,7 @@ Be factual. Never invent a phone number or person's name. If you cannot find som
           // Prefer UK mobile when mobile was requested — a landline must not
           // silence further mobile reveals for that person.
           if (wantPhones && mobileRequested && !hasDialableMobile(c)) return true;
+          if (wantPhones && mobileRequested && needsAdditiveMobile(c)) return true;
           if (wantPhones && !mobileRequested && !hasPersonNumber(c)) return true;
           if (wantEmails && (!c.email || classifyEmail(c.email, out.domain).isGeneric)) return true;
           return false;
@@ -1382,7 +1462,7 @@ Be factual. Never invent a phone number or person's name. If you cannot find som
         // Never ask Lusha for the same person+field twice in one run.
         const unprobed = need.filter((c: any) => {
           const key = String(c.name || '').toLowerCase();
-          const needsPhone = wantPhones && !hasDialableMobile(c);
+          const needsPhone = wantPhones && (!hasDialableMobile(c) || needsAdditiveMobile(c));
           const needsEmail = wantEmails && (!c.email || classifyEmail(c.email, out.domain).isGeneric);
           if (needsPhone && !probedPhoneNames.has(key)) return true;
           if (needsEmail && !probedEmailNames.has(key)) return true;
@@ -1408,14 +1488,18 @@ Be factual. Never invent a phone number or person's name. If you cannot find som
               };
             }
           } else {
-            const askPhones = wantPhones && unprobed.some((c: any) => !hasDialableMobile(c) && !probedPhoneNames.has(String(c.name || '').toLowerCase()));
+            const askPhones = wantPhones && unprobed.some((c: any) => {
+              const key = String(c.name || '').toLowerCase();
+              if (probedPhoneNames.has(key)) return false;
+              return !hasDialableMobile(c) || needsAdditiveMobile(c);
+            });
             const askEmails = wantEmails && unprobed.some((c: any) => {
               const key = String(c.name || '').toLowerCase();
               return (!c.email || classifyEmail(c.email, out.domain).isGeneric) && !probedEmailNames.has(key);
             });
             unprobed.forEach((c: any) => {
               const key = String(c.name || '').toLowerCase();
-              if (askPhones && !hasDialableMobile(c)) probedPhoneNames.add(key);
+              if (askPhones && (!hasDialableMobile(c) || needsAdditiveMobile(c))) probedPhoneNames.add(key);
               if (askEmails && (!c.email || classifyEmail(c.email, out.domain).isGeneric)) probedEmailNames.add(key);
             });
             await beforeCharge();
@@ -1730,32 +1814,48 @@ Only include REAL people with their full name (first and last). Never invent nam
       // number. A landline never replaces a working number, and a verified or
       // manually confirmed number always stays primary.
       const bestMobile = isUkMobile(best.mobile || best.phone) ? (best.mobile || best.phone) : '';
-      const previousPhone = out.phone;
+      const previousPhone = out.phone || out.mobile;
       if (bestMobile) {
         const sameAsPrevious = phoneDigits(previousPhone) === phoneDigits(bestMobile);
-        const previousProtected = ['verified', 'manually_confirmed'].includes(out.phone_status || '')
-          && isUkMobile(previousPhone) && !sameAsPrevious;
-        if (!sameAsPrevious && previousPhone && isUkMobile(previousPhone) && !previousProtected) {
-          // Two mobiles disagree — keep the one in use and ask a human.
+        // Any existing dialling number is protected — provider values are additive.
+        const previousProtected = !!previousPhone && isUkMobile(previousPhone) && !sameAsPrevious;
+        if (!sameAsPrevious && previousProtected) {
           conflicts.push({ field: 'phone', existing_value: previousPhone, new_value: bestMobile, provider: providerUsed });
+          out.lusha_mobile = bestMobile;
+          out.lusha_phone_status = best.phone_status || 'provider_returned_unverified';
+          out.lusha_phone_retrieved_at = best.phone_retrieved_at || now;
+          if (!out.phone_source) out.phone_source = 'import';
+          await upsertContactPhoneCandidate(base44, org, {
+            list_id, prospect_id,
+            person_name: best.name || out.full_name || '',
+            person_title: best.title || out.job_title || '',
+            value: bestMobile,
+            phone_type: 'mobile',
+            source: best.phone_source || providerUsed || 'lusha',
+            source_column: 'provider_merge',
+          });
           await raisePhoneReview(base44, org, {
             reason: 'phone_conflict',
             prospect_id, list_id, company_name: out.company_name,
             contact_name: best.name || '', existing_value: previousPhone,
-            existing_source: out.phone_source || '', new_value: bestMobile,
+            existing_source: out.phone_source || 'import', new_value: bestMobile,
             phone_type: 'mobile', confidence: best.phone_confidence || 0,
             new_source: best.phone_source || providerUsed,
-            explanation: `Lusha returned a different mobile to the one already held. The existing number stays primary until reviewed.`,
+            explanation: `An existing number was kept. ${providerUsed || 'Provider'} returned an additional mobile stored as Lusha/provider phone for export.`,
           });
+        } else if (!previousPhone) {
+          out.phone = bestMobile;
+          out.mobile = bestMobile;
+          out.phone_type = 'mobile';
+          out.phone_status = best.phone_status || 'provider_returned_unverified';
+          out.phone_source = best.phone_source || providerUsed;
+          out.phone_retrieved_at = best.phone_retrieved_at || now;
+          out.phone_confidence = best.phone_confidence || 0;
+          out.phone_review_reason = best.phone_review_reason || '';
+        } else if (sameAsPrevious) {
+          out.phone_source = out.phone_source || best.phone_source || providerUsed;
+          out.phone_retrieved_at = best.phone_retrieved_at || out.phone_retrieved_at || now;
         }
-        if (!previousProtected) out.phone = bestMobile;
-        out.mobile = bestMobile;
-        out.phone_type = 'mobile';
-        out.phone_status = best.phone_status || 'provider_returned_unverified';
-        out.phone_source = best.phone_source || providerUsed;
-        out.phone_retrieved_at = best.phone_retrieved_at || now;
-        out.phone_confidence = best.phone_confidence || 0;
-        out.phone_review_reason = best.phone_review_reason || '';
       } else if (best.direct_dial) {
         // A direct line is stored beside the dialling number, never as it.
         out.direct_dial = out.direct_dial || best.direct_dial;

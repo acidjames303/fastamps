@@ -1,13 +1,20 @@
 import React from "react";
+import { Image } from "@/components/ui/image";
 
-export default function AuthLayout({ icon: Icon, title, subtitle, footer, children }) {
+// The C is transparent; the green dot's navy surround notches its lower arm.
+const BRAND_MARK =
+  "https://base44.app/api/apps/6a7338f6106b1962aa31c00a/files/mp/public/6a7338f6106b1962aa31c00a/5606003d7bbef2bc951b6b144bb5e90e_cadence-transparent-notch-v5.svg"; // pragma: allowlist secret
+
+export default function AuthLayout({ title, subtitle, footer, children }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary mb-4">
-            <Icon className="w-7 h-7 text-primary-foreground" aria-hidden="true" />
-          </div>
+          <Image
+            src={BRAND_MARK}
+            alt="Cadence"
+            className="inline-block w-14 h-14 rounded-xl mb-4 shadow-sm"
+          />
           <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
           {subtitle && <p className="text-muted-foreground mt-2">{subtitle}</p>}
         </div>

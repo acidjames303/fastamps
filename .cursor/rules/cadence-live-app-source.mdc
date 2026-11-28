@@ -1,0 +1,13 @@
+---
+description: Cadence live app source of truth — do not edit a parallel UI
+alwaysApply: true
+---
+
+# Cadence live app
+
+- Production host: https://cadence.smartfunction.io (Base44 app id from `BASE44_APP_ID` / `VITE_BASE44_APP_ID` only — never hardcode).
+- **Source of truth for the frontend James uses is the Base44 sandbox for that app**, mirrored into `cadence-sales/`.
+- Prospecting path James uses: **Campaigns → Find prospects → Import existing research → Company list** (`src/components/campaign-builder/SpreadsheetImportPreview.jsx` via `CampaignBuilderWorkspace`).
+- Do **not** invent a second prospecting/import UI (e.g. a parallel `ProspectStart` upload surface) and demo that instead of the live path.
+- Do **not** create or deploy a different Base44 app. Always use the env app id above.
+- Before UX work: confirm the file exists in the sandbox/live tree for this app, then edit that file. Publish with `base44 site deploy --publish` (or `base44 deploy`) against this app only.

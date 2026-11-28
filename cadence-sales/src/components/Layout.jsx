@@ -1,9 +1,11 @@
 import React, { useState, lazy, Suspense } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import {
-  Settings as SettingsIcon,
-  Server, LifeBuoy, LogOut, ChevronDown, LockKeyhole,
-  MessageSquare, Flag, UserCircle, Sun, Moon, MoreHorizontal
+  CalendarCheck, Users, BarChart3, ClipboardList, UserCog, Settings as SettingsIcon,
+  Rocket, MessageSquare, Flag, AlertTriangle, ClipboardCheck, Activity,
+  Gauge, Server, Building2, LifeBuoy, LogOut, ChevronDown, LockKeyhole,
+  UserCircle, Phone, Inbox, Mail,
+  Sun, Moon
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import {
@@ -12,18 +14,46 @@ import {
 } from "@/components/ui/dropdown-menu";
 import MobileNav from "@/components/MobileNav";
 import EnrichmentProgressIndicator from "@/components/EnrichmentProgressIndicator";
-import CampaignContextChip from "@/components/CampaignContextChip";
 import { useTheme } from "@/hooks/useTheme";
-import {
-  MAIN_NAV, SECONDARY_NAV, PLATFORM_NAV, ROLE_LEVELS, navVisible, isNavActive,
-} from "@/lib/navConfig";
 
 const ReportProblemDialog = lazy(() => import("@/components/support/ReportProblemDialog"));
 const FeedbackDialog = lazy(() => import("@/components/support/FeedbackDialog"));
 const UsageGateModal = lazy(() => import("@/components/billing/UsageGateModal"));
 
+const ROLE_LEVELS = {
+  platform_owner: 100,
+  organisation_admin: 50,
+  sales_manager: 30,
+  bdm: 10,
+  reporting_user: 10,
+};
+
+const MAIN_NAV = [
+  { to: "/app", label: "Today", icon: CalendarCheck, minLevel: 10 },
+  { to: "/dialer", label: "Dialer", icon: Phone, minLevel: 10, excludeRoles: ["reporting_user"] },
+  { to: "/campaigns", label: "Campaigns", icon: ClipboardList, minLevel: 10, excludeRoles: ["reporting_user"] },
+  { to: "/contacts", label: "Contacts", icon: Users, minLevel: 10 },
+  { to: "/results", label: "Results", icon: BarChart3, minLevel: 10 },
+  { to: "/team", label: "Team", icon: UserCog, minLevel: 30 },
+  { to: "/manager-inbox", label: "Admin inbox", icon: Inbox, minLevel: 50 },
+  { to: "/outreach", label: "Outreach", icon: Mail, minLevel: 10, excludeRoles: ["reporting_user"] },
+  { to: "/settings", label: "Settings", icon: SettingsIcon, minLevel: 50 },
+];
+
+const PLATFORM_NAV = [
+  { to: "/pilot-console", label: "Pilot Console", icon: Rocket },
+  { to: "/feedback-review", label: "Feedback", icon: MessageSquare },
+  { to: "/feature-flags", label: "Feature Flags", icon: Flag },
+  { to: "/incidents", label: "Incidents", icon: AlertTriangle },
+  { to: "/pilot-readiness", label: "Pilot Readiness", icon: ClipboardCheck },
+  { to: "/health", label: "Health", icon: Activity },
+  { to: "/capacity", label: "Capacity", icon: Gauge },
+  { to: "/saas-ops", label: "SaaS Ops", icon: Server },
+  { to: "/org-admin", label: "Org Admin", icon: Building2 },
+];
+
 export default function Layout() {
-  const { pathname, search } = useLocation();
+  const { pathname } = useLocation();
   const { logout, user, workspaceAccess } = useAuth();
   const [showReport, setShowReport] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -31,16 +61,17 @@ export default function Layout() {
 
   const userLevel = ROLE_LEVELS[user?.app_role] || 0;
   const isPlatform = user?.app_role === "platform_owner";
-  const visible = (item) => navVisible(item, user, userLevel);
+  const navVisible = (item) =>
+    (item.to === '/outreach' && user?.app_role === 'internal_bd') ||
+    (item.to === '/lead-sheets' && user?.app_role === 'internal_bd') ||
+    (userLevel >= item.minLevel && !(item.excludeRoles || []).includes(user?.app_role));
 
   const mainNav = workspaceAccess?.read_only
     ? [{ to: "/expired", label: "Export & Upgrade", icon: LockKeyhole, minLevel: 0 }]
-    : MAIN_NAV.filter(visible);
-
-  const secondaryNav = workspaceAccess?.read_only ? [] : SECONDARY_NAV.filter(visible);
+    : MAIN_NAV.filter(navVisible);
 
   const renderNavLink = (item) => {
-    const active = isNavActive(pathname, search, item);
+    const active = pathname === item.to;
     return (
       <Link
         key={item.to}
@@ -50,7 +81,7 @@ export default function Layout() {
         }`}
       >
         <item.icon className="w-4 h-4" />
-        <span className="hidden lg:inline">{item.label}</span>
+        <span className="hidden sm:inline">{item.label}</span>
       </Link>
     );
   };
@@ -59,17 +90,18 @@ export default function Layout() {
     <div className="min-h-screen bg-slate-50">
       <header className="sticky top-0 z-40 backdrop-blur bg-white/80 border-b border-slate-200"
         style={{ paddingTop: "env(safe-area-inset-top)" }}>
-        <div className="max-w-7xl mx-auto px-5 h-16 flex items-center gap-3">
+        <div className="max-w-7xl mx-auto px-5 h-16 flex items-center gap-4">
           <Link to="/app" className="font-display text-lg tracking-tight font-semibold text-slate-900 flex-shrink-0">
             Cadence<span className="text-emerald-600">.</span>
           </Link>
 
-          <CampaignContextChip />
 
+          {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1 flex-1 min-w-0 overflow-x-auto scrollbar-hide">
             {mainNav.map(renderNavLink)}
           </nav>
 
+          {/* Mobile — compact header, bottom nav handles page navigation */}
           <div className="md:hidden flex-1" />
 
           <div className="ml-auto flex items-center gap-1">
@@ -86,30 +118,7 @@ export default function Layout() {
                 <Sun className="w-4 h-4 text-amber-500" style={{ filter: "drop-shadow(0 0 5px rgba(251,191,36,0.9))" }} />
               )}
             </button>
-
-            {/* More — secondary everyday tools */}
-            {secondaryNav.length > 0 && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="hidden md:flex items-center gap-1 px-3 py-2 rounded-full text-sm text-slate-600 hover:bg-slate-100 whitespace-nowrap">
-                    <MoreHorizontal className="w-4 h-4" />
-                    <span className="hidden lg:inline">More</span>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel className="text-xs text-slate-400">More tools</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {secondaryNav.map((item) => (
-                    <DropdownMenuItem key={item.to} asChild>
-                      <Link to={item.to} className="flex items-center gap-2">
-                        <item.icon className="w-4 h-4" /> {item.label}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-
+            {/* Platform menu */}
             {isPlatform && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -122,28 +131,23 @@ export default function Layout() {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel className="text-xs text-slate-400">Platform tools</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  {PLATFORM_NAV.map((item) => (
+                  {PLATFORM_NAV.map(item => (
                     <DropdownMenuItem key={item.to} asChild>
                       <Link to={item.to} className="flex items-center gap-2">
                         <item.icon className="w-4 h-4" /> {item.label}
                       </Link>
                     </DropdownMenuItem>
                   ))}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to="/settings" className="flex items-center gap-2">
-                      <SettingsIcon className="w-4 h-4" /> Settings
-                    </Link>
-                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
 
+            {/* User/help menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-1 px-3 py-2 rounded-full text-sm text-slate-600 hover:bg-slate-100 whitespace-nowrap">
                   <span className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-xs font-medium text-slate-600">
-                    {(user?.full_name || user?.email || "U").charAt(0).toUpperCase()}
+                    {(user?.full_name || user?.email || 'U').charAt(0).toUpperCase()}
                   </span>
                   <ChevronDown className="w-3 h-3 hidden sm:block" />
                 </button>
@@ -164,13 +168,6 @@ export default function Layout() {
                     <UserCircle className="w-4 h-4 mr-2" /> My Profile
                   </Link>
                 </DropdownMenuItem>
-                {userLevel >= 50 && (
-                  <DropdownMenuItem asChild>
-                    <Link to="/settings" className="flex items-center">
-                      <SettingsIcon className="w-4 h-4 mr-2" /> Settings
-                    </Link>
-                  </DropdownMenuItem>
-                )}
                 <DropdownMenuItem asChild>
                   <Link to="/support" className="flex items-center">
                     <LifeBuoy className="w-4 h-4 mr-2" /> Support

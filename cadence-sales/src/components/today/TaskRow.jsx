@@ -94,7 +94,7 @@ export default function TaskRow({ row, tz, onChanged }) {
         <div className="flex flex-col gap-1.5 shrink-0">
           {(task.task_type === "new_call" || task.task_type === "callback" || task.task_type === "follow_up" || task.task_type === "revisit") && (
             <Button onClick={start} disabled={busy} size="sm" className="rounded-full bg-emerald-600 hover:bg-emerald-700 h-8 px-3">
-              <Play className="w-3 h-3 mr-1" /> Call
+              <Play className="w-3 h-3 mr-1" /> Start
             </Button>
           )}
           {row.company && (

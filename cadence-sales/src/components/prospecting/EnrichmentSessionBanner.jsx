@@ -6,47 +6,41 @@ import {
   AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
   AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
-
-function formatElapsed(secs) {
-  const m = Math.floor(secs / 60);
-  const s = secs % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
-}
+import { formatElapsed, sessionElapsedSeconds, sessionIsStalled } from "@/lib/sessionTiming";
+import { enrichmentSessionNextAction } from "@/lib/enrichmentNextAction";
 
 // Background enrichment progress banner — shows when an enrichment session is
-// running, paused, or recently completed. The Cancel action opens a warning
-// dialog; if the normal cancel fails (usually a concurrent poller update
-// conflict), a Force cancel button overrides it.
-export default function EnrichmentSessionBanner({ session, onDismiss, onCancelled }) {
+// running, paused, or recently completed. When done, surfaces a guided next
+// step (call / outreach / review) instead of a vague “look at Prospecting”.
+export default function EnrichmentSessionBanner({
+  session,
+  onDismiss,
+  onCancelled,
+  onProspectingPage = false,
+  onFilterAttention,
+}) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [cancelErr, setCancelErr] = useState("");
   const [forceAvailable, setForceAvailable] = useState(false);
-  const [elapsed, setElapsed] = useState(() => {
-    if (session?.started_at) {
-      return Math.max(0, Math.floor((Date.now() - new Date(session.started_at).getTime()) / 1000));
-    }
-    return 0;
-  });
+  const [elapsed, setElapsed] = useState(() => sessionElapsedSeconds(session));
 
-  const isRunning = session?.status === "processing";
+  const isQueued = session?.status === "queued";
+  const isRunning = ["queued", "processing"].includes(session?.status);
+  const isStalled = sessionIsStalled(session);
 
-  // Live elapsed timer — ticks every second while enrichment is running.
+  // Tick only while the session is genuinely running. A finished session is
+  // measured to its last recorded activity, so a run that ended weeks ago can
+  // never show a counter that keeps climbing.
   useEffect(() => {
-    if (!isRunning) return;
-    const interval = setInterval(() => setElapsed((e) => e + 1), 1000);
+    setElapsed(sessionElapsedSeconds(session));
+    if (!isRunning || isStalled) return;
+    const interval = setInterval(() => setElapsed(sessionElapsedSeconds(session)), 1000);
     return () => clearInterval(interval);
-  }, [isRunning]);
-
-  // Re-derive elapsed from session.started_at when the session changes —
-  // so the timer survives page refreshes instead of resetting to zero.
-  useEffect(() => {
-    if (session?.started_at) {
-      setElapsed(Math.max(0, Math.floor((Date.now() - new Date(session.started_at).getTime()) / 1000)));
-    } else {
-      setElapsed(0);
-    }
-  }, [session?.id, session?.started_at]);
+  }, [
+    session?.id, session?.status, session?.started_at,
+    session?.completed_at, session?.last_activity_at, isRunning, isStalled,
+  ]);
 
   if (!session) return null;
 
@@ -55,6 +49,7 @@ export default function EnrichmentSessionBanner({ session, onDismiss, onCancelle
     : 0;
 
   const isDone = ["completed", "partially_completed", "failed", "cancelled"].includes(session.status);
+  const next = isDone ? enrichmentSessionNextAction(session, { onProspectingPage }) : null;
 
   const statusColor = isRunning ? "bg-blue-50 border-blue-200" : isDone ? "bg-emerald-50 border-emerald-200" : "bg-amber-50 border-amber-200";
   const iconColor = isRunning ? "text-blue-600" : isDone ? "text-emerald-600" : "text-amber-600";
@@ -119,7 +114,7 @@ export default function EnrichmentSessionBanner({ session, onDismiss, onCancelle
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between gap-2">
               <p className="text-sm font-medium text-slate-900 truncate">
-                {isRunning ? "Enrichment running in background" : isDone ? "Enrichment complete" : "Enrichment paused"}
+                {isQueued ? "Preparing enrichment session" : isRunning ? "Enrichment running in background" : isDone ? "Enrichment complete" : "Enrichment paused"}
                 {session.session_name ? <span className="text-slate-400 font-normal ml-1">— {session.session_name}</span> : null}
               </p>
               <div className="flex items-center gap-2">
@@ -146,7 +141,12 @@ export default function EnrichmentSessionBanner({ session, onDismiss, onCancelle
 
             {/* Stats */}
             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
-              <span className="flex items-center gap-1 font-medium text-slate-700"><Clock className="w-3 h-3" /> {formatElapsed(elapsed)}</span>
+              <span
+                className="flex items-center gap-1 font-medium text-slate-700"
+                title={isRunning ? "Time since this enrichment started" : "How long this enrichment took"}
+              >
+                <Clock className="w-3 h-3" /> {isRunning ? formatElapsed(elapsed) : `${formatElapsed(elapsed)} run`}
+              </span>
               <span>{Math.min(session.completed_count + session.partial_count + session.failed_count + session.cached_count, session.total_records)} of {session.total_records} processed</span>
               {isRunning && session.queued_count > 0 && <span>{session.queued_count} remaining</span>}
               {session.cached_count > 0 && <span className="flex items-center gap-0.5"><Database className="w-3 h-3" /> {session.cached_count} cached</span>}
@@ -158,14 +158,60 @@ export default function EnrichmentSessionBanner({ session, onDismiss, onCancelle
 
             {isDone && session.partial_count > 0 && (
               <p className="mt-1.5 text-xs text-amber-600 flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" /> Some records need attention — partial results are available.
+                <AlertCircle className="w-3 h-3" /> {session.partial_count} records are partial: some of the requested fields weren't found. Everything found is saved — a partial record is not a provider failure.
               </p>
             )}
 
-            {isDone && (
-              <Link to="/prospecting" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700">
-                Review results <ArrowRight className="w-3 h-3" />
-              </Link>
+            {isStalled && (
+              <p className="mt-1.5 text-xs text-amber-700 flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3" /> No progress recorded for a while — this session looks stalled. Cancel it and start a fresh run.
+              </p>
+            )}
+
+            {isDone && next && (
+              <div className="mt-3 rounded-xl border border-emerald-200/80 bg-white/70 p-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
+                  Enrichment · what next
+                </p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">{next.title}</p>
+                <p className="mt-0.5 text-xs text-slate-500">{next.detail}</p>
+                <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                  {next.href && next.cta && (
+                    <Link
+                      to={next.href}
+                      className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500"
+                    >
+                      {next.cta} <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  )}
+                  {!next.href && next.cta && next.action === "filter_attention" && (
+                    <button
+                      type="button"
+                      onClick={() => onFilterAttention?.()}
+                      className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500"
+                    >
+                      {next.cta} <ArrowRight className="w-3 h-3" />
+                    </button>
+                  )}
+                  {next.secondary?.href && (
+                    <Link
+                      to={next.secondary.href}
+                      className="inline-flex items-center rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                    >
+                      {next.secondary.cta}
+                    </Link>
+                  )}
+                  {next.secondary?.action === "filter_attention" && !next.secondary?.href && (
+                    <button
+                      type="button"
+                      onClick={() => onFilterAttention?.()}
+                      className="inline-flex items-center rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                    >
+                      {next.secondary.cta}
+                    </button>
+                  )}
+                </div>
+              </div>
             )}
 
             {/* Session cost report — shown when enrichment is done */}

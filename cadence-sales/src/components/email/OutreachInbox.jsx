@@ -13,7 +13,7 @@ function dateLabel(value) {
 
 // Inbox is a temporary read-only preview of the user's own authorised account.
 // Never persists message contents or performs a send / mark-read / delete operation.
-export default function OutreachInbox({ mailStatus, onConnections, onReply }) {
+export default function OutreachInbox({ mailStatus, onConnections, onNavigate, onReply }) {
   const [provider, setProvider] = useState("gmail");
   const [items, setItems] = useState([]);
   const [message, setMessage] = useState(null);
@@ -104,13 +104,23 @@ export default function OutreachInbox({ mailStatus, onConnections, onReply }) {
         </div>
       </div>
       {!connected ? (
-        <div className="rounded-2xl border border-slate-200 bg-white px-6 py-12 text-center">
+        <div className="rounded-2xl border border-slate-200 bg-white px-6 py-12 text-center space-y-4">
           <Inbox className="h-9 w-9 mx-auto text-slate-300" />
-          <h3 className="font-semibold text-slate-900 mt-3">Connect your own mailbox</h3>
-          <p className="text-sm text-slate-500 mt-2 max-w-md mx-auto">
-            Read your Gmail or Outlook messages here once you authorise access. Cadence does not send or alter emails in this preview.
-          </p>
-          <button className={actionStyle + " mt-5"} type="button" onClick={onConnections}>Manage connections</button>
+          <div>
+            <h3 className="font-semibold text-slate-900">Inbox waits until you connect email</h3>
+            <p className="text-sm text-slate-500 mt-2 max-w-md mx-auto">
+              You can build campaigns, write drafts and export to Mac Mail today. Connect Gmail or Outlook when you are ready — Cadence still will not send from here.
+            </p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-2">
+            {typeof onNavigate === "function" && (
+              <>
+                <button className={actionStyle} type="button" onClick={() => onNavigate("campaign_studio")}>Create a campaign</button>
+                <button className={actionStyle} type="button" onClick={() => onNavigate("exports")}>Mac Mail options</button>
+              </>
+            )}
+            <button className={actionStyle} type="button" onClick={onConnections}>Connect mailbox</button>
+          </div>
         </div>
       ) : (
         <>

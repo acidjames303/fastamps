@@ -7,10 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import {
-  UserPlus, Loader2, Users, Building2, Phone, Inbox, RefreshCw,
+  UserPlus, Loader2, Users, Building2, Phone, Inbox, RefreshCw, ArrowRight,
 } from "lucide-react";
 import { ROLE_LABELS, LIVE_STATUS_LABEL, LIVE_STATUS_TONE } from "@/lib/roleLabels";
-import ManagerInboxPanel from "@/components/team/ManagerInboxPanel";
 
 export default function Team() {
   const { user } = useAuth();
@@ -151,7 +150,7 @@ export default function Team() {
         <div>
           <h1 className="font-display text-3xl font-semibold text-slate-900">Team</h1>
           <p className="text-slate-500 mt-1">
-            Live view of your callers, info-requests waiting for a draft, and campaign push.
+            Live view of your callers. Open anyone to see their calls, campaigns and info requests.
           </p>
         </div>
         {canManage && (
@@ -210,9 +209,9 @@ export default function Team() {
                 const profile = members.find((m) => m.user_id === c.user_id);
                 return (
                   <div key={c.user_id} className="p-4 flex flex-col lg:flex-row lg:items-center gap-3">
-                    <div className="flex-1 min-w-0">
+                    <Link to={`/team/${c.user_id}`} className="flex-1 min-w-0 group">
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-medium text-slate-900">{c.name || profile?.full_name || "Caller"}</p>
+                        <p className="font-medium text-slate-900 group-hover:text-emerald-700">{c.name || profile?.full_name || "Caller"}</p>
                         <span className={`text-[11px] px-2 py-0.5 rounded-full border ${LIVE_STATUS_TONE[liveStatus]}`}>
                           {LIVE_STATUS_LABEL[liveStatus]}
                         </span>
@@ -232,8 +231,13 @@ export default function Team() {
                           Campaigns: {c.assigned_campaign_names.join(", ")}
                         </p>
                       )}
-                    </div>
+                    </Link>
                     <div className="flex flex-wrap items-center gap-2">
+                      <Button size="sm" variant="outline" className="rounded-full" asChild>
+                        <Link to={`/team/${c.user_id}`}>
+                          Account <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                        </Link>
+                      </Button>
                       <select
                         className="rounded-full border border-slate-200 text-xs px-3 py-1.5 bg-white"
                         value={managerIdByCaller[c.user_id] || ""}
@@ -273,8 +277,6 @@ export default function Team() {
           )}
         </div>
       )}
-
-      {isAdmin && <ManagerInboxPanel limit={5} />}
 
       {canInvite ? (
         <form onSubmit={invite} className="rounded-2xl bg-white border border-slate-200 p-5 space-y-4">
@@ -328,13 +330,24 @@ export default function Team() {
         ) : (
           <div className="divide-y divide-slate-100">
             {members.map((m) => (
-              <div key={m.id} className="px-5 py-3 flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-medium text-slate-900">{m.full_name || m.email || "Member"}</p>
-                  <p className="text-xs text-slate-400">{m.email}</p>
+              <Link
+                key={m.id}
+                to={`/team/${m.user_id || m.id}`}
+                className="px-5 py-3 flex items-center justify-between gap-3 hover:bg-slate-50 transition-colors group"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-slate-900 group-hover:text-emerald-700 truncate">
+                    {m.full_name || m.email || "Member"}
+                  </p>
+                  <p className="text-xs text-slate-400 truncate">{m.email}</p>
                 </div>
-                <span className="text-xs text-slate-500">{ROLE_LABELS[m.app_role] || m.app_role}</span>
-              </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className="text-xs text-slate-500">{ROLE_LABELS[m.app_role] || m.app_role}</span>
+                  <span className="text-xs text-emerald-700 inline-flex items-center gap-1">
+                    Open account <ArrowRight className="w-3.5 h-3.5" />
+                  </span>
+                </div>
+              </Link>
             ))}
           </div>
         )}

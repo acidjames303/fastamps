@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import DictateButton from "@/components/dialer/DictateButton";
 import { Check, X } from "lucide-react";
 
 // Inline correction of a logged call's notes — the client-facing note and the
@@ -56,6 +57,9 @@ export default function CallNotesEditor({ log, onCancel, onSaved }) {
           rows={8}
           className="rounded-xl bg-white border-slate-200 min-h-40 text-sm mt-1"
         />
+        <div className="mt-1.5">
+          <DictateButton value={clientNotes} onChange={setClientNotes} label="Dictate client notes" />
+        </div>
       </div>
       <div>
         <label className="text-[11px] uppercase tracking-widest text-slate-400">Internal notes</label>
@@ -66,6 +70,9 @@ export default function CallNotesEditor({ log, onCancel, onSaved }) {
           rows={5}
           className="rounded-xl bg-slate-50 border-slate-200 min-h-28 text-sm mt-1"
         />
+        <div className="mt-1.5">
+          <DictateButton value={internalNotes} onChange={setInternalNotes} label="Dictate internal notes" />
+        </div>
       </div>
       {error && <p className="text-xs text-amber-600">{error}</p>}
       <div className="flex gap-2">

@@ -22,7 +22,7 @@ export default async function (req) {
     const companyIds = [...new Set(mine.map((t) => t.company_id).filter(Boolean))];
     const callerIds = [...new Set(mine.map((t) => t.created_by_user_id).filter(Boolean))];
 
-    const [logs, contacts, companies, profiles] = await Promise.all([
+    const [logs, contacts, companies, profiles, campaigns] = await Promise.all([
       callLogIds.length
         ? Promise.all(callLogIds.map((id) => base44.asServiceRole.entities.CallLog.get(id).catch(() => null)))
         : Promise.resolve([]),
@@ -33,18 +33,22 @@ export default async function (req) {
         ? Promise.all(companyIds.map((id) => base44.asServiceRole.entities.Company.get(id).catch(() => null)))
         : Promise.resolve([]),
       base44.asServiceRole.entities.UserProfile.filter({ organisation_id: org.id }, '-created_date', 100).catch(() => []),
+      // Campaigns carry the offer the draft should refer to.
+      base44.asServiceRole.entities.Campaign.filter({ organisation_id: org.id }, '-created_date', 100).catch(() => []),
     ]);
 
     const logMap = new Map((logs || []).filter(Boolean).map((l) => [l.id, l]));
     const contactMap = new Map((contacts || []).filter(Boolean).map((c) => [c.id, c]));
     const companyMap = new Map((companies || []).filter(Boolean).map((c) => [c.id, c]));
     const profileMap = new Map((profiles || []).map((p) => [p.user_id, p]));
+    const campaignMap = new Map((campaigns || []).map((c) => [c.id, c]));
 
     const items = mine.map((t) => {
       const log = logMap.get(t.call_log_id) || null;
       const contact = contactMap.get(t.contact_id) || null;
       const company = companyMap.get(t.company_id) || null;
       const caller = profileMap.get(t.created_by_user_id) || null;
+      const campaign = campaignMap.get(t.campaign_id || log?.campaign_id) || null;
       return {
         task_id: t.id,
         created_date: t.created_date,
@@ -65,6 +69,9 @@ export default async function (req) {
         account_manager_name: log?.account_manager_name || company?.account_manager_name || '',
         account_manager_email: log?.account_manager_email || company?.account_manager_email || '',
         next_action_at: log?.next_action_at || t.due_at || '',
+        campaign_id: t.campaign_id || log?.campaign_id || '',
+        campaign_name: campaign?.name || '',
+        campaign_offer: campaign?.offer || '',
         call_log_id: t.call_log_id || '',
       };
     });

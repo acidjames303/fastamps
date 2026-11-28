@@ -41,6 +41,21 @@
       ],
       "default": "draft"
     },
+    "outreach_mode": {
+      "type": "string",
+      "enum": [
+        "email_first",
+        "calling_first",
+        "combined"
+      ],
+      "enumColors": [
+        "blue",
+        "green",
+        "purple"
+      ],
+      "default": "combined",
+      "description": "How this campaign approaches contacts: email first, calling first, or both."
+    },
     "objective": {
       "type": "string"
     },

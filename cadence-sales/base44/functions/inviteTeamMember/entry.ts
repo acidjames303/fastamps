@@ -90,6 +90,26 @@ export default async function (req) {
       });
     }
 
+    // New BDMs get a welcome email so they can start their journey straight away.
+    // A failed welcome never blocks the invitation itself.
+    if (role === 'bdm') {
+      const firstName = (full_name || '').trim().split(/\s+/)[0]
+        || email.trim().split('@')[0].split(/[._-]/)[0].replace(/^./, (c) => c.toUpperCase());
+      try {
+        await base44.asServiceRole.integrations.Core.SendEmail({
+          to: email.trim(),
+          template_name: 'Welcome',
+          category: 'marketing',
+          variables: {
+            first_name: firstName,
+            cta_url: 'https://cadence.smartfunction.io/app',
+          },
+        });
+      } catch (e) {
+        console.error('Welcome email failed for', email.trim(), e?.message);
+      }
+    }
+
     return Response.json({ ok: true, profile_id: up.id, app_role: role, organisation: targetOrg.name });
   } catch (error) {
     return Response.json({ error: error.message }, { status: error.status || 500 });

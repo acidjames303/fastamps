@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2, Calendar, Download, CheckCircle2, XCircle, Send, AlertCircle, FileText } from "lucide-react";
 import { downloadIcs } from "@/lib/icsGenerator";
 import QualificationPanel from "@/components/opportunities/QualificationPanel";
+import LeadSheetOffer from "@/components/leadsheet/LeadSheetOffer";
 import MeetingBookingPanel from "@/components/opportunities/MeetingBookingPanel";
 import HandoffPreviewModal from "@/components/opportunities/HandoffPreviewModal";
 
@@ -117,6 +118,9 @@ export default function OpportunityDetail() {
         <h2 className="text-sm font-semibold text-slate-900 mb-3">Qualification</h2>
         <QualificationPanel opportunity={opp} onSaved={load} />
       </div>
+
+      {/* Lead sheet drafted from this opportunity */}
+      <LeadSheetOffer opportunity={opp} />
 
       {/* Manager review section */}
       {opp.manager_review_status === "awaiting_review" && isManager && (

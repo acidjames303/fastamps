@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import DictateButton from "@/components/dialer/DictateButton";
 import { Copy, Check, Mail, X, Loader2 } from "lucide-react";
 import { buildMailtoHref } from "@/lib/emailDraft";
 import { base44 } from "@/api/base44Client";
@@ -16,9 +17,11 @@ export default function EmailDraftModal({
   allowSaveDraft = false,
   campaignId = "",
   inboxHint = "",
+  perspectives = [],
 }) {
   const [subject, setSubject] = useState(draft?.subject || "");
   const [body, setBody] = useState(draft?.body || "");
+  const [perspectiveId, setPerspectiveId] = useState(perspectives[0]?.id || "");
   const [copied, setCopied] = useState(false);
   const [status, setStatus] = useState(null);
   const [saving, setSaving] = useState("");
@@ -110,6 +113,35 @@ export default function EmailDraftModal({
           </button>
         </div>
 
+        {perspectives.length > 1 && (
+          <div className="mb-4">
+            <label className="block text-xs text-slate-500 mb-1">Who it comes from</label>
+            <div className="flex flex-wrap gap-2">
+              {perspectives.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => {
+                    setPerspectiveId(p.id);
+                    setSubject(p.subject);
+                    setBody(p.body);
+                  }}
+                  className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                    perspectiveId === p.id
+                      ? "bg-slate-900 text-white border-slate-900"
+                      : "bg-white border-slate-200 text-slate-600 hover:border-slate-400"
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1">
+              Switching replaces the wording below with that version — edit freely afterwards.
+            </p>
+          </div>
+        )}
+
         <label className="block text-xs text-slate-500 mb-1">Subject</label>
         <input
           value={subject}
@@ -121,8 +153,11 @@ export default function EmailDraftModal({
         <Textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          className="rounded-xl min-h-48 mb-4"
+          className="rounded-xl min-h-48 mb-2"
         />
+        <div className="mb-4">
+          <DictateButton value={body} onChange={setBody} label="Dictate email" />
+        </div>
 
         {allowSaveDraft && (
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 mb-4 space-y-2">

@@ -106,15 +106,23 @@ export function classifyEmail(email: string, companyDomain?: string): EmailClass
     return { type: 'invalid', isPersonal: false, isGeneric: false, isValid: false, reason: 'Disposable email domain.' };
   }
 
-  // Generic inbox check — role-based prefixes.
-  const baseLocal = localPart.split('+')[0].split('.')[0]; // remove +tags and dots
-  if (GENERIC_PREFIXES.includes(baseLocal)) {
+  // Generic inbox check. Every dot/dash segment is checked, not just the first
+  // one, and compound mailboxes that read like a name are caught too — otherwise
+  // dataprotection@ and dataprivacy@ were classified as a named person's address.
+  const baseLocal = localPart.split('+')[0]; // remove +tags
+  const localSegments = baseLocal.split(/[._-]+/).filter(Boolean);
+  const squashedLocal = baseLocal.replace(/[^a-z0-9]/g, '');
+  const isGenericLocal =
+    localSegments.some((segment) => GENERIC_PREFIXES.includes(segment)) ||
+    /(privacy|dataprotection|dataprivacy|gdpr|noreply|donotreply|customerservice|customercare|enquiries|inquiries|reception)/.test(squashedLocal);
+
+  if (isGenericLocal) {
     return {
       type: 'generic_company',
       isPersonal: false,
       isGeneric: true,
       isValid: true,
-      reason: 'Generic company inbox (e.g. info@, sales@, hello@).',
+      reason: 'Generic company inbox (e.g. info@, sales@, privacy@).',
     };
   }
 
@@ -175,7 +183,7 @@ export function classifyEmail(email: string, companyDomain?: string): EmailClass
   }
 
   // Fallback: if it has a name-like local part at a non-generic domain, assume personal work.
-  if (looksLikeName && !GENERIC_PREFIXES.includes(baseLocal)) {
+  if (looksLikeName && !isGenericLocal) {
     return {
       type: 'personal_work',
       isPersonal: true,

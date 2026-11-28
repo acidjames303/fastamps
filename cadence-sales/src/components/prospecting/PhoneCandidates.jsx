@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { BadgeCheck, Check, Loader2, Phone, Smartphone, Star, X } from "lucide-react";
+import LushaBadge, { isLushaSource } from "@/components/phones/LushaBadge";
 
 const TYPE_LABEL = {
   mobile: "Mobile",
@@ -109,10 +110,16 @@ export default function PhoneCandidates({ prospect, onPreferred }) {
           <a
             href={`tel:${String(row.normalised || row.value).replace(/\s+/g, "")}`}
             className={`inline-flex items-center gap-1 font-mono text-xs ${
-              row.status === "wrong" ? "text-slate-400 line-through" : "text-slate-800 hover:text-emerald-600"
+              row.status === "wrong"
+                ? "text-slate-400 line-through"
+                : isLushaSource(row.source)
+                  ? "text-purple-800 hover:text-purple-950"
+                  : "text-slate-800 hover:text-emerald-600"
             }`}
           >
-            {row.phone_type === "mobile" ? <Smartphone className="h-3 w-3 text-emerald-600" /> : <Phone className="h-3 w-3" />}
+            {row.phone_type === "mobile"
+              ? <Smartphone className={`h-3 w-3 ${isLushaSource(row.source) ? "text-purple-700" : "text-emerald-600"}`} />
+              : <Phone className="h-3 w-3" />}
             {row.value}
           </a>
           <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] text-slate-600">
@@ -121,7 +128,9 @@ export default function PhoneCandidates({ prospect, onPreferred }) {
           <span className={`rounded-full border px-1.5 py-0.5 text-[10px] ${SCREENING_TONE[row.screening_status] || SCREENING_TONE.not_checked}`}>
             {SCREENING_LABEL[row.screening_status] || "Not screened"}
           </span>
-          {row.source && <span className="text-[10px] text-slate-400">{row.source}</span>}
+          {isLushaSource(row.source) ? <LushaBadge /> : row.source ? (
+            <span className="text-[10px] text-slate-400">{row.source}</span>
+          ) : null}
           {row.status === "preferred" && (
             <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-emerald-700">
               <Star className="h-3 w-3" /> Preferred

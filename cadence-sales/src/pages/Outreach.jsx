@@ -10,17 +10,12 @@ import OutreachInbox from "@/components/email/OutreachInbox";
 import OutreachCampaignStudio from "@/components/email/OutreachCampaignStudio";
 import OutreachTemplates from "@/components/email/OutreachTemplates";
 import OutreachWorkspaces from "@/components/email/OutreachWorkspaces";
+import DictateButton from "@/components/dialer/DictateButton";
 import OutreachExports from "@/components/email/OutreachExports";
 import OutreachSchedule from "@/components/email/OutreachSchedule";
 import OutreachNav from "@/components/email/OutreachNav";
 import OutreachOverview from "@/components/email/OutreachOverview";
-
-const BRAND_OPTIONS = [
-  { key: "fastamps", title: "FastAmps" },
-  { key: "b2bsalesleads", title: "B2B Sales Leads" },
-  { key: "acidjames", title: "Acid James" },
-  { key: "other", title: "Other" },
-];
+import { BRAND_OPTIONS } from "@/lib/outreachBrands";
 const blank = (brand = "fastamps") => ({
   recipient_to: "", recipient_cc: "", recipient_bcc: "", subject: "",
   body_text: "", quoted_text: "", signature_id: "", provider: "none", brand_key: brand, status: "draft"
@@ -41,10 +36,33 @@ function prettyDate(iso) {
   return Number.isNaN(date.getTime()) ? "" : date.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
 }
 
+const OUTREACH_PAGES = new Set([
+  "overview", "inbox", "drafts", "campaign_studio", "templates",
+  "exports", "schedule", "workspaces", "signatures", "mailboxes",
+]);
+
+function readOutreachQuery() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const page = params.get("page") || "";
+    const campaign = params.get("campaign") || "";
+    const brand = params.get("brand") || "";
+    return {
+      page: OUTREACH_PAGES.has(page) ? page : "overview",
+      campaignId: campaign,
+      brand: brand || "",
+    };
+  } catch {
+    return { page: "overview", campaignId: "", brand: "" };
+  }
+}
+
 export default function Outreach() {
   const { user } = useAuth();
-  const [page, setPage] = useState("overview");
-  const [brand, setBrand] = useState("fastamps");
+  const boot = useMemo(() => readOutreachQuery(), []);
+  const [page, setPage] = useState(boot.page);
+  const [studioCampaignId] = useState(boot.campaignId);
+  const [brand, setBrand] = useState(boot.brand || "fastamps");
   const [drafts, setDrafts] = useState([]);
   const [draftPage, setDraftPage] = useState(0);
   const [selectedDraftIds, setSelectedDraftIds] = useState([]);
@@ -61,6 +79,7 @@ export default function Outreach() {
   const [mailStatus, setMailStatus] = useState(null);
   const [aiSuggestion, setAiSuggestion] = useState("");
   const [aiBusy, setAiBusy] = useState(false);
+  const [leadResearch, setLeadResearch] = useState(null);
   const aiEpoch = useRef(0);
   const [signatureForm, setSignatureForm] = useState({ label: "", brand_key: "fastamps", signature_text: "" });
   const [editingSignatureId, setEditingSignatureId] = useState(null);
@@ -107,11 +126,37 @@ export default function Outreach() {
 
   useEffect(() => { refresh(); refreshMail(); loadWorkspaces(); }, [refresh, refreshMail, loadWorkspaces]);
 
+  // Show cited research beside a draft when it came from an Outreach lead.
+  useEffect(() => {
+    let cancelled = false;
+    const leadId = draft?.source_lead_id;
+    if (!editing || !leadId) {
+      setLeadResearch(null);
+      return undefined;
+    }
+    (async () => {
+      try {
+        const lead = await base44.entities.OutreachLead.get(leadId);
+        if (cancelled || !lead) return;
+        setLeadResearch({
+          fact: lead.research_fact || "",
+          sourceUrl: lead.research_source_url || "",
+          company: lead.company_name || "",
+          name: lead.full_name || "",
+        });
+      } catch {
+        if (!cancelled) setLeadResearch(null);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [editing, draft?.source_lead_id]);
+
   const visibleDrafts = useMemo(() =>
     drafts.filter((d) => d.brand_key === brand), [drafts, brand]);
   const brandSignatures = useMemo(() =>
     signatures.filter((s) => s.brand_key === draft.brand_key), [signatures, draft.brand_key]);
   const signature = signatures.find((s) => s.id === draft.signature_id);
+  const mailboxConnected = !!(mailStatus?.providers?.gmail?.connected || mailStatus?.providers?.outlook?.connected);
   const contentWithSignature = [
     (draft.body_text || "").trimEnd(),
     signature?.signature_text?.trim() || "",
@@ -369,6 +414,16 @@ export default function Outreach() {
     if (editing && dirty && !window.confirm("Discard unsaved changes?")) return;
     setPage(key); setEditing(false); setDirty(false); setError(""); setNotice("");
     if (key === "mailboxes") refreshMail();
+    // Keep the address bar in sync so Prospecting / enrichment deep-links work.
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (key === "overview") params.delete("page");
+      else params.set("page", key);
+      if (key !== "campaign_studio") params.delete("campaign");
+      else if (studioCampaignId) params.set("campaign", studioCampaignId);
+      const next = params.toString();
+      window.history.replaceState({}, "", `${window.location.pathname}${next ? `?${next}` : ""}`);
+    } catch { /* ignore */ }
   };
 
   const selectWorkspace = (key) => {
@@ -415,23 +470,34 @@ export default function Outreach() {
         <div>
           <div className="flex items-center gap-2 text-emerald-700 text-xs font-semibold uppercase tracking-widest"><Mail className="h-4 w-4"/> Cadence Outreach</div>
           <h1 className="font-display text-3xl font-semibold tracking-tight text-slate-900 mt-1">Your outreach, organised.</h1>
-          <p className="text-sm text-slate-500 mt-1">Read your authorised inbox, prepare personal replies and save drafts. Sending is not enabled.</p>
+          <p className="text-sm text-slate-500 mt-1">
+            Build campaigns, write drafts and take them into Mac Mail — connect Gmail or Outlook when you are ready. Sending stays off.
+          </p>
         </div>
         <span className="inline-flex gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800"><ShieldCheck className="h-4 w-4"/> Private preview · Draft-only</span>
       </div>
       <OutreachNav
         page={page}
         onNavigate={goToPage}
+        mailboxConnected={mailboxConnected}
         workspace={{ options: brandOptions, value: brand, onChange: selectWorkspace, onCreate: createWorkspace }}
       />
       {!!notice && <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 flex gap-2 items-center"><Check className="h-4 w-4"/>{notice}</div>}
       {!!error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 flex gap-2 items-center"><X className="h-4 w-4"/>{error}</div>}
       {page === "overview" && <OutreachOverview workspaceName={brandOptions.find(o=>o.key===brand)?.title||brand}
-        drafts={visibleDrafts} loading={loading} mailboxConnected={!!(mailStatus?.providers?.gmail?.connected||mailStatus?.providers?.outlook?.connected)}
+        drafts={visibleDrafts} loading={loading} mailboxConnected={mailboxConnected}
         onNavigate={goToPage} onCompose={newDraft}/>}
-      {page === "inbox" && <OutreachInbox mailStatus={mailStatus} onConnections={()=>{setPage("mailboxes");refreshMail();}} onReply={createReplyDraft} />}
-      {page === "campaign_studio" && <OutreachCampaignStudio brand={brand} user={user} onDraftsCreated={refresh} />}
-      {page === "templates" && <OutreachTemplates user={user} brand={brand} brandOptions={brandOptions} onUseTemplate={applyTemplate}/>}
+      {page === "inbox" && <OutreachInbox mailStatus={mailStatus} onConnections={()=>{goToPage("mailboxes");}} onNavigate={goToPage} onReply={createReplyDraft} />}
+      {page === "campaign_studio" && (
+        <OutreachCampaignStudio
+          brand={brand}
+          user={user}
+          initialCampaignId={studioCampaignId}
+          onDraftsCreated={refresh}
+          onOpenDrafts={() => goToPage("drafts")}
+        />
+      )}
+      {page === "templates" && <OutreachTemplates user={user} brand={brand} brandOptions={brandOptions} onUseTemplate={applyTemplate} defaultSignature={signatures.find(s=>s.brand_key===brand&&s.is_default)?.signature_text||""}/>}
       {page === "exports" && <OutreachExports brand={brand} brandLabel={brandOptions.find(x=>x.key===brand)?.title||brand}/>}
       {page === "schedule" && <OutreachSchedule brand={brand} brandLabel={brandOptions.find(x=>x.key===brand)?.title||brand}/>}
       {page === "workspaces" && <OutreachWorkspaces user={user} customWorkspaces={customWorkspaces}
@@ -446,7 +512,19 @@ export default function Outreach() {
             </div>
             <button type="button" onClick={refresh} disabled={loading} className="inline-flex gap-2 items-center text-xs text-slate-500 hover:text-slate-800 mb-3"><RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin": ""}`}/> Refresh</button>
             {loading ? <p className="text-sm text-slate-500">Loading your drafts…</p> :
-              visibleDrafts.length === 0 ? <div className="rounded-xl bg-slate-50 p-5 text-center"><Mail className="mx-auto h-7 w-7 text-slate-300 mb-2"/><p className="text-sm font-medium">No drafts yet</p><p className="text-xs text-slate-500 mt-1">Compose an email to get started.</p></div> :
+              visibleDrafts.length === 0 ? (
+                <div className="rounded-xl bg-slate-50 p-5 text-center space-y-3">
+                  <Mail className="mx-auto h-7 w-7 text-slate-300" />
+                  <div>
+                    <p className="text-sm font-medium">No drafts yet</p>
+                    <p className="text-xs text-slate-500 mt-1">Start from a campaign push, or write one email.</p>
+                  </div>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    <button type="button" className={primary} onClick={() => goToPage("campaign_studio")}>Create a campaign</button>
+                    <button type="button" className={secondary} onClick={newDraft}>Write one email</button>
+                  </div>
+                </div>
+              ) :
               <div className="space-y-2">{visibleDrafts.map((d)=>
                 <div key={d.id} className={`flex items-start gap-2 rounded-xl border p-2 hover:border-emerald-200 hover:bg-emerald-50/50 ${selectedId===d.id && editing ? "border-emerald-300 bg-emerald-50": "border-slate-100"}`}>
                   <input type="checkbox" className="mt-3" aria-label={"Select draft " + (d.subject||"no subject")}
@@ -489,6 +567,39 @@ export default function Outreach() {
             <form onSubmit={(e)=>{e.preventDefault();saveDraft();}} className="space-y-4">
               {!!draft.identity_warning&&<p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">{draft.identity_warning} This draft cannot be approved, copied or exported until the correct company is reviewed and a fresh draft is generated.</p>}
               <div className="flex flex-wrap justify-between items-center gap-2"><h2 className="font-semibold text-lg">Compose</h2><div className="flex gap-2 items-center"><span className="text-xs text-slate-500">{dirty ? "Unsaved changes" : selectedId ? "Saved" : "New draft"}</span><button type="button" onClick={closeEditor} className={secondary} aria-label="Close editor"><ArrowLeft className="h-4 w-4"/> Back</button></div></div>
+              {leadResearch?.fact ? (
+                <aside className="rounded-xl border border-emerald-200 bg-emerald-50/70 px-3 py-2.5 text-sm text-emerald-950">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-800">
+                    Research{leadResearch.company ? ` · ${leadResearch.company}` : ""}
+                  </p>
+                  <p className="mt-1 leading-relaxed">{leadResearch.fact}</p>
+                  <div className="mt-2 flex flex-wrap items-center gap-3">
+                    {leadResearch.sourceUrl ? (
+                      <a
+                        href={leadResearch.sourceUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs font-medium text-emerald-800 underline underline-offset-2"
+                      >
+                        Source
+                      </a>
+                    ) : null}
+                    <button
+                      type="button"
+                      className="text-xs font-semibold text-emerald-900 underline underline-offset-2"
+                      onClick={() => {
+                        const snippet = leadResearch.fact.trim();
+                        const next = draft.body_text?.trim()
+                          ? `${draft.body_text.trim()}\n\n${snippet}`
+                          : snippet;
+                        changeDraft("body_text", next);
+                      }}
+                    >
+                      Insert into email
+                    </button>
+                  </div>
+                </aside>
+              ) : null}
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="text-xs font-medium text-slate-600">Brand<select className={inputClass+" mt-1"} value={draft.brand_key} onChange={(e)=>changeDraft("brand_key",e.target.value)}>{brandOptions.map(x=><option key={x.key} value={x.key}>{x.title}</option>)}</select></label>
                 <label className="text-xs font-medium text-slate-600">Email signature<select className={inputClass+" mt-1"} value={draft.signature_id||""} onChange={(e)=>changeDraft("signature_id",e.target.value)}><option value="">No signature</option>{brandSignatures.map(s=><option key={s.id} value={s.id}>{s.label}</option>)}</select></label>
@@ -497,6 +608,7 @@ export default function Outreach() {
               <div className="grid sm:grid-cols-2 gap-3"><label className="block text-xs font-medium text-slate-600">CC<input type="text" className={inputClass+" mt-1"} value={draft.recipient_cc} onChange={(e)=>changeDraft("recipient_cc",e.target.value)}/></label><label className="block text-xs font-medium text-slate-600">BCC<input type="text" className={inputClass+" mt-1"} value={draft.recipient_bcc} onChange={(e)=>changeDraft("recipient_bcc",e.target.value)}/></label></div>
               <label className="block text-xs font-medium text-slate-600">Subject<input className={inputClass+" mt-1"} maxLength={220} value={draft.subject} onChange={(e)=>changeDraft("subject",e.target.value)} placeholder="Your email subject" /></label>
               <label className="block text-xs font-medium text-slate-600">Message<textarea className={inputClass+" mt-1 min-h-[240px] resize-y leading-relaxed"} value={draft.body_text} onChange={(e)=>changeDraft("body_text",e.target.value)} placeholder="Hi Sarah,\n\nAre you the right person to speak to about…"/></label>
+              <div className="mt-1"><DictateButton value={draft.body_text} onChange={(v)=>changeDraft("body_text",v)} label="Dictate email" /></div>
               {!!draft.quoted_text && <label className="block text-xs font-medium text-slate-600">Quoted original (appears after your signature)<textarea className={inputClass+" mt-1 min-h-[135px] resize-y leading-relaxed"} value={draft.quoted_text} onChange={(e)=>changeDraft("quoted_text",e.target.value)}/></label>}
               <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 space-y-2">
                 <div className="flex flex-wrap items-center gap-2">

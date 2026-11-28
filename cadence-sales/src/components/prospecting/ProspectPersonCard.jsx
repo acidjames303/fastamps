@@ -1,31 +1,43 @@
 import React from "react";
 import { BadgeCheck, Mail, Phone, Smartphone } from "lucide-react";
 import { isUkMobileNumber } from "@/lib/enrichmentRun";
+import LushaBadge, { isLushaSource } from "@/components/phones/LushaBadge";
 
 // One named person from enrichment — everything visible, no collapse.
+// Uses solid surfaces (not /70 opacity) so night-mode remaps stay readable.
 export default function ProspectPersonCard({ contact }) {
   const name = contact?.name || "Unknown person";
   const title = contact?.title || "";
   const mobile = [contact?.mobile, contact?.phone].find((n) => isUkMobileNumber(n)) || "";
+  const lushaMobile = contact?.lusha_mobile && isUkMobileNumber(contact.lusha_mobile)
+    && contact.lusha_mobile.replace(/\D/g, "") !== String(mobile).replace(/\D/g, "")
+    ? contact.lusha_mobile
+    : "";
   const direct = contact?.direct_dial
     || ([contact?.phone, contact?.mobile].find((n) => n && !isUkMobileNumber(n)) || "");
   const email = contact?.email || "";
+  const primaryIsLusha = isLushaSource(contact?.phone_source);
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2.5 space-y-1.5">
+    <div className="rounded-xl border border-slate-200 bg-slate-100 px-3 py-2.5 space-y-1.5">
       <div>
         <p className="text-sm font-semibold text-slate-900 leading-snug">{name}</p>
-        {title ? <p className="text-xs text-slate-500 mt-0.5">{title}</p> : null}
+        {title ? <p className="text-xs text-slate-600 mt-0.5">{title}</p> : null}
       </div>
 
       <div className="space-y-1">
         {mobile ? (
           <a
             href={`tel:${mobile.replace(/\s+/g, "")}`}
-            className="flex items-center gap-1.5 text-sm font-medium text-emerald-700 hover:underline"
+            className={`flex items-center gap-1.5 text-sm font-medium hover:underline ${
+              primaryIsLusha ? "text-purple-700" : "text-emerald-700"
+            }`}
           >
-            <Smartphone className="w-3.5 h-3.5 flex-none" />
+            <Smartphone className={`w-3.5 h-3.5 flex-none ${primaryIsLusha ? "text-purple-700" : ""}`} />
             <span>Mobile · {mobile}</span>
+            {primaryIsLusha ? <LushaBadge /> : contact?.phone_source === "import" ? (
+              <span className="text-[10px] font-medium text-slate-500">Import</span>
+            ) : null}
           </a>
         ) : (
           <p className="flex items-center gap-1.5 text-xs text-amber-700">
@@ -34,12 +46,23 @@ export default function ProspectPersonCard({ contact }) {
           </p>
         )}
 
+        {lushaMobile ? (
+          <a
+            href={`tel:${lushaMobile.replace(/\s+/g, "")}`}
+            className="flex items-center gap-1.5 text-xs font-medium text-purple-700 hover:underline"
+          >
+            <Smartphone className="w-3.5 h-3.5 flex-none text-purple-700" />
+            <span>Lusha · {lushaMobile}</span>
+            <LushaBadge />
+          </a>
+        ) : null}
+
         {direct ? (
           <a
             href={`tel:${direct.replace(/\s+/g, "")}`}
-            className="flex items-center gap-1.5 text-xs text-slate-600 hover:underline"
+            className="flex items-center gap-1.5 text-xs text-slate-700 hover:underline"
           >
-            <Phone className="w-3.5 h-3.5 flex-none" />
+            <Phone className="w-3.5 h-3.5 flex-none text-slate-500" />
             <span>Direct · {direct}</span>
           </a>
         ) : null}
@@ -56,12 +79,12 @@ export default function ProspectPersonCard({ contact }) {
                 <BadgeCheck className="w-3.5 h-3.5 inline ml-1 text-emerald-600 align-text-bottom" />
               )}
               {contact.email_status === "inferred" && (
-                <span className="ml-1 text-amber-600 no-underline">· inferred, unverified</span>
+                <span className="ml-1 text-amber-700 no-underline">· inferred, unverified</span>
               )}
             </span>
           </a>
         ) : (
-          <p className="flex items-center gap-1.5 text-xs text-slate-400">
+          <p className="flex items-center gap-1.5 text-xs text-slate-500">
             <Mail className="w-3.5 h-3.5 flex-none" />
             No email yet
           </p>

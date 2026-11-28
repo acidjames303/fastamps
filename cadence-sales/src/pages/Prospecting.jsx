@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Sparkles, ChevronDown, Wand2, Trash2, ArrowRight, Pencil, Check, Save, Plus, Search } from "lucide-react";
+import { Loader2, Sparkles, ChevronDown, Wand2, Trash2, ArrowRight, Pencil, Check, Save, Plus, Search, Send, Download } from "lucide-react";
+import { downloadProspectPhoneAuditCsv } from "@/lib/prospectPhoneAuditExport";
 import BriefInput from "@/components/prospecting/BriefInput";
 import CompanyInput from "@/components/prospecting/CompanyInput";
 import ProspectTable from "@/components/prospecting/ProspectTable";
@@ -10,20 +11,25 @@ import GeographySelector from "@/components/prospecting/GeographySelector";
 import EnrichmentCostPreview from "@/components/prospecting/EnrichmentCostPreview";
 import EnrichmentBatchSummary from "@/components/prospecting/EnrichmentBatchSummary";
 import SelectiveEnrichDialog from "@/components/prospecting/SelectiveEnrichDialog";
-import ProspectStart from "@/components/prospecting/ProspectStart";
+import PushToOutreachDialog from "@/components/prospecting/PushToOutreachDialog";
+import CampaignBuilderWorkspace from "@/components/campaign-builder/CampaignBuilderWorkspace";
+import LookalikeGrowPanel from "@/components/campaign-builder/LookalikeGrowPanel";
 import AccountResearchBar from "@/components/prospecting/AccountResearchBar";
 import ResearchPromptPanel from "@/components/prospecting/ResearchPromptPanel";
-import ResearchImportPanel from "@/components/prospecting/ResearchImportPanel";
 import EnrichmentSessionBanner from "@/components/prospecting/EnrichmentSessionBanner";
+import { useEnrichmentSession, trackEnrichmentSession, clearEnrichmentSession } from "@/lib/enrichmentSession";
 import ProspectFilters, { matchesFilter } from "@/components/prospecting/ProspectFilters";
+import TpsScreeningPanel from "@/components/prospecting/TpsScreeningPanel";
+import DictateButton from "@/components/dialer/DictateButton";
 import { useAuth } from "@/lib/AuthContext";
 import { pushProspectsToTargetList } from "@/lib/prospectPush";
+import { emailFlags } from "@/lib/emailDisplay";
 import PushProgress from "@/components/PushProgress";
 import CampaignExportButton from '@/components/campaigns/CampaignExportButton';
 import CampaignBriefEditor from '@/components/campaigns/CampaignBriefEditor';
 import DataReadinessPanel from '@/components/campaigns/DataReadinessPanel';
 import ReviewQueuePanel from '@/components/campaigns/ReviewQueuePanel';
-import { setActiveCampaign, getActiveCampaign } from "@/lib/campaignContext";
+import { isCompanyExcluded } from "@/lib/companyExclusion";
 
 // Simple prospecting flow: paste a brief → extract ICP → add companies → enrich
 // data → review results. Uses ProspectList + Prospect entities.
@@ -58,11 +64,16 @@ function extractTargetMetadata(briefText, icpText) {
   return { target_titles, target_departments, preferred_seniority };
 }
 
-export default function Prospecting({ embedded = false }) {
+export default function Prospecting({ embedded = false, campaignId = "" }) {
   const { user } = useAuth();
   const [lists, setLists] = useState([]);
+  const [listCounts, setListCounts] = useState({});
   const [listId, setListId] = useState("");
   const [brief, setBrief] = useState("");
+  const [newListName, setNewListName] = useState("");
+  const [creatingList, setCreatingList] = useState(false);
+  const [creatingName, setCreatingName] = useState("");
+  const [creatingBusy, setCreatingBusy] = useState(false);
   const [icp, setIcp] = useState("");
   const [companies, setCompanies] = useState([]);
   const [prospects, setProspects] = useState([]);
@@ -73,6 +84,7 @@ export default function Prospecting({ embedded = false }) {
   const [selected, setSelected] = useState([]);
   const [targetLists, setTargetLists] = useState([]);
   const [pushListId, setPushListId] = useState("");
+  const [showOutreachPush, setShowOutreachPush] = useState(false);
   const [creatingTargetBusy, setCreatingTargetBusy] = useState(false);
   const [busyId, setBusyId] = useState(null);
   const [pushing, setPushing] = useState(false);
@@ -88,13 +100,14 @@ export default function Prospecting({ embedded = false }) {
   const [discovering, setDiscovering] = useState(false);
   const [discoverErr, setDiscoverErr] = useState("");
   const [discoveredCount, setDiscoveredCount] = useState(0);
-  const [enrichmentSession, setEnrichmentSession] = useState(null);
+  // One shared tracker drives both this page and the header indicator, so the
+  // counts and the clock are always the same in both places.
+  const enrichmentSession = useEnrichmentSession();
   const [showSelectiveEnrich, setShowSelectiveEnrich] = useState(false);
   const [enrichIntent, setEnrichIntent] = useState("general");
   const [researchByProspect, setResearchByProspect] = useState({});
   const [providerOrder, setProviderOrder] = useState(["apollo", "lusha", "fullenrich"]);
   const [connectedProviders, setConnectedProviders] = useState({});
-  const [pollTimer, setPollTimer] = useState(null);
   const [prospectFilter, setProspectFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [pushProgress, setPushProgress] = useState(null);
@@ -102,15 +115,21 @@ export default function Prospecting({ embedded = false }) {
   const location = useLocation();
   const campaignContext = lists.find(l=>l.id===listId)?.campaign_id || '';
   const LAST_LIST_KEY = `cadence_prospecting_last_list_${user.id}`;
-  useEffect(()=>{const params=new URLSearchParams(location.search);const campaignId=params.get('campaign');if(campaignId)openListSelection(`campaign:${campaignId}`);},[location.search]);
+  // Open the campaign's own list — from the URL, or from the page that hosts this
+  // workspace (a campaign's account table passes its campaign id in).
+  useEffect(()=>{
+    const params=new URLSearchParams(location.search);
+    const target=campaignId||params.get('campaign');
+    const targetList=params.get('list');
+    if(target)openListSelection(`campaign:${target}`);
+    else if(targetList)pickList(targetList);
+  },[location.search,campaignId]);
 
   useEffect(() => {
-    base44.entities.ProspectList.list("-created_date", 100).then(setLists).catch(() => {});
-    base44.entities.Campaign.list("-created_date", 100).then(setTargetLists).catch(() => {});
-    // Check for an active enrichment session to resume.
-    base44.entities.EnrichmentSession.filter({ status: "processing" }, "-created_date", 1)
-      .then((sessions) => { if (sessions[0]) setEnrichmentSession(sessions[0]); })
+    base44.entities.ProspectList.list("-created_date", 100)
+      .then((rows) => { setLists(rows); loadListCounts(rows); })
       .catch(() => {});
+    base44.entities.Campaign.list("-created_date", 100).then(setTargetLists).catch(() => {});
     // Load provider order and connection status.
     base44.functions.invoke("getOrgConnectionStatus", {})
       .then((res) => {
@@ -120,35 +139,30 @@ export default function Prospecting({ embedded = false }) {
       })
       .catch(() => {});
     // Restore the last-selected list so work survives navigation/refresh.
-    // Fall back to sticky campaign context when no list was remembered.
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("campaign")) return;
+    // Restore the last list only when no campaign is in charge of this workspace —
+    // a campaign's account table must always open that campaign's own list.
     const lastListId = localStorage.getItem(LAST_LIST_KEY);
-    if (lastListId) {
+    const params = new URLSearchParams(window.location.search);
+    if (lastListId && !campaignId && !params.get('campaign') && !params.get('list')) {
       pickList(lastListId);
-      return;
     }
-    const sticky = getActiveCampaign();
-    if (sticky?.id) openListSelection(`campaign:${sticky.id}`);
   }, []);
 
-  // Poll an active enrichment session until it completes.
+  // The shared tracker does the polling; refresh the table whenever its progress
+  // moves so this page always shows the same numbers as the header indicator.
+  const sessionProgress = enrichmentSession
+    ? [
+        enrichmentSession.id,
+        enrichmentSession.completed_count || 0,
+        enrichmentSession.partial_count || 0,
+        enrichmentSession.failed_count || 0,
+        enrichmentSession.cached_count || 0,
+      ].join(":")
+    : "";
   useEffect(() => {
-    if (!enrichmentSession || !["processing"].includes(enrichmentSession.status)) return;
-    const poll = async () => {
-      try {
-        const res = await base44.functions.invoke("pollEnrichmentJob", { session_id: enrichmentSession.id });
-        const data = res.data || res;
-        if (data.error) return;
-        setEnrichmentSession(data);
-        // Reload prospects to show updated enrichment results.
-        if (listId) await loadProspects(listId);
-      } catch {}
-    };
-    const timer = setTimeout(poll, 3000);
-    setPollTimer(timer);
-    return () => clearTimeout(timer);
-  }, [enrichmentSession, listId]);
+    if (!listId || enrichmentSession?.status !== "processing") return;
+    loadProspects(listId);
+  }, [sessionProgress, listId]);
 
   // Persist draft brief/companies to localStorage so work survives refresh
   // when no list is open yet.
@@ -182,6 +196,16 @@ export default function Prospecting({ embedded = false }) {
 
   // Saved campaign details use explicit, independent saves. Opening or switching a list never writes empty draft state.
 
+  // Live company count per list, so the selector and the delete confirmation show
+  // the records that actually exist rather than a cached total.
+  const loadListCounts = async (sourceLists) => {
+    const res = await base44.entities.Prospect.aggregate({ groupBy: "list_id" }).catch(() => null);
+    const rows = res?.rows || res?.data?.rows || [];
+    const counts = Object.fromEntries(rows.filter((r) => r.list_id).map((r) => [r.list_id, r.count]));
+    for (const l of sourceLists || lists) if (counts[l.id] == null) counts[l.id] = 0;
+    setListCounts(counts);
+  };
+
   const loadProspects = async (id) => {
     if (!id) { setProspects([]); return; }
     setLoading(true);
@@ -193,15 +217,6 @@ export default function Prospecting({ embedded = false }) {
       // Viewing a list is read-only; readiness and export totals come from its records.
     } catch { setProspects([]); }
     finally { setLoading(false); }
-  };
-
-  // Refresh the research shown against rows (used after importing a document).
-  const reloadResearch = async () => {
-    if (!listId) return;
-    const records = await base44.entities.AccountResearch
-      .filter({ prospect_list_id: listId }, "-researched_at", 200)
-      .catch(() => []);
-    setResearchByProspect(Object.fromEntries([...records].reverse().map((r) => [r.prospect_id, r])));
   };
 
   const openListSelection = async (value) => {
@@ -247,7 +262,6 @@ export default function Prospecting({ embedded = false }) {
         });
       }
       setLists((items) => items.some((item) => item.id === linked.id) ? items : [linked, ...items]);
-      setActiveCampaign(campaign);
       await pickList(linked.id);
       setMsg(`Campaign “${campaign.name}” is ready for prospecting. Its brief, ICP and target roles are linked to this workspace.`);
     } catch (e) {
@@ -277,14 +291,8 @@ export default function Prospecting({ embedded = false }) {
     setIcp(l?.icp || "");
     setNameDraft(l?.name || "");
     setPermittedCountries(l?.permitted_countries || ["GB"]);
-    if (l.campaign_id) {
-      const linkedCampaign = targetLists.find((item) => item.id === l.campaign_id);
-      setActiveCampaign(linkedCampaign || { id: l.campaign_id, name: l.name || "Campaign" });
-    } else if (l.id) {
-      // Prospect lists without a campaign_id still count as working context.
-      setActiveCampaign({ id: l.id, name: l.name || "Prospect list" });
-    }
     await loadProspects(id);
+    await loadListCounts();
   };
 
   // A spreadsheet import can create its own list — adopt it straight away.
@@ -292,6 +300,7 @@ export default function Prospecting({ embedded = false }) {
     const created = await base44.entities.ProspectList.get(id).catch(() => null);
     if (created) setLists((items) => [created, ...items.filter((l) => l.id !== id)]);
     await pickList(id);
+    await loadListCounts();
   };
 
   // Hand imported accounts to the existing provider enrichment dialog.
@@ -348,14 +357,40 @@ export default function Prospecting({ embedded = false }) {
 
 
 
+  // Create a new prospect list straight from its name, whatever is open.
+  const createNamedList = async () => {
+    const name = creatingName.trim();
+    if (!name) { setErr("Give the new list a name first."); return; }
+    setCreatingBusy(true); setErr(""); setMsg("");
+    try {
+      const l = await base44.entities.ProspectList.create({
+        name,
+        brief: "",
+        icp: "",
+        status: "draft",
+        company_count: 0,
+        permitted_countries: permittedCountries,
+        organisation_id: user.organisation_id,
+        owner_user_id: user.id,
+      });
+      setLists((items) => [l, ...items.filter((item) => item.id !== l.id)]);
+      setCreatingList(false);
+      setCreatingName("");
+      await pickList(l.id);
+      setMsg(`Created “${name}”. Add a brief, then find or import accounts.`);
+    } catch (e) {
+      setErr(e?.response?.data?.error || e.message || "Could not create the list.");
+    } finally { setCreatingBusy(false); }
+  };
+
   const startList = async () => {
-    if (!brief.trim()) return;
+    if (!brief.trim() && !newListName.trim()) return;
     setStarting(true); setErr("");
     try {
       const targetMetadata = extractTargetMetadata(brief, icp);
       const l = await base44.entities.ProspectList.create({
         brief: brief.trim(),
-        name: brief.trim().slice(0, 60),
+        name: newListName.trim() || brief.trim().slice(0, 60) || "Untitled list",
         icp: icp || "",
         status: "draft",
         company_count: companies.length,
@@ -382,6 +417,7 @@ export default function Prospecting({ embedded = false }) {
         );
       }
       setCompanies([]);
+      setNewListName("");
       setLists([l, ...lists]);
       await pickList(l.id);
     } catch (e) { setErr(e.message || "Could not create list."); }
@@ -395,6 +431,17 @@ export default function Prospecting({ embedded = false }) {
       const countries = (permittedCountries && permittedCountries.length)
         ? permittedCountries.join(", ")
         : "United Kingdom";
+      // Structured ICP exclusions (current clients) + seed companies already on the campaign.
+      let excludedCompanies = [];
+      try {
+        const parsed = icp ? JSON.parse(icp) : null;
+        if (parsed && Array.isArray(parsed.excluded_companies)) excludedCompanies = parsed.excluded_companies;
+      } catch { /* free-text ICP */ }
+      const seedNames = [
+        ...companies.map((c) => c.name),
+        ...prospects.map((p) => p.company_name),
+      ].filter(Boolean);
+      const blockList = [...new Set([...excludedCompanies, ...seedNames])];
       const response = await base44.functions.invoke("runSmartAction", {
         action_type: "company_discovery",
         prompt: `You are a B2B prospecting researcher. Given this campaign brief / ideal customer profile, find up to 10 REAL companies that fit it.
@@ -407,8 +454,13 @@ ${icp || "(not provided yet — infer from the brief)"}
 
 Geographic scope: ${countries}
 
+Find similar accounts OUTSIDE the seed list — do not return companies we already hold, and do not return excluded current clients.
+
+Do not return these companies (seed data + exclusions):
+${blockList.slice(0, 120).join(", ")}${blockList.length > 120 ? " …" : ""}
+
 Return JSON: an array "companies" of objects {name, domain, website, industry, employee_range, location, why_fits, source_url}.
-Only include REAL companies you can verify exist (use Google, Companies House, the company website). Never invent companies, domains or people. source_url should be the company website or a public listing. If you cannot reliably find 10, return fewer. Do not include any company already in this list: ${(companies || []).map((c) => c.name).join(", ")}.`,
+Only include REAL companies you can verify exist (use Google, Companies House, the company website). Never invent companies, domains or people. source_url should be the company website or a public listing. If you cannot reliably find 10, return fewer.`,
         response_json_schema: {
           type: "object",
           properties: {
@@ -431,9 +483,10 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
       const found = (parsed?.companies || []).filter((c) => c.name);
       if (!found.length) { setDiscoverErr("No companies found. Try refining your brief or ICP."); }
       else {
-        const existingNames = new Set(companies.map((c) => c.name.toLowerCase()));
+        const existingNames = new Set(seedNames.map((n) => n.toLowerCase()));
         const fresh = found
           .filter((c) => !existingNames.has(c.name.toLowerCase()))
+          .filter((c) => !isCompanyExcluded(c.name, excludedCompanies))
           .map((c) => ({
             name: c.name,
             domain: c.domain || "",
@@ -504,7 +557,10 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
         country_code: prospect.country_code, geography_status: prospect.geography_status,
         geography_reason: prospect.geography_reason, landline: prospect.landline, contacts: prospect.contacts,
         full_name: prospect.full_name, job_title: prospect.job_title, email: prospect.email,
-        phone: prospect.phone, linkedin: prospect.linkedin, source: prospect.source,
+        phone: prospect.phone, mobile: prospect.mobile, direct_dial: prospect.direct_dial,
+        phone_source: prospect.phone_source, phone_status: prospect.phone_status,
+        lusha_mobile: prospect.lusha_mobile, lusha_phone_status: prospect.lusha_phone_status,
+        linkedin: prospect.linkedin, source: prospect.source,
         retry_cooldown_expires_at: prospect.retry_cooldown_expires_at,
         fit_score: prospect.fit_score, fit_reason: prospect.fit_reason, target_role: prospect.target_role,
       },
@@ -726,12 +782,22 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
 
   const deleteList = async () => {
     if (!listId) return;
-    if (!confirm("Delete this prospect list and all its prospects?")) return;
+    const current = lists.find((l) => l.id === listId);
+    const label = current?.name?.trim() || "Untitled list";
+    const count = listCounts[listId] ?? current?.company_count ?? prospects.length;
+    const campaignName = targetLists.find((t) => t.id === current?.campaign_id)?.name;
+    const linked = campaignName
+      ? `\n\nThis list is linked to the “${campaignName}” campaign. The campaign stays, but its research list and companies are removed.`
+      : "";
+    if (!confirm(`Delete “${label}” and its ${count} compan${count === 1 ? "y" : "ies"}? This cannot be undone from here.${linked}`)) return;
+    setErr(""); setMsg("");
     try {
       await base44.entities.Prospect.deleteMany({ list_id: listId });
       await base44.entities.ProspectList.delete(listId);
-      setLists(lists.filter((l) => l.id !== listId));
+      setLists((items) => items.filter((l) => l.id !== listId));
+      setMsg(`Deleted “${label}”.`);
       await pickList("");
+      await loadListCounts();
     } catch (e) { setErr(e.message || "Could not delete list."); }
   };
 
@@ -746,16 +812,10 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
     return inCompany || inName || inContacts;
   })());
   const prospectViewFiltered = prospectFilter !== "all" || !!searchQuery.trim();
+  const safeProspects = prospects.filter((p) => p.tps_ctps_status === "safe");
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-950">
-        <p className="font-semibold">People view updated (build people-v3)</p>
-        <p className="mt-1 text-xs leading-relaxed text-emerald-900/80">
-          Every person now shows as a card with mobile + email — no “+N more” hide, no separate Number column.
-          If you still see columns labelled Decision-makers and Number, hard-refresh this page (Ctrl/Cmd+Shift+R) or open it in a private window.
-        </p>
-      </div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           {!embedded && (
@@ -763,8 +823,8 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
           )}
           <p className={`${embedded ? "text-sm" : ""} text-slate-500 ${embedded ? "" : "mt-2"}`}>
             {embedded
-              ? "Paste a brief, extract your ICP, add companies, enrich, then push into a campaign."
-              : "Paste a brief, extract your ICP, add companies, and enrich data — all in one place."}
+              ? "Import research, describe a campaign, continue existing work, or start from a template — then enrich and call."
+              : "Talk through the campaign, review the accounts Cadence finds, enrich them, and push them into a campaign."}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -776,7 +836,11 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
             >
               <option value="">Select a prospect list or campaign…</option>
               <optgroup label="Prospect lists">
-                {lists.map((l) => <option key={l.id} value={l.id}>{l.name?.trim() || "Untitled list"}</option>)}
+                {lists.map((l) => (
+                  <option key={l.id} value={l.id}>
+                    {`${l.name?.trim() || "Untitled list"}${listCounts[l.id] != null ? ` — ${listCounts[l.id]} compan${listCounts[l.id] === 1 ? "y" : "ies"}` : ""}`}
+                  </option>
+                ))}
               </optgroup>
               {targetLists.length > 0 && (
                 <optgroup label="Campaigns">
@@ -811,20 +875,93 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
               </Button>
             )
           )}
+          {listId && (
+            <Button
+              onClick={deleteList}
+              size="sm"
+              variant="ghost"
+              title="Delete this prospect list and its companies"
+              className="rounded-full text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+            >
+              <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
+            </Button>
+          )}
+          <Button
+            onClick={() => { setCreatingList((v) => !v); setCreatingName(""); setErr(""); }}
+            size="sm"
+            variant="outline"
+            className="rounded-full border-slate-300 text-slate-700"
+          >
+            <Plus className="w-3.5 h-3.5 mr-1" /> New list
+          </Button>
         </div>
       </div>
 
-      <ProspectStart
+      {creatingList && (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4">
+          <label htmlFor="new-list-name" className="text-xs uppercase tracking-widest text-emerald-800 block">
+            New prospect list name
+          </label>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <input
+              id="new-list-name"
+              autoFocus
+              value={creatingName}
+              onChange={(e) => setCreatingName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") createNamedList(); if (e.key === "Escape") setCreatingList(false); }}
+              placeholder="e.g. Oxi-Tech — plant managers"
+              className="flex-1 min-w-56 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            />
+            <Button
+              onClick={createNamedList}
+              disabled={creatingBusy || !creatingName.trim()}
+              className="rounded-full bg-emerald-600 hover:bg-emerald-700"
+            >
+              {creatingBusy ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
+              {creatingBusy ? "Creating…" : "Create list"}
+            </Button>
+            <Button onClick={() => setCreatingList(false)} variant="ghost" className="rounded-full text-slate-500">
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <CampaignBuilderWorkspace
         listId={listId}
         prospects={prospects}
+        campaign={targetLists.find((t) => t.id === campaignContext) || null}
         onListCreated={handleListCreated}
-        onImported={(id) => loadProspects(id)}
+        onImported={async (id) => { await loadProspects(id); await loadListCounts(); }}
         onRunFinished={handleRunFinished}
+        onOpenEnrich={openProviderEnrich}
+        onBriefSaved={async () => { if (listId) await pickList(listId); }}
+        preferImport={false}
+        continueCampaigns={targetLists}
+        continueLists={lists}
+        listCounts={listCounts}
+        onContinueList={openListSelection}
       />
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      {/* Always visible once a list has companies — not buried under Import only. */}
+      {listId && prospects.length > 0 && (
+        <div id="lookalike-grow">
+          <LookalikeGrowPanel
+            listId={listId}
+            prospects={prospects}
+            onChanged={async (id) => { await loadProspects(id); await loadListCounts(); }}
+          />
+        </div>
+      )}
+
+      {/* Builder is the main start. Keep classic tools available but out of the way. */}
+      <details className={`rounded-2xl border border-slate-200 bg-white ${embedded ? "" : "open"}`}>
+        <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-slate-700 sm:px-5">
+          {embedded ? "More tools (brief, ICP, discover)" : "Brief, ICP and company tools"}
+        </summary>
+      <div className="grid gap-6 border-t border-slate-100 p-4 sm:p-5 lg:grid-cols-2">
         <div className="space-y-4">
-          {campaignContext ? <CampaignBriefEditor campaignId={campaignContext} onSaved={data=>{setBrief(data.brief);setIcp(data.icp);}} /> : <BriefInput brief={brief} setBrief={setBrief} onStart={!listId ? startList : undefined} starting={starting} />}
+          {campaignContext ? <CampaignBriefEditor campaignId={campaignContext} onSaved={data=>{setBrief(data.brief);setIcp(data.icp);}} /> : <BriefInput brief={brief} setBrief={setBrief} onStart={!listId ? startList : undefined} starting={starting} name={newListName} onNameChange={!listId ? setNewListName : undefined} />}
 
           {!campaignContext && (icp || listId) && (
             <div className="space-y-4">
@@ -838,6 +975,7 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
                   rows={7}
                   className="w-full rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700 resize-y focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                 />
+                <div className="mt-2"><DictateButton value={icp} onChange={setIcp} label="Dictate ICP" /></div>
               </div>
               <GeographySelector permittedCountries={permittedCountries} onChange={setPermittedCountries} />
             </div>
@@ -849,14 +987,9 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
               {extracting ? "Extracting…" : "Auto-generate ICP"}
             </Button>
             {listId && (
-              <>
-                <Button onClick={saveListDetails} disabled={savingDetails} variant="outline" className="rounded-full border-emerald-300 text-emerald-700">
-                  {savingDetails ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} Save brief & ICP
-                </Button>
-                <Button onClick={deleteList} variant="ghost" className="rounded-full text-rose-500 hover:text-rose-600 hover:bg-rose-50">
-                  <Trash2 className="w-4 h-4 mr-2" /> Delete list
-                </Button>
-              </>
+              <Button onClick={saveListDetails} disabled={savingDetails} variant="outline" className="rounded-full border-emerald-300 text-emerald-700">
+                {savingDetails ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} Save brief & ICP
+              </Button>
             )}
           </div>}
         </div>
@@ -871,43 +1004,35 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
             discoveredCount={discoveredCount}
             listId={listId}
           />
-          {listId && (
-            <Button
-              onClick={openEnrichDialog}
-              disabled={enriching || (!prospects.length && !companies.length)}
-              className="rounded-full bg-emerald-600 hover:bg-emerald-500 w-full"
-            >
-              {enriching ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
-              {enriching ? "Enriching…" : `Enrich ${selected.length || companies.filter((c) => !prospects.some((p) => (p.company_name || "").toLowerCase() === (c.name || "").toLowerCase())).length} companies`}
-            </Button>
-          )}
+          {/* Enrich lives on the table toolbar only — avoid a second peer CTA here (CI-041). */}
           <AccountResearchBar
             listId={listId}
             prospects={prospects}
-            onResearched={async () => {
-              await loadProspects(listId);
-              await reloadResearch();
-            }}
+            onResearched={() => loadProspects(listId)}
             onFindContacts={openProviderEnrich}
           />
         </div>
       </div>
+      </details>
 
-      {listId && (
-        <div className="space-y-6">
-          <ResearchPromptPanel
-            listId={listId}
-            prospects={prospects}
-            onChanged={async () => {
-              await loadProspects(listId);
-              await reloadResearch();
-            }}
-            onResearchLoaded={(records) =>
-              setResearchByProspect(Object.fromEntries([...records].reverse().map((r) => [r.prospect_id, r])))
-            }
-          />
-          <ResearchImportPanel listId={listId} prospects={prospects} onImported={reloadResearch} />
-        </div>
+      {/* One research prompt — collapsed so it does not compete with how you start.
+          Research document import lives only under Import → Attach research documents. */}
+      {listId && prospects.length > 0 && (
+        <details className="rounded-2xl border border-slate-200 bg-white">
+          <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-slate-700 sm:px-5">
+            Prompt accounts for public research
+          </summary>
+          <div className="border-t border-slate-100 p-4 sm:p-5">
+            <ResearchPromptPanel
+              listId={listId}
+              prospects={prospects}
+              onChanged={() => loadProspects(listId)}
+              onResearchLoaded={(records) =>
+                setResearchByProspect(Object.fromEntries([...records].reverse().map((r) => [r.prospect_id, r])))
+              }
+            />
+          </div>
+        </details>
       )}
 
       {campaignContext && <><DataReadinessPanel campaignId={campaignContext}/><ReviewQueuePanel campaignId={campaignContext} onChanged={()=>loadProspects(listId)}/></>}
@@ -917,9 +1042,11 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
       {enrichmentSession && (
         <EnrichmentSessionBanner
           session={enrichmentSession}
-          onDismiss={() => setEnrichmentSession(null)}
+          onProspectingPage
+          onFilterAttention={() => setProspectFilter("needs_attention")}
+          onDismiss={() => clearEnrichmentSession(enrichmentSession.id)}
           onCancelled={() => {
-            setEnrichmentSession(null);
+            clearEnrichmentSession(enrichmentSession.id);
             setMsg("Enrichment session cancelled.");
           }}
         />
@@ -948,11 +1075,14 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
                   totalCount={prospects.length}
                   counts={{
                     all: prospects.length,
-                    needs_attention: prospects.filter((p) => !p.email || (p.email && p.email_type !== "personal_work" && (p.email_type === "generic_company" || p.email_type === "role_based_work" || (p.generic_email && p.email === p.generic_email))) || !p.phone || p.enrichment_status === "failed").length,
-                    generic_only: prospects.filter((p) => p.email && p.email_type !== "personal_work" && (p.email_type === "generic_company" || p.email_type === "role_based_work" || (p.generic_email && p.email === p.generic_email))).length,
+                    needs_attention: prospects.filter((p) => !p.email || emailFlags(p).isGenericOnly || !p.phone || p.enrichment_status === "failed").length,
+                    generic_only: prospects.filter((p) => emailFlags(p).isGenericOnly).length,
                     no_email: prospects.filter((p) => !p.email).length,
                     missing_phone: prospects.filter((p) => !p.phone).length,
                     complete: prospects.filter((p) => p.enrichment_status === "complete").length,
+                    screened_safe: prospects.filter((p) => p.tps_ctps_status === "safe").length,
+                    screened_listed: prospects.filter((p) => p.tps_ctps_status === "listed").length,
+                    screened_unchecked: prospects.filter((p) => !p.tps_ctps_status || p.tps_ctps_status === "unchecked").length,
                   }}
                 />
                 <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-slate-500">
@@ -965,6 +1095,19 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <CampaignExportButton listId={listId} />
+                  {prospects.length > 0 && (
+                    <Button
+                      variant="outline"
+                      className="rounded-full border-slate-300"
+                      onClick={() => downloadProspectPhoneAuditCsv(
+                        selected.length ? prospects.filter((p) => selected.includes(p.id)) : prospects,
+                        `cadence-phone-audit-${new Date().toISOString().slice(0, 10)}.csv`,
+                      )}
+                      title="Import mobile vs Lusha mobile side by side"
+                    >
+                      <Download className="w-4 h-4 mr-2" /> Phone audit CSV
+                    </Button>
+                  )}
                   {listId && (
                     <Button
                       onClick={openEnrichDialog}
@@ -974,12 +1117,26 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
                       <Sparkles className="w-4 h-4 mr-2" /> Enrich {selected.length ? selected.length + " selected" : "all"}
                     </Button>
                   )}
+                  {safeProspects.length > 0 && (
+                    <button
+                      onClick={() => setSelected(safeProspects.map((p) => p.id))}
+                      className="text-xs font-medium text-emerald-700 hover:text-emerald-800"
+                    >
+                      Select {safeProspects.length} safe to call
+                    </button>
+                  )}
                   {selected.length > 0 && (
                     <button onClick={() => setSelected([])} className="text-xs text-slate-400 hover:text-slate-600">
                       Clear {selected.length} selected
                     </button>
                   )}
                 </div>
+                <TpsScreeningPanel
+                  listId={listId}
+                  prospects={prospects}
+                  selectedIds={selected}
+                  onScreened={() => loadProspects(listId)}
+                />
                 {targetLists.length === 0 ? (
                   <p className="text-sm text-slate-400">
                     No target lists yet.{" "}
@@ -1013,6 +1170,14 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
                       {pushing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ArrowRight className="w-4 h-4 mr-2" />}
                       {pushing ? "Pushing…" : `Push ${selected.length || ""} selected`}
                     </Button>
+                    <Button
+                      onClick={() => setShowOutreachPush(true)}
+                      disabled={!listId || (!selected.length && !visibleProspects.length)}
+                      variant="outline"
+                      className="rounded-full border-slate-300 w-full sm:w-auto"
+                    >
+                      <Send className="w-4 h-4 mr-2" /> Push to Outreach
+                    </Button>
                     <p className="text-xs text-slate-400 sm:ml-auto">Tick rows to push in bulk, or use the buttons on each row.</p>
                   </div>
                 )}
@@ -1025,6 +1190,14 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
                 )}
               </div>
             )}
+            <PushToOutreachDialog
+              open={showOutreachPush}
+              onClose={() => setShowOutreachPush(false)}
+              prospectIds={selected}
+              listId={listId}
+              listName={lists.find((item) => item.id === listId)?.name || ""}
+              onPushed={async () => { await loadProspects(listId); }}
+            />
             <ProspectTable
               prospects={visibleProspects}
               selected={selected}
@@ -1036,16 +1209,14 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
               onFindPhone={(p) => openProviderEnrich([p.id], "phone")}
               busyId={busyId}
               researchByProspect={researchByProspect}
-              listId={listId}
-              onResearchUpdated={(next) => {
-                if (!next?.prospect_id) return;
-                setResearchByProspect((prev) => ({ ...prev, [next.prospect_id]: next }));
-              }}
+              onPhoneChange={() => loadProspects(listId)}
             />
             {batchSummary && (
               <EnrichmentBatchSummary
                 summary={batchSummary}
                 prospects={prospects}
+                listId={listId}
+                onFilterAttention={() => setProspectFilter("needs_attention")}
                 onClose={() => setBatchSummary(null)}
               />
             )}
@@ -1063,7 +1234,7 @@ Only include REAL companies you can verify exist (use Google, Companies House, t
         providerOrder={providerOrder}
         connectedProviders={connectedProviders}
         onStarted={(sessionData) => {
-          setEnrichmentSession({...sessionData,id:sessionData.session_id});
+          trackEnrichmentSession({ ...sessionData, id: sessionData.session_id, status: "processing" });
           setEnriching(false);
           setMsg(`Enrichment started — ${sessionData.queued_count || sessionData.total_records || 0} records processing in the background. This takes a while (perfect for a coffee break or pairing with calls). We'll let you know when your fresh data is ready.`);
         }}

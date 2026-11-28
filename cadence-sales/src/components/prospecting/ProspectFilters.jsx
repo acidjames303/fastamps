@@ -1,5 +1,6 @@
 import React from "react";
-import { Filter, AlertCircle, Mail, Phone, CheckCircle2, Building2 } from "lucide-react";
+import { Filter, AlertCircle, Mail, Phone, CheckCircle2, Building2, ShieldCheck, PhoneOff, CircleSlash } from "lucide-react";
+import { emailFlags } from "@/lib/emailDisplay";
 
 // Quick-filter chips for the prospect table — lets users focus on records
 // that need attention (missing email, generic only, missing phone, etc.)
@@ -10,15 +11,14 @@ const FILTERS = [
   { key: "no_email", label: "No email", icon: Mail },
   { key: "missing_phone", label: "Missing phone", icon: Phone },
   { key: "complete", label: "Complete", icon: CheckCircle2 },
+  { key: "screened_safe", label: "Safe to call", icon: ShieldCheck },
+  { key: "screened_listed", label: "Do not call", icon: PhoneOff },
+  { key: "screened_unchecked", label: "TPS/CTPS unchecked", icon: CircleSlash },
 ];
 
 // Checks if a prospect only has a generic company inbox, not a personal email.
 function hasGenericEmailOnly(p) {
-  if (!p.email) return false;
-  if (p.email_type === "personal_work") return false;
-  if (p.email_type === "generic_company" || p.email_type === "role_based_work") return true;
-  if (p.generic_email && p.email === p.generic_email) return true;
-  return false;
+  return emailFlags(p).isGenericOnly;
 }
 
 // Returns true if the prospect matches the given filter key.
@@ -36,6 +36,12 @@ export function matchesFilter(prospect, filterKey) {
       return !prospect.phone;
     case "complete":
       return prospect.enrichment_status === "complete";
+    case "screened_safe":
+      return prospect.tps_ctps_status === "safe";
+    case "screened_listed":
+      return prospect.tps_ctps_status === "listed";
+    case "screened_unchecked":
+      return !prospect.tps_ctps_status || prospect.tps_ctps_status === "unchecked";
     default:
       return true;
   }

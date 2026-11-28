@@ -12,9 +12,9 @@ export default async function (req) {
     return Response.json({ error: 'Reporting users cannot start calling sessions.' }, { status: 403 });
   }
   const body = await req.json().catch(() => ({}));
-  const { target_list_id } = body || {};
+  const { target_list_id, campaign_id } = body || {};
 
-  const todayWork = await buildTodayWork(base44, { user, profile, org });
+  const todayWork = await buildTodayWork(base44, { user, profile, org, campaignId: campaign_id || '' });
   const queue = buildCallingQueue(todayWork);
 
   if (!queue.length) {
@@ -34,7 +34,7 @@ export default async function (req) {
   return Response.json({
     session_started: true,
     session_id: `sess_${user.id}_${Date.now()}`,
-    target_list_id: target_list_id || first.task.target_list_id || '',
+    target_list_id: target_list_id || campaign_id || first.task.target_list_id || '',
     queue: queue.map((r) => ({
       position: r.position,
       task_id: r.task.id,

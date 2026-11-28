@@ -111,6 +111,8 @@ export async function syncProspectToCampaign(base44: any, org: any, prospect: an
         name: clean(c.name), title: clean(c.title), phone: clean(c.phone),
         email: clean(c.email), linkedin: clean(c.linkedin),
         mobile: clean(c.mobile), directDial: clean(c.direct_dial),
+        lushaMobile: clean(c.lusha_mobile), lushaPhoneStatus: clean(c.lusha_phone_status),
+        phoneSource: clean(c.phone_source),
         phoneType: clean(c.phone_type), phoneStatus: clean(c.phone_status),
         confidence: Number(c.phone_confidence || 0), reviewReason: clean(c.phone_review_reason),
         verdict,
@@ -120,6 +122,9 @@ export async function syncProspectToCampaign(base44: any, org: any, prospect: an
     people.push({
       name: clean(prospect.full_name), title: clean(prospect.job_title),
       phone: clean(prospect.phone), email: clean(prospect.email), linkedin: clean(prospect.linkedin),
+      mobile: clean(prospect.mobile), directDial: clean(prospect.direct_dial),
+      lushaMobile: clean(prospect.lusha_mobile), lushaPhoneStatus: clean(prospect.lusha_phone_status),
+      phoneSource: clean(prospect.phone_source),
       verdict: assessPerson({ name: prospect.full_name, phone: prospect.phone, email: prospect.email }, prospect),
     });
   }
@@ -168,6 +173,13 @@ export async function syncProspectToCampaign(base44: any, org: any, prospect: an
       }
       if (!clean(existing.direct_dial) && person.directDial) patch.direct_dial = person.directDial;
       if (!clean(existing.mobile) && person.mobile && isMobileNumber(person.mobile)) patch.mobile = person.mobile;
+      if (!clean(existing.lusha_mobile) && clean(person.lushaMobile || person.lusha_mobile)) {
+        patch.lusha_mobile = clean(person.lushaMobile || person.lusha_mobile);
+        if (person.lushaPhoneStatus) patch.lusha_phone_status = person.lushaPhoneStatus;
+      }
+      if (!clean(existing.phone_source) && (prospect.phone_source || person.phoneSource)) {
+        patch.phone_source = prospect.phone_source || person.phoneSource;
+      }
       if (!clean(existing.company_phone)) {
         const board = clean(company.landline) || clean(prospect.landline);
         if (board) patch.company_phone = board;
@@ -192,12 +204,15 @@ export async function syncProspectToCampaign(base44: any, org: any, prospect: an
       number_status: 'untested',
       phone_type: person.phoneType || prospect.phone_type || (isMobileNumber(person.phone) ? 'mobile' : 'unknown'),
       phone_status: person.phone ? (person.phoneStatus || prospect.phone_status || 'provider_returned_unverified') : 'unknown',
-      phone_source: prospect.phone_source || prospect.provider_used || 'enrichment',
+      phone_source: person.phoneSource || prospect.phone_source || prospect.provider_used || 'enrichment',
       phone_confidence: person.confidence || prospect.phone_confidence || 0,
       phone_review_reason: person.reviewReason || prospect.phone_review_reason || '',
       phone_retrieved_at: prospect.phone_retrieved_at || new Date().toISOString(),
       mobile: isMobileNumber(person.mobile || person.phone) ? (person.mobile || person.phone) : '',
       direct_dial: person.directDial || '',
+      // Person-level only — never copy prospect.lusha_mobile onto every sibling.
+      lusha_mobile: person.lushaMobile || '',
+      lusha_phone_status: person.lushaPhoneStatus || '',
       company_phone: clean(company.landline) || clean(prospect.landline) || '',
       source: prospect.provider_used || 'enrichment',
       campaign_id: campaignListId || '',

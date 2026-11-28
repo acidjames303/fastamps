@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { FileText, Plus, Save, Trash2, Upload, Copy, RefreshCw } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import DictateButton from "@/components/dialer/DictateButton";
 
 const blank = (brand_key="fastamps") => ({ name:"", subject:"", body_text:"", brand_key, tone:"", source_filename:"" });
 const input = "w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500";
@@ -14,7 +15,7 @@ function parseEmL(text) {
   const body = text.slice(match.index + match[0].length);
   return {subject,body_text:body};
 }
-export default function OutreachTemplates({user,brand,brandOptions,onUseTemplate}) {
+export default function OutreachTemplates({user,brand,brandOptions,onUseTemplate,defaultSignature=""}) {
   const [templates,setTemplates]=useState([]);
   const [form,setForm]=useState(blank(brand));
   const [editingId,setEditingId]=useState(null);
@@ -63,20 +64,45 @@ export default function OutreachTemplates({user,brand,brandOptions,onUseTemplate
   };
   const importFile=async(file)=>{
     if(!file)return;
-    if(!/\.(txt|md|eml)$/i.test(file.name)){setError("Choose a .txt, .md or .eml template file.");return;}
-    if(file.size>100000){setError("Template text files must be 100 KB or smaller.");return;}
+    const ext=(file.name.match(/\.([^.]+)$/)?.[1]||"").toLowerCase();
+    if(!["txt","md","eml","pdf","docx"].includes(ext)){setError("Choose a PDF, Word, .eml, .txt or .md file.");return;}
+    if(file.size>12*1024*1024){setError("That file is too large (12 MB limit).");return;}
+    setBusy(true);setError("");setNotice("Reading your email and spotting the name and company placeholders...");
     try{
-      const contents=await file.text();
-      const parsed=/\.eml$/i.test(file.name)?parseEmL(contents):{subject:"",body_text:contents};
+      let text;
+      if(ext==="pdf"||ext==="docx"){
+        const {file_uri}=await base44.integrations.Core.UploadPrivateFile({file});
+        const res=await base44.functions.invoke("extractResearchDocument",{file_uri,format:ext});
+        const data=res.data||res;
+        if(data?.error)throw new Error(data.error);
+        text=data.text||"";
+      }else text=await file.text();
+      const res=await base44.functions.invoke("parseEmailTemplate",{text});
+      const parsed=res.data||res;
+      if(parsed?.error)throw new Error(parsed.error);
+      // A signature that sits in the PDF as an image leaves no text behind, so
+      // fall back to the saved default signature rather than saving a bare body.
+      const needsSignature=parsed.signature_included===false;
+      const savedSignature=String(defaultSignature||"").trim();
+      let bodyText=parsed.body_text||"";
+      if(needsSignature&&savedSignature)bodyText=`${bodyText}\n\n${savedSignature}`;
       setEditingId(null);
       setForm({
-        ...blank(brand),name:file.name.replace(/\.[^.]+$/,""),
-        subject:parsed.subject,body_text:parsed.body_text.slice(0,10000),
+        ...blank(brand),name:parsed.name||file.name.replace(/\.[^.]+$/,""),
+        subject:parsed.subject||"",body_text:bodyText.slice(0,10000),
         source_filename:file.name,
       });
-      setNotice("File loaded into the editor. Review the wording and save the template.");
-      setError("");
-    }catch(err){setError(err.message||"Template could not be read.");}
+      const found=(parsed.placeholders_found||[]).map(k=>k==="first_name"?"first name":"company name");
+      const notes=[];
+      if(found.length)notes.push(`Placeholders for ${found.join(" and ")} set up automatically.`);
+      notes.push(!needsSignature
+        ?"Your signature was copied in full."
+        :savedSignature
+          ?"Your saved default signature was added at the end."
+          :"No signature was found in that file, so paste yours at the end of the body.");
+      setNotice(`Template ready. ${notes.join(" ")} Review and save.`);
+    }catch(err){setNotice("");setError(err.message||"Template could not be read.");}
+    finally{setBusy(false);}
   };
   const use=(item)=>onUseTemplate?.(item);
 
@@ -112,8 +138,9 @@ export default function OutreachTemplates({user,brand,brandOptions,onUseTemplate
       <h2 className="text-lg font-semibold">{editingId?"Edit template":"Save a reusable email"}</h2>
       <p className="text-sm text-slate-500 mt-1">Your templates are private to your Cadence login. Use <code>{"{{first_name}}"}</code> and <code>{"{{company_name}}"}</code> for personalisation.</p>
       <label className="block mt-4 mb-4 rounded-xl border border-dashed border-slate-300 p-3 text-sm cursor-pointer hover:border-emerald-400">
-        <Upload className="inline w-4 h-4 mr-2"/> Upload previous email (.txt, .md, .eml)
-        <input type="file" className="sr-only" accept=".txt,.md,.eml" onChange={e=>{importFile(e.target.files?.[0]);e.target.value="";}}/>
+        <Upload className="inline w-4 h-4 mr-2"/> Upload previous email (PDF, Word, .eml, .txt, .md)
+        <span className="block text-xs text-slate-500 mt-1">Typed XXXX where the name or company goes? It is converted to the right placeholder automatically.</span>
+        <input type="file" className="sr-only" accept=".pdf,.docx,.txt,.md,.eml" disabled={busy} onChange={e=>{importFile(e.target.files?.[0]);e.target.value="";}}/>
       </label>
       <form onSubmit={save} className="space-y-3">
         <label className="block text-xs font-medium">Template name
@@ -123,6 +150,7 @@ export default function OutreachTemplates({user,brand,brandOptions,onUseTemplate
         <label className="block text-xs font-medium">Email body
           <textarea className={input+" mt-1 min-h-[230px] font-sans"} value={form.body_text}
             onChange={e=>setForm(f=>({...f,body_text:e.target.value}))} maxLength={10000}/></label>
+        <div className="mt-1"><DictateButton value={form.body_text} onChange={(v)=>setForm(f=>({...f,body_text:v}))} label="Dictate email" /></div>
         <label className="block text-xs font-medium">Style instructions (optional)
           <textarea className={input+" mt-1 min-h-[70px]"} value={form.tone} onChange={e=>setForm(f=>({...f,tone:e.target.value}))} maxLength={400}
             placeholder="Short, questions first, offer a site visit"/></label>

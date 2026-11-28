@@ -1,6 +1,5 @@
 import { base44 } from "@/api/base44Client";
 import { isConversation, isConnectedCall } from "@/lib/outcomeRules";
-import { getActiveCampaign } from "@/lib/campaignContext";
 
 // Outcome categories for Target List metrics — match CallLog.outcome values.
 // "Answered calls" = reached a human (incl. wrong person / PA screened / not suitable).
@@ -44,20 +43,10 @@ export async function assignCompaniesToList(targetListId, companyIds, orgId, use
   return { added: toCreate.length };
 }
 
-// The list a caller is actually working.
-// Prefer sticky campaign context (Phase 1) when that campaign still has members;
-// otherwise fall back to the newest non-archived list that holds companies.
+// The list a caller is actually working: the newest non-archived target list
+// that holds companies. Keeps the Dialer scoped to that list instead of
+// counting every company in the organisation.
 export async function resolveWorkingListId() {
-  const stickyId = getActiveCampaign()?.id || "";
-
-  if (stickyId) {
-    const sticky = await base44.entities.Campaign.get(stickyId).catch(() => null);
-    if (sticky && sticky.status !== "archived") {
-      const count = await base44.entities.TargetListMember.count({ target_list_id: sticky.id }).catch(() => 0);
-      if (count > 0) return sticky.id;
-    }
-  }
-
   const lists = await base44.entities.Campaign.list("-created_date", 10);
   for (const list of lists) {
     if (list.status === "archived") continue;

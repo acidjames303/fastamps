@@ -1,0 +1,4 @@
+{
+  "name": "parseEmailTemplate",
+  "entry": "entry.ts"
+}

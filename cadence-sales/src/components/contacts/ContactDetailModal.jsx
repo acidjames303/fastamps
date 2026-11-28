@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import DictateButton from "@/components/dialer/DictateButton";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Building2, MapPin, Users } from "lucide-react";
+import LushaBadge, { isLushaSource } from "@/components/phones/LushaBadge";
 
 const statusStyles = {
   good: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -90,9 +92,17 @@ export default function ContactDetailModal({ contact, open, onOpenChange, onSave
                 className="rounded-lg border-slate-200" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs text-slate-500">Phone</Label>
+              <Label className="text-xs text-slate-500 flex items-center gap-1.5">
+                Phone
+                {isLushaSource(contact.phone_source) ? <LushaBadge /> : null}
+              </Label>
               <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="rounded-lg border-slate-200" />
+                className={`rounded-lg border-slate-200 ${isLushaSource(contact.phone_source) ? "text-purple-900 border-purple-200" : ""}`} />
+              {contact.lusha_mobile && String(contact.lusha_mobile).replace(/\D/g, "") !== String(contact.phone || "").replace(/\D/g, "") ? (
+                <p className="text-xs text-purple-800 flex items-center gap-1.5 pt-1">
+                  Lusha · {contact.lusha_mobile} <LushaBadge />
+                </p>
+              ) : null}
             </div>
             <div className="space-y-1">
               <Label className="text-xs text-slate-500">Email</Label>
@@ -105,6 +115,9 @@ export default function ContactDetailModal({ contact, open, onOpenChange, onSave
             <Label className="text-xs text-slate-500">Notes</Label>
             <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })}
               className="rounded-lg border-slate-200 min-h-[80px]" />
+            <div className="mt-1.5">
+              <DictateButton value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} label="Dictate notes" />
+            </div>
           </div>
 
           {/* Status badges */}

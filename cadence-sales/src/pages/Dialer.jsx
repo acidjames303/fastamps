@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import BriefPanel from "@/components/dialer/BriefPanel";
+import CallResearchPanel from "@/components/dialer/CallResearchPanel";
 import CallHistoryPanel from "@/components/dialer/CallHistoryPanel";
 import OutcomePanel from "@/components/dialer/OutcomePanel";
 import CallTimer from "@/components/dialer/CallTimer";
@@ -16,14 +17,22 @@ import { useAuth } from "@/lib/AuthContext";
 import useTwilioDevice from "@/hooks/useTwilioDevice";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { fetchListCompanyIds, resolveWorkingListId } from "@/lib/targetLists";
-import { readDialPosition, saveDialPosition, clearDialPosition } from "@/lib/dialPosition";
-import { setActiveCampaign, getActiveCampaign } from "@/lib/campaignContext";
+import { readDialPosition, saveDialPosition, clearDialPosition, saveLastDialResume } from "@/lib/dialPosition";
 import { Link } from "react-router-dom";
 import MobileCallBar from "@/components/dialer/MobileCallBar";
 import DialPad from "@/components/dialer/DialPad";
 import QueueFilterToggle from "@/components/dialer/QueueFilterToggle";
 import { isUkMobile } from "@/lib/companyContactFilters";
 import { resolvePrimaryOutcomeCode } from "@/lib/outcomeRules";
+import { buildLeadSheetPrefill, prefilledFieldKeys } from "@/lib/leadSheet";
+import { createLeadSheetDraft } from "@/lib/leadSheetApi";
+
+// Outcomes that mean a real lead: the lead sheet is drafted automatically.
+const LEAD_SHEET_OUTCOMES = [
+  "connected_interested",
+  "connected_qualified",
+  "connected_information_requested",
+];
 
 // Safety net: one entry per company, so duplicate rows never inflate the queue
 // count or get dialled twice.
@@ -70,6 +79,7 @@ export default function Dialer() {
   const [editingAgent, setEditingAgent] = useState(false);
   const [irSentNotice, setIrSentNotice] = useState("");
   const [dncNotice, setDncNotice] = useState("");
+  const [leadSheetNotice, setLeadSheetNotice] = useState(null);
   const [suppressedCount, setSuppressedCount] = useState(0);
   const [lastSavedLog, setLastSavedLog] = useState(null);
   const [addContactOpen, setAddContactOpen] = useState(false);
@@ -212,24 +222,22 @@ export default function Dialer() {
 
   useEffect(() => { loadQueue(); }, [listId]);
 
-  // Keep sticky campaign chrome in sync with the list the dialer is working.
-  useEffect(() => {
-    if (targetList?.id) {
-      setActiveCampaign(targetList);
-      return;
-    }
-    if (listId && !getActiveCampaign()?.id) {
-      setActiveCampaign({ id: listId, name: "Campaign" });
-    }
-  }, [targetList?.id, targetList?.name, listId]);
-
   // Remember the caller's place in this queue, so returning to the Dialer picks
   // up on the company they were on. Cleared once the queue is finished.
+  // Also keep a Today-facing "last resume" snapshot for one-click continue.
   useEffect(() => {
     if (!queueKey || !companies?.length) return;
-    if (company?.id) saveDialPosition(user?.id, queueKey, company.id);
-    else clearDialPosition(user?.id, queueKey);
-  }, [company?.id, queueKey, companies?.length, user?.id]);
+    if (company?.id) {
+      saveDialPosition(user?.id, queueKey, company.id);
+      saveLastDialResume(user?.id, {
+        companyId: company.id,
+        companyName: company.name || "",
+        listId: listId || targetList?.id || "",
+        campaignName: targetList?.name || "",
+        queueKey,
+      });
+    } else clearDialPosition(user?.id, queueKey);
+  }, [company?.id, company?.name, queueKey, companies?.length, user?.id, listId, targetList?.id, targetList?.name]);
 
   // Which queue accounts actually have a mobile on one of their contacts. This
   // is what the Mobiles-only toggle filters on, using the same deterministic UK
@@ -581,6 +589,41 @@ export default function Dialer() {
         setIrSentNotice("Information request sent to the admin inbox.");
       }
 
+      // A lead outcome drafts the client-ready lead sheet: known answers filled
+      // from the call, everything else left for the caller. Idempotent per call.
+      const primaryOutcome = resolvePrimaryOutcomeCode(data.outcome);
+      if (callLogId && LEAD_SHEET_OUTCOMES.includes(primaryOutcome)) {
+        const prefill = buildLeadSheetPrefill({
+          call: {
+            ...data,
+            primary_outcome: primaryOutcome,
+            started_at: callStartRef.current ? new Date(callStartRef.current).toISOString() : "",
+            contact_name: contact.full_name || "",
+            company: company?.name || "",
+          },
+          contact,
+          company,
+        });
+        createLeadSheetDraft({
+          source: "dialer",
+          call_log_id: callLogId,
+          campaign_id: listId || "",
+          contact_id: contact.id,
+          company_id: company?.id || "",
+          fields: prefill,
+          prefilled_fields: prefilledFieldKeys(prefill),
+        })
+          .then((result) => {
+            if (result?.sheet?.id) {
+              setLeadSheetNotice({
+                id: result.sheet.id,
+                organisation: prefill.organisation_name || contact.full_name || "",
+              });
+            }
+          })
+          .catch(() => {});
+      }
+
       if (resolvePrimaryOutcomeCode(data.outcome) === "do_not_call") {
         setDncNotice(`${contact.full_name || "This contact"} was flagged do not call — their details have been removed and they can no longer be dialled.`);
         setContacts((prev) => prev.filter((c) => c.id !== contact.id));
@@ -921,6 +964,19 @@ export default function Dialer() {
             {irSentNotice}
           </p>
         )}
+        {leadSheetNotice && (
+          <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3 flex items-start justify-between gap-2">
+            <span>
+              Lead sheet drafted{leadSheetNotice.organisation ? ` for ${leadSheetNotice.organisation}` : ""} — it is in your Lead sheets folder, ready for anything still missing.
+            </span>
+            <Link
+              to={`/lead-sheets?id=${leadSheetNotice.id}`}
+              className="shrink-0 font-medium underline underline-offset-2"
+            >
+              Open
+            </Link>
+          </p>
+        )}
         {dncNotice && (
           <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3">
             {dncNotice}
@@ -950,6 +1006,7 @@ export default function Dialer() {
           onEditContact={setEditingContact}
           loading={loading}
         />
+        <CallResearchPanel campaignId={listId} company={company} />
         <CallHistoryPanel contact={selectedContact} company={company} />
       </div>
 

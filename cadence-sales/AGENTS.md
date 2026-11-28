@@ -24,6 +24,10 @@ npx skills add base44/skills
 - `vite.config.js`: Vite config and Base44 Vite plugin setup.
 - `.env.local`: local-only environment values; never commit secrets.
 
+## Continuous improvement
+
+Cadence has a dedicated continuous-improvement loop. Always-apply rule: `../.cursor/rules/cadence-continuous-improvement.mdc`. Living backlog, architecture, roadmap, release history, testing record and scheduling notes live in `../docs/continuous-improvement/`. Prefer one high-impact safe fix per cycle; never rebuild or duplicate workflows. Publish only through Base44 Builder after gates — see AUTOMATIONS.md.
+
 ## Working Notes
 
 - Use `base44 dev` as the default local development command when you need the local Base44 backend. It can run the backend and frontend together.

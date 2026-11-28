@@ -81,17 +81,27 @@ Be specific and factual. Never invent a phone number, a person, turnover or news
 
   // ICP-based company discovery. Bounded number of candidates, with sources.
   // Candidates are never auto-approved — the caller decides which proceed.
-  async discoverCompanies(base44, { icp, brief, count, existingDomains }) {
+  // Call in rounds of ~25 for stability when the user wants up to 100.
+  async discoverCompanies(base44, { icp, brief, count, existingDomains, avoidCompanies }) {
+    const want = Math.min(Math.max(Number(count) || 25, 1), 40);
+    const avoid = (avoidCompanies || [])
+      .map((name) => String(name || '').trim())
+      .filter(Boolean)
+      .slice(0, 200);
+    const avoidNote = avoid.length
+      ? `\nDo NOT return any of these companies (already held, excluded, or found in earlier rounds):\n${avoid.join(', ')}`
+      : '';
     const res = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: `You are a UK B2B prospecting researcher. Given this ideal customer profile and campaign brief, suggest up to ${count} real UK companies that fit it.
+      prompt: `You are a UK B2B prospecting researcher. Given this ideal customer profile and campaign brief, suggest up to ${want} real UK companies that fit it.
 Ideal customer profile:
 ${icp || '(not provided)'}
 
 Campaign brief:
 ${brief || '(not provided)'}
+${avoidNote}
 
 Return JSON: an array "companies" of objects {name, domain, website, industry, employee_range, location, why_fits, source_url}.
-Only include REAL companies you can verify exist (use Google, Companies House, the company website). Never invent companies, domains or people. source_url should be the company website or a public listing. If you cannot reliably find ${count}, return fewer.`,
+Only include REAL companies you can verify exist (use Google, Companies House, the company website). Never invent companies, domains or people. source_url should be the company website or a public listing. Prefer companies not already listed above. If you cannot reliably find ${want}, return fewer — never pad with duplicates or invented firms.`,
       add_context_from_internet: true,
       model: 'gemini_3_flash',
       response_json_schema: {
